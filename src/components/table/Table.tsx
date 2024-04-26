@@ -190,8 +190,7 @@ const Table = <TableValues extends object = {}>(
 											// of the row
 											paddingLeft: `${row.depth * 2}rem`,
 										},
-									})}
-								>
+									})}>
 									{row.isExpanded ? '-' : '+'}
 								</span>
 							) : null,
@@ -220,8 +219,7 @@ const Table = <TableValues extends object = {}>(
 					className={classNames(
 						'table table-centered react-table',
 						props['tableClass']
-					)}
-				>
+					)}>
 					<thead className={props['theadClass']}>
 						{dataTable.headerGroups.map((headerGroup) => (
 							<tr {...headerGroup.getHeaderGroupProps()}>
@@ -234,8 +232,7 @@ const Table = <TableValues extends object = {}>(
 											sorting_desc: column.isSortedDesc === true,
 											sorting_asc: column.isSortedDesc === false,
 											sortable: column.defaultCanSort === true,
-										})}
-									>
+										})}>
 										{column.render('Header')}
 									</th>
 								))}

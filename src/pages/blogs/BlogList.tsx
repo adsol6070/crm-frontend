@@ -1,6 +1,6 @@
 import { PageBreadcrumb } from '@/components'
 import { Row, Col, Card, Button } from 'react-bootstrap'
-import { useBlogForm } from './useBlogForm'
+import { useBlogForm } from './Create/useBlogForm'
 
 const BlogList = () => {
 	const { blogs, setBlogs } = useBlogForm()

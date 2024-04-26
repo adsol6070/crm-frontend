@@ -10,13 +10,11 @@ function AuthService() {
 			return HttpClient.post('/logout', {})
 		},
 		register: (values: any) => {
-			const data = HttpClient.post('/auth/register', values, {
+			return HttpClient.post('/auth/register', values, {
 				headers: {
 					'Content-Type': 'multipart/form-data',
 				},
 			})
-			console.log('Data:', data)
-			return data
 		},
 		forgetPassword: (values: any) => {
 			return HttpClient.post('/forget-password', values)

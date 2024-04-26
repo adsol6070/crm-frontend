@@ -5,8 +5,8 @@ import {
 	useCallback,
 	ReactNode,
 } from 'react'
-import { User } from '@/types'
-import jwtDecode from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
+import { DecodedToken, Token } from '@/types'
 
 const AuthContext = createContext<any>({})
 
@@ -18,20 +18,26 @@ export function useAuthContext() {
 	return context
 }
 
-const authSessionKey = '_VELONIC_AUTH'
+const authSessionKey = '_ADSOL_AUTH'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const [user, setUser] = useState(
-		localStorage.getItem(authSessionKey)
-			? JSON.parse(localStorage.getItem(authSessionKey) || '{}')
-			: undefined
-	)
+	const rawToken = localStorage.getItem(authSessionKey)
+	let initialUser: DecodedToken | undefined
+
+	try {
+		initialUser = rawToken ? jwtDecode<DecodedToken>(rawToken) : undefined
+	} catch (error) {
+		console.error('Failed to decode token:', error)
+		initialUser = undefined
+	}
+
+	const [user, setUser] = useState<DecodedToken | undefined>(initialUser)
 
 	const saveSession = useCallback(
-		(user: User) => {
-			const decodedToken = jwtDecode(user.token)
-			localStorage.setItem(authSessionKey, JSON.stringify(decodedToken))
-			setUser(user)
+		(user: Token) => {
+			localStorage.setItem(authSessionKey, user.token)
+			const decodedToken = jwtDecode<DecodedToken>(user.token)
+			setUser(decodedToken)
 		},
 		[setUser]
 	)

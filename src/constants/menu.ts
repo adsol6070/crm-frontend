@@ -58,22 +58,22 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		],
 	},
 	{
-		key: 'admin',
-		label: 'Admins',
+		key: 'user',
+		label: 'Users',
 		isTitle: false,
 		icon: 'ri-admin-line',
 		roles: ['superAdmin'],
 		children: [
 			{
 				key: 'admin-CreateAdmin',
-				label: 'Create Admin',
-				url: '/admin/create',
+				label: 'Create User',
+				url: '/user/create',
 				parentKey: 'admin',
 			},
 			{
 				key: 'admin-ManageUsers',
-				label: 'Admin List',
-				url: '/admin/list',
+				label: 'User List',
+				url: '/user/list',
 				parentKey: 'admin',
 			},
 			{

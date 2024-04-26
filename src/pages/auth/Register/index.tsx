@@ -60,7 +60,7 @@ const Register = () => {
 				.email('Please enter valid Email'),
 			password: yup.string().required('Please enter Password'),
 			phone: yup.string().required('Please enter Phone'),
-			profileImage: yup.mixed(),
+			profileImage: yup.mixed().notRequired(),
 		})
 	)
 
@@ -74,7 +74,6 @@ const Register = () => {
 				hasThirdPartyLogin>
 				<VerticalForm<UserData>
 					onSubmit={(data: any) => {
-						// Only add profileImage to data if it is not undefined
 						const formData = profileImage ? { ...data, profileImage } : data
 						register(formData)
 					}}

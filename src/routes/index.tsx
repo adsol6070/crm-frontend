@@ -27,13 +27,13 @@ const ContactListPages = React.lazy(() => import('../pages/other/ContactList'))
 const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
 
 // blogs
-const AddBlog = React.lazy(() => import('../pages/blogs/AddBlog'))
+const AddBlog = React.lazy(() => import('../pages/blogs/Create'))
 const BlogList = React.lazy(() => import('../pages/blogs/BlogList'))
 const AddCategory = React.lazy(() => import('../pages/blogs/AddCategory'))
 
-// // admins
-const CreateAdmin = React.lazy(() => import('../pages/admin/CreateAdmin'))
-const AdminList = React.lazy(() => import('../pages/admin/AdminList'))
+// // users
+const UserList = React.lazy(() => import('../pages/admin/List'))
+const CreateUser = React.lazy(() => import('../pages/admin/Create'))
 
 // // error
 const Error404 = React.lazy(() => import('../pages/error/Error404'))
@@ -163,22 +163,22 @@ const blogRoutes = {
 
 // Admin Routes
 const adminRoutes = {
-	path: '/admins',
-	name: 'Admins',
+	path: '/users',
+	name: 'Users',
 	icon: 'users',
 	header: 'Custom',
 	children: [
 		{
-			path: '/admin/create',
+			path: '/user/create',
 			name: 'Create Admin',
-			element: <CreateAdmin />,
+			element: <CreateUser />,
 			route: PrivateRoute,
 			roles: ['superAdmin'],
 		},
 		{
-			path: '/admin/list',
+			path: '/user/list',
 			name: 'Admin List',
-			element: <AdminList />,
+			element: <UserList />,
 			route: PrivateRoute,
 			roles: ['superAdmin'],
 		},
