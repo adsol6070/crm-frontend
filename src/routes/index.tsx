@@ -32,9 +32,9 @@ const BlogList = React.lazy(() => import('../pages/blogs/List'))
 const AddCategory = React.lazy(() => import('../pages/blogs/AddCategory'))
 
 // // users
-const UserList = React.lazy(() => import('../pages/admin/List'))
-const CreateUser = React.lazy(() => import('../pages/admin/Create'))
-const EditUser = React.lazy(() => import('../pages/admin/Update'))
+const UserList = React.lazy(() => import('../pages/user/List'))
+const CreateUser = React.lazy(() => import('../pages/user/Create'))
+const EditUser = React.lazy(() => import('../pages/user/Update'))
 
 // // error
 const Error404 = React.lazy(() => import('../pages/error/Error404'))
