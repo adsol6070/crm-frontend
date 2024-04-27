@@ -106,6 +106,7 @@ const CreateUser = () => {
 											placeholder="Enter your phone"
 											containerClass="mb-3"
 										/>
+										
 										<FormInput
 											label="Profile Image"
 											type="file"
