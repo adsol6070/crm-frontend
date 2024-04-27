@@ -29,7 +29,6 @@ export default function useCreateBlog() {
 				formData.append('blogImage', blogImage, blogImage.name)
 			}
 			const data = await blogApi.createPost(formData)
-			console.log(blogImage)
 			toast.success(data.message)
 		} catch (error) {
 			toast.error(error.message)

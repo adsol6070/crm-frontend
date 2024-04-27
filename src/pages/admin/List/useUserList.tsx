@@ -5,6 +5,7 @@ import { User } from '@/types'
 import { userApi } from '@/common'
 import { RiEdit2Line, RiDeleteBinLine } from 'react-icons/ri'
 import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
 
 interface UserListHookResult {
 	columns: ReadonlyArray<Column>
@@ -14,6 +15,7 @@ interface UserListHookResult {
 }
 
 export const useUserList = (): UserListHookResult => {
+	const navigate = useNavigate()
 	const [loading, setLoading] = useState(false)
 	const [userRecords, setUserRecords] = useState<User[]>([])
 
@@ -56,11 +58,6 @@ export const useUserList = (): UserListHookResult => {
 			defaultCanSort: true,
 		},
 		{
-			Header: 'Password',
-			accessor: 'password',
-			defaultCanSort: false,
-		},
-		{
 			Header: 'Phone',
 			accessor: 'phone',
 			defaultCanSort: false,
@@ -79,7 +76,7 @@ export const useUserList = (): UserListHookResult => {
 					size={24}
 					color="#007bff"
 					cursor="pointer"
-					onClick={() => handleEdit(cell.row.original.id)}
+					onClick={() => handleEdit(cell.row.original.id, cell.row.original)}
 				/>
 			),
 		},
@@ -98,15 +95,15 @@ export const useUserList = (): UserListHookResult => {
 		},
 	]
 
-	const handleEdit = (userId: string) => {
-		console.log(userId)
+	const handleEdit = (userId: string, userData: any) => {
+		navigate(`/user/edit/${userId}`, { state: { userData } })
 	}
 
 	const handleDelete = async (userId: string) => {
-		 await userApi.delete(userId)
+		await userApi.delete(userId)
 		const updatedUserRecords = userRecords.filter((user) => user.id !== userId)
 		setUserRecords(updatedUserRecords)
-		toast.success("User deleted successfully.");
+		toast.success('User deleted successfully.')
 	}
 
 	const sizePerPageList: PageSize[] = [
@@ -182,7 +179,10 @@ export const useUserList = (): UserListHookResult => {
 	useEffect(() => {
 		return () => {
 			userRecords.forEach((user) => {
-				if (user.profileImage) {
+				if (
+					user.profileImage &&
+					!document.querySelector(`img[src="${user.profileImage}"]`)
+				) {
 					URL.revokeObjectURL(user.profileImage)
 				}
 			})

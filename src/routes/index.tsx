@@ -34,6 +34,7 @@ const AddCategory = React.lazy(() => import('../pages/blogs/AddCategory'))
 // // users
 const UserList = React.lazy(() => import('../pages/admin/List'))
 const CreateUser = React.lazy(() => import('../pages/admin/Create'))
+const EditUser = React.lazy(() => import('../pages/admin/Update'))
 
 // // error
 const Error404 = React.lazy(() => import('../pages/error/Error404'))
@@ -170,15 +171,22 @@ const adminRoutes = {
 	children: [
 		{
 			path: '/user/create',
-			name: 'Create Admin',
+			name: 'Create User',
 			element: <CreateUser />,
 			route: PrivateRoute,
 			roles: ['superAdmin'],
 		},
 		{
 			path: '/user/list',
-			name: 'Admin List',
+			name: 'User List',
 			element: <UserList />,
+			route: PrivateRoute,
+			roles: ['superAdmin'],
+		},
+		{
+			path: '/user/edit/:userId',
+			name: 'Edit User',
+			element: <EditUser />,
 			route: PrivateRoute,
 			roles: ['superAdmin'],
 		},

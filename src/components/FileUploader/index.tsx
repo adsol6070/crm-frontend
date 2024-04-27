@@ -35,8 +35,7 @@ const FileUploader = ({
 			<Dropzone
 				onDrop={(acceptedFiles) =>
 					handleAcceptedFiles(acceptedFiles, onFileUpload)
-				}
-			>
+				}>
 				{({ getRootProps, getInputProps }) => (
 					<div className="dropzone">
 						<div className="dz-message needsclick" {...getRootProps()}>
@@ -86,8 +85,7 @@ const FileUploader = ({
 									<Col className="text-end">
 										<Link
 											to="#"
-											className="btn btn-link btn-lg text-muted shadow-none"
-										>
+											className="btn btn-link btn-lg text-muted shadow-none">
 											<i
 												className="ri-close-line text-danger"
 												onClick={() => removeFile(file)}

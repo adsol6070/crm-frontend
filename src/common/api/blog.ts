@@ -1,52 +1,60 @@
 import { HttpClient } from '../helpers'
 
 const authSessionKey = '_ADSOL_AUTH'
-const token: string | null = localStorage.getItem(authSessionKey)
+
+const getAuthHeaders = (isMultipart: boolean = false) => {
+	const token: string | null = localStorage.getItem(authSessionKey)
+	let headers: { [key: string]: string } = {}
+
+	if (token) {
+		headers['Authorization'] = `Bearer ${token}`
+	}
+
+	if (isMultipart) {
+		headers['Content-Type'] = 'multipart/form-data'
+	}
+
+	return headers
+}
 
 function BlogService() {
 	return {
 		// Create a new blog post
 		createPost: (post: any) => {
-			const headers = token ? { 
-			    'Content-Type': 'multipart/form-data',
-				Authorization: `Bearer ${token}` 
-			} : {}
-			return HttpClient.post('/blog/', post, { headers })
+			return HttpClient.post('/blog/', post, { headers: getAuthHeaders(true) })
 		},
 
 		// Retrieve all blog posts
 		getAllPosts: () => {
-			const headers = token ? { Authorization: `Bearer ${token}` } : {}
-			return HttpClient.get('/blog/', { headers })
+			return HttpClient.get('/blog/', { headers: getAuthHeaders() })
 		},
+
+		// Retrieve an image for a blog post
 		getImage: async (blogId: string) => {
 			return await HttpClient.get(`/blog/${blogId}/image`, {
 				responseType: 'blob',
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
+				headers: getAuthHeaders(),
 			})
 		},
+
 		// Retrieve a single blog post by ID
-		getPostById: (postId: any) => {
-            const headers = token ? { Authorization: `Bearer ${token}` } : {}
-			return HttpClient.get(`/blog/posts/${postId}`, { headers })
+		getPostById: (postId: string) => {
+			return HttpClient.get(`/blog/posts/${postId}`, {
+				headers: getAuthHeaders(),
+			})
 		},
 
 		// Update an existing blog post
 		updatePost: (postId: any, updatedPost: any) => {
-            const headers = token ? { 
-				'Content-Type': 'multipart/form-data',
-				Authorization: `Bearer ${token}` 
-			} : {}
-			return HttpClient.patch(`/blog/${postId}`, updatedPost, { headers })
+			return HttpClient.patch(`/blog/${postId}`, updatedPost, {
+				headers: getAuthHeaders(true),
+			})
 		},
 
 		// Delete a blog post by ID
-		deletePost: (postId: any) => {
-            const headers = token ? { Authorization: `Bearer ${token}` } : {}
-			return HttpClient.delete(`/blog/${postId}`, { headers })
-		}
+		deletePost: (postId: string) => {
+			return HttpClient.delete(`/blog/${postId}`, { headers: getAuthHeaders() })
+		},
 	}
 }
 

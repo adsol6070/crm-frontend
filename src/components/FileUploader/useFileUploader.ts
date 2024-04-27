@@ -3,7 +3,6 @@ import { FileType } from './index'
 
 export default function useFileUploader(showPreview: boolean = true) {
 	const [selectedFiles, setSelectedFiles] = useState<FileType[]>([])
-
 	/**
 	 * Handled the accepted files and shows the preview
 	 */
