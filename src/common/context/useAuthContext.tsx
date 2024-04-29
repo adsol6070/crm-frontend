@@ -4,6 +4,7 @@ import {
 	useState,
 	useCallback,
 	ReactNode,
+	useEffect,
 } from 'react'
 import { jwtDecode } from 'jwt-decode'
 import { DecodedToken, Token } from '@/types'
@@ -21,31 +22,51 @@ export function useAuthContext() {
 const authSessionKey = '_ADSOL_AUTH'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const rawToken = localStorage.getItem(authSessionKey)
-	let initialUser: DecodedToken | undefined
+	const [user, setUser] = useState<DecodedToken | undefined>()
 
-	try {
-		initialUser = rawToken ? jwtDecode<DecodedToken>(rawToken) : undefined
-	} catch (error) {
-		console.error('Failed to decode token:', error)
-		initialUser = undefined
-	}
+	useEffect(() => {
+		const rawToken = localStorage.getItem(authSessionKey)
+		if (rawToken) {
+			try {
+				const decodedToken = jwtDecode<DecodedToken>(rawToken)
+				setUser(decodedToken)
+				setupAutoLogout(decodedToken.exp)
+			} catch (error) {
+				console.error('Failed to decode token:', error)
+			}
+		}
+	}, [])
 
-	const [user, setUser] = useState<DecodedToken | undefined>(initialUser)
+	const removeSession = useCallback(() => {
+		localStorage.removeItem(authSessionKey)
+		setUser(undefined)
+	}, [setUser])
+
+	const setupAutoLogout = useCallback(
+		(exp: number) => {
+			const currentTime = Date.now() / 1000
+			const delay = (exp - currentTime) * 1000
+
+			if (delay < 0) {
+				removeSession()
+			} else {
+				setTimeout(() => {
+					removeSession()
+				}, delay)
+			}
+		},
+		[removeSession]
+	)
 
 	const saveSession = useCallback(
 		(user: Token) => {
 			localStorage.setItem(authSessionKey, user.token)
 			const decodedToken = jwtDecode<DecodedToken>(user.token)
 			setUser(decodedToken)
+			setupAutoLogout(decodedToken.exp)
 		},
-		[setUser]
+		[setUser, setupAutoLogout]
 	)
-
-	const removeSession = useCallback(() => {
-		localStorage.removeItem(authSessionKey)
-		setUser(undefined)
-	}, [setUser])
 
 	return (
 		<AuthContext.Provider
