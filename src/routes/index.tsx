@@ -29,6 +29,7 @@ const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
 // blogs
 const AddBlog = React.lazy(() => import('../pages/blogs/Create'))
 const BlogList = React.lazy(() => import('../pages/blogs/List'))
+const BlogEdit = React.lazy(() => import('../pages/blogs/Edit/editBlog'))
 const AddCategory = React.lazy(() => import('../pages/blogs/AddCategory'))
 
 // // users
@@ -157,6 +158,12 @@ const blogRoutes = {
 			path: '/blog/list',
 			name: 'Blog List',
 			element: <BlogList />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/blog/edit/:blogId',
+			name: 'Blog Edit',
+			element: <BlogEdit />,
 			route: PrivateRoute,
 		},
 	],

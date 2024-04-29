@@ -15,21 +15,8 @@ export default function useGetBlogPosts() {
 		setBlogPosts(updatedBlogPosts)
 	}
 
-	const handleEditBlog = async (id: string, updatedBlogData: Partial<Blog>) => {
-		try {
-			await blogApi.updatePost(id, updatedBlogData)
-			const updatedBlogPosts = blogPosts.map((blog) => {
-				if (blog.id === id) {
-					return { ...blog, ...updatedBlogData }
-				}
-				return blog
-			})
-			setBlogPosts(updatedBlogPosts)
-			navigate(`/blog/${id}`)
-		} catch (error) {
-			console.error('Error updating blog post:', error)
-			// Handle error
-		}
+	const handleEditBlog = (blogId: string, updatedBlogData: any) => {
+		navigate(`/blog/edit/${blogId}`, { state: { updatedBlogData } })
 	}
 	useEffect(() => {
 		async function fetchBlogPosts() {
@@ -41,7 +28,6 @@ export default function useGetBlogPosts() {
 						if (blog.blogImage) {
 							const imageBlob = await blogApi.getImage(blog.id)
 							const imageUrl = URL.createObjectURL(imageBlob)
-							console.log(imageUrl)
 							return { ...blog, blogImage: imageUrl }
 						} else {
 							const placeholderImageUrl = ''
@@ -53,7 +39,6 @@ export default function useGetBlogPosts() {
 				// setBlogPosts(response as any)
 			} catch (error) {
 				console.error('Error fetching blog posts:', error)
-				navigate('/error')
 			} finally {
 				setLoading(false)
 			}
