@@ -2,6 +2,7 @@ import { blogApi } from '@/common/api'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Blog } from '@/types/Blog'
+import { toast } from 'react-toastify'
 
 export default function useGetBlogPosts() {
 	const [loading, setLoading] = useState(false)
@@ -13,16 +14,21 @@ export default function useGetBlogPosts() {
 		await blogApi.deletePost(id)
 		const updatedBlogPosts = blogPosts.filter((blog) => blog.id !== id)
 		setBlogPosts(updatedBlogPosts)
+		toast.success("Blog Deleted Successfully");
 	}
 
 	const handleEditBlog = (blogId: string, updatedBlogData: any) => {
 		navigate(`/blog/edit/${blogId}`, { state: { updatedBlogData } })
+	}
+	const handleReadBlog = (blogData: any) => {
+		navigate(`/blog/read/`, { state: { blogData } })
 	}
 	useEffect(() => {
 		async function fetchBlogPosts() {
 			setLoading(true)
 			try {
 				const response = await blogApi.getAllPosts()
+				// console.log(response)
 				const blogWithImages = await Promise.all(
 					response.map(async (blog: Blog) => {
 						if (blog.blogImage) {
@@ -47,5 +53,5 @@ export default function useGetBlogPosts() {
 		fetchBlogPosts()
 	}, [])
 
-	return { loading, blogPosts, handleDeleteBlog, handleEditBlog }
+	return { loading, blogPosts, handleReadBlog, handleDeleteBlog, handleEditBlog }
 }

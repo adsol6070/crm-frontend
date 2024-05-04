@@ -8,4 +8,5 @@ export type User = {
 	phone: string
 	profileImage?: string
 	role: string
+	rememberMe: boolean
 }

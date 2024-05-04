@@ -10,15 +10,7 @@ import useCreateBlog from './useCreateBlog'
 import { convertToRaw } from 'draft-js'
 import draftToHtml from 'draftjs-to-html'
 import { ToastContainer } from 'react-toastify'
-
-const options = [
-	{ value: '', label: 'Select Role' },
-	{ value: 'admin', label: 'Admin' },
-	{ value: 'user', label: 'User' },
-	{ value: 'technical', label: 'Technical Staff' },
-	{ value: 'hr', label: 'HR' },
-	{ value: 'manager', label: 'Manager' },
-]
+import 'react-toastify/ReactToastify.css'
 
 export interface FileType extends File {
 	preview?: string
@@ -26,7 +18,7 @@ export interface FileType extends File {
 }
 
 const AddBlog: React.FC = () => {
-	const { createBlog, loading } = useCreateBlog()
+	const { createBlog, loading, blogCategories } = useCreateBlog()
 	const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 	const [blogImage, setBlogImage] = useState<File | null>(null)
 	const [editorState, setEditorState] = useState(EditorState.createEmpty())
@@ -74,6 +66,16 @@ const AddBlog: React.FC = () => {
 									containerClass="mb-3"
 									required
 								/>
+								<FormInput
+									label="Description"
+									type="textarea"
+									name="description"
+									placeholder="Enter Short Description"
+									rows={3}
+									containerClass="mb-3"
+									key="textarea"
+									required
+								/>
 								<Form.Group controlId="blogContent" className="mb-3">
 									<Form.Label>Content</Form.Label>
 									<Editor
@@ -82,15 +84,16 @@ const AddBlog: React.FC = () => {
 										wrapperClassName="wrapperClassName"
 										editorClassName="editorClassName"
 										onEditorStateChange={handleEditorChange}
+										editorStyle={{ minHeight: '250px', border: "1px solid #dee2e6", padding: "10px 20px" }}
 									/>
 								</Form.Group>
 								<Form.Group className="mb-3">
-									<Form.Label>Role</Form.Label>
+									<Form.Label>Categories</Form.Label>
 									<Select
 										className="select2 z-3"
-										options={options}
-										value={options.find(
-											(option) => option.value === selectedCategory
+										options={blogCategories}
+										value={blogCategories.find(
+											(option) => option.category === selectedCategory
 										)}
 										onChange={(option: any) =>
 											setSelectedCategory(option ? option.value : null)

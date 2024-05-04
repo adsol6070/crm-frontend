@@ -85,10 +85,13 @@ const FileUploader = ({
 									<Col className="text-end">
 										<Link
 											to="#"
-											className="btn btn-link btn-lg text-muted shadow-none">
+											className="btn btn-link btn-lg text-muted shadow-none"
+											onClick={(event) => {
+												event.preventDefault();
+												removeFile(file, event);
+											}}>
 											<i
 												className="ri-close-line text-danger"
-												onClick={() => removeFile(file)}
 											/>
 										</Link>
 									</Col>

@@ -4,7 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import AuthLayout from '../AuthLayout'
 import useLogin from './useLogin'
-
+import { useState } from 'react'
 // components
 import { VerticalForm, FormInput, PageBreadcrumb } from '@/components'
 
@@ -12,6 +12,7 @@ interface UserData {
 	tenantID: string
 	email: string
 	password: string
+	rememberMe?: boolean
 }
 
 const BottomLinks = () => {
@@ -36,10 +37,15 @@ const schemaResolver = yupResolver(
 		tenantID: yup.string().required('Please enter tenantID'),
 		email: yup.string().required('Please enter Username'),
 		password: yup.string().required('Please enter Password'),
+		rememberMe: yup.boolean(),
 	})
 )
 const Login = () => {
 	const { loading, login, redirectUrl, isAuthenticated } = useLogin()
+	const [rememberMe, setRememberMe] = useState(false);
+	const hanldeCheckboxChange = () => {
+		setRememberMe(!rememberMe)
+	}
 	return (
 		<>
 			<PageBreadcrumb title="Log In" />
@@ -53,8 +59,7 @@ const Login = () => {
 				hasThirdPartyLogin>
 				<VerticalForm<UserData>
 					onSubmit={login}
-					resolver={schemaResolver}
-					defaultValues={{ email: 'example@gmail.com', password: 'example' }}>
+					resolver={schemaResolver}>
 					<FormInput
 						label="Tenant ID"
 						type="text"
@@ -86,7 +91,9 @@ const Login = () => {
 					<FormInput
 						label="Remember me"
 						type="checkbox"
-						name="checkbox"
+						name="rememberMe"
+						// checked={rememberMe}
+						onChange={() => hanldeCheckboxChange()}
 						containerClass={'mb-3'}
 					/>
 					<div className="mb-0 text-start">
