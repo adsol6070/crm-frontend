@@ -1,9 +1,9 @@
 import { Button, Col, Row } from 'react-bootstrap'
 import AuthLayout from '../AuthLayout'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import useRecoverPassword from './useRecoverPassword'
+import useResetPassword from './useResetPassword'
 
 // components
 import { FormInput, VerticalForm, PageBreadcrumb } from '@/components'
@@ -13,7 +13,7 @@ const BottomLink = () => {
 		<Row>
 			<Col xs={12} className="text-center">
 				<p className="text-dark-emphasis">
-					Back To{' '}
+					Remember your password?{' '}
 					<Link
 						to="/auth/login"
 						className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline">
@@ -24,50 +24,46 @@ const BottomLink = () => {
 		</Row>
 	)
 }
-interface UserData {
-	tenantID: string
-	email: string
+
+interface ResetData {
+	newPassword: string
 }
 
-const ForgotPassword = () => {
+const ResetPassword = () => {
+	const location = useLocation()
+	const queryParams = new URLSearchParams(location.search)
+	const token = queryParams.get('token')
+	console.log('Token:', token)
 	/*
 	 * form validation schema
 	 */
 	const schemaResolver = yupResolver(
 		yup.object().shape({
-			tenantID: yup.string().required('Please enter tenantID'),
-			email: yup
+			newPassword: yup
 				.string()
-				.email('Please enter a valid email')
-				.required('Please enter email'),
+				.min(6, 'Password must be at least 6 characters')
+				.required('Please enter new password'),
 		})
 	)
 
 	/*
 	 * handle form submission
 	 */
-	const { loading, onSubmit } = useRecoverPassword()
+	const { loading, onSubmit } = useResetPassword()
+
 	return (
 		<div>
-			<PageBreadcrumb title="Forgot Password" />
+			<PageBreadcrumb title="Reset Password" />
 			<AuthLayout
-				authTitle="Forgot Password?"
-				helpText="Enter your email address and we'll send you an email with instructions to reset your password."
+				authTitle="Reset Your Password"
+				helpText="Enter the reset token you received via email along with your new password."
 				bottomLinks={<BottomLink />}>
-				<VerticalForm<UserData> onSubmit={onSubmit} resolver={schemaResolver}>
+				<VerticalForm<ResetData> onSubmit={onSubmit} resolver={schemaResolver}>
 					<FormInput
-						label="Tenant ID"
-						type="text"
-						name="tenantID"
-						placeholder="Enter your ID"
-						containerClass="mb-3"
-						required
-					/>
-					<FormInput
-						label="Email address"
-						type="email"
-						name="email"
-						placeholder="Enter your email"
+						label="New Password"
+						type="password"
+						name="newPassword"
+						placeholder="Enter your new password"
 						containerClass="mb-3"
 						required
 					/>
@@ -77,8 +73,8 @@ const ForgotPassword = () => {
 							className="w-100"
 							type="submit"
 							disabled={loading}>
-							<i className="ri-loop-left-line me-1 fw-bold" />{' '}
-							<span className="fw-bold">Reset Password</span>{' '}
+							<i className="ri-key-line me-1 fw-bold" />{' '}
+							<span className="fw-bold">Set New Password</span>{' '}
 						</Button>
 					</div>
 				</VerticalForm>
@@ -87,4 +83,4 @@ const ForgotPassword = () => {
 	)
 }
 
-export default ForgotPassword
+export default ResetPassword

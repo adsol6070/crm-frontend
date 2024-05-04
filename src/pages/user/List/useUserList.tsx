@@ -130,7 +130,7 @@ export const useUserList = (): UserListHookResult => {
 			setLoading(true)
 			const userData = await userApi.get()
 			const usersWithImages = await Promise.all(
-				userData.users.map(async (user: User) => {
+				userData?.users.map(async (user: User) => {
 					if (user.profileImage) {
 						const imageBlob = await userApi.getImage(user.id)
 						const imageUrl = URL.createObjectURL(imageBlob)

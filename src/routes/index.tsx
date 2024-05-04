@@ -11,6 +11,7 @@ const Login = React.lazy(() => import('../pages/auth/Login'))
 const Register = React.lazy(() => import('../pages/auth/Register'))
 const Logout = React.lazy(() => import('../pages/auth/Logout'))
 const ForgotPassword = React.lazy(() => import('../pages/auth/ForgotPassword'))
+const ResetPassword = React.lazy(() => import('../pages/auth/ResetPassword'))
 const LockScreen = React.lazy(() => import('../pages/auth/LockScreen'))
 
 // // dashboard
@@ -36,6 +37,7 @@ const AddCategory = React.lazy(() => import('../pages/blogs/AddCategory'))
 const UserList = React.lazy(() => import('../pages/user/List'))
 const CreateUser = React.lazy(() => import('../pages/user/Create'))
 const EditUser = React.lazy(() => import('../pages/user/Update'))
+const UserRoles = React.lazy(() => import('../pages/user/Roles'))
 
 // // error
 const Error404 = React.lazy(() => import('../pages/error/Error404'))
@@ -197,6 +199,13 @@ const adminRoutes = {
 			route: PrivateRoute,
 			roles: ['superAdmin'],
 		},
+		{
+			path: '/user/roles',
+			name: 'Manage Roles',
+			element: <UserRoles />,
+			route: PrivateRoute,
+			roles: ['superAdmin'],
+		},
 	],
 }
 
@@ -224,6 +233,12 @@ const authRoutes: RoutesProps[] = [
 		path: '/auth/forgot-password',
 		name: 'Forgot Password',
 		element: <ForgotPassword />,
+		route: Route,
+	},
+	{
+		path: '/auth/reset-password',
+		name: 'Reset Password',
+		element: <ResetPassword />,
 		route: Route,
 	},
 	{

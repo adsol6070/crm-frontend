@@ -22,8 +22,8 @@ export default function useLogin() {
 		setLoading(true)
 		try {
 			const res: any = await authApi.login({ tenantID, email, password })
-			if (res.token) {
-				saveSession({ ...(res.user ?? {}), token: res.token })
+			if (res.tokens) {
+				saveSession(res.tokens)
 				navigate(redirectUrl)
 			}
 		} finally {

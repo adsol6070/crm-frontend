@@ -23,7 +23,6 @@ const Error404Alt = () => {
 										worry... it happens to the best of us. Here's a little tip
 										that might help you get back on track.
 									</p>
-
 									<Link className="btn btn-soft-danger mt-3" to="/">
 										<i className="ri-home-4-line me-1"></i> Back to Home
 									</Link>
