@@ -55,12 +55,12 @@ const CreateUser = () => {
 	const onSubmit = (data: any, { reset }: any) => {
 		const completeData = {
 			...data,
-			role: selectedRole ? selectedRole.value : null,
+			role: selectedRole,
 			profileImage,
 		}
 		createUser(completeData)
-		reset();
-		setSelectedRole(null);
+		reset()
+		setSelectedRole(null)
 	}
 	return (
 		<>
@@ -75,9 +75,7 @@ const CreateUser = () => {
 						<Card.Body>
 							<Row>
 								<Col md={12}>
-									<VerticalForm
-										onSubmit={onSubmit}
-										resolver={schemaResolver}>
+									<VerticalForm onSubmit={onSubmit} resolver={schemaResolver}>
 										<FormInput
 											label="First Name"
 											type="text"

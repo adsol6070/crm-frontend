@@ -14,14 +14,14 @@ export default function useGetBlogPosts() {
 		await blogApi.deletePost(id)
 		const updatedBlogPosts = blogPosts.filter((blog) => blog.id !== id)
 		setBlogPosts(updatedBlogPosts)
-		toast.success("Blog Deleted Successfully");
+		toast.success('Blog Deleted Successfully')
 	}
 
-	const handleEditBlog = (blogId: string, updatedBlogData: any) => {
-		navigate(`/blog/edit/${blogId}`, { state: { updatedBlogData } })
+	const handleEditBlog = (blogId: string) => {
+		navigate(`/blog/edit/${blogId}`)
 	}
-	const handleReadBlog = (blogData: any) => {
-		navigate(`/blog/read/`, { state: { blogData } })
+	const handleReadBlog = (blogId: any) => {
+		navigate(`/blog/read/${blogId}`)
 	}
 	useEffect(() => {
 		async function fetchBlogPosts() {
@@ -53,5 +53,11 @@ export default function useGetBlogPosts() {
 		fetchBlogPosts()
 	}, [])
 
-	return { loading, blogPosts, handleReadBlog, handleDeleteBlog, handleEditBlog }
+	return {
+		loading,
+		blogPosts,
+		handleReadBlog,
+		handleDeleteBlog,
+		handleEditBlog,
+	}
 }
