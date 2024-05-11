@@ -43,7 +43,8 @@ const schemaResolver = yupResolver(
 const Login = () => {
 	const { loading, login, redirectUrl, isAuthenticated } = useLogin()
 	const [rememberMe, setRememberMe] = useState(false);
-	const hanldeCheckboxChange = () => {
+	
+	const handleCheckboxChange = () => {
 		setRememberMe(!rememberMe)
 	}
 	return (
@@ -58,7 +59,12 @@ const Login = () => {
 				bottomLinks={<BottomLinks />}
 				hasThirdPartyLogin>
 				<VerticalForm<UserData>
-					onSubmit={login}
+					onSubmit={(data: any) =>{ 
+						const completeData= {
+							...data,
+							rememberMe
+						}
+						 login(completeData) }}
 					resolver={schemaResolver}>
 					<FormInput
 						label="Tenant ID"
@@ -92,8 +98,8 @@ const Login = () => {
 						label="Remember me"
 						type="checkbox"
 						name="rememberMe"
-						// checked={rememberMe}
-						onChange={() => hanldeCheckboxChange()}
+						checked={rememberMe}
+						onChange={handleCheckboxChange}
 						containerClass={'mb-3'}
 					/>
 					<div className="mb-0 text-start">

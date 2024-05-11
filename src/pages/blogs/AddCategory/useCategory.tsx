@@ -16,6 +16,11 @@ export function useCategory() {
 
     const columns: ReadonlyArray<Column> = [
         {
+            Header: 'S.No',
+            accessor: 'sno',
+            defaultCanSort: true,
+        },
+        {
             Header: 'ID',
             accessor: 'id',
             defaultCanSort: true,
@@ -24,7 +29,7 @@ export function useCategory() {
             Header: 'Category',
             accessor: 'category',
             defaultCanSort: true,
-            Cell: ({ cell }) => {
+            Cell: ({ cell }: any) => {
                 return editCategoryId === cell.row.original.id ? (
                     <input
                         type='text'
@@ -41,20 +46,20 @@ export function useCategory() {
             Header: 'Delete',
             accessor: 'delete',
             disableSortBy: true,
-            Cell: ({ cell }) => (
-                    <RiDeleteBinLine
-                        size={24}
-                        color="#dc3545"
-                        cursor="pointer"
-                        onClick={() => handleDelete(cell.row.original.id)}
-                    />
+            Cell: ({ cell }: any) => (
+                <RiDeleteBinLine
+                    size={24}
+                    color="#dc3545"
+                    cursor="pointer"
+                    onClick={() => handleDelete(cell.row.original.id)}
+                />
             ),
         },
         {
             Header: 'Edit',
             accessor: 'Edit',
             disableSortBy: true,
-            Cell: ({ cell }) => {
+            Cell: ({ cell }: any) => {
                 return editCategoryId === cell.row.original.id ? (
                     <RiSaveLine
                         size={24}
@@ -77,7 +82,11 @@ export function useCategory() {
     const handleDelete = async (categoryID: string) => {
         await categoryApi.deleteCategory(categoryID)
         const updatedBlogCategory = blogCategories.filter((category) => category.id !== categoryID)
-        setBlogCategories(updatedBlogCategory)
+        const updatedCategoriesWithSno = updatedBlogCategory.map((category, index) => ({
+            ...category,
+            sno: index + 1
+        }));
+        setBlogCategories(updatedCategoriesWithSno);
         toast.success("Category Deleted successfully!");
 
     }
@@ -87,6 +96,10 @@ export function useCategory() {
     };
 
     const handleSave = async (categoryID: string) => {
+        if (!editCategoryValue.trim()) {
+            toast.error("Please enter a category name.");
+            return;
+        }
         try {
             setLoading(true);
             const updatedCategory = { category: editCategoryValue };
@@ -95,7 +108,7 @@ export function useCategory() {
                 category.id === categoryID ? { ...category, category: editCategoryValue } : category
             );
             setBlogCategories(updatedBlogCategories);
-            setEditCategoryId(null); 
+            setEditCategoryId(null);
             toast.success("Category updated successfully!");
         } catch (error) {
             console.error(error);
@@ -104,7 +117,7 @@ export function useCategory() {
             setLoading(false);
         }
     };
-    
+
     const sizePerPageList: PageSize[] = [
         {
             text: '5',
@@ -129,7 +142,7 @@ export function useCategory() {
             setLoading(true)
             try {
                 const response = await categoryApi.getAllCategory();
-                setBlogCategories(response); 
+                setBlogCategories(response.map((category: any, index: any) => ({ ...category, sno: index + 1 })))
             } catch (error) {
                 console.error('Error fetching categories:', error);
             } finally {
@@ -144,14 +157,21 @@ export function useCategory() {
         setCategory(event.target.value);
     }
 
-    const createCategory = async () => {
+    const createCategory = async ({
+        category,
+    }: {
+        category: string
+    }) => {
         try {
             setLoading(true)
-            const categoryData = {
-                tenantID: user.tenantID,
-                category
-            }
-            const data = await categoryApi.createBlogCategory(categoryData);
+            const formData = new FormData()
+            formData.append('tenantID', user.tenantID)
+            formData.append('category', category)
+
+            const data = await categoryApi.createBlogCategory(formData);
+
+            const newCategory = { ...data.blogCategory, sno: blogCategories.length + 1 };
+            setBlogCategories(blogCategories => [...blogCategories, newCategory]);
             toast.success(data.message);
             setLoading(false)
         } catch (error) {

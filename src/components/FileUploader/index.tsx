@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Row, Col, Card } from 'react-bootstrap'
 import Dropzone from 'react-dropzone'
 import useFileUploader from './useFileUploader'
+import { useEffect } from 'react'
 
 export interface FileType extends File {
 	preview?: string
@@ -11,6 +12,7 @@ export interface FileType extends File {
 interface FileUploaderProps extends ChildrenProps {
 	onFileUpload?: (files: FileType[]) => void
 	showPreview?: boolean
+	resetTrigger?: number; 
 }
 
 type ChildrenProps = {
@@ -25,11 +27,16 @@ const FileUploader = ({
 	onFileUpload,
 	icon,
 	extraText,
+	resetTrigger,
 	text,
 }: FileUploaderProps) => {
-	const { selectedFiles, handleAcceptedFiles, removeFile } =
+	const { selectedFiles, handleAcceptedFiles, removeFile, clearFiles } =
 		useFileUploader(showPreview)
-
+		useEffect(() => {
+			if (resetTrigger !== undefined) {
+				clearFiles();
+			}
+		}, [resetTrigger]);
 	return (
 		<>
 			<Dropzone
@@ -107,3 +114,8 @@ const FileUploader = ({
 }
 
 export { FileUploader }
+
+
+
+
+

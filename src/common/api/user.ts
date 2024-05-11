@@ -1,9 +1,9 @@
 import { HttpClient } from '../helpers'
 
-const authSessionKey = '_ADSOL_AUTH'
+const accessTokenKey = 'access_token'
 
 const getAuthHeaders = (isMultipart: boolean = false) => {
-	const token: string | null = localStorage.getItem(authSessionKey)
+	const token: string | null = localStorage.getItem(accessTokenKey)
 	let headers: { [key: string]: string } = {}
 
 	if (token) {

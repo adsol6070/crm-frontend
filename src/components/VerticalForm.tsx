@@ -4,8 +4,8 @@ import { FieldValues, Resolver, useForm } from 'react-hook-form'
 interface VerticalFormProps<TFormValues extends FieldValues> {
 	defaultValues?: any
 	resolver?: Resolver<TFormValues>
-	children?: any
-	onSubmit: any
+	children: React.ReactNode;
+    onSubmit: (data: TFormValues, methods: any) => void;
 	formClass?: string
 }
 
@@ -25,13 +25,17 @@ const VerticalForm = <
 
 	const {
 		handleSubmit,
+		reset,
 		register,
 		control,
 		formState: { errors },
 	} = methods
-
+    // Wrap onSubmit to provide form methods as the second parameter
+    const handleFormSubmit = (data: TFormValues) => {
+        onSubmit(data, methods);  // Pass entire methods object to onSubmit
+    };
 	return (
-		<form onSubmit={handleSubmit(onSubmit)} className={formClass} noValidate>
+		<form onSubmit={handleSubmit(handleFormSubmit)} className={formClass} noValidate>
 			{Array.isArray(children)
 				? children.map((child) => {
 						return child.props && child.props.name
@@ -42,6 +46,7 @@ const VerticalForm = <
 										key: child.props.name,
 										errors,
 										control,
+										reset,
 									},
 							  })
 							: child

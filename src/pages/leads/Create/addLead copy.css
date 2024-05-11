@@ -1,0 +1,38 @@
+.react-multistep-step {
+    display: inline-block;
+    padding: 10px;
+    margin-right: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  /* Style adjustments for steps */
+.react-multistep-progress {
+  justify-content: center;
+  width: 100%;
+}
+  /* Style for the active step */
+  .react-multistep-step-active {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  /* Default style for navigation buttons */
+  button {
+    color: white;
+    background-color: #007bff; /* Bootstrap primary blue */
+    border: none;
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.15s;
+  }
+  
+  button:hover {
+    background-color: #0056b3; /* Darker blue */
+  }
+  
+  button:disabled {
+    background-color: #cccccc; /* Light gray */
+    cursor: not-allowed;
+  }

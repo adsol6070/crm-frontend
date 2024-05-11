@@ -57,6 +57,7 @@ const getUserFromSession = () => {
 	const user = sessionStorage.getItem(AUTH_SESSION_KEY)
 	return user ? (typeof user == 'object' ? user : JSON.parse(user)) : null
 }
+
 class APICore {
 	/**
 	 * Fetches data from given url

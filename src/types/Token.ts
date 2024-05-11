@@ -1,5 +1,6 @@
 export type Token = {
-	token: string
+	accessToken: string
+	refreshToken: string
 }
 
 export interface DecodedToken {

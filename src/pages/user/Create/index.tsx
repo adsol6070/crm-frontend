@@ -8,7 +8,7 @@ import useCreateUser from './useCreateUser'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
 
-const options = [
+const options: any = [
 	{ value: '', label: 'Select Role' },
 	{ value: 'admin', label: 'Admin' },
 	{ value: 'user', label: 'User' },
@@ -27,7 +27,9 @@ const CreateUser = () => {
 			setProfileImage(event.target.files[0])
 		}
 	}
-
+	const handleSelect = (option: any) => {
+		setSelectedRole(option);
+	};
 	const schemaResolver = yupResolver(
 		yup.object().shape({
 			firstname: yup.string().required('Please enter Firstname'),
@@ -41,7 +43,16 @@ const CreateUser = () => {
 			profileImage: yup.mixed(),
 		})
 	)
-
+	const onSubmit = (data: any, { reset }: any) => {
+		const completeData = {
+			...data,
+			role: selectedRole ? selectedRole.value : null,
+			profileImage,
+		}
+		createUser(completeData)
+		reset();
+		setSelectedRole(null);
+	}
 	return (
 		<>
 			<ToastContainer />
@@ -50,23 +61,13 @@ const CreateUser = () => {
 				<Col>
 					<Card>
 						<Card.Header>
-							<h4 className="header-title">Multiple Row Selection</h4>
-							<p className="text-muted mb-0">
-								This table allowing selection of multiple rows
-							</p>
+							<h4 className="header-title">Add New User</h4>
 						</Card.Header>
 						<Card.Body>
 							<Row>
 								<Col md={12}>
 									<VerticalForm
-										onSubmit={(data: any) => {
-											const completeData = {
-												...data,
-												role: selectedRole,
-												profileImage,
-											}
-											createUser(completeData)
-										}}
+										onSubmit={onSubmit}
 										resolver={schemaResolver}>
 										<FormInput
 											label="First Name"
@@ -106,7 +107,7 @@ const CreateUser = () => {
 											placeholder="Enter your phone"
 											containerClass="mb-3"
 										/>
-										
+
 										<FormInput
 											label="Profile Image"
 											type="file"
@@ -119,12 +120,11 @@ const CreateUser = () => {
 											<Select
 												className="select2 z-3"
 												options={options}
-												value={options.find(
-													(option) => option.value === selectedRole
-												)}
-												onChange={(option) =>
-													setSelectedRole(option ? option.value : null)
-												}
+												getOptionLabel={(e: any) => e.label}
+												getOptionValue={(e: any) => e.value}
+												value={selectedRole}
+												onChange={handleSelect}
+												isClearable={true}
 											/>
 										</Form.Group>
 										<Button

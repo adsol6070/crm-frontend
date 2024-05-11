@@ -78,6 +78,7 @@ interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
 	refCallback?: any
 	children?: any
 	rows?: number
+	reset?: any
 }
 
 const FormInput = ({
@@ -101,6 +102,7 @@ const FormInput = ({
 	// handle input type
 	const comp =
 		type === 'textarea' ? 'textarea' : type === 'select' ? 'select' : 'input'
+		const { reset, ...restProps } = otherProps;
 	return (
 		<>
 			{type === 'hidden' ? (
@@ -108,7 +110,8 @@ const FormInput = ({
 					type={type}
 					name={name}
 					{...(register ? register(name) : {})}
-					{...otherProps}
+					// {...otherProps}
+					{...restProps}
 				/>
 			) : (
 				<>
@@ -152,9 +155,9 @@ const FormInput = ({
 											className={className}
 											isInvalid={errors && errors[name] ? true : false}
 											{...(register ? register(name) : {})}
-											{...otherProps}
+											{...restProps}
 										>
-											<Form.Check.Input type={type} />
+											<Form.Check.Input type={type} onChange={otherProps.onChange} checked={otherProps.checked}/>
 											<Form.Check.Label>
 												{label}{' '}
 												{isTerms && (
@@ -194,7 +197,7 @@ const FormInput = ({
 										isInvalid={errors && errors[name] ? true : false}
 										{...(register ? register(name) : {})}
 										rows={rows}
-										{...otherProps}
+										{...restProps}
 										autoComplete={name}
 									>
 										{children ? children : null}

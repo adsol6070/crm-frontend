@@ -1,5 +1,5 @@
 import { FormInput, PageBreadcrumb, VerticalForm } from '@/components'
-import { Row, Col, Card, Form, Button, Image } from 'react-bootstrap'
+import { Row, Col, Card, Form, Button } from 'react-bootstrap'
 import { Editor } from 'react-draft-wysiwyg'
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { FileUploader } from '@/components/FileUploader'

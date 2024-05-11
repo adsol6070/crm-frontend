@@ -34,7 +34,7 @@ export default function useCreateBlog() {
 			}
 			const data = await blogApi.createPost(formData)
 			toast.success(data.message)
-		} catch (error) {
+		} catch (error: any) {
 			toast.error(error.message)
 		} finally {
 			setLoading(false)

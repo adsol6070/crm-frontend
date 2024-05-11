@@ -53,10 +53,14 @@ export default function useFileUploader(showPreview: boolean = true) {
 		newFiles.splice(newFiles.indexOf(file), 1)
 		setSelectedFiles(newFiles)
 	}
+	const clearFiles = () => {
+        setSelectedFiles([]);
+    };
 
 	return {
 		selectedFiles,
 		handleAcceptedFiles,
 		removeFile,
+		clearFiles,
 	}
 }

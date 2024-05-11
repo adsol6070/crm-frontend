@@ -2,12 +2,16 @@ import {
 	createContext,
 	useContext,
 	useState,
-	useCallback,
-	ReactNode,
 	useEffect,
+	useRef,
+	ReactNode,
 } from 'react'
-import { jwtDecode } from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode' // Ensure correct import: from 'jwt-decode' without braces
 import { DecodedToken, Token } from '@/types'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+import { authApi } from '../api'
+import { useLocation } from 'react-router-dom'
 
 const AuthContext = createContext<any>({})
 
@@ -19,60 +23,112 @@ export function useAuthContext() {
 	return context
 }
 
-const authSessionKey = '_ADSOL_AUTH'
+const accessTokenKey = 'access_token'
+const refreshTokenKey = 'refresh_token'
+
+const MySwal = withReactContent(Swal)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const [user, setUser] = useState<DecodedToken | undefined>()
+	const location = useLocation()
+	const [user, setUser] = useState<DecodedToken | undefined>(() => {
+		const token = localStorage.getItem(accessTokenKey)
+		return token ? jwtDecode<DecodedToken>(token) : undefined
+	})
+
+	const timeoutIdRef = useRef<NodeJS.Timeout | null>(null)
+	const alertTimeoutIdRef = useRef<NodeJS.Timeout | null>(null)
+
+	const checkAndSetupTokenExpiration = () => {
+		const refreshToken = localStorage.getItem(refreshTokenKey)
+		if (refreshToken) {
+			const decodedRefreshToken = jwtDecode<DecodedToken>(refreshToken)
+			setupAutoLogout(decodedRefreshToken.exp)
+			if (localStorage.getItem(accessTokenKey)) {
+				const decodedAccessToken = jwtDecode<DecodedToken>(
+					localStorage.getItem(accessTokenKey)!
+				)
+				setUser(decodedAccessToken)
+			}
+		} else {
+			setUser(undefined)
+		}
+	}
 
 	useEffect(() => {
-		const rawToken = localStorage.getItem(authSessionKey)
-		if (rawToken) {
-			try {
-				const decodedToken = jwtDecode<DecodedToken>(rawToken)
-				setUser(decodedToken)
-				setupAutoLogout(decodedToken.exp)
-			} catch (error) {
-				console.error('Failed to decode token:', error)
+		console.log('UseEffect get called.')
+		// Listen for changes in local storage
+		window.addEventListener('storage', (event) => {
+			if (event.key === accessTokenKey || event.key === refreshTokenKey) {
+				checkAndSetupTokenExpiration()
 			}
+		})
+
+		// Initial check on mount
+		checkAndSetupTokenExpiration()
+
+		return () => {
+			if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current)
+			if (alertTimeoutIdRef.current) clearTimeout(alertTimeoutIdRef.current)
 		}
-	}, [])
+	}, [location])
 
-	const removeSession = useCallback(() => {
-		localStorage.removeItem(authSessionKey)
+	const removeSession = async () => {
+		const refreshToken = localStorage.getItem(refreshTokenKey)
+		if (refreshToken) {
+			await authApi.logout({
+				tenantID: user?.tenantID,
+				refreshToken,
+			})
+		}
+		localStorage.removeItem(accessTokenKey)
+		localStorage.removeItem(refreshTokenKey)
 		setUser(undefined)
-	}, [setUser])
+	}
 
-	const setupAutoLogout = useCallback(
-		(exp: number) => {
-			const currentTime = Date.now() / 1000
-			const delay = (exp - currentTime) * 1000
+	const setupAutoLogout = (exp: number) => {
+		if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current)
+		if (alertTimeoutIdRef.current) clearTimeout(alertTimeoutIdRef.current)
 
-			if (delay < 0) {
-				removeSession()
-			} else {
-				setTimeout(() => {
-					removeSession()
-				}, delay)
+		const currentTime = Date.now() / 1000
+		const delay = (exp - currentTime) * 1000
+
+		if (delay < 0) {
+			removeSession()
+		} else {
+			if (delay > 5000) {
+				alertTimeoutIdRef.current = setTimeout(() => {
+					MySwal.fire({
+						title: 'Session Expiring Soon!',
+						text: 'Your session will expire in 5 seconds. Please refresh your session to continue.',
+						icon: 'warning',
+						timer: 5000,
+						willClose: () => {
+							removeSession()
+						},
+					})
+				}, delay - 5000)
 			}
-		},
-		[removeSession]
-	)
 
-	const saveSession = useCallback(
-		(user: Token) => {
-			localStorage.setItem(authSessionKey, user.token)
-			const decodedToken = jwtDecode<DecodedToken>(user.token)
-			setUser(decodedToken)
-			setupAutoLogout(decodedToken.exp)
-		},
-		[setUser, setupAutoLogout]
-	)
+			timeoutIdRef.current = setTimeout(() => {
+				removeSession()
+			}, delay)
+		}
+	}
+
+	const saveSession = ({ accessToken, refreshToken }: Token) => {
+		localStorage.setItem(accessTokenKey, accessToken)
+		localStorage.setItem(refreshTokenKey, refreshToken)
+		const decodedAccessToken = jwtDecode<DecodedToken>(accessToken)
+		setUser(decodedAccessToken)
+		setupAutoLogout(jwtDecode<DecodedToken>(refreshToken).exp)
+	}
 
 	return (
 		<AuthContext.Provider
 			value={{
 				user,
 				isAuthenticated: Boolean(user),
+				setupAutoLogout,
 				saveSession,
 				removeSession,
 			}}>

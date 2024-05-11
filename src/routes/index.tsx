@@ -11,6 +11,7 @@ const Login = React.lazy(() => import('../pages/auth/Login'))
 const Register = React.lazy(() => import('../pages/auth/Register'))
 const Logout = React.lazy(() => import('../pages/auth/Logout'))
 const ForgotPassword = React.lazy(() => import('../pages/auth/ForgotPassword'))
+const ResetPassword = React.lazy(() => import('../pages/auth/ResetPassword'))
 const LockScreen = React.lazy(() => import('../pages/auth/LockScreen'))
 
 // // dashboard
@@ -33,10 +34,15 @@ const BlogEdit = React.lazy(() => import('../pages/blogs/Edit/editBlog'))
 const ReadBlog = React.lazy(() => import('../pages/blogs/Readblog'))
 const AddCategory = React.lazy(() => import('../pages/blogs/AddCategory'))
 
+// leads
+const AddLead = React.lazy(() => import('../pages/leads/Create'))
+const ListLead = React.lazy(() => import('../pages/leads/List'))
+
 // // users
 const UserList = React.lazy(() => import('../pages/user/List'))
 const CreateUser = React.lazy(() => import('../pages/user/Create'))
 const EditUser = React.lazy(() => import('../pages/user/Update'))
+const UserRoles = React.lazy(() => import('../pages/user/Roles'))
 
 // // error
 const Error404 = React.lazy(() => import('../pages/error/Error404'))
@@ -175,6 +181,27 @@ const blogRoutes = {
 		},
 	],
 }
+// Lead Routes
+const leadRoutes = {
+	path: '/leads',
+	name: 'Leads',
+	icon: 'pages',
+	header: 'Custom',
+	children: [
+		{
+			path: '/leads/add-lead',
+			name: 'Add Lead',
+			element: <AddLead />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/leads/list-leads',
+			name: 'List Lead',
+			element: <ListLead />,
+			route: PrivateRoute,
+		},
+	],
+}
 
 // Admin Routes
 const adminRoutes = {
@@ -201,6 +228,13 @@ const adminRoutes = {
 			path: '/user/edit/:userId',
 			name: 'Edit User',
 			element: <EditUser />,
+			route: PrivateRoute,
+			roles: ['superAdmin'],
+		},
+		{
+			path: '/user/roles',
+			name: 'Manage Roles',
+			element: <UserRoles />,
 			route: PrivateRoute,
 			roles: ['superAdmin'],
 		},
@@ -231,6 +265,12 @@ const authRoutes: RoutesProps[] = [
 		path: '/auth/forgot-password',
 		name: 'Forgot Password',
 		element: <ForgotPassword />,
+		route: Route,
+	},
+	{
+		path: '/auth/reset-password',
+		name: 'Reset Password',
+		element: <ResetPassword />,
 		route: Route,
 	},
 	{
@@ -287,6 +327,7 @@ const flattenRoutes = (routes: RoutesProps[]) => {
 const authProtectedRoutes = [
 	dashboardRoutes,
 	blogRoutes,
+	leadRoutes,
 	adminRoutes,
 	customPagesRoutes,
 ]

@@ -3,7 +3,7 @@ import { AxiosResponse } from 'axios'
 import { User } from '@/types'
 import { authApi } from '@/common'
 
-export default function useForgotPassword() {
+export default function useResetPassword() {
 	const [loading, setLoading] = useState(false)
 
 	/*
