@@ -30,7 +30,7 @@ const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
 // blogs
 const AddBlog = React.lazy(() => import('../pages/blogs/Create'))
 const BlogList = React.lazy(() => import('../pages/blogs/List'))
-const BlogEdit = React.lazy(() => import('../pages/blogs/Edit/editBlog'))
+const BlogEdit = React.lazy(() => import('../pages/blogs/Edit'))
 const ReadBlog = React.lazy(() => import('../pages/blogs/Readblog'))
 const AddCategory = React.lazy(() => import('../pages/blogs/AddCategory'))
 
@@ -168,7 +168,7 @@ const blogRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/blog/read',
+			path: '/blog/read/:blogId',
 			name: 'Blog Read',
 			element: <ReadBlog />,
 			route: PrivateRoute,

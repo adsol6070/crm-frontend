@@ -1,70 +1,72 @@
-import { FormInput, PageBreadcrumb, VerticalForm } from '@/components';
-import { Row, Col, Card, Form, Button } from 'react-bootstrap';
-import { Editor } from 'react-draft-wysiwyg';
-import { EditorState } from 'draft-js';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { FileUploader } from '@/components/FileUploader';
-import { useState } from 'react';
-import Select from 'react-select';
-import useCreateBlog from './useCreateBlog';
-import { convertToRaw } from 'draft-js';
-import draftToHtml from 'draftjs-to-html';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { FormInput, PageBreadcrumb, VerticalForm } from '@/components'
+import { Row, Col, Card, Form, Button } from 'react-bootstrap'
+import { Editor } from 'react-draft-wysiwyg'
+import { EditorState } from 'draft-js'
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
+import * as yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { FileUploader } from '@/components/FileUploader'
+import { useState } from 'react'
+import Select from 'react-select'
+import useCreateBlog from './useCreateBlog'
+import { convertToRaw } from 'draft-js'
+import draftToHtml from 'draftjs-to-html'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 interface BlogCategory {
-	value: string;
-	label: string;
-  }
-  
+	value: string
+	label: string
+}
+
 const AddBlog: React.FC = () => {
-	const { createBlog, loading, blogCategories } = useCreateBlog();
-	const [selectedCategory, setSelectedCategory] = useState<BlogCategory | null>(null); // Managed as an object or null
-	const [blogImage, setBlogImage] = useState<File | null>(null);
-	const [editorState, setEditorState] = useState(EditorState.createEmpty());
-	const [resetFileUploader, setResetFileUploader] = useState(0);
+	const { createBlog, loading, blogCategories } = useCreateBlog()
+	const [selectedCategory, setSelectedCategory] = useState<BlogCategory | null>(
+		null
+	) // Managed as an object or null
+	const [blogImage, setBlogImage] = useState<File | null>(null)
+	const [editorState, setEditorState] = useState(EditorState.createEmpty())
+	const [resetFileUploader, setResetFileUploader] = useState(0)
 
 	const handleEditorChange = (state: EditorState) => {
-		setEditorState(state);
-	};
+		setEditorState(state)
+	}
 
 	const handleSelect = (option: BlogCategory | null) => {
-		setSelectedCategory(option);
-	};
+		setSelectedCategory(option)
+	}
 
 	const handleFileUpload = (files: any) => {
 		if (files[0]) {
-			setBlogImage(files[0]);
+			setBlogImage(files[0])
 		}
-	};
+	}
 
 	const onSubmit = async (data: any, { reset }: { reset: () => void }) => {
-		const contentState = editorState.getCurrentContent();
-		const rawContentState = convertToRaw(contentState);
-		const contentHTML = draftToHtml(rawContentState);
+		const contentState = editorState.getCurrentContent()
+		const rawContentState = convertToRaw(contentState)
+		const contentHTML = draftToHtml(rawContentState)
 		const completedBlogData = {
 			...data,
 			content: contentHTML,
 			category: selectedCategory ? selectedCategory.value : null,
 			blogImage,
-		};
+		}
 
-		await createBlog(completedBlogData);
-		reset();
-		setEditorState(EditorState.createEmpty());
-		setBlogImage(null);
-		setSelectedCategory(null);
-		setResetFileUploader(resetFileUploader + 1);
-	};
+		await createBlog(completedBlogData)
+		reset()
+		setEditorState(EditorState.createEmpty())
+		setBlogImage(null)
+		setSelectedCategory(null)
+		setResetFileUploader(resetFileUploader + 1)
+	}
 
 	const schemaResolver = yupResolver(
 		yup.object().shape({
 			title: yup.string().required('Please enter blog title'),
 			description: yup.string().required('Please enter blog description'),
 		})
-	);
+	)
 
 	return (
 		<>
@@ -104,7 +106,11 @@ const AddBlog: React.FC = () => {
 										wrapperClassName="wrapperClassName"
 										editorClassName="editorClassName"
 										onEditorStateChange={handleEditorChange}
-										editorStyle={{ minHeight: '250px', border: "1px solid #dee2e6", padding: "10px 20px" }}
+										editorStyle={{
+											minHeight: '250px',
+											border: '1px solid #dee2e6',
+											padding: '10px 20px',
+										}}
 									/>
 								</Form.Group>
 								<Form.Group className="mb-3">
@@ -138,7 +144,7 @@ const AddBlog: React.FC = () => {
 				</Col>
 			</Row>
 		</>
-	);
-};
+	)
+}
 
-export default AddBlog;
+export default AddBlog
