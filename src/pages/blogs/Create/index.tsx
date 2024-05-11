@@ -111,7 +111,7 @@ const AddBlog: React.FC = () => {
 									<Form.Label>Categories</Form.Label>
 									<Select
 										className="select2 z-3"
-										options={blogCategories}
+										options={blogCategories as any[]}
 										getOptionLabel={(e: any) => e.label}
 										getOptionValue={(e: any) => e.value}
 										value={selectedCategory}

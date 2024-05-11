@@ -52,7 +52,7 @@ const BlogList = () => {
                                     <Card.Title>{capitalizeFirstLetter(blog.title)}</Card.Title>
                                     <Card.Text style={{ height: '50px', overflow:"hidden" }} dangerouslySetInnerHTML={renderHTML(capitalizeFirstLetter(trimText(blog.description, 150)))} />
                                     <div className="my-2 d-flex justify-content-between align-items-center">
-                                        <div className="text-primary" style={{ textDecoration: 'none', cursor: 'pointer' }} onClick={() => handleReadBlog(blog)}>
+                                        <div className="text-primary" style={{ textDecoration: 'none', cursor: 'pointer' }} onClick={() => handleReadBlog(blog.id)}>
     Read More
 </div>     
                              {user.role === 'superAdmin' && (

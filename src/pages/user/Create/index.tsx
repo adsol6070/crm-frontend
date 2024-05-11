@@ -55,7 +55,7 @@ const CreateUser = () => {
 	const onSubmit = (data: any, { reset }: any) => {
 		const completeData = {
 			...data,
-			role: selectedRole ? selectedRole.value : null,
+			role: selectedRole,
 			profileImage,
 		}
 		createUser(completeData)

@@ -20,15 +20,14 @@ export default function useGetBlogPosts() {
 	const handleEditBlog = (blogId: string, updatedBlogData: any) => {
 		navigate(`/blog/edit/${blogId}`, { state: { updatedBlogData } })
 	}
-	const handleReadBlog = (blogData: any) => {
-		navigate(`/blog/read/`, { state: { blogData } })
+	const handleReadBlog = (blogId: any) => {
+		navigate(`/blog/read/${blogId}`)
 	}
 	useEffect(() => {
 		async function fetchBlogPosts() {
 			setLoading(true)
 			try {
 				const response = await blogApi.getAllPosts()
-				// console.log(response)
 				const blogWithImages = await Promise.all(
 					response.map(async (blog: Blog) => {
 						if (blog.blogImage) {

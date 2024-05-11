@@ -27,7 +27,6 @@ export default function useEditBlog() {
             formData.append('description', description);
             formData.append('content', content);
             formData.append('category', category);
-
             if (blogImage) {
                 formData.append('blogImage', blogImage, blogImage.name);
             }

@@ -168,7 +168,7 @@ const blogRoutes = {
 			route: PrivateRoute,
 		},
 		{
-			path: '/blog/read/',
+			path: '/blog/read',
 			name: 'Blog Read',
 			element: <ReadBlog />,
 			route: PrivateRoute,

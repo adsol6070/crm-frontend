@@ -29,7 +29,7 @@ const ReadBlog: React.FC = () => {
         };
         return new Intl.DateTimeFormat('en-US', options).format(date);
     }
-    const dateTimeString = blogData.created_at;
+    const dateTimeString = blogData?.created_at;
     const formattedDateTime = formatDateTime(dateTimeString);
 
     return (
