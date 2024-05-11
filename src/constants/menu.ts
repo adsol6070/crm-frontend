@@ -3,6 +3,7 @@ export interface MenuItemTypes {
 	label: string
 	isTitle?: boolean
 	icon?: string
+	permissionsKey?: string
 	url?: string
 	badge?: {
 		variant: string
@@ -11,7 +12,9 @@ export interface MenuItemTypes {
 	parentKey?: string
 	target?: string
 	children?: MenuItemTypes[]
-	roles?: string[]
+	permissions?: {
+		[action: string]: boolean
+	}
 }
 
 const MENU_ITEMS: MenuItemTypes[] = [
@@ -36,24 +39,34 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		label: 'Blogs',
 		isTitle: false,
 		icon: 'ri-newspaper-line',
+		permissionsKey: 'Blogs',
 		children: [
 			{
 				key: 'blogs-AddBlog',
 				label: 'Add Blog',
 				url: '/blog/add-blog',
 				parentKey: 'blogs',
+				permissions: {
+					Create: true,
+				},
 			},
 			{
 				key: 'blogs-AddCategory',
 				label: 'Add Category',
 				url: '/blog/add-category',
 				parentKey: 'blogs',
+				permissions: {
+					Create: true,
+				},
 			},
 			{
 				key: 'blogs-BlogList',
 				label: 'Blog List',
 				url: '/blog/list',
 				parentKey: 'blogs',
+				permissions: {
+					Read: true,
+				},
 			},
 		],
 	},
@@ -62,19 +75,25 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		label: 'Users',
 		isTitle: false,
 		icon: 'ri-admin-line',
-		roles: ['superAdmin'],
+		permissionsKey: 'Users',
 		children: [
 			{
 				key: 'user-CreateAdmin',
 				label: 'Create User',
 				url: '/user/create',
 				parentKey: 'user',
+				permissions: {
+					Create: true,
+				},
 			},
 			{
 				key: 'user-UserList',
 				label: 'User List',
 				url: '/user/list',
 				parentKey: 'user',
+				permissions: {
+					Read: true,
+				},
 			},
 			{
 				key: 'user-ManageRoles',

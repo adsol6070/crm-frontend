@@ -41,16 +41,18 @@ const EditBlog = () => {
 		if (location.state && location.state.updatedBlogData) {
 			setBlog(location.state.updatedBlogData)
 			Object.keys(location.state.updatedBlogData).forEach((key) => {
-				setValue(key as keyof Blog, location.state.updatedBlogData[key as keyof Blog])
+				setValue(
+					key as keyof Blog,
+					location.state.updatedBlogData[key as keyof Blog]
+				)
 			})
 		}
 	}, [location, blogId, setValue])
 
 	if (blog?.content) {
 		// Set the editor state with the content from the blog object
-		setEditorState(EditorState.createWithContent(blog.content));
-	  }
-
+		setEditorState(EditorState.createWithContent(blog.content))
+	}
 
 	const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files && event.target.files[0]) {
@@ -77,64 +79,64 @@ const EditBlog = () => {
 
 	return (
 		<>
-		<ToastContainer />
-		<PageBreadcrumb title="Edit Blog" subName="Blogs" />
-		<Row>
-			<Col xs={12}>
-				<Card>
-					<Card.Header>
-						<h4 className="header-title">Edit Blog</h4>
-					</Card.Header>
-					<Card.Body>
-						<VerticalForm onSubmit={onSubmit}>
-							<FormInput
-								label="Title"
-								type="text"
-								name="title"
-								placeholder="Enter title"
-								containerClass="mb-3"
-								required
-							/>
-							<Form.Group controlId="blogContent" className="mb-3">
-								<Form.Label>Content</Form.Label>
-								<Editor
-									editorState={editorState}
-									toolbarClassName="toolbarClassName"
-									wrapperClassName="wrapperClassName"
-									editorClassName="editorClassName"
-									onEditorStateChange={handleEditorChange}
+			<ToastContainer />
+			<PageBreadcrumb title="Edit Blog" subName="Blogs" />
+			<Row>
+				<Col xs={12}>
+					<Card>
+						<Card.Header>
+							<h4 className="header-title">Edit Blog</h4>
+						</Card.Header>
+						<Card.Body>
+							<VerticalForm onSubmit={onSubmit}>
+								<FormInput
+									label="Title"
+									type="text"
+									name="title"
+									placeholder="Enter title"
+									containerClass="mb-3"
+									required
 								/>
-							</Form.Group>
-							<Form.Group className="mb-3">
-								<Form.Label>Role</Form.Label>
-								<Select
-									className="select2 z-3"
-									options={options}
-									value={options.find(
-										(option) => option.value === selectedCategory
-									)}
-									onChange={(option: any) =>
-										setSelectedCategory(option ? option.value : null)
-									}
-								/>
-							</Form.Group>
-							<Form.Group controlId="blogImage" className="mb-3">
-								<Form.Label>Upload Image</Form.Label>
-								<FileUploader
-									icon="ri-upload-cloud-2-line"
-									text="Drop files here or click to upload."
-									onFileUpload={handleImageChange}
-								/>
-							</Form.Group>
-							<Button variant="primary" type="submit" disabled={loading}>
-								Submit
-							</Button>
-						</VerticalForm>
-					</Card.Body>
-				</Card>
-			</Col>
-		</Row>
-	</>
+								<Form.Group controlId="blogContent" className="mb-3">
+									<Form.Label>Content</Form.Label>
+									<Editor
+										editorState={editorState}
+										toolbarClassName="toolbarClassName"
+										wrapperClassName="wrapperClassName"
+										editorClassName="editorClassName"
+										onEditorStateChange={handleEditorChange}
+									/>
+								</Form.Group>
+								<Form.Group className="mb-3">
+									<Form.Label>Role</Form.Label>
+									<Select
+										className="select2 z-3"
+										options={options}
+										value={options.find(
+											(option) => option.value === selectedCategory
+										)}
+										onChange={(option: any) =>
+											setSelectedCategory(option ? option.value : null)
+										}
+									/>
+								</Form.Group>
+								<Form.Group controlId="blogImage" className="mb-3">
+									<Form.Label>Upload Image</Form.Label>
+									<FileUploader
+										icon="ri-upload-cloud-2-line"
+										text="Drop files here or click to upload."
+										onFileUpload={handleImageChange}
+									/>
+								</Form.Group>
+								<Button variant="primary" type="submit" disabled={loading}>
+									Submit
+								</Button>
+							</VerticalForm>
+						</Card.Body>
+					</Card>
+				</Col>
+			</Row>
+		</>
 	)
 }
 

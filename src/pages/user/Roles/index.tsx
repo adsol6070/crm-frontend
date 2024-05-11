@@ -1,24 +1,54 @@
 import { useState } from 'react'
 import { Button, Card, Col, Row } from 'react-bootstrap'
-import { BsPlus } from 'react-icons/bs'
+import { BsPencil, BsPlus, BsTrash } from 'react-icons/bs'
 import { PageBreadcrumb, Table } from '@/components'
 import { useRoles } from './useRoles'
 import PermissionsModal from './PermissionsModal'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/ReactToastify.css'
 
 const Roles = () => {
-	const { columns, sampleData } = useRoles()
+	const { columns, permissionsData, fetchPermissions, deletePermission } =
+		useRoles()
 	const [showModal, setShowModal] = useState(false)
+	const [modalMode, setModalMode] = useState('create')
+	const [currentPermissions, setCurrentPermissions] = useState({})
 
-	const handleAddNewRole = () => {
+	const handleOpenModal = (mode: string, permissions = {}) => {
+		setModalMode(mode)
+		setCurrentPermissions(permissions)
 		setShowModal(true)
 	}
 
-	const handleCloseModal = () => {
-		setShowModal(false)
-	}
+	const enhancedColumns = [
+		...columns,
+		{
+			Header: 'Action',
+			Cell: ({ row }) => (
+				<div>
+					<span className="me-2">
+						<BsPencil
+							color="blue"
+							cursor="pointer"
+							onClick={() => handleOpenModal('edit', row.original)}
+						/>
+					</span>
+					<span>
+						<BsTrash
+							color="red"
+							cursor="pointer"
+							style={{ marginLeft: 12 }}
+							onClick={() => deletePermission(row.original.id)}
+						/>
+					</span>
+				</div>
+			),
+		},
+	]
 
 	return (
 		<>
+			<ToastContainer />
 			<PageBreadcrumb title="Roles List" subName="Roles" />
 			<Row>
 				<Col>
@@ -34,7 +64,9 @@ const Roles = () => {
 									</p>
 								</div>
 								<div>
-									<Button variant="success" onClick={handleAddNewRole}>
+									<Button
+										variant="success"
+										onClick={() => handleOpenModal('create')}>
 										<BsPlus className="me-1" /> Add New Role
 									</Button>
 								</div>
@@ -42,9 +74,9 @@ const Roles = () => {
 						</Card.Header>
 						<Card.Body>
 							<Table
-								columns={columns}
-								data={sampleData}
-								pageSize={10}
+								columns={enhancedColumns}
+								data={permissionsData}
+								pageSize={7}
 								isSortable={true}
 								pagination={true}
 								isSearchable={true}
@@ -56,7 +88,17 @@ const Roles = () => {
 					</Card>
 				</Col>
 			</Row>
-			<PermissionsModal showModal={showModal} handleClose={handleCloseModal} />
+			<PermissionsModal
+				showModal={showModal}
+				permissions={currentPermissions.permissions || {}}
+				roleName={currentPermissions.role || ''}
+				permissionId={currentPermissions.id}
+				mode={modalMode}
+				setModalMode={setModalMode}
+				setCurrentPermissions={setCurrentPermissions}
+				setShowModal={setShowModal}
+				onPermissionsChange={fetchPermissions}
+			/>
 		</>
 	)
 }

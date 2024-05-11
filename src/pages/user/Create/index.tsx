@@ -1,25 +1,23 @@
 import { FormInput, PageBreadcrumb, VerticalForm } from '@/components'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Row, Col, Card, Button, Form } from 'react-bootstrap'
 import Select from 'react-select'
 import useCreateUser from './useCreateUser'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
+import { permissionService } from '@/common'
 
-const options = [
-	{ value: '', label: 'Select Role' },
-	{ value: 'admin', label: 'Admin' },
-	{ value: 'user', label: 'User' },
-	{ value: 'technical', label: 'Technical Staff' },
-	{ value: 'hr', label: 'HR' },
-	{ value: 'manager', label: 'Manager' },
-]
+// Converts a string to Title Case
+const toTitleCase = (str: string) => {
+	return str.toLowerCase().replace(/\b(\w)/g, (s) => s.toUpperCase())
+}
 
 const CreateUser = () => {
 	const [profileImage, setProfileImage] = useState<File | null>(null)
 	const [selectedRole, setSelectedRole] = useState<string | null>(null)
+	const [roleOptions, setRoleOptions] = useState([])
 	const { loading, createUser } = useCreateUser()
 
 	const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,6 +25,19 @@ const CreateUser = () => {
 			setProfileImage(event.target.files[0])
 		}
 	}
+
+	useEffect(() => {
+		const fetchRoles = async () => {
+			const roles = await permissionService.getRoles()
+			const transformedRoles = roles.map((role: string) => ({
+				value: role,
+				label: toTitleCase(role),
+			}))
+			setRoleOptions([...transformedRoles])
+		}
+
+		fetchRoles()
+	}, [])
 
 	const schemaResolver = yupResolver(
 		yup.object().shape({
@@ -106,7 +117,7 @@ const CreateUser = () => {
 											placeholder="Enter your phone"
 											containerClass="mb-3"
 										/>
-										
+
 										<FormInput
 											label="Profile Image"
 											type="file"
@@ -118,8 +129,9 @@ const CreateUser = () => {
 											<Form.Label>Role</Form.Label>
 											<Select
 												className="select2 z-3"
-												options={options}
-												value={options.find(
+												placeholder="Select Role"
+												options={roleOptions}
+												value={roleOptions.find(
 													(option) => option.value === selectedRole
 												)}
 												onChange={(option) =>

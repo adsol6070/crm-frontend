@@ -3,10 +3,16 @@ import { Link, useLocation } from 'react-router-dom'
 import { Collapse } from 'react-bootstrap'
 
 // helpers
-import { findAllParent, findMenuItem, useAuthContext } from '@/common'
+import {
+	findAllParent,
+	findMenuItem,
+	useAuthContext,
+	usePermissions,
+} from '@/common'
 
 // constants
 import { MenuItemTypes } from '../constants/menu'
+import { hasPermission } from '@/utils'
 
 interface SubMenus {
 	item: MenuItemTypes
@@ -24,8 +30,9 @@ const MenuItemWithChildren = ({
 	activeMenuItems,
 	toggleMenu,
 }: SubMenus) => {
-	const { user } = useAuthContext()
-	const userRole = user?.role
+	// const { user } = useAuthContext()
+	const { permissions } = usePermissions()
+	// const userRole = user?.role
 	const [open, setOpen] = useState<boolean>(activeMenuItems!.includes(item.key))
 
 	useEffect(() => {
@@ -39,8 +46,14 @@ const MenuItemWithChildren = ({
 		return false
 	}
 
-	const canViewMenuItem = (menuItem: MenuItemTypes) => {
-		return !menuItem.roles || menuItem.roles.includes(userRole)
+	const canViewMenuItem = (menuItem: MenuItemTypes, permissions: any) => {
+		if (menuItem.permissions) {
+			const daa = Object.keys(menuItem.permissions).some((action) =>
+				hasPermission(permissions, 'Users', action)
+			)
+			return daa
+		}
+		return true
 	}
 
 	return (
@@ -67,7 +80,7 @@ const MenuItemWithChildren = ({
 				<div>
 					<ul className={`side-nav-second-level ${subMenuClassNames}`}>
 						{(item.children || []).map((child, idx) => {
-							if (!canViewMenuItem(child)) return null
+							if (!canViewMenuItem(child, permissions)) return null
 							return (
 								<React.Fragment key={idx}>
 									{child.children ? (

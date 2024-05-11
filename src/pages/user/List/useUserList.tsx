@@ -2,10 +2,11 @@ import { Column } from 'react-table'
 import { PageSize } from '@/components'
 import { useEffect, useState } from 'react'
 import { User } from '@/types'
-import { userApi } from '@/common'
+import { usePermissions, userApi } from '@/common'
 import { RiEdit2Line, RiDeleteBinLine } from 'react-icons/ri'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
+import { hasPermission } from '@/utils'
 
 interface UserListHookResult {
 	columns: ReadonlyArray<Column>
@@ -16,10 +17,11 @@ interface UserListHookResult {
 
 export const useUserList = (): UserListHookResult => {
 	const navigate = useNavigate()
+	const { permissions } = usePermissions()
 	const [loading, setLoading] = useState(false)
 	const [userRecords, setUserRecords] = useState<User[]>([])
 
-	const columns: ReadonlyArray<Column> = [
+	const columns = [
 		{
 			Header: 'ID',
 			accessor: 'id',
@@ -67,7 +69,11 @@ export const useUserList = (): UserListHookResult => {
 			accessor: 'role',
 			defaultCanSort: false,
 		},
-		{
+	]
+
+	// Conditionally add the 'Edit' column if permission exists
+	if (hasPermission(permissions, 'Users', 'Update')) {
+		columns.push({
 			Header: 'Edit',
 			accessor: 'edit',
 			disableSortBy: true,
@@ -79,8 +85,12 @@ export const useUserList = (): UserListHookResult => {
 					onClick={() => handleEdit(cell.row.original.id, cell.row.original)}
 				/>
 			),
-		},
-		{
+		})
+	}
+
+	// Conditionally add the 'Delete' column if permission exists
+	if (hasPermission(permissions, 'Users', 'Delete')) {
+		columns.push({
 			Header: 'Delete',
 			accessor: 'delete',
 			disableSortBy: true,
@@ -92,18 +102,24 @@ export const useUserList = (): UserListHookResult => {
 					onClick={() => handleDelete(cell.row.original.id)}
 				/>
 			),
-		},
-	]
+		})
+	}
 
 	const handleEdit = (userId: string, userData: any) => {
-		navigate(`/user/edit/${userId}`, { state: { userData } })
+		if (hasPermission(permissions, 'Users', 'Update')) {
+			navigate(`/user/edit/${userId}`, { state: { userData } })
+		}
 	}
 
 	const handleDelete = async (userId: string) => {
-		await userApi.delete(userId)
-		const updatedUserRecords = userRecords.filter((user) => user.id !== userId)
-		setUserRecords(updatedUserRecords)
-		toast.success('User deleted successfully.')
+		if (hasPermission(permissions, 'Users', 'Delete')) {
+			await userApi.delete(userId)
+			const updatedUserRecords = userRecords.filter(
+				(user) => user.id !== userId
+			)
+			setUserRecords(updatedUserRecords)
+			toast.success('User deleted successfully.')
+		}
 	}
 
 	const sizePerPageList: PageSize[] = [

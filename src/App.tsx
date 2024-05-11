@@ -4,6 +4,7 @@ import AllRoutes from './routes/Routes'
 
 import './assets/scss/app.scss'
 import './assets/scss/icons.scss'
+import { PermissionsProvider } from './common/context/usePermissionsContext'
 
 configureFakeBackend()
 
@@ -11,7 +12,9 @@ function App() {
 	return (
 		<ThemeProvider>
 			<AuthProvider>
-				<AllRoutes />
+				<PermissionsProvider>
+					<AllRoutes />
+				</PermissionsProvider>
 			</AuthProvider>
 		</ThemeProvider>
 	)

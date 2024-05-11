@@ -52,6 +52,9 @@ const AddBlog: React.FC = () => {
 			blogImage,
 		}
 		await createBlog(completedBlogData)
+		setSelectedCategory(null)
+		setEditorState(EditorState.createEmpty())
+		setBlogImage(null)
 	}
 
 	return (
@@ -95,6 +98,7 @@ const AddBlog: React.FC = () => {
 										onChange={(option: any) =>
 											setSelectedCategory(option ? option.value : null)
 										}
+										isClearable={true}
 									/>
 								</Form.Group>
 								<Form.Group controlId="blogImage" className="mb-3">
