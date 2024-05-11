@@ -18,10 +18,14 @@ export default function useLogin() {
 		[location.state]
 	)
 
-	const login = async ({ tenantID, email, password }: User) => {
+	const login = async ({ tenantID, email, password, rememberMe }: User) => {
 		setLoading(true)
 		try {
-			const res: any = await authApi.login({ tenantID, email, password })
+			// const res: any = await authApi.login({ tenantID, email, password, rememberMe })
+
+			// if (res.token) {
+			// 	saveSession({ ...(res.user ?? {}), token: res.token })
+			const res: any = await authApi.login({ tenantID, email, password, rememberMe })
 			if (res.tokens) {
 				saveSession(res.tokens)
 				navigate(redirectUrl)

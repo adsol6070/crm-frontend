@@ -1,61 +1,70 @@
-import { FormInput, PageBreadcrumb, VerticalForm } from '@/components'
-import { Row, Col, Card, Form, Button } from 'react-bootstrap'
-import { Editor } from 'react-draft-wysiwyg'
-import { EditorState } from 'draft-js'
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { FileUploader } from '@/components/FileUploader'
-import { useState } from 'react'
-import Select from 'react-select'
-import useCreateBlog from './useCreateBlog'
-import { convertToRaw } from 'draft-js'
-import draftToHtml from 'draftjs-to-html'
-import { ToastContainer } from 'react-toastify'
+import { FormInput, PageBreadcrumb, VerticalForm } from '@/components';
+import { Row, Col, Card, Form, Button } from 'react-bootstrap';
+import { Editor } from 'react-draft-wysiwyg';
+import { EditorState } from 'draft-js';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { FileUploader } from '@/components/FileUploader';
+import { useState } from 'react';
+import Select from 'react-select';
+import useCreateBlog from './useCreateBlog';
+import { convertToRaw } from 'draft-js';
+import draftToHtml from 'draftjs-to-html';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const options = [
-	{ value: '', label: 'Select Role' },
-	{ value: 'admin', label: 'Admin' },
-	{ value: 'user', label: 'User' },
-	{ value: 'technical', label: 'Technical Staff' },
-	{ value: 'hr', label: 'HR' },
-	{ value: 'manager', label: 'Manager' },
-]
-
-export interface FileType extends File {
-	preview?: string
-	formattedSize?: string
-}
-
+interface BlogCategory {
+	value: string;
+	label: string;
+  }
+  
 const AddBlog: React.FC = () => {
-	const { createBlog, loading } = useCreateBlog()
-	const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-	const [blogImage, setBlogImage] = useState<File | null>(null)
-	const [editorState, setEditorState] = useState(EditorState.createEmpty())
+	const { createBlog, loading, blogCategories } = useCreateBlog();
+	const [selectedCategory, setSelectedCategory] = useState<BlogCategory | null>(null); // Managed as an object or null
+	const [blogImage, setBlogImage] = useState<File | null>(null);
+	const [editorState, setEditorState] = useState(EditorState.createEmpty());
+	const [resetFileUploader, setResetFileUploader] = useState(0);
 
 	const handleEditorChange = (state: EditorState) => {
-		setEditorState(state)
-	}
+		setEditorState(state);
+	};
+
+	const handleSelect = (option: BlogCategory | null) => {
+		setSelectedCategory(option);
+	};
 
 	const handleFileUpload = (files: any) => {
 		if (files[0]) {
-			setBlogImage(files[0])
+			setBlogImage(files[0]);
 		}
-	}
+	};
 
-	const handleSubmit = async (data: any) => {
-		const contentState = editorState.getCurrentContent()
-		const rawContentState = convertToRaw(contentState)
-		const contentHTML = draftToHtml(rawContentState)
+	const onSubmit = async (data: any, { reset }: { reset: () => void }) => {
+		const contentState = editorState.getCurrentContent();
+		const rawContentState = convertToRaw(contentState);
+		const contentHTML = draftToHtml(rawContentState);
 		const completedBlogData = {
 			...data,
 			content: contentHTML,
-			category: selectedCategory,
+			category: selectedCategory ? selectedCategory.value : null,
 			blogImage,
-		}
-		await createBlog(completedBlogData)
-		setSelectedCategory(null)
-		setEditorState(EditorState.createEmpty())
-		setBlogImage(null)
-	}
+		};
+
+		await createBlog(completedBlogData);
+		reset();
+		setEditorState(EditorState.createEmpty());
+		setBlogImage(null);
+		setSelectedCategory(null);
+		setResetFileUploader(resetFileUploader + 1);
+	};
+
+	const schemaResolver = yupResolver(
+		yup.object().shape({
+			title: yup.string().required('Please enter blog title'),
+			description: yup.string().required('Please enter blog description'),
+		})
+	);
 
 	return (
 		<>
@@ -68,13 +77,23 @@ const AddBlog: React.FC = () => {
 							<h4 className="header-title">Add New Blog</h4>
 						</Card.Header>
 						<Card.Body>
-							<VerticalForm onSubmit={handleSubmit}>
+							<VerticalForm onSubmit={onSubmit} resolver={schemaResolver}>
 								<FormInput
 									label="Title"
 									type="text"
 									name="title"
 									placeholder="Enter title"
 									containerClass="mb-3"
+									required
+								/>
+								<FormInput
+									label="Description"
+									type="textarea"
+									name="description"
+									placeholder="Enter Short Description"
+									rows={3}
+									containerClass="mb-3"
+									key="textarea"
 									required
 								/>
 								<Form.Group controlId="blogContent" className="mb-3">
@@ -85,19 +104,18 @@ const AddBlog: React.FC = () => {
 										wrapperClassName="wrapperClassName"
 										editorClassName="editorClassName"
 										onEditorStateChange={handleEditorChange}
+										editorStyle={{ minHeight: '250px', border: "1px solid #dee2e6", padding: "10px 20px" }}
 									/>
 								</Form.Group>
 								<Form.Group className="mb-3">
-									<Form.Label>Role</Form.Label>
+									<Form.Label>Categories</Form.Label>
 									<Select
 										className="select2 z-3"
-										options={options}
-										value={options.find(
-											(option) => option.value === selectedCategory
-										)}
-										onChange={(option: any) =>
-											setSelectedCategory(option ? option.value : null)
-										}
+										options={blogCategories}
+										getOptionLabel={(e: any) => e.label}
+										getOptionValue={(e: any) => e.value}
+										value={selectedCategory}
+										onChange={handleSelect}
 										isClearable={true}
 									/>
 								</Form.Group>
@@ -107,6 +125,8 @@ const AddBlog: React.FC = () => {
 										icon="ri-upload-cloud-2-line"
 										text="Drop files here or click to upload."
 										onFileUpload={handleFileUpload}
+										showPreview={true}
+										resetTrigger={resetFileUploader}
 									/>
 								</Form.Group>
 								<Button variant="primary" type="submit" disabled={loading}>
@@ -118,7 +138,7 @@ const AddBlog: React.FC = () => {
 				</Col>
 			</Row>
 		</>
-	)
-}
+	);
+};
 
-export default AddBlog
+export default AddBlog;

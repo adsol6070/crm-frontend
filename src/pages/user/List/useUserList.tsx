@@ -23,6 +23,11 @@ export const useUserList = (): UserListHookResult => {
 
 	const columns = [
 		{
+			Header: 'S.No',
+			accessor: 'sno',
+			defaultCanSort: true,
+		},
+		{
 			Header: 'ID',
 			accessor: 'id',
 			defaultCanSort: true,
@@ -77,7 +82,7 @@ export const useUserList = (): UserListHookResult => {
 			Header: 'Edit',
 			accessor: 'edit',
 			disableSortBy: true,
-			Cell: ({ cell }) => (
+			Cell: ({ cell }: any) => (
 				<RiEdit2Line
 					size={24}
 					color="#007bff"
@@ -94,7 +99,7 @@ export const useUserList = (): UserListHookResult => {
 			Header: 'Delete',
 			accessor: 'delete',
 			disableSortBy: true,
-			Cell: ({ cell }) => (
+			Cell: ({ cell }: any) => (
 				<RiDeleteBinLine
 					size={24}
 					color="#dc3545"
@@ -146,11 +151,11 @@ export const useUserList = (): UserListHookResult => {
 			setLoading(true)
 			const userData = await userApi.get()
 			const usersWithImages = await Promise.all(
-				userData?.users.map(async (user: User) => {
+				userData?.users.map(async (user: User, index: any) => {
 					if (user.profileImage) {
 						const imageBlob = await userApi.getImage(user.id)
 						const imageUrl = URL.createObjectURL(imageBlob)
-						return { ...user, profileImage: imageUrl }
+						return { ...user, profileImage: imageUrl, sno: index + 1  }
 					} else {
 						const placeholderImageUrl = generatePlaceholderImage(user.firstname)
 						return { ...user, profileImage: placeholderImageUrl }
@@ -158,6 +163,7 @@ export const useUserList = (): UserListHookResult => {
 				})
 			)
 			setUserRecords(usersWithImages)
+			setLoading(false)
 		}
 
 		getUsers()

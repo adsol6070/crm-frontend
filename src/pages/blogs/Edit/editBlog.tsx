@@ -1,42 +1,26 @@
-import React, { useEffect, useState } from 'react'
-import { useParams, useLocation } from 'react-router-dom'
-import { Button, Card, Col, Form, Row } from 'react-bootstrap'
-import Select from 'react-select'
 import { FormInput, PageBreadcrumb, VerticalForm } from '@/components'
-import useEditBlog from './useEditBlogForm'
+import { Row, Col, Card, Form, Button } from 'react-bootstrap'
 import { Editor } from 'react-draft-wysiwyg'
-import { EditorState } from 'draft-js'
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { useForm } from 'react-hook-form'
-import { convertToRaw } from 'draft-js'
 import { FileUploader } from '@/components/FileUploader'
-import { ToastContainer } from 'react-toastify'
+import { useState } from 'react'
+import Select from 'react-select'
+import useEditBlog from './useEditBlogForm'
+import { convertToRaw } from 'draft-js'
 import draftToHtml from 'draftjs-to-html'
+import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
+import { useLocation, useParams } from 'react-router-dom'
+import htmlToDraft from 'html-to-draftjs'
+import { EditorState, ContentState } from 'draft-js';
+import useCreateBlog from '../Create/useCreateBlog'
 
-interface Blog {
-	id: string
-	tenantID: string
-	title: string
-	content: string
-	blogImage: string
-	category: string
+export interface FileType extends File {
+	preview?: string
+	formattedSize?: string
 }
-const EditBlog = () => {
-	const { blogId } = useParams<{ blogId: string }>()
-	const location = useLocation()
-	const [blog, setBlog] = useState<Blog | null>(null)
-	const [newBlogImage, setNewBlogImage] = useState<File | null>(null)
-	const [editorState, setEditorState] = useState(EditorState.createEmpty())
-	// console.log(blog?.content)
-	const { editBlog } = useEditBlog()
-	const {
-		register,
-		handleSubmit,
-		formState: { errors },
-		setValue,
-	} = useForm<Blog>()
 
+<<<<<<< HEAD
 	useEffect(() => {
 		if (location.state && location.state.updatedBlogData) {
 			setBlog(location.state.updatedBlogData)
@@ -46,9 +30,27 @@ const EditBlog = () => {
 					location.state.updatedBlogData[key as keyof Blog]
 				)
 			})
+=======
+const EditBlog: React.FC = () => {
+	const { blogId } = useParams();
+	const location = useLocation();
+	const blogData = location.state?.updatedBlogData;
+	const { blogCategories } = useCreateBlog()
+	const { editBlog, loading } = useEditBlog()
+	const [selectedUpadatedCategory, setUpdatedSelectedCategory] = useState(blogData?.category)
+	const [updatedBlogImage, setUpdatedBlogImage] = useState<File | null>(null)
+	const [updateEditorState, setUpdateEditorState] = useState(() => {
+		if (blogData.content) {
+			const blocksFromHtml = htmlToDraft(blogData.content);
+			const { contentBlocks, entityMap } = blocksFromHtml;
+			const contentState = ContentState.createFromBlockArray(contentBlocks, entityMap);
+			return EditorState.createWithContent(contentState);
+>>>>>>> 006a57c8e21c66c501a6a48c6075d00ec78b7ae7
 		}
-	}, [location, blogId, setValue])
+		return EditorState.createEmpty();
+	});
 
+<<<<<<< HEAD
 	if (blog?.content) {
 		// Set the editor state with the content from the blog object
 		setEditorState(EditorState.createWithContent(blog.content))
@@ -57,25 +59,29 @@ const EditBlog = () => {
 	const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files && event.target.files[0]) {
 			setNewBlogImage(event.target.files[0])
+=======
+	const handleEditorChange = (state: EditorState) => {
+		setUpdateEditorState(state);
+	};
+
+	const handleFileUpload = (files: any) => {
+		if (files[0]) {
+			setUpdatedBlogImage(files[0])
+>>>>>>> 006a57c8e21c66c501a6a48c6075d00ec78b7ae7
 		}
 	}
-
-	const onSubmit = async (data: Blog) => {
-		let formData = new FormData()
-		Object.keys(data).forEach((key) => {
-			if (key !== 'blogImage') {
-				formData.append(key, data[key as keyof Blog])
-			}
-		})
-
-		if (newBlogImage) {
-			formData.append('blogImage', newBlogImage)
+	const handleSubmit = async (data: any) => {
+		const contentState = updateEditorState.getCurrentContent()
+		const rawContentState = convertToRaw(contentState)
+		const contentHTML = draftToHtml(rawContentState)
+		const completedBlogData = {
+			...data,
+			content: contentHTML,
+			category: selectedUpadatedCategory,
+			blogImage: updatedBlogImage,
 		}
-
-		await editBlog(formData, blogId)
+		await editBlog(completedBlogData, blogId)
 	}
-
-	if (!blog) return <p>Loading user data...</p>
 
 	return (
 		<>
@@ -88,23 +94,50 @@ const EditBlog = () => {
 							<h4 className="header-title">Edit Blog</h4>
 						</Card.Header>
 						<Card.Body>
+<<<<<<< HEAD
 							<VerticalForm onSubmit={onSubmit}>
+=======
+							<VerticalForm onSubmit={handleSubmit}>
+>>>>>>> 006a57c8e21c66c501a6a48c6075d00ec78b7ae7
 								<FormInput
 									label="Title"
 									type="text"
 									name="title"
+<<<<<<< HEAD
+=======
+									defaultValue={blogData?.title}
+>>>>>>> 006a57c8e21c66c501a6a48c6075d00ec78b7ae7
 									placeholder="Enter title"
 									containerClass="mb-3"
+									required
+								/>
+<<<<<<< HEAD
+								<Form.Group controlId="blogContent" className="mb-3">
+									<Form.Label>Content</Form.Label>
+									<Editor
+										editorState={editorState}
+=======
+								<FormInput
+									label="Description"
+									type="textarea"
+									name="description"
+									defaultValue={blogData?.description}
+									placeholder="Enter Short Description"
+									rows={3}
+									containerClass="mb-3"
+									key="textarea"
 									required
 								/>
 								<Form.Group controlId="blogContent" className="mb-3">
 									<Form.Label>Content</Form.Label>
 									<Editor
-										editorState={editorState}
+										editorState={updateEditorState}
+>>>>>>> 006a57c8e21c66c501a6a48c6075d00ec78b7ae7
 										toolbarClassName="toolbarClassName"
 										wrapperClassName="wrapperClassName"
 										editorClassName="editorClassName"
 										onEditorStateChange={handleEditorChange}
+<<<<<<< HEAD
 									/>
 								</Form.Group>
 								<Form.Group className="mb-3">
@@ -117,6 +150,22 @@ const EditBlog = () => {
 										)}
 										onChange={(option: any) =>
 											setSelectedCategory(option ? option.value : null)
+=======
+										editorStyle={{ minHeight: '250px', border: "1px solid #dee2e6", padding: "10px 20px" }}
+									/>
+								</Form.Group>
+								<Form.Group className="mb-3">
+									<Form.Label>Categories</Form.Label>
+									<Select
+										className="select2 z-3"
+										options={blogCategories}
+										defaultValue={{ label: blogData.category, value: blogData.category }}
+										value={blogCategories.find(
+											(option) => option.category === selectedUpadatedCategory
+										)}
+										onChange={(option: any) =>
+											setUpdatedSelectedCategory(option.value)
+>>>>>>> 006a57c8e21c66c501a6a48c6075d00ec78b7ae7
 										}
 									/>
 								</Form.Group>
@@ -125,7 +174,11 @@ const EditBlog = () => {
 									<FileUploader
 										icon="ri-upload-cloud-2-line"
 										text="Drop files here or click to upload."
+<<<<<<< HEAD
 										onFileUpload={handleImageChange}
+=======
+										onFileUpload={handleFileUpload}
+>>>>>>> 006a57c8e21c66c501a6a48c6075d00ec78b7ae7
 									/>
 								</Form.Group>
 								<Button variant="primary" type="submit" disabled={loading}>

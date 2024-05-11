@@ -52,7 +52,16 @@ const CreateUser = () => {
 			profileImage: yup.mixed(),
 		})
 	)
-
+	const onSubmit = (data: any, { reset }: any) => {
+		const completeData = {
+			...data,
+			role: selectedRole ? selectedRole.value : null,
+			profileImage,
+		}
+		createUser(completeData)
+		reset();
+		setSelectedRole(null);
+	}
 	return (
 		<>
 			<ToastContainer />
@@ -61,23 +70,13 @@ const CreateUser = () => {
 				<Col>
 					<Card>
 						<Card.Header>
-							<h4 className="header-title">Multiple Row Selection</h4>
-							<p className="text-muted mb-0">
-								This table allowing selection of multiple rows
-							</p>
+							<h4 className="header-title">Add New User</h4>
 						</Card.Header>
 						<Card.Body>
 							<Row>
 								<Col md={12}>
 									<VerticalForm
-										onSubmit={(data: any) => {
-											const completeData = {
-												...data,
-												role: selectedRole,
-												profileImage,
-											}
-											createUser(completeData)
-										}}
+										onSubmit={onSubmit}
 										resolver={schemaResolver}>
 										<FormInput
 											label="First Name"

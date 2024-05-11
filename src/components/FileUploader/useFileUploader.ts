@@ -47,15 +47,20 @@ export default function useFileUploader(showPreview: boolean = true) {
 	/*
 	 * Removes the selected file
 	 */
-	const removeFile = (file: FileType) => {
+	const removeFile = (file: FileType, event: any) => {
+		event.preventDefault();
 		const newFiles = [...selectedFiles]
 		newFiles.splice(newFiles.indexOf(file), 1)
 		setSelectedFiles(newFiles)
 	}
+	const clearFiles = () => {
+        setSelectedFiles([]);
+    };
 
 	return {
 		selectedFiles,
 		handleAcceptedFiles,
 		removeFile,
+		clearFiles,
 	}
 }

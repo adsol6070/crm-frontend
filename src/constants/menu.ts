@@ -35,6 +35,26 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		},
 	},
 	{
+		key: 'leads',
+		label: 'Leads',
+		isTitle: false,
+		icon: 'ri-user-add-line',
+		children: [
+			{
+				key: 'leads-AddLead',
+				label: 'Add Lead',
+				url: '/leads/add-lead',
+				parentKey: 'leads',
+			},
+			{
+				key: 'leads-LeadList',
+				label: 'Lead List',
+				url: '/leads/list-leads',
+				parentKey: 'leads',
+			},
+		],
+	},
+	{
 		key: 'blogs',
 		label: 'Blogs',
 		isTitle: false,

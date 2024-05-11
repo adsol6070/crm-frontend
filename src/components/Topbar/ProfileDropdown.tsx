@@ -2,12 +2,14 @@ import { Dropdown, Image } from 'react-bootstrap'
 import { ProfileOption } from '@/Layouts/Topbar'
 import { Link } from 'react-router-dom'
 import { useToggle } from '@/hooks'
+import { useAuthContext, userApi } from '@/common'
 
 type ProfileDropdownProps = {
 	menuItems: Array<ProfileOption>
 	userImage: string
 	username: string
 }
+
 const ProfileDropdown = ({
 	menuItems,
 	userImage,

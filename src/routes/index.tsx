@@ -31,7 +31,12 @@ const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
 const AddBlog = React.lazy(() => import('../pages/blogs/Create'))
 const BlogList = React.lazy(() => import('../pages/blogs/List'))
 const BlogEdit = React.lazy(() => import('../pages/blogs/Edit/editBlog'))
+const ReadBlog = React.lazy(() => import('../pages/blogs/Readblog'))
 const AddCategory = React.lazy(() => import('../pages/blogs/AddCategory'))
+
+// leads
+const AddLead = React.lazy(() => import('../pages/leads/Create'))
+const ListLead = React.lazy(() => import('../pages/leads/List'))
 
 // // users
 const UserList = React.lazy(() => import('../pages/user/List'))
@@ -163,9 +168,36 @@ const blogRoutes = {
 			route: PrivateRoute,
 		},
 		{
+			path: '/blog/read/',
+			name: 'Blog Read',
+			element: <ReadBlog />,
+			route: PrivateRoute,
+		},
+		{
 			path: '/blog/edit/:blogId',
 			name: 'Blog Edit',
 			element: <BlogEdit />,
+			route: PrivateRoute,
+		},
+	],
+}
+// Lead Routes
+const leadRoutes = {
+	path: '/leads',
+	name: 'Leads',
+	icon: 'pages',
+	header: 'Custom',
+	children: [
+		{
+			path: '/leads/add-lead',
+			name: 'Add Lead',
+			element: <AddLead />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/leads/list-leads',
+			name: 'List Lead',
+			element: <ListLead />,
 			route: PrivateRoute,
 		},
 	],
@@ -295,6 +327,7 @@ const flattenRoutes = (routes: RoutesProps[]) => {
 const authProtectedRoutes = [
 	dashboardRoutes,
 	blogRoutes,
+	leadRoutes,
 	adminRoutes,
 	customPagesRoutes,
 ]

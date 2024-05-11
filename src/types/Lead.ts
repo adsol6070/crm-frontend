@@ -1,12 +1,10 @@
-export type User = {
+export type Lead = {
 	id: string
 	tenantID?: string
 	firstname: string
 	lastname?: string
 	email?: string
-	password?: string
 	phone: string
-	profileImage?: string
-	role: string
-	rememberMe: boolean
+	qualification: string
+	visaInterest: string
 }
