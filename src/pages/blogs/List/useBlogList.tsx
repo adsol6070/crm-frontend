@@ -28,7 +28,6 @@ export default function useGetBlogPosts() {
 			setLoading(true)
 			try {
 				const response = await blogApi.getAllPosts()
-				// console.log(response)
 				const blogWithImages = await Promise.all(
 					response.map(async (blog: Blog) => {
 						if (blog.blogImage) {

@@ -9,7 +9,6 @@ import { useState } from 'react'
 import { VerticalForm, FormInput, PageBreadcrumb } from '@/components'
 
 interface UserData {
-	tenantID: string
 	email: string
 	password: string
 	rememberMe?: boolean
@@ -34,7 +33,6 @@ const BottomLinks = () => {
 
 const schemaResolver = yupResolver(
 	yup.object().shape({
-		tenantID: yup.string().required('Please enter tenantID'),
 		email: yup.string().required('Please enter Username'),
 		password: yup.string().required('Please enter Password'),
 		rememberMe: yup.boolean(),
@@ -43,7 +41,7 @@ const schemaResolver = yupResolver(
 const Login = () => {
 	const { loading, login, redirectUrl, isAuthenticated } = useLogin()
 	const [rememberMe, setRememberMe] = useState(false);
-	
+
 	const handleCheckboxChange = () => {
 		setRememberMe(!rememberMe)
 	}
@@ -59,21 +57,14 @@ const Login = () => {
 				bottomLinks={<BottomLinks />}
 				hasThirdPartyLogin>
 				<VerticalForm<UserData>
-					onSubmit={(data: any) =>{ 
-						const completeData= {
+					onSubmit={(data: any) => {
+						const completeData = {
 							...data,
 							rememberMe
 						}
-						 login(completeData) }}
+						login(completeData)
+					}}
 					resolver={schemaResolver}>
-					<FormInput
-						label="Tenant ID"
-						type="text"
-						name="tenantID"
-						placeholder="Enter your ID"
-						containerClass="mb-3"
-						required
-					/>
 					<FormInput
 						label="Email address"
 						type="text"
