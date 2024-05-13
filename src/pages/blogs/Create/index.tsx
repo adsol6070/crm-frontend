@@ -23,7 +23,7 @@ const AddBlog: React.FC = () => {
 	const { createBlog, loading, blogCategories } = useCreateBlog()
 	const [selectedCategory, setSelectedCategory] = useState<BlogCategory | null>(
 		null
-	) // Managed as an object or null
+	)
 	const [blogImage, setBlogImage] = useState<File | null>(null)
 	const [editorState, setEditorState] = useState(EditorState.createEmpty())
 	const [resetFileUploader, setResetFileUploader] = useState(0)
@@ -84,7 +84,7 @@ const AddBlog: React.FC = () => {
 									label="Title"
 									type="text"
 									name="title"
-									placeholder="Enter title"
+									placeholder="Enter Title"
 									containerClass="mb-3"
 									required
 								/>

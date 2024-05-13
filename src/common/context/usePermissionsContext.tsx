@@ -6,6 +6,7 @@ import React, {
 	useEffect,
 } from 'react'
 import { permissionService } from '../api'
+import { useAuthContext } from './useAuthContext'
 
 // Permissions type
 interface Permissions {
@@ -38,11 +39,13 @@ export const PermissionsProvider: React.FC<{ children: ReactNode }> = ({
 	children,
 }) => {
 	const [permissions, setPermissions] = useState<Permissions>({})
+	const { user } = useAuthContext()
 
 	console.log('Permissions:', permissions)
 
 	const fetchPermissions = async (role: string) => {
 		try {
+			console.log('Fetch Permissions get called>')
 			const data = await permissionService.getPermissionsByRole({ role })
 			setPermissions(data.permissions)
 		} catch (error) {
@@ -52,8 +55,9 @@ export const PermissionsProvider: React.FC<{ children: ReactNode }> = ({
 	}
 
 	useEffect(() => {
+		console.log('UseEffect got calleddddd.')
 		fetchPermissions('admin')
-	}, [])
+	}, [user?.role])
 
 	return (
 		<PermissionsContext.Provider value={{ permissions }}>

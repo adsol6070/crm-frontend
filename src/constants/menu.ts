@@ -59,7 +59,6 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		label: 'Blogs',
 		isTitle: false,
 		icon: 'ri-newspaper-line',
-		permissionsKey: 'Blogs',
 		children: [
 			{
 				key: 'blogs-AddBlog',
@@ -69,6 +68,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				permissions: {
 					Create: true,
 				},
+				permissionsKey: 'Blogs',
 			},
 			{
 				key: 'blogs-AddCategory',
@@ -78,6 +78,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				permissions: {
 					Create: true,
 				},
+				permissionsKey: 'Blogs',
 			},
 			{
 				key: 'blogs-BlogList',
@@ -87,6 +88,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				permissions: {
 					Read: true,
 				},
+				permissionsKey: 'Blogs',
 			},
 		],
 	},
@@ -95,7 +97,6 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		label: 'Users',
 		isTitle: false,
 		icon: 'ri-admin-line',
-		permissionsKey: 'Users',
 		children: [
 			{
 				key: 'user-CreateAdmin',
@@ -105,6 +106,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				permissions: {
 					Create: true,
 				},
+				permissionsKey: 'Users',
 			},
 			{
 				key: 'user-UserList',
@@ -114,6 +116,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				permissions: {
 					Read: true,
 				},
+				permissionsKey: 'Users',
 			},
 			{
 				key: 'user-ManageRoles',

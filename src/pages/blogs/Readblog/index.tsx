@@ -71,38 +71,39 @@ const ReadBlog: React.FC = () => {
 		<>
 			<PageBreadcrumb title="Read Blog" subName="Blogs" />
 			<Row className="mt-4 d-flex align-items-center justify-content-center">
-				<Col md={8} className="mb-4">
-					<Card className="d-block">
-						<div className="d-flex align-items-center justify-content-center">
-							<Card.Img
-								className="card-img-top"
-								src={imageUrl}
-								alt="Blog Image"
-								style={{
-									width: '100%',
-									padding: '5px',
-									maxWidth: '100%',
-									objectFit: 'cover',
-								}}
-							/>
-						</div>
+				<Col className="mb-4">
+					<Card className="border-0 shadow-sm">
+						<Card.Img
+							variant="top"
+							src={imageUrl}
+							alt="Blog Image"
+							style={{
+								height: 'auto',
+								width: '100%',
+								maxHeight: '500px',
+								objectFit: 'cover',
+							}}
+						/>
 						<Card.Body>
-							<Card.Title
-								as="h5"
-								className="card-title"
-								style={{ fontSize: '1.5rem' }}>
+							<Card.Title as="h3" className="fw-bold mb-3">
 								{title}
 							</Card.Title>
 							<Card.Text>
-								<small className="text-muted">{formattedDateTime}</small>
+								<small className="text-muted">
+									Posted on {formattedDateTime} | Category: {category}
+								</small>
 							</Card.Text>
-							<Card.Text>Category: {category}</Card.Text>
-							<Card.Text style={{ fontSize: '0.8rem' }}>
-								Description: {description}
+							<Card.Text className="mb-4 text-muted">
+								<i>{description}</i>
 							</Card.Text>
-							<Card.Text
+							<div
+								className="blog-content"
 								dangerouslySetInnerHTML={renderHTML(content)}
-								style={{ fontSize: '1rem' }}
+								style={{
+									fontSize: '1rem',
+									lineHeight: '1.8',
+									textIndent: '2em',
+								}}
 							/>
 						</Card.Body>
 					</Card>

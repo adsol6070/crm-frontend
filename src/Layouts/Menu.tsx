@@ -3,12 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { Collapse } from 'react-bootstrap'
 
 // helpers
-import {
-	findAllParent,
-	findMenuItem,
-	useAuthContext,
-	usePermissions,
-} from '@/common'
+import { findAllParent, findMenuItem, usePermissions } from '@/common'
 
 // constants
 import { MenuItemTypes } from '../constants/menu'
@@ -30,9 +25,7 @@ const MenuItemWithChildren = ({
 	activeMenuItems,
 	toggleMenu,
 }: SubMenus) => {
-	// const { user } = useAuthContext()
 	const { permissions } = usePermissions()
-	// const userRole = user?.role
 	const [open, setOpen] = useState<boolean>(activeMenuItems!.includes(item.key))
 
 	useEffect(() => {
@@ -48,10 +41,9 @@ const MenuItemWithChildren = ({
 
 	const canViewMenuItem = (menuItem: MenuItemTypes, permissions: any) => {
 		if (menuItem.permissions) {
-			const daa = Object.keys(menuItem.permissions).some((action) =>
-				hasPermission(permissions, 'Users', action)
+			return Object.keys(menuItem.permissions).some((action) =>
+				hasPermission(permissions, menuItem.permissionsKey as string, action)
 			)
-			return daa
 		}
 		return true
 	}
@@ -117,7 +109,6 @@ const MenuItemWithChildren = ({
 }
 
 const MenuItem = ({ item, className, linkClassName }: SubMenus) => {
-	// console.log(linkClassName)
 	return (
 		<li className={`side-nav-item ${className}`}>
 			<MenuItemLink item={item} className={linkClassName} />
@@ -152,8 +143,7 @@ interface AppMenuProps {
 
 const AppMenu = ({ menuItems }: AppMenuProps) => {
 	let location = useLocation()
-	const { user } = useAuthContext()
-	const userRole = user?.role
+	const { permissions } = usePermissions()
 
 	const menuRef = useRef(null)
 
@@ -244,8 +234,13 @@ const AppMenu = ({ menuItems }: AppMenuProps) => {
 		}
 	}, [location, menuItems])
 
-	const canViewMenuItem = (menuItem: MenuItemTypes) => {
-		return !menuItem.roles || menuItem.roles.includes(userRole)
+	const canViewMenuItem = (menuItem: MenuItemTypes, permissions: any) => {
+		if (menuItem.permissions) {
+			return Object.keys(menuItem.permissions).some((action) =>
+				hasPermission(permissions, menuItem.permissionsKey as string, action)
+			)
+		}
+		return true
 	}
 
 	useEffect(() => {
@@ -257,7 +252,7 @@ const AppMenu = ({ menuItems }: AppMenuProps) => {
 		<>
 			<ul className="side-nav" ref={menuRef} id="main-side-menu">
 				{(menuItems || []).map((item, idx) => {
-					if (!canViewMenuItem(item)) return null
+					if (!canViewMenuItem(item, permissions)) return null
 					return (
 						<React.Fragment key={idx}>
 							{item.isTitle ? (
