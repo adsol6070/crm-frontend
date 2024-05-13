@@ -23,7 +23,7 @@ const AddBlog: React.FC = () => {
 	const { createBlog, loading, blogCategories } = useCreateBlog()
 	const [selectedCategory, setSelectedCategory] = useState<BlogCategory | null>(
 		null
-	) // Managed as an object or null
+	)
 	const [blogImage, setBlogImage] = useState<File | null>(null)
 	const [editorState, setEditorState] = useState(EditorState.createEmpty())
 	const [resetFileUploader, setResetFileUploader] = useState(0)

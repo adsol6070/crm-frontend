@@ -56,6 +56,10 @@ const refreshToken = async (): Promise<string | null> => {
 		}>('http://localhost:8000/api/v1/auth/refresh-tokens', {
 			tenantID: decodedRefreshToken.tenantID,
 			refresh_token,
+		}, {
+			headers: {
+				Authorization: `Bearer ${access_token}`
+			}
 		})
 
 		// const newAccesstoken = response.data.accessToken

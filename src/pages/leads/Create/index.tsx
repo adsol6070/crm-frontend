@@ -10,44 +10,60 @@ import { Stepper, Step } from 'react-form-stepper';
 import './AddLead.css';
 import useCreateLead from './useCreateLeadForm';
 
-// Validation schema
-const schema = yup.object({
-    firstname: yup.string().required('Please enter your First Name'),
-    lastname: yup.string().required('Please enter your Last Name'),
-    email: yup.string().required('Please enter your Email').email('Please enter a valid Email'),
-    phone: yup.string().required('Please enter your Phone Number'),
-    qualification: yup.string().required('Please enter your Qualification'),
-    VisaInterest: yup.string().required('Please specify your Visa Interest'),
-}).required();
+interface CollectedData {
+    firstname?: string;
+    lastname?: string;
+    email?: string;
+    phone?: string;
+    qualification?: string;
+    VisaInterest?: string;
+}
+interface FinalLeadData {
+    firstname: string;
+    lastname: string;
+    email: string;
+    phone: string;
+    qualification: string;
+    VisaInterest: string;
+}
+const stepSchemas = [
+    yup.object({
+        firstname: yup.string().required('Please enter your First Name'),
+        lastname: yup.string().required('Please enter your Last Name'),
+        email: yup.string().required('Please enter your Email').email('Please enter a valid Email'),
+        phone: yup.string().required('Please enter your Phone Number'),
+    }).required(),
+    yup.object({
+        qualification: yup.string().required('Please enter your Qualification'),
+        VisaInterest: yup.string().required('Please specify your Visa Interest'),
+    }).required(),
+];
 
 const AddLead = () => {
-    const { createLead } = useCreateLead()
+    const { createLead } = useCreateLead();
     const [step, setStep] = useState(1);
     const [collectedData, setCollectedData] = useState({});
-    const { register, handleSubmit, getValues, formState: { errors }, reset } = useForm({
-        resolver: yupResolver(schema),
-        mode: 'onTouched'
+
+    const currentSchema = stepSchemas[step - 1] || yup.object().shape({});
+
+    const { register, handleSubmit, formState: { errors }, reset } = useForm({
+        resolver: yupResolver(currentSchema),
+        mode: 'onTouched',
     });
 
-    const handleNext = () => {
-        const currentData = getValues();
-        const newData = {
-            ...collectedData,
-            ...currentData
-        };
+    const handleNext = (data: CollectedData) => {
+        const newData = { ...collectedData, ...data };
         setCollectedData(newData);
-        console.log("Data at current step:", newData);
 
-        if (step < 3) {
+        if (step < stepSchemas.length + 1) {
             setStep(step + 1);
+        } else {
+            onSubmit(newData);
         }
     };
 
-    const onSubmit = (data: any) => {
-        const finalData = {
-            ...collectedData,
-            ...data
-        };
+    const onSubmit = (data: CollectedData) => {
+        const finalData: FinalLeadData = { ...collectedData, ...data };
         console.log("Final data:", finalData);
         createLead(finalData);
         reset();
@@ -66,7 +82,7 @@ const AddLead = () => {
                             <Card.Title>Add New Lead</Card.Title>
                         </Card.Header>
                         <Card.Body>
-                            <Stepper activeStep={step - 1} connectorStateColors styleConfig={{
+                            <Stepper activeStep={step - 1} styleConfig={{
                                 activeBgColor: '#007bff',
                                 completedBgColor: '#28a745',
                                 activeTextColor: '#ffffff',
@@ -77,16 +93,17 @@ const AddLead = () => {
                                 circleFontSize: '1rem',
                                 labelFontSize: '0.875rem',
                                 borderRadius: '50%',
-                                connectorColor: '#cccccc'
+                                connectorColor: '#cccccc',
+                                fontWeight: 'bold'
                             }}>
                                 <Step label="Personal Details" />
                                 <Step label="Academic Details" />
                                 <Step label="Confirmation" />
                             </Stepper>
 
-                            <div className="form-step-container">
+                            <Form className="form-step-container" onSubmit={handleSubmit(handleNext)}>
                                 {step === 1 && (
-                                    <Form className="step-form" onSubmit={handleSubmit(handleNext)}>
+                                    <>
                                         <Form.Group className="mb-3">
                                             <Form.Label>First Name</Form.Label>
                                             <Form.Control type="text" placeholder="Enter First Name" {...register("firstname")} isInvalid={!!errors.firstname} />
@@ -107,12 +124,11 @@ const AddLead = () => {
                                             <Form.Control type="tel" placeholder="Enter Phone" {...register("phone")} isInvalid={!!errors.phone} />
                                             <Form.Control.Feedback type="invalid">{errors.phone?.message}</Form.Control.Feedback>
                                         </Form.Group>
-                                        <Button variant="primary" onClick={handleNext}>Next</Button>
-                                    </Form>
+                                        <Button variant="primary" type="submit">Next</Button>
+                                    </>
                                 )}
-
                                 {step === 2 && (
-                                    <Form className="step-form" onSubmit={handleSubmit(handleNext)}>
+                                    <>
                                         <Form.Group className="mb-3">
                                             <Form.Label>Qualification</Form.Label>
                                             <Form.Control type="text" placeholder="Enter Qualification" {...register("qualification")} isInvalid={!!errors.qualification} />
@@ -123,21 +139,25 @@ const AddLead = () => {
                                             <Form.Control type="text" placeholder="Enter Visa Interest" {...register("VisaInterest")} isInvalid={!!errors.VisaInterest} />
                                             <Form.Control.Feedback type="invalid">{errors.VisaInterest?.message}</Form.Control.Feedback>
                                         </Form.Group>
-                                        <Button variant="primary" onClick={handleNext}>Next</Button>
-                                    </Form>
+                                        <Button variant="primary" type="submit">Next</Button>
+                                    </>
                                 )}
-
                                 {step === 3 && (
-                                    <Form className="confirmation-step" onSubmit={handleSubmit(onSubmit)}>
+                                    <>
                                         <h5>Confirmation</h5>
-                                        <p>All steps completed - review your information before submitting.</p>
-                                        <pre>
-                                            {JSON.stringify(collectedData, null, 2)}
-                                        </pre>
-                                        <Button variant="success" type="submit">Submit</Button>
-                                    </Form>
+                                        <p>All steps completed - please review your information before submitting.</p>
+                                        <div className="review-data">
+                                            <p><b>First Name:</b> {collectedData.firstname}</p>
+                                            <p><b>Last Name:</b> {collectedData.lastname}</p>
+                                            <p><b>Email:</b> {collectedData.email}</p>
+                                            <p><b>Phone:</b> {collectedData.phone}</p>
+                                            <p><b>Qualification:</b> {collectedData.qualification}</p>
+                                            <p><b>Visa Interest:</b> {collectedData.VisaInterest}</p>
+                                        </div>
+                                        <Button variant="success" type="button" onClick={() => onSubmit(collectedData)}>Submit</Button>
+                                    </>
                                 )}
-                            </div>
+                            </Form>
                         </Card.Body>
                     </Card>
                 </Col>

@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		const refreshToken = localStorage.getItem(refreshTokenKey)
 		if (refreshToken) {
 			await authApi.logout({
-				tenantID: user?.tenantID,
+				// tenantID: user?.tenantID,
 				refreshToken,
 			})
 		}
