@@ -9,7 +9,6 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
 import { permissionService } from '@/common'
 
-// Converts a string to Title Case
 const toTitleCase = (str: string) => {
 	return str.toLowerCase().replace(/\b(\w)/g, (s) => s.toUpperCase())
 }
@@ -33,7 +32,7 @@ const CreateUser = () => {
 				value: role,
 				label: toTitleCase(role),
 			}))
-			setRoleOptions([...transformedRoles])
+			setRoleOptions([...transformedRoles] as any)
 		}
 
 		fetchRoles()
@@ -129,9 +128,9 @@ const CreateUser = () => {
 												placeholder="Select Role"
 												options={roleOptions}
 												value={roleOptions.find(
-													(option) => option.value === selectedRole
+													(option: any) => option.value === selectedRole
 												)}
-												onChange={(option) =>
+												onChange={(option: any) =>
 													setSelectedRole(option ? option.value : null)
 												}
 											/>

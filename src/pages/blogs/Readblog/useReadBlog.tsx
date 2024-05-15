@@ -23,9 +23,14 @@ const useReadBlog = (blogId: string) => {
 			try {
 				const data = (await blogApi.getPostById(blogId)) as BlogData
 				if (data) {
-					const imageUrl = await blogApi.getImage(blogId)
-					const image = URL.createObjectURL(imageUrl)
-					setBlogData({ ...data, blogImage: image })
+					if(data.blogImage === null){
+						setBlogData({ ...data, blogImage: '/images/blog-placeholder.jpg' })
+					}
+					else{
+						const imageUrl = await blogApi.getImage(blogId)
+						const image = URL.createObjectURL(imageUrl)
+						setBlogData({ ...data, blogImage: image })
+					}
 				}
 				setLoading(false)
 			} catch (err) {

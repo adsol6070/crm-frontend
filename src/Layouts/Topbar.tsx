@@ -23,6 +23,7 @@ import {
 } from '@/components'
 import { useThemeCustomizer } from '@/components'
 import { useViewport } from '@/hooks'
+import useGetProfile from '@/pages/Profile/useGetProfile'
 /**
  * for subtraction minutes
  */
@@ -140,7 +141,7 @@ const profileMenus: ProfileOption[] = [
 	{
 		label: 'My Account',
 		icon: 'ri-account-circle-line',
-		redirectTo: '/pages/profile',
+		redirectTo: '/pages/Profile',
 	},
 	{
 		label: 'Settings',
@@ -172,7 +173,7 @@ type TopbarProps = {
 const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 	const { sideBarType } = useThemeCustomizer()
 	const { width } = useViewport()
-
+	const { getProfile } = useGetProfile()
 	/**
 	 * Toggle the leftmenu when having mobile screen
 	 */
@@ -328,8 +329,8 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 						<li className="dropdown">
 							<ProfileDropdown
 								menuItems={profileMenus}
-								userImage={profilePic}
-								username="Thomson"
+								userImage={`${getProfile?.profileImage}`}
+								username={`${getProfile?.firstname}`}
 							/>
 						</li>
 					</ul>

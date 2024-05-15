@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { Row, Col, Card, Form, Button } from 'react-bootstrap';
@@ -18,14 +18,8 @@ interface CollectedData {
     qualification?: string;
     VisaInterest?: string;
 }
-interface FinalLeadData {
-    firstname: string;
-    lastname: string;
-    email: string;
-    phone: string;
-    qualification: string;
-    VisaInterest: string;
-}
+interface FinalLeadData extends Required<CollectedData> {}
+
 const stepSchemas = [
     yup.object({
         firstname: yup.string().required('Please enter your First Name'),
@@ -42,16 +36,16 @@ const stepSchemas = [
 const AddLead = () => {
     const { createLead } = useCreateLead();
     const [step, setStep] = useState(1);
-    const [collectedData, setCollectedData] = useState({});
+    const [collectedData, setCollectedData] = useState<CollectedData>({});
 
     const currentSchema = stepSchemas[step - 1] || yup.object().shape({});
 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm({
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<CollectedData>({
         resolver: yupResolver(currentSchema),
         mode: 'onTouched',
     });
 
-    const handleNext = (data: CollectedData) => {
+    const handleNext: SubmitHandler<CollectedData> = (data) => {
         const newData = { ...collectedData, ...data };
         setCollectedData(newData);
 
@@ -63,7 +57,7 @@ const AddLead = () => {
     };
 
     const onSubmit = (data: CollectedData) => {
-        const finalData: FinalLeadData = { ...collectedData, ...data };
+        const finalData: FinalLeadData = { ...collectedData, ...data } as FinalLeadData;
         console.log("Final data:", finalData);
         createLead(finalData);
         reset();

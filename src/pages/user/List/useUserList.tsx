@@ -36,7 +36,7 @@ export const useUserList = (): UserListHookResult => {
 			Header: 'Profile Image',
 			accessor: 'profileImage',
 			disableSortBy: true,
-			Cell: ({ cell }) => (
+			Cell: ({ cell }: any) => (
 				<img
 					src={cell.value}
 					alt="Profile Image"
@@ -158,7 +158,7 @@ export const useUserList = (): UserListHookResult => {
 						return { ...user, profileImage: imageUrl, sno: index + 1  }
 					} else {
 						const placeholderImageUrl = generatePlaceholderImage(user.firstname)
-						return { ...user, profileImage: placeholderImageUrl }
+						return { ...user, profileImage: placeholderImageUrl, sno: index + 1 }
 					}
 				})
 			)

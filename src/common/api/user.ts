@@ -29,8 +29,19 @@ function UserService() {
 				headers: getAuthHeaders(),
 			})
 		},
+		getUserById: async (userId: any) => {
+			return await HttpClient.get(`/users/${userId}`, {
+				headers: getAuthHeaders(),
+			})
+		},
+		getProfileById: async (userId: any) => {
+			return await HttpClient.post(`/users/profile/`, userId, {
+				headers: getAuthHeaders(),
+			})
+		},
 		getImage: async (userId: string) => {
-			return await HttpClient.get(`/users/${userId}/image`, {
+			console.log(userId)
+			return await HttpClient.get(`/users/profile/${userId}/image`, {
 				responseType: 'blob',
 				headers: getAuthHeaders(),
 			})

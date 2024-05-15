@@ -68,9 +68,8 @@ const AuthLayout = ({
 												</a>
 											</div>
 											<div
-												className={`p-4 my-auto ${
-													starterClass ? 'text-center' : ''
-												}`}
+												className={`p-4 my-auto ${starterClass ? 'text-center' : ''
+													}`}
 											>
 												{userImage ? (
 													<div className="text-center w-75 m-auto">

@@ -6,7 +6,7 @@ import {
 	useRef,
 	ReactNode,
 } from 'react'
-import { jwtDecode } from 'jwt-decode' // Ensure correct import: from 'jwt-decode' without braces
+import { jwtDecode } from 'jwt-decode'
 import { DecodedToken, Token } from '@/types'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
@@ -56,14 +56,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	useEffect(() => {
 		console.log('UseEffect get called.')
-		// Listen for changes in local storage
 		window.addEventListener('storage', (event) => {
 			if (event.key === accessTokenKey || event.key === refreshTokenKey) {
 				checkAndSetupTokenExpiration()
 			}
 		})
 
-		// Initial check on mount
 		checkAndSetupTokenExpiration()
 
 		return () => {

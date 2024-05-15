@@ -64,7 +64,7 @@ const ReadBlog: React.FC = () => {
 
 	const { title, content, created_at, category, description, blogImage } =
 		blogData
-	const imageUrl = blogImage || '/images/blog-placeholder.jpg'
+	const imageUrl = blogImage
 	const formattedDateTime = formatDateTime(created_at)
 
 	return (

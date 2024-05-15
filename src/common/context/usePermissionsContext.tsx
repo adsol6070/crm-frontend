@@ -41,11 +41,11 @@ export const PermissionsProvider: React.FC<{ children: ReactNode }> = ({
 	const [permissions, setPermissions] = useState<Permissions>({})
 	const { user } = useAuthContext()
 
-	console.log('Permissions:', permissions)
+	// console.log('Permissions:', permissions)
 
 	const fetchPermissions = async (role: string) => {
 		try {
-			console.log('Fetch Permissions get called>')
+			// console.log('Fetch Permissions get called>')
 			const data = await permissionService.getPermissionsByRole({ role })
 			setPermissions(data.permissions)
 		} catch (error) {
@@ -55,7 +55,7 @@ export const PermissionsProvider: React.FC<{ children: ReactNode }> = ({
 	}
 
 	useEffect(() => {
-		console.log('UseEffect got calleddddd.')
+		// console.log('UseEffect got calleddddd.')
 		fetchPermissions('admin')
 	}, [user?.role])
 

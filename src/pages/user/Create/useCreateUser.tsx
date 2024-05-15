@@ -34,6 +34,7 @@ export default function useCreateUser() {
 			formData.append('password', password)
 			formData.append('phone', phone)
 			formData.append('role', role)
+			formData.append('uploadType', "User")
 
 			if (profileImage) {
 				formData.append('profileImage', profileImage, profileImage.name)
@@ -41,7 +42,7 @@ export default function useCreateUser() {
 
 			const data = await userApi.create(formData)
 			toast.success(data.message)
-		} catch (error) {
+		} catch (error: any) {
 			toast.error(error.message)
 		} finally {
 			setLoading(false)

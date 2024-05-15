@@ -2,19 +2,17 @@ import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Col, Row } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
-
-// components
 import AuthLayout from '../AuthLayout'
 import { VerticalForm, FormInput, PageBreadcrumb } from '@/components'
-
-// images
 import avatar1 from '@/assets/images/users/avatar-1.jpg'
 import { User } from '@/types'
+import { useAuthContext } from '@/common'
 
 interface UserData {
 	password: string
 }
 const BottomLink = () => {
+	const { user } = useAuthContext();
 	return (
 		<Row>
 			<Col xs={12} className="text-center">

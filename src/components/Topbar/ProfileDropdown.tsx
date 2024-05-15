@@ -29,6 +29,7 @@ const ProfileDropdown = ({
 					<Image
 						src={userImage}
 						alt="user-image"
+						height={32}
 						width={32}
 						className="rounded-circle"
 					/>

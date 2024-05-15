@@ -18,7 +18,7 @@ const LockScreen = React.lazy(() => import('../pages/auth/LockScreen'))
 const Dashboard = React.lazy(() => import('../pages/Dashboard'))
 
 // // pages
-const ProfilePages = React.lazy(() => import('../pages/other/Profile/'))
+const ProfilePages = React.lazy(() => import('../pages/Profile/'))
 const InvoicePages = React.lazy(() => import('../pages/other/Invoice'))
 const FAQPages = React.lazy(() => import('../pages/other/FAQ'))
 const PricingPages = React.lazy(() => import('../pages/other/Pricing'))
@@ -91,10 +91,10 @@ const customPagesRoutes = {
 	header: 'Custom',
 	children: [
 		{
-			path: '/pages/profile',
+			path: '/pages/Profile',
 			name: 'Profile',
 			element: <ProfilePages />,
-			roles: ['superAdmin'],
+			// roles: ['superAdmin'],
 			route: PrivateRoute,
 		},
 		{

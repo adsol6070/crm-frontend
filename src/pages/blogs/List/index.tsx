@@ -69,7 +69,7 @@ const BlogList = () => {
 											onClick={() => handleReadBlog(blog.id)}>
 											Read More
 										</div>
-										{user.role === 'superAdmin' && (
+										{user.role === ('superAdmin' || 'admin') && (
 											<div>
 												<Button
 													variant="danger"
