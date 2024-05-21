@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Button, Card, Col, Form, Row, Spinner, Alert } from 'react-bootstrap';
 import Select from 'react-select';
 import { FormInput, PageBreadcrumb } from '@/components';
@@ -7,6 +7,7 @@ import useEditUser from './useEditUser';
 import { useForm } from 'react-hook-form';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { permissionService } from '@/common';
 
 interface User {
   id: string;
@@ -17,15 +18,20 @@ interface User {
   password: string;
   phone: string;
   profileImage: string;
-  role: 'superAdmin' | 'admin' | 'user';
+  role: string;
   isEmailVerified: boolean;
+  uploadType?: string;
 }
+
+const toTitleCase = (str: string) => {
+  return str.toLowerCase().replace(/\b(\w)/g, (s) => s.toUpperCase());
+};
 
 const EditUser: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
-//   const location = useLocation();
   const [newImage, setNewImage] = useState<File | null>(null);
-
+  const [roleOptions, setRoleOptions] = useState([]);
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const { userData, loading, error, editUser } = useEditUser(userId);
   const {
     register,
@@ -35,10 +41,24 @@ const EditUser: React.FC = () => {
   } = useForm<User>();
 
   useEffect(() => {
+    const fetchRoles = async () => {
+      const roles = await permissionService.getRoles();
+      const transformedRoles = roles.map((role: string) => ({
+        value: role,
+        label: toTitleCase(role),
+      }));
+      setRoleOptions([...transformedRoles] as any);
+    };
+
+    fetchRoles();
+  }, []);
+
+  useEffect(() => {
     if (userData) {
       Object.keys(userData).forEach((key) => {
         setValue(key as keyof User, userData[key as keyof User]);
       });
+      setSelectedRole(userData.role);
     }
   }, [userData, setValue]);
 
@@ -50,19 +70,19 @@ const EditUser: React.FC = () => {
 
   const onSubmit = async (data: User) => {
     let formData = new FormData();
+    formData.append('uploadType', "User");
     Object.keys(data).forEach((key) => {
       if (key === 'password' && data[key] === '') {
         return;
       }
       if (key !== 'profileImage') {
-        formData.append(key, data[key as keyof User]);
+        formData.append(key as keyof User, data[key as keyof User] as any);
       }
     });
 
     if (newImage) {
       formData.append('profileImage', newImage);
     }
-
     await editUser(formData);
   };
 
@@ -160,13 +180,11 @@ const EditUser: React.FC = () => {
                     <Form.Group className="mb-3">
                       <Form.Label>Role</Form.Label>
                       <Select
-                        options={[
-                          { value: 'superAdmin', label: 'Super Admin' },
-                          { value: 'admin', label: 'Admin' },
-                          { value: 'user', label: 'User' },
-                        ]}
-                        defaultValue={{ label: userData.role, value: userData.role }}
-                        onChange={(option) => setValue('role', option!.value)}
+                        className="select2 z-3"
+                        placeholder="Select Role"
+                        options={roleOptions}
+                        value={roleOptions.find((option: any) => option.value === selectedRole)}
+                        onChange={(option: any) => setSelectedRole(option ? option.value : null)}
                       />
                     </Form.Group>
                     <Button variant="primary" type="submit">

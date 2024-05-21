@@ -34,7 +34,6 @@ const CreateUser = () => {
 			}))
 			setRoleOptions([...transformedRoles] as any)
 		}
-
 		fetchRoles()
 	}, [])
 

@@ -8,11 +8,13 @@ interface UserData {
   tenantID: string;
   firstname: string;
   lastname: string;
+  password?: string;
   email: string;
   phone: string;
   isEmailVerified: boolean;
   role: string;
   profileImage?: string;
+  uploadType?: string;
 }
 
 const useEditUser = (userId?: string) => {
@@ -52,6 +54,10 @@ const useEditUser = (userId?: string) => {
   const editUser = async (updatedData: FormData) => {
     setLoading(true);
     try {
+      console.log(updatedData)
+      // for (let [key, value] of updatedData.entries()) {
+      //   console.log(`${key}: ${value}`);
+      // }
       const data = await userApi.update(updatedData, userId);
       toast.success(data.message);
       setUserData((prev) => (prev ? { ...prev, ...data.user } : null));

@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom'
 import logo from '@/assets/images/logo.png'
 import logoSm from '@/assets/images/logo-sm.png'
 import logoDark from '@/assets/images/logo-dark.png'
-import profilePic from '@/assets/images/users/avatar-1.jpg'
 import avatar1 from '@/assets/images/users/avatar-1.jpg'
 import avatar2 from '@/assets/images/users/avatar-2.jpg'
 import avatar3 from '@/assets/images/users/avatar-3.jpg'
@@ -146,7 +145,7 @@ const profileMenus: ProfileOption[] = [
 	{
 		label: 'Settings',
 		icon: 'ri-settings-4-line',
-		redirectTo: '/pages/profile',
+		redirectTo: '/pages/Profile',
 	},
 	{
 		label: 'Support',
@@ -207,7 +206,6 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 		backdrop.id = 'custom-backdrop'
 		backdrop.className = 'offcanvas-backdrop fade show'
 		document.body.appendChild(backdrop)
-
 		backdrop.addEventListener('click', function () {
 			document
 				.getElementsByTagName('html')[0]

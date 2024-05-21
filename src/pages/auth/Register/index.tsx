@@ -16,7 +16,7 @@ interface UserData {
 	email: string
 	password: string
 	phone: string
-	profileImage?: File
+	profileImage?: File 
 }
 const BottomLink = () => {
 	return (
@@ -45,10 +45,6 @@ const Register = () => {
 			setProfileImage(event.target.files[0])
 		}
 	}
-
-	/*
-	 * form validation schema
-	 */
 	const schemaResolver = yupResolver(
 		yup.object().shape({
 			tenantID: yup.string().required('Please enter tenantID'),
@@ -60,7 +56,7 @@ const Register = () => {
 				.email('Please enter valid Email'),
 			password: yup.string().required('Please enter Password'),
 			phone: yup.string().required('Please enter Phone'),
-			profileImage: yup.mixed().notRequired(),
+			profileImage: yup.mixed(),
 		})
 	)
 

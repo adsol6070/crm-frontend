@@ -13,12 +13,16 @@ import 'react-toastify/ReactToastify.css'
 import useEditBlog from './useEditBlogForm'
 import useReadBlog from '../Readblog/useReadBlog'
 import { FileUploader } from '@/components/FileUploader'
+import useCreateBlog from '../Create/useCreateBlog'
 
 interface FileType extends File {
 	preview?: string
 	formattedSize?: string
 }
-
+interface BlogCategory {
+	value: string
+	label: string
+}
 const EditBlog: React.FC = () => {
 	const { blogId } = useParams() as { blogId: string }
 	const {
@@ -30,10 +34,8 @@ const EditBlog: React.FC = () => {
 	const [editorState, setEditorState] = useState<EditorState>(
 		EditorState.createEmpty()
 	)
-	const [selectedCategory, setSelectedCategory] = useState<{
-		label: string
-		value: string
-	} | null>(null)
+	const { blogCategories } = useCreateBlog();
+	const [selectedCategory, setSelectedCategory] = useState<BlogCategory | null>(null)
 	const [updatedBlogImage, setUpdatedBlogImage] = useState<FileType | null>(
 		null
 	)
@@ -69,7 +71,9 @@ const EditBlog: React.FC = () => {
 			setUpdatedBlogImage(file)
 		}
 	}
-
+	const handleSelect = (option: BlogCategory | null) => {
+		setSelectedCategory(option)
+	}
 	const handleSubmit = async (data: any) => {
 		if (!selectedCategory) {
 			toast.error('Please select a category for the blog.')
@@ -152,16 +156,14 @@ const EditBlog: React.FC = () => {
 								<Form.Group className="mb-3">
 									<Form.Label>Category</Form.Label>
 									<Select
-										className="basic-single"
-										classNamePrefix="select"
+										className="select2 z-3"
 										defaultValue={selectedCategory}
+										options={blogCategories as any[]}
+										getOptionLabel={(e: any) => e.label}
+										getOptionValue={(e: any) => e.value}
 										value={selectedCategory}
-										onChange={setSelectedCategory}
-										options={blogData?.categories?.map((category) => ({
-											label: category,
-											value: category,
-										}))}
-										isClearable
+										onChange={handleSelect}
+										isClearable={true}
 									/>
 								</Form.Group>
 								<Form.Group controlId="blogImage" className="mb-3">

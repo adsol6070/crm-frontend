@@ -79,7 +79,7 @@ const Error500 = () => {
 			</div>
 			<footer className="footer footer-alt fw-medium">
 				<span className="text-dark-emphasis">
-					{new Date().getFullYear()} © Velonic - Theme by Techzaa
+					{new Date().getFullYear()} Copyright © by Adsol
 				</span>
 			</footer>
 		</>
