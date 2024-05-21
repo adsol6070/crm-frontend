@@ -58,14 +58,6 @@ const refreshToken = async (): Promise<string | null> => {
 			refresh_token,
 		})
 
-		// const newAccesstoken = response.data.accessToken
-		// const newRefreshtoken = response.data.refreshToken
-
-		// console.table({
-		// 	NEW_ACCESS_TOKEN: newAccesstoken,
-		// 	NEW_REFRESH_TOKEN: newRefreshtoken,
-		// })
-
 		localStorage.setItem('access_token', response.data.accessToken)
 		localStorage.setItem('refresh_token', response.data.refreshToken)
 

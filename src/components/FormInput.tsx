@@ -47,14 +47,12 @@ const PasswordInput = ({
 					className={`input-group-text input-group-password ${
 						showPassword ? 'show-password' : ''
 					}`}
-					data-password={showPassword ? 'true' : 'false'}
-				>
+					data-password={showPassword ? 'true' : 'false'}>
 					<span
 						className="password-eye"
 						onClick={() => {
 							setShowPassword(!showPassword)
-						}}
-					></span>
+						}}></span>
 				</div>
 			</InputGroup>
 		</>
@@ -102,7 +100,7 @@ const FormInput = ({
 	// handle input type
 	const comp =
 		type === 'textarea' ? 'textarea' : type === 'select' ? 'select' : 'input'
-		const { reset, ...restProps } = otherProps;
+	const { reset, ...restProps } = otherProps
 	return (
 		<>
 			{type === 'hidden' ? (
@@ -155,9 +153,12 @@ const FormInput = ({
 											className={className}
 											isInvalid={errors && errors[name] ? true : false}
 											{...(register ? register(name) : {})}
-											{...restProps}
-										>
-											<Form.Check.Input type={type} onChange={otherProps.onChange} checked={otherProps.checked}/>
+											{...restProps}>
+											<Form.Check.Input
+												type={type}
+												onChange={otherProps.onChange}
+												checked={otherProps.checked}
+											/>
 											<Form.Check.Label>
 												{label}{' '}
 												{isTerms && (
@@ -198,8 +199,7 @@ const FormInput = ({
 										{...(register ? register(name) : {})}
 										rows={rows}
 										{...restProps}
-										autoComplete={name}
-									>
+										autoComplete={name}>
 										{children ? children : null}
 									</Form.Control>
 
@@ -211,7 +211,7 @@ const FormInput = ({
 								</Form.Group>
 							)}
 						</>
-					)}
+					)}	
 				</>
 			)}
 		</>

@@ -12,9 +12,7 @@ const PageBreadcrumb = ({ subName, title, addedChild }: PageTitleProps) => {
 	return (
 		<>
 			<Helmet>
-				<title>
-					{title} | Adsol CRM
-				</title>
+				<title>{title} | Adsol CRM</title>
 			</Helmet>
 			{subName && (
 				<Row>
@@ -25,8 +23,7 @@ const PageBreadcrumb = ({ subName, title, addedChild }: PageTitleProps) => {
 									<Link
 										to="/"
 										style={{ color: '#6C757D' }}
-										className="breadcrumb-item"
-									>
+										className="breadcrumb-item">
 										Adsol
 									</Link>
 									<Breadcrumb.Item>{subName}</Breadcrumb.Item>

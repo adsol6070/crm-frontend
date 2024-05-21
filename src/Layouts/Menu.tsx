@@ -8,6 +8,7 @@ import { findAllParent, findMenuItem, usePermissions } from '@/common'
 // constants
 import { MenuItemTypes } from '../constants/menu'
 import { hasPermission } from '@/utils'
+import { useTranslation } from 'react-i18next'
 
 interface SubMenus {
 	item: MenuItemTypes
@@ -25,7 +26,8 @@ const MenuItemWithChildren = ({
 	activeMenuItems,
 	toggleMenu,
 }: SubMenus) => {
-	const { permissions } = usePermissions()
+	const { t } = useTranslation()
+	const { permissions, isSuperAdmin } = usePermissions()
 	const [open, setOpen] = useState<boolean>(activeMenuItems!.includes(item.key))
 
 	useEffect(() => {
@@ -40,6 +42,14 @@ const MenuItemWithChildren = ({
 	}
 
 	const canViewMenuItem = (menuItem: MenuItemTypes, permissions: any) => {
+		if (isSuperAdmin) {
+			return true
+		}
+
+		if (menuItem.key === 'user-ManageRoles' && !isSuperAdmin) {
+			return null
+		}
+
 		if (menuItem.permissions) {
 			return Object.keys(menuItem.permissions).some((action) =>
 				hasPermission(permissions, menuItem.permissionsKey as string, action)
@@ -66,7 +76,7 @@ const MenuItemWithChildren = ({
 						{item.badge.text}
 					</span>
 				)}
-				<span> {item.label}</span>
+				<span> {t(item.label)}</span>
 			</Link>
 			<Collapse in={open}>
 				<div>
@@ -117,6 +127,7 @@ const MenuItem = ({ item, className, linkClassName }: SubMenus) => {
 }
 
 const MenuItemLink = ({ item, className }: SubMenus) => {
+	const { t } = useTranslation()
 	return (
 		<Link
 			to={item.url!}
@@ -129,7 +140,7 @@ const MenuItemLink = ({ item, className }: SubMenus) => {
 					{item.badge.text}
 				</span>
 			)}
-			<span> {item.label}</span>
+			<span> {t(item.label)}</span>
 		</Link>
 	)
 }
@@ -141,17 +152,12 @@ interface AppMenuProps {
 	menuItems: MenuItemTypes[]
 }
 
-const AppMenu = ({ menuItems }: AppMenuProps) => {
-	let location = useLocation()
-	const { permissions } = usePermissions()
+const AppMenu: React.FC<AppMenuProps> = ({ menuItems }) => {
+	const location = useLocation()
+	const { permissions, isSuperAdmin } = usePermissions()
+	const menuRef = useRef<HTMLUListElement>(null)
+	const [activeMenuItems, setActiveMenuItems] = useState<string[]>([])
 
-	const menuRef = useRef(null)
-
-	const [activeMenuItems, setActiveMenuItems] = useState<Array<string>>([])
-
-	/**
-	 * toggle the menus
-	 */
 	const toggleMenu = (menuItem: MenuItemTypes, show: boolean) => {
 		if (show) {
 			setActiveMenuItems([
@@ -161,15 +167,12 @@ const AppMenu = ({ menuItems }: AppMenuProps) => {
 		}
 	}
 
-	/**
-	 * activate the menuitems
-	 */
 	const activeMenu = useCallback(() => {
 		const div = document.getElementById('main-side-menu')
 		let matchingMenuItem: HTMLElement | null = null
 
 		if (div) {
-			let items: any = div.getElementsByClassName('side-nav-link-ref')
+			const items: any = div.getElementsByClassName('side-nav-link-ref')
 			for (let i = 0; i < items.length; ++i) {
 				let trimmedURL = location?.pathname?.replaceAll(
 					process.env.PUBLIC_URL ?? '',
@@ -235,6 +238,9 @@ const AppMenu = ({ menuItems }: AppMenuProps) => {
 	}, [location, menuItems])
 
 	const canViewMenuItem = (menuItem: MenuItemTypes, permissions: any) => {
+		if (isSuperAdmin) {
+			return true
+		}
 		if (menuItem.permissions) {
 			return Object.keys(menuItem.permissions).some((action) =>
 				hasPermission(permissions, menuItem.permissionsKey as string, action)

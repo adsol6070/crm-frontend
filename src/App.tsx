@@ -5,6 +5,7 @@ import AllRoutes from './routes/Routes'
 import './assets/scss/app.scss'
 import './assets/scss/icons.scss'
 import { PermissionsProvider } from './common/context/usePermissionsContext'
+import './i18n'
 
 configureFakeBackend()
 

@@ -56,15 +56,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	useEffect(() => {
 		console.log('UseEffect get called.')
-		window.addEventListener('storage', (event) => {
+		const handleStorageChange = (event: StorageEvent) => {
 			if (event.key === accessTokenKey || event.key === refreshTokenKey) {
 				checkAndSetupTokenExpiration()
 			}
-		})
+		}
+
+		window.addEventListener('storage', handleStorageChange)
 
 		checkAndSetupTokenExpiration()
 
 		return () => {
+			window.removeEventListener('storage', handleStorageChange)
 			if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current)
 			if (alertTimeoutIdRef.current) clearTimeout(alertTimeoutIdRef.current)
 		}
@@ -72,15 +75,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	const removeSession = async () => {
 		const refreshToken = localStorage.getItem(refreshTokenKey)
+		if (!refreshToken) {
+			return
+		}
 		if (refreshToken) {
-			await authApi.logout({
-				// tenantID: user?.tenantID,
-				refreshToken,
-			})
+			try {
+				await authApi.logout({
+					refreshToken,
+				})
+			} catch (error) {
+				console.error('Logout failed:', error)
+			}
 		}
 		localStorage.removeItem(accessTokenKey)
 		localStorage.removeItem(refreshTokenKey)
 		setUser(undefined)
+		if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current)
+		if (alertTimeoutIdRef.current) clearTimeout(alertTimeoutIdRef.current)
 	}
 
 	const setupAutoLogout = (exp: number) => {
