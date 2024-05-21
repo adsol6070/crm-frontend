@@ -60,9 +60,14 @@ const Register = () => {
 				.email('Please enter valid Email'),
 			password: yup.string().required('Please enter Password'),
 			phone: yup.string().required('Please enter Phone'),
-			profileImage: yup.mixed().notRequired(),
+			profileImage: yup.mixed(),
 		})
 	)
+
+	const onSubmit = (data: UserData) => {
+		const formData = profileImage ? { ...data, profileImage } : data
+		register(formData)
+	}
 
 	return (
 		<>
@@ -72,12 +77,7 @@ const Register = () => {
 				helpText="Enter your email address and password to access account."
 				bottomLinks={<BottomLink />}
 				hasThirdPartyLogin>
-				<VerticalForm<UserData>
-					onSubmit={(data: any) => {
-						const formData = profileImage ? { ...data, profileImage } : data
-						register(formData)
-					}}
-					resolver={schemaResolver}>
+				<VerticalForm<UserData> onSubmit={onSubmit} resolver={schemaResolver}>
 					<FormInput
 						label="Tenant ID"
 						type="text"

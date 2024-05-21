@@ -18,6 +18,7 @@ interface Permissions {
 // Permissions context type
 interface PermissionsContextType {
 	permissions: Permissions
+	isSuperAdmin: boolean
 }
 
 // Creating the Permissions context
@@ -40,14 +41,19 @@ export const PermissionsProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
 	const [permissions, setPermissions] = useState<Permissions>({})
 	const { user } = useAuthContext()
-
-	console.log('Permissions:', permissions)
+	const isSuperAdmin = user?.role === 'superAdmin'
 
 	const fetchPermissions = async (role: string) => {
 		try {
 			console.log('Fetch Permissions get called>')
-			const data = await permissionService.getPermissionsByRole({ role })
-			setPermissions(data.permissions)
+			if (role === 'superAdmin') {
+				setPermissions({
+					'*': { '*': true },
+				})
+			} else {
+				const data = await permissionService.getPermissionsByRole({ role })
+				setPermissions(data.permissions)
+			}
 		} catch (error) {
 			console.error('Error fetching permissions:', error)
 			return {}
@@ -60,7 +66,7 @@ export const PermissionsProvider: React.FC<{ children: ReactNode }> = ({
 	}, [user?.role])
 
 	return (
-		<PermissionsContext.Provider value={{ permissions }}>
+		<PermissionsContext.Provider value={{ permissions, isSuperAdmin }}>
 			{children}
 		</PermissionsContext.Provider>
 	)

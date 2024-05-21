@@ -14,8 +14,16 @@ const Logout = () => {
 	const { removeSession } = useAuthContext()
 
 	useEffect(() => {
-		removeSession()
-	}, [removeSession])
+		const performLogout = async () => {
+			try {
+				await removeSession()
+			} catch (error) {
+				console.error('Failed to logout:', error)
+			}
+		}
+
+		performLogout()
+	}, [])
 
 	const BottomLink = () => {
 		return (
@@ -25,8 +33,7 @@ const Logout = () => {
 						Back To{' '}
 						<Link
 							to="/auth/login"
-							className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline"
-						>
+							className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline">
 							<b>Log In</b>
 						</Link>
 					</p>
@@ -42,8 +49,7 @@ const Logout = () => {
 				authTitle="See You Again !"
 				helpText="You are now successfully sign out."
 				bottomLinks={<BottomLink />}
-				starterClass
-			>
+				starterClass>
 				<div className="logout-icon m-auto">
 					<Image fluid src={shield} alt="" />
 				</div>
