@@ -150,8 +150,9 @@ export const useUserList = (): UserListHookResult => {
 		const getUsers = async () => {
 			setLoading(true)
 			const userData = await userApi.get()
+			const newUserData = userData.users.filter((data: any) => data.role !== "superAdmin")
 			const usersWithImages = await Promise.all(
-				userData?.users.map(async (user: User, index: any) => {
+				newUserData?.map(async (user: User, index: any) => {
 					if (user.profileImage) {
 						const imageBlob = await userApi.getImage(user.id)
 						const imageUrl = URL.createObjectURL(imageBlob)

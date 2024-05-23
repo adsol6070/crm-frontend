@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { authApi, useAuthContext } from '@/common'
+import { toast } from 'react-toastify'
 
 interface LoginData {
 	email: string
@@ -29,7 +30,7 @@ export default function useLogin() {
 				navigate(redirectUrl)
 			}
 		} catch (error) {
-			console.error('Login failed', error)
+			toast.error("Invalid Email or Password")
 		} finally {
 			setLoading(false)
 		}

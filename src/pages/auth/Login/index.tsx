@@ -7,6 +7,8 @@ import * as yup from 'yup'
 import AuthLayout from '../AuthLayout'
 import useLogin from './useLogin'
 import { VerticalForm, FormInput, PageBreadcrumb } from '@/components'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 interface UserData {
 	email: string
@@ -50,6 +52,7 @@ const Login = () => {
 
 	return (
 		<>
+		<ToastContainer />
 			<PageBreadcrumb title="Log In" />
 
 			{isAuthenticated && <Navigate to={redirectUrl} replace />}

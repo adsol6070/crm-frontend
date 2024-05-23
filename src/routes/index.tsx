@@ -37,6 +37,7 @@ const AddCategory = React.lazy(() => import('../pages/blogs/AddCategory'))
 // leads
 const AddLead = React.lazy(() => import('../pages/leads/Create'))
 const ListLead = React.lazy(() => import('../pages/leads/List'))
+const ReadLead = React.lazy(() => import('../pages/leads/Read'))
 
 // // users
 const UserList = React.lazy(() => import('../pages/user/List'))
@@ -198,6 +199,12 @@ const leadRoutes = {
 			path: '/leads/list-leads',
 			name: 'List Lead',
 			element: <ListLead />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/lead/read/:leadId',
+			name: 'Lead Read',
+			element: <ReadLead />,
 			route: PrivateRoute,
 		},
 	],

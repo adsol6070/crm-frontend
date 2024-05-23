@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { Row, Col, Card, Form, Button } from 'react-bootstrap'
+import { Row, Col, Card, Form, Button, Table } from 'react-bootstrap'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { FormInput, PageBreadcrumb } from '@/components'
@@ -10,130 +10,105 @@ import { Stepper, Step } from 'react-form-stepper'
 import './AddLead.css'
 import useCreateLead from './useCreateLeadForm'
 import { Preferences } from '@capacitor/preferences'
+import ReactToPrint from 'react-to-print'
 
-// Define validation schemas for each step
+interface CollectedData {
+	[key: string]: any;
+}
+
+const fieldOrder = [
+	"firstname", "lastname", "email", "phone", "gender", "dob", "nationality",
+	"maritalStatus", "passportNumber", "passportExpiry", "currentAddress",
+	"permanentAddress", "highestQualification", "fieldOfStudy", "institutionName",
+	"graduationYear", "grade", "testType", "testScore", "countryOfInterest",
+	"courseOfInterest", "desiredFieldOfStudy", "preferredInstitutions",
+	"intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails",
+	"proofOfFunds", "scholarships", "languageTestReport", "passportCopy",
+	"certificates", "transcripts", "sop", "recommendationLetter", "resume",
+	"visaExpiryDate", "visaType", "previousStudyAbroad", "previousVisaApplications",
+	"leadNotes", "leadRating", "followUpDates", "assignedAgent", "leadStatus",
+	"referralContact", "leadSource", "notes", "preferredContactTime", "communicationMode"
+]
+
+const reorderData = (data : any, order: any) => {
+	const orderedData: CollectedData = {}
+	order.forEach((key: any) => {
+		if (data.hasOwnProperty(key)) {
+			orderedData[key] = data[key]
+		}
+	})
+	return orderedData
+}
+
 const stepSchemas = [
 	yup
 		.object({
 			firstname: yup.string().required('Please enter your First Name'),
 			lastname: yup.string().required('Please enter your Last Name'),
-			email: yup
-				.string()
-				.required('Please enter your Email')
-				.email('Please enter a valid Email'),
+			email: yup.string().required('Please enter your Email').email('Please enter a valid Email'),
 			phone: yup.string().required('Please enter your Phone Number'),
 			gender: yup.string().required('Please select your Gender'),
 			dob: yup.date().required('Please select your Date of Birth'),
 			nationality: yup.string().required('Please enter your Nationality'),
 			maritalStatus: yup.string().required('Please select your Marital Status'),
-			passportNumber: yup
-				.string()
-				.required('Please enter your Passport Number'),
-			passportExpiry: yup
-				.date()
-				.required('Please enter your Passport Expiry Date'),
-			currentAddress: yup
-				.string()
-				.required('Please enter your Current Address'),
-			permanentAddress: yup
-				.string()
-				.required('Please enter your Permanent Address'),
+			passportNumber: yup.string(),
+			passportExpiry: yup.date().nullable(),
+			currentAddress: yup.string().required('Please enter your Current Address'),
+			permanentAddress: yup.string().required('Please enter your Permanent Address'),
 		})
 		.required(),
 	yup
 		.object({
-			highestQualification: yup
-				.string()
-				.required('Please enter your Highest Qualification'),
-			fieldOfStudy: yup.string().required('Please enter your Field of Study'),
-			institutionName: yup
-				.string()
-				.required('Please enter your Institution Name'),
-			graduationYear: yup
-				.string()
-				.required('Please enter your Year of Graduation'),
-			grade: yup.string().required('Please enter your Grade/Percentage/CGPA'),
-			testType: yup.string().required('Please select your Test Type'),
-			testScore: yup.string().required('Please enter your Test Score'),
+			highestQualification: yup.string().required('Please enter your Highest Qualification'),
+			fieldOfStudy: yup.string().nullable(),
+			institutionName: yup.string().nullable(),
+			graduationYear: yup.string().nullable(),
+			grade: yup.string().nullable(),
+			testType: yup.string().nullable(),
+			testScore: yup.string().nullable(),
 		})
 		.required(),
 	yup
 		.object({
-			countryOfInterest: yup
-				.string()
-				.required('Please select your Country of Interest'),
-			courseOfInterest: yup
-				.string()
-				.required('Please enter your Course of Interest'),
-			desiredFieldOfStudy: yup
-				.string()
-				.required('Please enter your Desired Field of Study'),
-			preferredInstitutions: yup
-				.string()
-				.required('Please enter your Preferred Institutions'),
-			intakeSession: yup.string().required('Please select your Intake Session'),
-			reasonForImmigration: yup
-				.string()
-				.required('Please enter your Reason for Immigration'),
-			financialSupport: yup
-				.string()
-				.required('Please select your Financial Support'),
-			sponsorDetails: yup
-				.string()
-				.required('Please enter your Sponsor Details'),
-			proofOfFunds: yup.mixed().required('Please upload Proof of Funds'),
-			scholarships: yup
-				.string()
-				.required('Please enter your Scholarships/Grants details'),
+			countryOfInterest: yup.string().nullable(),
+			courseOfInterest: yup.string().nullable(),
+			desiredFieldOfStudy: yup.string().nullable(),
+			preferredInstitutions: yup.string().nullable(),
+			intakeSession: yup.string().nullable(),
+			reasonForImmigration: yup.string().nullable(),
+			financialSupport: yup.string().nullable(),
+			sponsorDetails: yup.string().nullable(),
+			proofOfFunds: yup.mixed().nullable(),
+			scholarships: yup.string().nullable(),
 		})
 		.required(),
 	yup
 		.object({
-			previousVisaApplications: yup
-				.string()
-				.required('Please select your Previous Visa Applications'),
-			previousStudyAbroad: yup
-				.string()
-				.required('Please enter your Previous Study Abroad Experience'),
-			visaType: yup.string().required('Please select your Visa Type'),
-			visaExpiryDate: yup
-				.date()
-				.required('Please select your Visa Expiry Date'),
-			resume: yup.mixed().required('Please upload your Resume/CV'),
-			recommendationLetter: yup
-				.mixed()
-				.required('Please upload your Letter of Recommendation'),
-			sop: yup.mixed().required('Please upload your Statement of Purpose'),
-			transcripts: yup.mixed().required('Please upload your Transcripts'),
-			certificates: yup.mixed().required('Please upload your Certificates'),
-			passportCopy: yup.mixed().required('Please upload your Passport Copy'),
-			languageTestReport: yup
-				.mixed()
-				.required('Please upload your Language Test Report'),
+			previousVisaApplications: yup.string().nullable(),
+			previousStudyAbroad: yup.string().nullable(),
+			visaType: yup.string().nullable(),
+			visaExpiryDate: yup.date().nullable(),
+			resume: yup.mixed().nullable(),
+			recommendationLetter: yup.mixed().nullable(),
+			sop: yup.mixed().nullable(),
+			transcripts: yup.mixed().nullable(),
+			certificates: yup.mixed().nullable(),
+			passportCopy: yup.mixed().nullable(),
+			languageTestReport: yup.mixed().nullable(),
 		})
 		.required(),
 	yup
 		.object({
-			communicationMode: yup
-				.string()
-				.required('Please select your Preferred Mode of Communication'),
-			preferredContactTime: yup
-				.string()
-				.required('Please select your Preferred Time for Contact'),
-			notes: yup
-				.string()
-				.required('Please enter any additional Notes/Comments'),
-			leadSource: yup.string().required('Please select your Source of Lead'),
-			referralContact: yup
-				.string()
-				.required('Please enter Referral Name/Contact'),
-			leadStatus: yup.string().required('Please select Lead Status'),
-			assignedAgent: yup
-				.string()
-				.required('Please select Assigned Agent/Counselor'),
-			followUpDates: yup.date().required('Please select Follow-up Dates'),
-			leadRating: yup.string().required('Please select Lead Rating'),
-			leadNotes: yup.string().required('Please enter Lead Notes'),
+			communicationMode: yup.string().nullable(),
+			preferredContactTime: yup.string().nullable(),
+			notes: yup.string().nullable(),
+			leadSource: yup.string().nullable(),
+			referralContact: yup.string().nullable(),
+			leadStatus: yup.string().nullable(),
+			assignedAgent: yup.string().nullable(),
+			followUpDates: yup.date().nullable(),
+			leadRating: yup.string().nullable(),
+			leadNotes: yup.string().nullable(),
 		})
 		.required(),
 ]
@@ -141,9 +116,9 @@ const stepSchemas = [
 const AddLead = () => {
 	const { createLead } = useCreateLead()
 	const [step, setStep] = useState(1)
-	const [collectedData, setCollectedData] = useState({})
+	const [collectedData, setCollectedData] = useState<CollectedData>({})
 
-	const currentSchema = stepSchemas[step - 1] || yup.object().shape({})
+	const currentSchema: yup.ObjectSchema<any> = stepSchemas[step - 1] || yup.object().shape({});
 
 	const methods = useForm({
 		resolver: yupResolver(currentSchema),
@@ -156,7 +131,6 @@ const AddLead = () => {
 		handleSubmit,
 		formState: { errors },
 		reset,
-		getValues,
 		setValue,
 	} = methods
 
@@ -186,12 +160,13 @@ const AddLead = () => {
 
 	const handleNext = (data: any) => {
 		const newData = { ...collectedData, ...data }
-		setCollectedData(newData)
+		const orderedData = reorderData(newData, fieldOrder)
+		setCollectedData(orderedData)
 
-		if (step < stepSchemas.length) {
+		if (step < stepSchemas.length + 1) {
 			setStep(step + 1)
 		} else {
-			onSubmit(newData)
+			onSubmit(orderedData)
 		}
 	}
 
@@ -201,8 +176,17 @@ const AddLead = () => {
 
 	const onSubmit = async (data: any) => {
 		const finalData = { ...collectedData, ...data }
-		console.log('Final data:', finalData)
-		createLead(finalData)
+		const formData = new FormData();
+		Object.keys(finalData).forEach(key => {
+			if (finalData[key] instanceof FileList && finalData[key].length > 0) {
+				formData.append(key, finalData[key][0]);
+			} else if (finalData[key] instanceof Date) {
+				formData.append(key, finalData[key].toISOString());
+			} else {
+				formData.append(key, finalData[key]);
+			}
+		});
+		createLead(formData)
 		reset()
 		setCollectedData({})
 		setStep(1)
@@ -210,6 +194,7 @@ const AddLead = () => {
 		await Preferences.remove({ key: 'formData' })
 	}
 
+	const printRef = useRef<HTMLDivElement>(null);
 	return (
 		<>
 			<ToastContainer />
@@ -242,12 +227,11 @@ const AddLead = () => {
 								<Step label="Immigration Details" />
 								<Step label="Document Details" />
 								<Step label="Final Details" />
+								<Step label="View Lead Details" />
 							</Stepper>
 
 							<FormProvider {...methods}>
-								<Form
-									className="form-step-container"
-									onSubmit={handleSubmit(handleNext)}>
+								<Form className="form-step-container" onSubmit={handleSubmit(handleNext)}>
 									{step === 1 && (
 										<>
 											<FormInput
@@ -346,9 +330,6 @@ const AddLead = () => {
 												register={register}
 												errors={errors}
 											/>
-											<Button variant="primary" type="submit">
-												Next
-											</Button>
 											{step > 1 && (
 												<Button
 													variant="secondary"
@@ -357,6 +338,9 @@ const AddLead = () => {
 													Back
 												</Button>
 											)}
+											<Button variant="primary m-2" type="submit">
+												Next
+											</Button>
 										</>
 									)}
 									{step === 2 && (
@@ -417,9 +401,6 @@ const AddLead = () => {
 												register={register}
 												errors={errors}
 											/>
-											<Button variant="primary" type="submit">
-												Next
-											</Button>
 											{step > 1 && (
 												<Button
 													variant="secondary"
@@ -428,6 +409,9 @@ const AddLead = () => {
 													Back
 												</Button>
 											)}
+											<Button variant="primary m-2" type="submit">
+												Next
+											</Button>
 										</>
 									)}
 									{step === 3 && (
@@ -512,9 +496,6 @@ const AddLead = () => {
 												register={register}
 												errors={errors}
 											/>
-											<Button variant="primary" type="submit">
-												Next
-											</Button>
 											{step > 1 && (
 												<Button
 													variant="secondary"
@@ -523,6 +504,9 @@ const AddLead = () => {
 													Back
 												</Button>
 											)}
+											<Button variant="primary m-2" type="submit">
+												Next
+											</Button>
 										</>
 									)}
 									{step === 4 && (
@@ -615,9 +599,6 @@ const AddLead = () => {
 												register={register}
 												errors={errors}
 											/>
-											<Button variant="primary" type="submit">
-												Next
-											</Button>
 											{step > 1 && (
 												<Button
 													variant="secondary"
@@ -626,6 +607,9 @@ const AddLead = () => {
 													Back
 												</Button>
 											)}
+											<Button variant="primary m-2" type="submit">
+												Next
+											</Button>
 										</>
 									)}
 									{step === 5 && (
@@ -710,17 +694,48 @@ const AddLead = () => {
 												register={register}
 												errors={errors}
 											/>
-											<Button
-												variant="success"
-												type="button"
-												onClick={() => onSubmit(collectedData)}>
-												Submit
-											</Button>
 											{step > 1 && (
 												<Button
 													variant="secondary"
 													type="button"
 													onClick={handleBack}>
+													Back
+												</Button>
+											)}
+											<Button variant="primary m-2" type="submit">
+												Next
+											</Button>
+										</>
+									)}
+									{step === 6 && (
+										<>
+											<div ref={printRef}>
+												<Table striped bordered hover>
+													<thead>
+														<tr>
+															<th>Field Name</th>
+															<th>Field Value</th>
+														</tr>
+													</thead>
+													<tbody>
+														{Object.keys(collectedData).map((key) => (
+															<tr key={key}>
+																<td>{key}</td>
+																<td>{String(collectedData[key])}</td>
+															</tr>
+														))}
+													</tbody>
+												</Table>
+											</div>
+											<Button variant="success" className="m-2" type="button" onClick={() => onSubmit(collectedData)}>
+												Submit
+											</Button>
+											<ReactToPrint
+												trigger={() => <Button className="m-2" variant="secondary">Print</Button>}
+												content={() => printRef.current}
+											/>
+											{step > 1 && (
+												<Button variant="secondary" className="m-2" type="button" onClick={handleBack}>
 													Back
 												</Button>
 											)}

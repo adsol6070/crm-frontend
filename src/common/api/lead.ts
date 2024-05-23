@@ -2,14 +2,16 @@ import { HttpClient } from '../helpers'
 
 const accessTokenKey = 'access_token'
 
-const getAuthHeaders = () => {
+const getAuthHeaders = (isMultipart: boolean = false) => {
 	const token: string | null = localStorage.getItem(accessTokenKey)
 	let headers: { [key: string]: string } = {}
 
 	if (token) {
 		headers['Authorization'] = `Bearer ${token}`
 	}
-
+	if (isMultipart) {
+		headers['Content-Type'] = 'multipart/form-data'
+	}
 	return headers
 }
 
@@ -22,6 +24,11 @@ function LeadService() {
 		},
 		get: async () => {
 			return await HttpClient.get('/lead/', {
+				headers: getAuthHeaders(),
+			})
+		},
+		getLeadById: async (leadId: string) => {
+			return await HttpClient.get(`/lead/${leadId}`, {
 				headers: getAuthHeaders(),
 			})
 		},

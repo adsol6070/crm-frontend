@@ -7,36 +7,22 @@ export default function useCreateLead() {
 	const [loading, setLoading] = useState(false)
 	const { isAuthenticated, user } = useAuthContext()
 
-	const createLead = async ({
-		firstname,
-		lastname,
-		email,
-		phone,
-		qualification,
-		VisaInterest,
-	}: {
-		firstname: string
-		lastname: string
-		email: string
-		phone: string
-		qualification: string
-		VisaInterest: string
-	}) => {
+	const createLead = async (formData: FormData) => {
 		setLoading(true)
 		try {
-			const formData = new FormData()
 			formData.append('tenantID', user.tenantID)
-			formData.append('firstname', firstname)
-			formData.append('lastname', lastname)
-			formData.append('email', email)
-			formData.append('phone', phone)
-			formData.append('qualification', qualification)
-			formData.append('VisaInterest', VisaInterest)
-
+			// for (let [key, value] of formData.entries()) {
+			// 	console.log(`${key}: ${value}`);
+			//   }
 			const data = await leadApi.create(formData)
 			toast.success(data.message)
 		} catch (error: any) {
-			toast.error(error.message)
+			if (error == "Email already taken") {
+				toast.error("Email already exists")
+			}
+			else {
+				toast.error("Lead not added")
+			}
 		} finally {
 			setLoading(false)
 		}
