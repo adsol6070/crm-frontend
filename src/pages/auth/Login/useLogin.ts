@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { authApi, useAuthContext } from '@/common'
+import Swal from 'sweetalert2'
 
 interface LoginData {
 	email: string
@@ -26,10 +27,25 @@ export default function useLogin() {
 			const res = await authApi.login({ email, password, rememberMe })
 			if (res.tokens) {
 				saveSession(res.tokens)
-				navigate(redirectUrl)
+
+				// Show success alert
+				Swal.fire({
+					icon: 'success',
+					title: 'Login Successful',
+					text: 'You have successfully logged in.',
+					showConfirmButton: false,
+					timer: 1500,
+				}).then(() => {
+					navigate(redirectUrl, { replace: true })
+				})
 			}
 		} catch (error) {
 			console.error('Login failed', error)
+			Swal.fire({
+				icon: 'error',
+				title: 'Login Failed',
+				text: 'Invalid email or password. Please try again.',
+			})
 		} finally {
 			setLoading(false)
 		}

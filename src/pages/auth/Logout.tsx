@@ -1,5 +1,5 @@
-import { Col, Image, Row } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { Button, Col, Image, Row } from 'react-bootstrap'
+import { useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import { useAuthContext } from '@/common'
 import AuthLayout from './AuthLayout'
@@ -12,6 +12,7 @@ import { PageBreadcrumb } from '@/components'
 
 const Logout = () => {
 	const { removeSession } = useAuthContext()
+	const navigate = useNavigate()
 
 	useEffect(() => {
 		const performLogout = async () => {
@@ -25,17 +26,22 @@ const Logout = () => {
 		performLogout()
 	}, [])
 
+	const handleLoginClick = () => {
+		navigate('/auth/login', { replace: true })
+	}
+
 	const BottomLink = () => {
 		return (
 			<Row>
 				<Col xs={12} className="text-center">
 					<p className="text-dark-emphasis">
 						Back To{' '}
-						<Link
-							to="/auth/login"
-							className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline">
+						<Button
+							variant="link"
+							className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline"
+							onClick={handleLoginClick}>
 							<b>Log In</b>
-						</Link>
+						</Button>
 					</p>
 				</Col>
 			</Row>

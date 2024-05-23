@@ -55,7 +55,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	}
 
 	useEffect(() => {
-		console.log('UseEffect get called.')
 		const handleStorageChange = (event: StorageEvent) => {
 			if (event.key === accessTokenKey || event.key === refreshTokenKey) {
 				checkAndSetupTokenExpiration()

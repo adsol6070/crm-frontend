@@ -1,6 +1,6 @@
 import { Button, Col, Row } from 'react-bootstrap'
 import AuthLayout from '../AuthLayout'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import useRegister from './useRegister'
@@ -16,29 +16,31 @@ interface UserData {
 	email: string
 	password: string
 	phone: string
-	profileImage?: File 
+	profileImage?: File
 }
+
 const BottomLink = () => {
+	const navigate = useNavigate()
 	return (
 		<Row>
 			<Col xs={12} className="text-center">
 				<p className="text-dark-emphasis">
 					Already have account?{' '}
-					<Link
-						to="/auth/login"
-						className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline">
+					<Button
+						variant="link"
+						className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline"
+						onClick={() => navigate('/auth/login', { replace: true })}>
 						<b>Log In</b>
-					</Link>
+					</Button>
 				</p>
 			</Col>
 		</Row>
 	)
 }
+
 const Register = () => {
 	const { loading, register } = useRegister()
 	const [profileImage, setProfileImage] = useState<File | null>(null)
-
-	console.log(profileImage)
 
 	const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files && event.target.files[0]) {

@@ -37,6 +37,9 @@ function AuthService() {
 		forgetPassword: (values: any) => {
 			return HttpClient.post('/auth/forgot-password', values)
 		},
+		resetPassword: (values: any) => {
+			return HttpClient.post('/auth/reset-password', values)
+		},
 	}
 }
 

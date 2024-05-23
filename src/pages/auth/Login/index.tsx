@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button, Col, Row } from 'react-bootstrap'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 
@@ -14,20 +14,24 @@ interface UserData {
 	rememberMe?: boolean
 }
 
-const BottomLinks = () => (
-	<Row>
-		<Col xs={12} className="text-center">
-			<p className="text-dark-emphasis">
-				Don't have an account?{' '}
-				<Link
-					to="/auth/register"
-					className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline">
-					<b>Sign up</b>
-				</Link>
-			</p>
-		</Col>
-	</Row>
-)
+const BottomLinks = () => {
+	const navigate = useNavigate()
+	return (
+		<Row>
+			<Col xs={12} className="text-center">
+				<p className="text-dark-emphasis">
+					Don't have an account?{' '}
+					<Button
+						variant="link"
+						className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline"
+						onClick={() => navigate('/auth/register', { replace: true })}>
+						<b>Sign up</b>
+					</Button>
+				</p>
+			</Col>
+		</Row>
+	)
+}
 
 const schema = yup.object().shape({
 	email: yup.string().email('Invalid email').required('Please enter email'),

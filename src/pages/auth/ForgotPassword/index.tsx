@@ -25,17 +25,12 @@ const BottomLink = () => {
 	)
 }
 interface UserData {
-	tenantID: string
 	email: string
 }
 
 const ForgotPassword = () => {
-	/*
-	 * form validation schema
-	 */
 	const schemaResolver = yupResolver(
 		yup.object().shape({
-			tenantID: yup.string().required('Please enter tenantID'),
 			email: yup
 				.string()
 				.email('Please enter a valid email')
@@ -43,10 +38,8 @@ const ForgotPassword = () => {
 		})
 	)
 
-	/*
-	 * handle form submission
-	 */
 	const { loading, onSubmit } = useRecoverPassword()
+
 	return (
 		<div>
 			<PageBreadcrumb title="Forgot Password" />
@@ -55,14 +48,6 @@ const ForgotPassword = () => {
 				helpText="Enter your email address and we'll send you an email with instructions to reset your password."
 				bottomLinks={<BottomLink />}>
 				<VerticalForm<UserData> onSubmit={onSubmit} resolver={schemaResolver}>
-					<FormInput
-						label="Tenant ID"
-						type="text"
-						name="tenantID"
-						placeholder="Enter your ID"
-						containerClass="mb-3"
-						required
-					/>
 					<FormInput
 						label="Email address"
 						type="email"

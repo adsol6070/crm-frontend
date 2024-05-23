@@ -18,6 +18,9 @@ interface UserListHookResult {
 export const useUserList = (): UserListHookResult => {
 	const navigate = useNavigate()
 	const { permissions } = usePermissions()
+
+	console.log("Permissions:", permissions);
+
 	const [loading, setLoading] = useState(false)
 	const [userRecords, setUserRecords] = useState<User[]>([])
 
@@ -155,10 +158,14 @@ export const useUserList = (): UserListHookResult => {
 					if (user.profileImage) {
 						const imageBlob = await userApi.getImage(user.id)
 						const imageUrl = URL.createObjectURL(imageBlob)
-						return { ...user, profileImage: imageUrl, sno: index + 1  }
+						return { ...user, profileImage: imageUrl, sno: index + 1 }
 					} else {
 						const placeholderImageUrl = generatePlaceholderImage(user.firstname)
-						return { ...user, profileImage: placeholderImageUrl, sno: index + 1 }
+						return {
+							...user,
+							profileImage: placeholderImageUrl,
+							sno: index + 1,
+						}
 					}
 				})
 			)
