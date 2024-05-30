@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Table, Form, Modal, Spinner, Container } from 'react-bootstrap';
 import { PageBreadcrumb } from '@/components';
@@ -15,29 +15,23 @@ import './AddLeadChecklist.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
-// Validation schema for the form
 const schema = yup.object().shape({
   documents: yup.array().of(
     yup.object().shape({
       name: yup.string().required('Document name is required'),
-      file: yup.mixed().nullable(),
+      file: yup.mixed().required('File is required').test('fileSize', 'The file is too large', (value) => {
+        return value && value.size <= 1000000;
+      })
+        .test('fileType', 'Unsupported File Format', (value) => {
+          return value && ['application/pdf'].includes(value.type);
+        }),
     })
   ),
 });
 
-interface Document {
-  name: string;
-  originalname?: string;
-  filename?: string;
-  path?: string;
-  mimetype?: string;
-  size?: number;
-}
-
 const AddLeadChecklist: React.FC = () => {
   const { leadId } = useParams() as { leadId: string };
-  const { onSubmit, getDocuments, fetchUploadedDocuments, deleteSingleDocument, deleteDocuments, getSingleDocument, loading } = useAddDocumentChecklist(leadId);
-  const [uploadedDocs, setUploadedDocs] = useState<Document[]>([]);
+  const { onSubmit, getDocuments, fetchDocuments, uploadedDocs, deleteSingleDocument, deleteDocuments, getSingleDocument, loading } = useAddDocumentChecklist(leadId);
   const [selectedPdf, setSelectedPdf] = useState<string | null>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [loadingPdf, setLoadingPdf] = useState(false);
@@ -57,18 +51,9 @@ const AddLeadChecklist: React.FC = () => {
     name: 'documents',
   });
 
-  useEffect(() => {
-    const fetchDocuments = async () => {
-      const documents = await fetchUploadedDocuments(leadId);
-      setUploadedDocs(documents.documents);
-    };
-
-    fetchDocuments();
-  }, [fetchUploadedDocuments, leadId]);
-
   const handleDelete = async () => {
     await deleteDocuments(leadId);
-    setUploadedDocs([]);
+    fetchDocuments()
   };
 
   const handleDownload = async () => {
@@ -103,7 +88,7 @@ const AddLeadChecklist: React.FC = () => {
 
   const handleDeleteSingleDocument = async (filename: string) => {
     await deleteSingleDocument(leadId, filename);
-    setUploadedDocs(prev => prev.filter(doc => doc.filename !== filename));
+    fetchDocuments()
   };
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
@@ -116,12 +101,8 @@ const AddLeadChecklist: React.FC = () => {
 
   const handleFormSubmit = async (data: any) => {
     await onSubmit(data);
-    const fetchedDocuments = await fetchUploadedDocuments(leadId);
-    const newDocuments = fetchedDocuments.documents.filter(
-      (newDoc: Document) => !uploadedDocs.some((doc: Document) => doc.filename === newDoc.filename)
-    );
-    setUploadedDocs((prev) => [...prev, ...newDocuments]);
-    reset({ documents: [] });
+    fetchDocuments()
+    reset({ documents: [{ name: '', file: null }] });
   };
 
   return (
@@ -161,7 +142,11 @@ const AddLeadChecklist: React.FC = () => {
                         onChange={(e: any) =>
                           setValue(`documents.${index}.file`, e.target.files ? e.target.files[0] : null)
                         }
+                        isInvalid={!!errors.documents?.[index]?.file}
                       />
+                      <Form.Control.Feedback type='invalid'>
+                        {errors.documents?.[index]?.file?.message}
+                      </Form.Control.Feedback>
                     </td>
                     <td>
                       <Button variant="danger" onClick={() => remove(index)}>
@@ -198,26 +183,32 @@ const AddLeadChecklist: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {uploadedDocs?.map((doc, index) => (
-              <tr key={`uploaded-${index}`}>
-                <td>{index + 1}</td>
-                <td>{doc.name}</td>
-                <td>
-                  <FaCheckCircle color="green" size="1.5em" />
-                </td>
-                <td>
-                  <Button variant="info" className="m-1" onClick={() => handleViewDocument(doc.filename!)}>
-                    View
-                  </Button>
-                  <Button variant="info" className="m-1" onClick={() => handleDownloadDocument(doc.filename!)}>
-                    Download
-                  </Button>
-                  <Button variant="danger" className="m-1" onClick={() => handleDeleteSingleDocument(doc.filename!)}>
-                    Delete
-                  </Button>
-                </td>
+            {uploadedDocs && uploadedDocs.length > 0 ? (
+              uploadedDocs?.map((doc, index) => (
+                <tr key={`uploaded-${index}`}>
+                  <td>{index + 1}</td>
+                  <td>{doc.name}</td>
+                  <td>
+                    <FaCheckCircle color="green" size="1.5em" />
+                  </td>
+                  <td>
+                    <Button variant="info" className="m-1" onClick={() => handleViewDocument(doc.filename!)}>
+                      View
+                    </Button>
+                    <Button variant="info" className="m-1" onClick={() => handleDownloadDocument(doc.filename!)}>
+                      Download
+                    </Button>
+                    <Button variant="danger" className="m-1" onClick={() => handleDeleteSingleDocument(doc.filename!)}>
+                      Delete
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr className='text-center'>
+                <td colSpan={4}>No documents uploaded yet.</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </Table>
       </Container>

@@ -276,9 +276,12 @@
 	margin-bottom: 20px;
 }
 
-.chat-conversation .conversation-list .ctext-wrap .ctext-wrap-content {
-	max-width: 40vw;
+.ctext-wrap-content {
+	max-width: 30vw;
 	text-wrap: wrap;
+}
+
+.chat-conversation .conversation-list .ctext-wrap .ctext-wrap-content {
 	padding: 15px 20px;
 	background-color: #d5d8db; /* Assuming --tertiary-bg is light gray */
 	border-radius: 0px 15px 15px 15px;
