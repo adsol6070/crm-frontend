@@ -21,8 +21,8 @@ import {
 	SearchDropDown,
 } from '@/components'
 import { useThemeCustomizer } from '@/components'
-import { useViewport } from '@/hooks'
-import useGetProfile from '@/pages/Profile/useGetProfile'
+import { useUser, useViewport } from '@/hooks'
+
 /**
  * for subtraction minutes
  */
@@ -172,7 +172,7 @@ type TopbarProps = {
 const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 	const { sideBarType } = useThemeCustomizer()
 	const { width } = useViewport()
-	const { getProfile } = useGetProfile()
+	const [getProfile] = useUser()
 	/**
 	 * Toggle the leftmenu when having mobile screen
 	 */
@@ -266,8 +266,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 						{/* Sidebar Menu Toggle Button */}
 						<button
 							className="button-toggle-menu"
-							onClick={handleLeftMenuCallBack}
-						>
+							onClick={handleLeftMenuCallBack}>
 							<i className="ri-menu-line" />
 						</button>
 						{/* Horizontal Menu Toggle Button */}
@@ -275,8 +274,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							className={`navbar-toggle ${navOpen ? 'open' : ''}`}
 							data-bs-toggle="collapse"
 							data-bs-target="#topnav-menu-content"
-							onClick={toggleMenu}
-						>
+							onClick={toggleMenu}>
 							<div className="lines">
 								<span />
 								<span />
@@ -319,15 +317,14 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							<div
 								className="nav-link"
 								id="light-dark-mode"
-								onClick={toggleDarkMode}
-							>
+								onClick={toggleDarkMode}>
 								<i className="ri-moon-line fs-22" />
 							</div>
 						</li>
 						<li className="dropdown">
 							<ProfileDropdown
 								menuItems={profileMenus}
-								userImage={`${getProfile?.profileImage}`}
+								userImage={`${getProfile?.imageUrl}`}
 								username={`${getProfile?.firstname}`}
 							/>
 						</li>

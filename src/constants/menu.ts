@@ -35,6 +35,13 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		},
 	},
 	{
+		key: 'chat',
+		label: 'Chats',
+		isTitle: false,
+		icon: 'ri-chat-3-line',
+		url: '/chat',
+	},
+	{
 		key: 'leads',
 		label: 'Leads',
 		isTitle: false,

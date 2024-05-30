@@ -12,6 +12,7 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import { authApi } from '../api'
 import { useLocation } from 'react-router-dom'
+import SocketManager from './SocketManager'
 
 const AuthContext = createContext<any>({})
 
@@ -43,11 +44,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		if (refreshToken) {
 			const decodedRefreshToken = jwtDecode<DecodedToken>(refreshToken)
 			setupAutoLogout(decodedRefreshToken.exp)
-			if (localStorage.getItem(accessTokenKey)) {
-				const decodedAccessToken = jwtDecode<DecodedToken>(
-					localStorage.getItem(accessTokenKey)!
-				)
+			const accessToken = localStorage.getItem(accessTokenKey)
+			if (accessToken) {
+				const decodedAccessToken = jwtDecode<DecodedToken>(accessToken)
 				setUser(decodedAccessToken)
+				SocketManager.updateToken(accessToken)
 			}
 		} else {
 			setUser(undefined)
@@ -89,6 +90,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		localStorage.removeItem(accessTokenKey)
 		localStorage.removeItem(refreshTokenKey)
 		setUser(undefined)
+
+		const socket = SocketManager.getSocket()
+		socket?.emit('logout')
+
+		SocketManager.disconnect()
 		if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current)
 		if (alertTimeoutIdRef.current) clearTimeout(alertTimeoutIdRef.current)
 	}
@@ -129,6 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		const decodedAccessToken = jwtDecode<DecodedToken>(accessToken)
 		setUser(decodedAccessToken)
 		setupAutoLogout(jwtDecode<DecodedToken>(refreshToken).exp)
+		SocketManager.getInstance(accessToken)
 	}
 
 	return (

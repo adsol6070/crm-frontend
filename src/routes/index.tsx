@@ -44,6 +44,8 @@ const CreateUser = React.lazy(() => import('../pages/user/Create'))
 const EditUser = React.lazy(() => import('../pages/user/Update'))
 const UserRoles = React.lazy(() => import('../pages/user/Roles'))
 
+const Chats = React.lazy(() => import('../pages/apps/Chat'))
+
 // // error
 const Error404 = React.lazy(() => import('../pages/error/Error404'))
 const Error404Alt = React.lazy(() => import('../pages/error/Error404Alt'))
@@ -280,6 +282,21 @@ const authRoutes: RoutesProps[] = [
 		route: Route,
 	},
 ]
+const chatRoutes = {
+	path: '/chats',
+	name: 'Chats',
+	icon: 'chats',
+	header: 'Custom',
+	children: [
+		{
+			path: '/chat',
+			name: 'Chats',
+			element: <Chats />,
+			route: PrivateRoute,
+			roles: ['superAdmin', 'admin'],
+		},
+	],
+}
 
 // public routes
 const otherPublicRoutes = [
@@ -327,6 +344,7 @@ const flattenRoutes = (routes: RoutesProps[]) => {
 const authProtectedRoutes = [
 	dashboardRoutes,
 	blogRoutes,
+	chatRoutes,
 	leadRoutes,
 	adminRoutes,
 	customPagesRoutes,
