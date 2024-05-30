@@ -1,13 +1,23 @@
 import { useAuthContext } from '@/common';
 import { leadApi } from '@/common/api';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+
+interface Document {
+    name: string;
+    originalname?: string;
+    filename?: string;
+    path?: string;
+    mimetype?: string;
+    size?: number;
+}
 
 export default function useAddDocumentChecklist(leadId: string) {
     const { user } = useAuthContext();
     const [loading, setLoading] = useState(false);
+    const [uploadedDocs, setUploadedDocs] = useState<Document[]>([]);
 
-    const getDocuments = useCallback(async () => {
+    const getDocuments = async () => {
         if (!leadId) return '';
         setLoading(true);
         try {
@@ -21,13 +31,13 @@ export default function useAddDocumentChecklist(leadId: string) {
         } finally {
             setLoading(false);
         }
-    }, [leadId]);
+    };
 
     useEffect(() => {
-        getDocuments();
-    }, [getDocuments]);
-    
-    const fetchUploadedDocuments = useCallback(async (leadId: string) => {
+        fetchDocuments()
+    }, []);
+
+    const fetchUploadedDocuments = async (leadId: string) => {
         if (!leadId) return [];
         try {
             const response = await leadApi.getUploadedDocuments(leadId);
@@ -36,9 +46,14 @@ export default function useAddDocumentChecklist(leadId: string) {
             console.error('Error fetching uploaded documents:', error);
             return [];
         }
-    }, [leadId]);
+    };
 
-    const getSingleDocument = useCallback(async (leadId: string, filename: string) => {
+    const fetchDocuments = async () => {
+        const documents = await fetchUploadedDocuments(leadId);
+        setUploadedDocs(documents.documents);
+    };
+
+    const getSingleDocument = async (leadId: string, filename: string) => {
         if (!leadId || !filename) return '';
         try {
             const response = await leadApi.getSingleDocument(leadId, filename);
@@ -49,13 +64,13 @@ export default function useAddDocumentChecklist(leadId: string) {
             console.error('Error fetching document:', error);
             return '';
         }
-    }, [leadId]);
+    };
 
-    const addDocuments = useCallback(async (formData: FormData) => {
+    const addDocuments = async (formData: FormData) => {
         setLoading(true);
         try {
             const data = await leadApi.uploadChecklist(formData, leadId);
-            getDocuments(); 
+            getDocuments();
             toast.success(data.message);
         } catch (error: any) {
             console.error('Error uploading documents:', error);
@@ -63,9 +78,9 @@ export default function useAddDocumentChecklist(leadId: string) {
         } finally {
             setLoading(false);
         }
-    }, [leadId, fetchUploadedDocuments]);
+    };
 
-    const deleteSingleDocument = useCallback(async (leadId: string, filename: string) => {
+    const deleteSingleDocument = async (leadId: string, filename: string) => {
         setLoading(true);
         try {
             await leadApi.deleteSingleDocument(leadId, filename);
@@ -77,9 +92,9 @@ export default function useAddDocumentChecklist(leadId: string) {
         } finally {
             setLoading(false);
         }
-    }, [fetchUploadedDocuments]);
+    };
 
-    const deleteDocuments = useCallback(async (leadId: string) => {
+    const deleteDocuments = async (leadId: string) => {
         setLoading(true);
         try {
             await leadApi.deleteDocuments(leadId);
@@ -91,7 +106,7 @@ export default function useAddDocumentChecklist(leadId: string) {
         } finally {
             setLoading(false);
         }
-    }, [fetchUploadedDocuments]);
+    };
 
     const onSubmit = async (data: any) => {
         const formData = new FormData();
@@ -109,5 +124,5 @@ export default function useAddDocumentChecklist(leadId: string) {
         await addDocuments(formData);
     };
 
-    return { loading, onSubmit, getDocuments, fetchUploadedDocuments, getSingleDocument, deleteSingleDocument, deleteDocuments  };
+    return { loading, onSubmit, uploadedDocs, fetchDocuments, getDocuments, fetchUploadedDocuments, getSingleDocument, deleteSingleDocument, deleteDocuments };
 }
