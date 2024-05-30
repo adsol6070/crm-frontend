@@ -4,5 +4,8 @@ export const hasPermission = (
 	section: string,
 	action: any
 ): boolean => {
+	if (permissions?.['*']?.['*']) {
+		return true
+	}
 	return permissions?.[section]?.[action] ?? false
 }

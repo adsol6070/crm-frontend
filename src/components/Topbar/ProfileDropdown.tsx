@@ -1,6 +1,6 @@
 import { Dropdown, Image } from 'react-bootstrap'
 import { ProfileOption } from '@/Layouts/Topbar'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useToggle } from '@/hooks'
 import { useAuthContext, userApi } from '@/common'
 
@@ -16,6 +16,16 @@ const ProfileDropdown = ({
 	username,
 }: ProfileDropdownProps) => {
 	const [isOpen, toggleDropdown] = useToggle()
+	const navigate = useNavigate()
+
+	const handleLogout = async () => {
+		try {
+			navigate('/auth/logout', { replace: true })
+		} catch (error) {
+			console.error('Failed to logout:', error)
+		}
+	}
+
 	return (
 		<Dropdown show={isOpen} onToggle={toggleDropdown}>
 			<Dropdown.Toggle
@@ -23,8 +33,7 @@ const ProfileDropdown = ({
 				to="#"
 				role="button"
 				as={Link}
-				onClick={toggleDropdown}
-			>
+				onClick={toggleDropdown}>
 				<span className="account-user-avatar">
 					<Image
 						src={userImage}
@@ -43,8 +52,7 @@ const ProfileDropdown = ({
 			</Dropdown.Toggle>
 			<Dropdown.Menu
 				align="end"
-				className="dropdown-menu-animated profile-dropdown"
-			>
+				className="dropdown-menu-animated profile-dropdown">
 				<div onClick={toggleDropdown}>
 					<div className=" dropdown-header noti-title">
 						<h6 className="text-overflow m-0">Welcome !</h6>
@@ -52,12 +60,24 @@ const ProfileDropdown = ({
 					{/* item*/}
 
 					{(menuItems || []).map((item, idx) => {
-						return (
-							<Link key={idx} to={item.redirectTo} className="dropdown-item">
-								<i className={`${item.icon} fs-18 align-middle me-1`} />
-								<span>{item.label}</span>
-							</Link>
-						)
+						if (item.label === 'Logout') {
+							return (
+								<button
+									key={idx}
+									onClick={handleLogout}
+									className="dropdown-item">
+									<i className={`${item.icon} fs-18 align-middle me-1`} />
+									<span>{item.label}</span>
+								</button>
+							)
+						} else {
+							return (
+								<Link key={idx} to={item.redirectTo} className="dropdown-item">
+									<i className={`${item.icon} fs-18 align-middle me-1`} />
+									<span>{item.label}</span>
+								</Link>
+							)
+						}
 					})}
 				</div>
 			</Dropdown.Menu>

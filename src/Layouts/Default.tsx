@@ -5,7 +5,7 @@ import { useThemeContext } from '../common/context'
 import { changeHTMLAttribute } from '../utils'
 
 const loading = () => {
-	console.log('fallback arrived')
+	// console.log('fallback arrived')
 	return <></>
 }
 

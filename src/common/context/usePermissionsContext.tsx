@@ -45,7 +45,6 @@ export const PermissionsProvider: React.FC<{ children: ReactNode }> = ({
 
 	const fetchPermissions = async (role: string) => {
 		try {
-			console.log('Fetch Permissions get called>')
 			if (role === 'superAdmin') {
 				setPermissions({
 					'*': { '*': true },
@@ -61,8 +60,9 @@ export const PermissionsProvider: React.FC<{ children: ReactNode }> = ({
 	}
 
 	useEffect(() => {
-		// console.log('UseEffect got calleddddd.')
-		fetchPermissions('admin')
+		if (user?.role) {
+			fetchPermissions(user?.role)
+		}
 	}, [user?.role])
 
 	return (

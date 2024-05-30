@@ -6,6 +6,7 @@ import axios, {
 } from 'axios'
 import { jwtDecode } from 'jwt-decode'
 import { DecodedToken } from '@/types'
+import SocketManager from '../context/SocketManager'
 
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
 	_retry?: boolean
@@ -68,6 +69,11 @@ const refreshToken = async (): Promise<string | null> => {
 			NEW_ACCESS_TOKEN: newAccesstoken,
 			NEW_REFRESH_TOKEN: newRefreshtoken,
 		})
+
+		if (newAccesstoken) {
+			SocketManager.updateToken(response.data.accessToken)
+		}
+
 		return response.data.accessToken
 	} catch (error) {
 		console.error('Error refreshing token:', error)

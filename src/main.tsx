@@ -2,7 +2,6 @@ import App from './App'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import 'regenerator-runtime/runtime'
-// window.global = window;
 
 const container = document.getElementById('root')
 if (container) {

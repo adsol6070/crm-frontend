@@ -1,19 +1,42 @@
 import { useState } from 'react'
-import { AxiosResponse } from 'axios'
-import { User } from '@/types'
 import { authApi } from '@/common'
+import Swal from 'sweetalert2'
+import { useNavigate } from 'react-router-dom'
+
+interface ResetPasswordData {
+	tenantID: string
+	newPassword: string
+	token: string
+}
 
 export default function useResetPassword() {
 	const [loading, setLoading] = useState(false)
+	const navigate = useNavigate()
 
-	/*
-	 * handle form submission
-	 */
-	const onSubmit = async (data: any) => {
+	const onSubmit = async (data: ResetPasswordData) => {
 		setLoading(true)
 		try {
-			const response: AxiosResponse<User> = await authApi.forgetPassword(data)
-			console.log(response)
+			await authApi.resetPassword({
+				token: data.token,
+				password: data.newPassword,
+				tenantID: data.tenantID,
+			})
+			Swal.fire({
+				icon: 'success',
+				title: 'Success',
+				text: 'Password reseted successfully',
+				showConfirmButton: true,
+			}).then(() => {
+				navigate('/auth/login')
+			})
+		} catch (error) {
+			console.error('Password reset failed', error)
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: 'Failed to reset password. Please try again.',
+				showConfirmButton: true,
+			})
 		} finally {
 			setLoading(false)
 		}

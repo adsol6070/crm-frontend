@@ -7,6 +7,7 @@ import { RiEdit2Line, RiDeleteBinLine } from 'react-icons/ri'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { hasPermission } from '@/utils'
+import { useUserImage } from '@/hooks'
 
 interface UserListHookResult {
 	columns: ReadonlyArray<Column>
@@ -17,6 +18,7 @@ interface UserListHookResult {
 
 export const useUserList = (): UserListHookResult => {
 	const navigate = useNavigate()
+	const fetchUserImage = useUserImage()
 	const { permissions } = usePermissions()
 	const [loading, setLoading] = useState(false)
 	const [userRecords, setUserRecords] = useState<User[]>([])
@@ -76,7 +78,6 @@ export const useUserList = (): UserListHookResult => {
 		},
 	]
 
-	// Conditionally add the 'Edit' column if permission exists
 	if (hasPermission(permissions, 'Users', 'Update')) {
 		columns.push({
 			Header: 'Edit',
@@ -93,7 +94,6 @@ export const useUserList = (): UserListHookResult => {
 		})
 	}
 
-	// Conditionally add the 'Delete' column if permission exists
 	if (hasPermission(permissions, 'Users', 'Delete')) {
 		columns.push({
 			Header: 'Delete',
@@ -150,17 +150,10 @@ export const useUserList = (): UserListHookResult => {
 		const getUsers = async () => {
 			setLoading(true)
 			const userData = await userApi.get()
-			const newUserData = userData.users.filter((data: any) => data.role !== "superAdmin")
 			const usersWithImages = await Promise.all(
-				newUserData?.map(async (user: User, index: any) => {
-					if (user.profileImage) {
-						const imageBlob = await userApi.getImage(user.id)
-						const imageUrl = URL.createObjectURL(imageBlob)
-						return { ...user, profileImage: imageUrl, sno: index + 1  }
-					} else {
-						const placeholderImageUrl = generatePlaceholderImage(user.firstname)
-						return { ...user, profileImage: placeholderImageUrl, sno: index + 1 }
-					}
+				userData?.users.map(async (user: User, index: any) => {
+					const imageUrl = await fetchUserImage(user)
+					return { ...user, profileImage: imageUrl, sno: index + 1 }
 				})
 			)
 			setUserRecords(usersWithImages)
@@ -169,35 +162,6 @@ export const useUserList = (): UserListHookResult => {
 
 		getUsers()
 	}, [])
-
-	const generatePlaceholderImage = (name: string) => {
-		const canvas = document.createElement('canvas')
-		const context = canvas.getContext('2d')
-
-		if (!context) {
-			console.error('2D context is not supported')
-			return ''
-		}
-
-		const size = 50
-		canvas.width = size
-		canvas.height = size
-		const randomColor = '#' + Math.floor(Math.random() * 16777215).toString(16)
-
-		context.beginPath()
-		context.arc(size / 2, size / 2, size / 2, 0, 2 * Math.PI)
-		context.fillStyle = randomColor
-		context.fill()
-
-		context.font = '20px Arial'
-		context.fillStyle = 'white'
-		context.textAlign = 'center'
-		context.textBaseline = 'middle'
-		context.fillText(name.charAt(0).toUpperCase(), size / 2, size / 2)
-
-		const imageUrl = canvas.toDataURL()
-		return imageUrl
-	}
 
 	useEffect(() => {
 		return () => {

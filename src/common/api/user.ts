@@ -40,7 +40,6 @@ function UserService() {
 			})
 		},
 		getImage: async (userId: string) => {
-			console.log(userId)
 			return await HttpClient.get(`/users/profile/${userId}/image`, {
 				responseType: 'blob',
 				headers: getAuthHeaders(),

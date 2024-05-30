@@ -6,17 +6,20 @@ import './assets/scss/app.scss'
 import './assets/scss/icons.scss'
 import { PermissionsProvider } from './common/context/usePermissionsContext'
 import './i18n'
+import { WebSocketProvider } from './common/context/WebSocketContext'
 
 configureFakeBackend()
 
 function App() {
 	return (
 		<ThemeProvider>
-			<AuthProvider>
-				<PermissionsProvider>
-					<AllRoutes />
-				</PermissionsProvider>
-			</AuthProvider>
+			<WebSocketProvider>
+				<AuthProvider>
+					<PermissionsProvider>
+						<AllRoutes />
+					</PermissionsProvider>
+				</AuthProvider>
+			</WebSocketProvider>
 		</ThemeProvider>
 	)
 }

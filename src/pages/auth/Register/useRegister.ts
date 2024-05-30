@@ -2,6 +2,7 @@ import { authApi } from '@/common/api'
 import { useAuthContext } from '@/common/context'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Swal from 'sweetalert2'
 
 interface RegisterData {
 	tenantID: string
@@ -30,6 +31,7 @@ export default function useRegister() {
 			formData.append('password', userData.password)
 			formData.append('phone', userData.phone)
 			formData.append('role', 'superAdmin')
+			formData.append('uploadType', 'User')
 
 			if (userData.profileImage) {
 				formData.append(
@@ -41,10 +43,31 @@ export default function useRegister() {
 
 			const data = await authApi.register(formData)
 			if (data?.user?.tenantID) {
-				navigate('/auth/login')
+				Swal.fire({
+					icon: 'success',
+					title: 'Registration Successful',
+					text: 'Your account has been created successfully.',
+					showConfirmButton: false,
+					timer: 1500,
+				}).then(() => {
+					navigate('/auth/login')
+				})
 			}
 		} catch (error) {
 			console.error('Registration failed', error)
+
+			let errorMessage
+			if (error === 'File too large') {
+				errorMessage = error
+			} else {
+				errorMessage = 'Registration failed. Please try again.'
+			}
+
+			Swal.fire({
+				icon: 'error',
+				title: 'Registration Failed',
+				text: errorMessage,
+			})
 		} finally {
 			setLoading(false)
 		}
