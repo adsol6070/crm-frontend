@@ -1,18 +1,24 @@
-import { categoryApi, useAuthContext } from '@/common';
+import { useAuthContext } from '@/common';
+import visaCategory from '@/common/api/visaCategory';
 import { PageSize } from '@/components'
-import { BlogCategory } from '@/types'
+import { VisaCategory } from '@/types'
 import { ChangeEvent, useEffect, useState } from 'react';
 import { RiDeleteBinLine, RiEdit2Line, RiSaveLine } from 'react-icons/ri';
 import { Column } from 'react-table'
 import { toast } from 'react-toastify';
 
-export function useCategory() {
+export function useVisaCategory() {
     const [loading, setLoading] = useState(false)
     const { user } = useAuthContext()
     const [editCategoryId, setEditCategoryId] = useState<string | null>(null);
     const [editCategoryValue, setEditCategoryValue] = useState<string>("");
     const [category, setCategory] = useState<string>("");
-    const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([])
+    const [visaCategories, setVisaCategories] = useState<VisaCategory[]>([])
+
+    const capitalizeFirstLetter = (str: string)=> {
+        if (!str) return str;
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
 
     const columns: ReadonlyArray<Column> = [
         {
@@ -38,7 +44,7 @@ export function useCategory() {
                         autoFocus
                     />
                 ) : (
-                    cell.value
+                    capitalizeFirstLetter(cell.value)
                 );
             },
         },
@@ -80,13 +86,13 @@ export function useCategory() {
     ]
 
     const handleDelete = async (categoryID: string) => {
-        await categoryApi.deleteCategory(categoryID)
-        const updatedBlogCategory = blogCategories.filter((category) => category.id !== categoryID)
-        const updatedCategoriesWithSno = updatedBlogCategory.map((category, index) => ({
+        await visaCategory.deleteCategory(categoryID)
+        const updatedVisaCategory = visaCategories.filter((category) => category.id !== categoryID)
+        const updatedCategoriesWithSno = updatedVisaCategory.map((category, index) => ({
             ...category,
             sno: index + 1
         }));
-        setBlogCategories(updatedCategoriesWithSno);
+        setVisaCategories(updatedCategoriesWithSno);
         toast.success("Category Deleted successfully!");
 
     }
@@ -103,11 +109,11 @@ export function useCategory() {
         try {
             setLoading(true);
             const updatedCategory = { category: editCategoryValue };
-            await categoryApi.updateCategory(categoryID, updatedCategory);
-            const updatedBlogCategories = blogCategories.map((category) =>
+            await visaCategory.updateCategory(categoryID, updatedCategory);
+            const updatedVisaCategories = visaCategories.map((category) =>
                 category.id === categoryID ? { ...category, category: editCategoryValue } : category
             );
-            setBlogCategories(updatedBlogCategories);
+            setVisaCategories(updatedVisaCategories);
             setEditCategoryId(null);
             toast.success("Category updated successfully!");
         } catch (error) {
@@ -133,7 +139,7 @@ export function useCategory() {
         },
         {
             text: 'All',
-            value: blogCategories.length,
+            value: visaCategories.length,
         },
     ]
 
@@ -141,8 +147,8 @@ export function useCategory() {
         const getCategories = async () => {
             setLoading(true)
             try {
-                const response = await categoryApi.getAllCategory();
-                setBlogCategories(response.map((category: any, index: any) => ({ ...category, sno: index + 1 })))
+                const response = await visaCategory.getAllCategory();
+                setVisaCategories(response.map((category: any, index: any) => ({ ...category, sno: index + 1 })))
             } catch (error) {
                 console.error('Error fetching categories:', error);
             } finally {
@@ -168,10 +174,10 @@ export function useCategory() {
             formData.append('tenantID', user.tenantID)
             formData.append('category', category)
 
-            const data = await categoryApi.createBlogCategory(formData);
+            const data = await visaCategory.createVisaCategory(formData);
 
-            const newCategory = { ...data.blogCategory, sno: blogCategories.length + 1 };
-            setBlogCategories(blogCategories => [...blogCategories, newCategory]);
+            const newCategory = { ...data.visaCategory, sno: visaCategories.length + 1 };
+            setVisaCategories(visaCategories => [...visaCategories, newCategory]);
             toast.success(data.message);
             setLoading(false)
         } catch (error) {
@@ -182,7 +188,7 @@ export function useCategory() {
     }
 
     return {
-        blogCategories,
+        visaCategories,
         columns,
         loading,
         category,

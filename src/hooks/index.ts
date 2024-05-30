@@ -1,5 +1,4 @@
 import useQuery from './useQuery'
-import useUser from './useUser'
 import useViewport from './useViewPort'
 import useToggle from './useToggle'
 import useDatePicker from './useDatePicker'
@@ -9,7 +8,6 @@ import useRangeSlider from './useRangeSlider'
 export {
 	useToggle,
 	useQuery,
-	useUser,
 	useViewport,
 	useDatePicker,
 	useModal,

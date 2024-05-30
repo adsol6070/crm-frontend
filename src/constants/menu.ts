@@ -47,6 +47,12 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				parentKey: 'leads',
 			},
 			{
+				key: 'leads-visaCategory',
+				label: 'Add Visa Category',
+				url: '/leads/lead-visaCategory',
+				parentKey: 'leads',
+			},
+			{
 				key: 'leads-LeadList',
 				label: 'Lead List',
 				url: '/leads/list-leads',

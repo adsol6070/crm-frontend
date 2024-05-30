@@ -38,6 +38,9 @@ const AddCategory = React.lazy(() => import('../pages/blogs/AddCategory'))
 const AddLead = React.lazy(() => import('../pages/leads/Create'))
 const ListLead = React.lazy(() => import('../pages/leads/List'))
 const ReadLead = React.lazy(() => import('../pages/leads/Read'))
+const EditLead = React.lazy(() => import('../pages/leads/Update'))
+const AddLeadDocument = React.lazy(() => import('../pages/leads/DocumentChecklist'))
+const AddVisaCategory = React.lazy(() => import('../pages/leads/AddVisaCategory'))
 
 // // users
 const UserList = React.lazy(() => import('../pages/user/List'))
@@ -202,9 +205,27 @@ const leadRoutes = {
 			route: PrivateRoute,
 		},
 		{
+			path: '/leads/lead-visaCategory',
+			name: 'Add Visa Category',
+			element: <AddVisaCategory />,
+			route: PrivateRoute,
+		},
+		{
 			path: '/lead/read/:leadId',
 			name: 'Lead Read',
 			element: <ReadLead />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/lead/edit/:leadId',
+			name: 'Lead Update',
+			element: <EditLead />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/lead/addDocument/:leadId',
+			name: 'Add Lead Document',
+			element: <AddLeadDocument />,
 			route: PrivateRoute,
 		},
 	],

@@ -1,11 +1,13 @@
 import React, { useRef } from 'react';
 import useReadLead from './useReadLead';
 import { useParams } from 'react-router-dom';
-import { Table, Button, Card, Container, Row, Col } from 'react-bootstrap';
+import { Table, Button, Card, Container, Row, Col, Spinner } from 'react-bootstrap';
 import ReactToPrint from 'react-to-print';
 import { format } from 'date-fns';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { PageBreadcrumb } from '@/components';
+import './ReadLead.css'; // Import custom CSS for additional styling
 
 interface LeadData {
     [key: string]: any;
@@ -14,12 +16,11 @@ interface LeadData {
 const ReadLead: React.FC = () => {
     const { leadId } = useParams() as { leadId: string };
     const { leadData, loading, error } = useReadLead(leadId);
-    const data = leadData as LeadData
-    // console.log(data)
+    const data = leadData as LeadData;
     const printRef = useRef<HTMLDivElement>(null);
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <Spinner animation="border" />;
     }
 
     if (error) {
@@ -29,13 +30,19 @@ const ReadLead: React.FC = () => {
     if (!data) {
         return <div>No data available</div>;
     }
+
     const formatDate = (dateString: string) => {
-        try {
-            return format(new Date(dateString), 'dd/MM/yyyy');
-        } catch (error) {
-            return "Invalid date";
+        if (dateString === null) {
+            return "N/A";
+        } else {
+            try {
+                return format(new Date(dateString), 'dd/MM/yyyy');
+            } catch (error) {
+                return "Invalid date";
+            }
         }
-    }
+    };
+
     const handleSaveAsPDF = () => {
         const input = printRef.current;
         if (input) {
@@ -71,20 +78,21 @@ const ReadLead: React.FC = () => {
                 });
         }
     };
+
     return (
         <>
-            <h2 className='p-2'>Lead Details</h2>
-            <Container ref={printRef} className="mt-5">
-                <Card>
+            <PageBreadcrumb title="Lead Details" subName="Leads" />
+            <Container ref={printRef} className="lead-details-container my-4">
+                <Card className="shadow-sm">
                     <Card.Body className="print-container">
-                        <Row className='mb-4'>
+                        <Row className="mb-4">
                             <Col>
-                                Lead ID: {data.id}
+                                <h5 className="text-muted">Lead ID: {data.id}</h5>
                             </Col>
                         </Row>
                         <Row className="mb-4">
-                            <Col>
-                                <Card.Title as="h4">Personal Information</Card.Title>
+                            <Col md={6}>
+                                <Card.Title as="h4" className="detail-title">Personal Information</Card.Title>
                                 <Table bordered hover>
                                     <tbody>
                                         {Object.keys(data).filter(key =>
@@ -97,12 +105,12 @@ const ReadLead: React.FC = () => {
                                     </tbody>
                                 </Table>
                             </Col>
-                            <Col>
-                                <Card.Title as="h4">Immigration Information</Card.Title>
+                            <Col md={6}>
+                                <Card.Title as="h4" className="detail-title">Immigration Information</Card.Title>
                                 <Table bordered hover>
                                     <tbody>
                                         {Object.keys(data).filter(key =>
-                                            ["countryOfInterest", "passportExpiry", "visaExpiryDate", "courseOfInterest", "desiredFieldOfStudy", "preferredInstitutions", "intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails"].includes(key)).map((key) => (
+                                            ["visaCategory", "countryOfInterest", "passportExpiry", "visaExpiryDate", "courseOfInterest", "desiredFieldOfStudy", "preferredInstitutions", "intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails"].includes(key)).map((key) => (
                                                 <tr key={key}>
                                                     <td className="font-weight-bold">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</td>
                                                     <td>{["passportExpiry", "visaExpiryDate"].includes(key) ? formatDate(data[key]) : (String(data[key]) === "" ? "N/A" : String(data[key]))}</td>
@@ -112,21 +120,9 @@ const ReadLead: React.FC = () => {
                                 </Table>
                             </Col>
                         </Row>
-                        <Card.Title as="h4">Document Information</Card.Title>
-                        <Table bordered hover>
-                            <tbody>
-                                {Object.keys(data).filter(key =>
-                                    ["proofOfFunds", "languageTestReport", "passportCopy", "certificates", "transcripts", "sop", "recommendationLetter", "resume"].includes(key)).map((key) => (
-                                        <tr key={key}>
-                                            <td className="font-weight-bold">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</td>
-                                            <td>{String(data[key]) == "[object FileList]" ? "Document" : String(data[key])}</td>
-                                        </tr>
-                                    ))}
-                            </tbody>
-                        </Table>
                         <Row className="mb-4">
                             <Col>
-                                <Card.Title as="h4">Academic Information</Card.Title>
+                                <Card.Title as="h4" className="detail-title">Academic Information</Card.Title>
                                 <Table bordered hover>
                                     <tbody>
                                         {Object.keys(data).filter(key =>
@@ -143,14 +139,15 @@ const ReadLead: React.FC = () => {
                     </Card.Body>
                 </Card>
             </Container>
-            <ReactToPrint
-                trigger={() => <Button className="m-2" variant="secondary">Print</Button>}
-                content={() => printRef.current}
-            />
-            <Button className="m-2" variant="secondary" onClick={handleSaveAsPDF}>Download PDF</Button>
+            <div className="d-flex justify-content-end mb-4">
+                <ReactToPrint
+                    trigger={() => <Button className="m-2" variant="secondary">Print</Button>}
+                    content={() => printRef.current}
+                />
+                <Button className="m-2" variant="secondary" onClick={handleSaveAsPDF}>Download PDF</Button>
+            </div>
         </>
     );
-}
+};
 
 export default ReadLead;
-

@@ -7,6 +7,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { FormInput, PageBreadcrumb } from '@/components'
 import { Stepper, Step } from 'react-form-stepper'
+import Select from 'react-select'
 import './AddLead.css'
 import useCreateLead from './useCreateLeadForm'
 import { Preferences } from '@capacitor/preferences'
@@ -14,6 +15,10 @@ import ReactToPrint from 'react-to-print'
 
 interface CollectedData {
 	[key: string]: any;
+}
+interface VisaCategory {
+	value: string
+	label: string
 }
 
 const fieldOrder = [
@@ -23,14 +28,13 @@ const fieldOrder = [
 	"graduationYear", "grade", "testType", "testScore", "countryOfInterest",
 	"courseOfInterest", "desiredFieldOfStudy", "preferredInstitutions",
 	"intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails",
-	"proofOfFunds", "scholarships", "languageTestReport", "passportCopy",
-	"certificates", "transcripts", "sop", "recommendationLetter", "resume",
+	"scholarships",
 	"visaExpiryDate", "visaType", "previousStudyAbroad", "previousVisaApplications",
 	"leadNotes", "leadRating", "followUpDates", "assignedAgent", "leadStatus",
 	"referralContact", "leadSource", "notes", "preferredContactTime", "communicationMode"
 ]
 
-const reorderData = (data : any, order: any) => {
+const reorderData = (data: any, order: any) => {
 	const orderedData: CollectedData = {}
 	order.forEach((key: any) => {
 		if (data.hasOwnProperty(key)) {
@@ -52,7 +56,6 @@ const stepSchemas = [
 			nationality: yup.string().required('Please enter your Nationality'),
 			maritalStatus: yup.string().required('Please select your Marital Status'),
 			passportNumber: yup.string(),
-			passportExpiry: yup.date().nullable(),
 			currentAddress: yup.string().required('Please enter your Current Address'),
 			permanentAddress: yup.string().required('Please enter your Permanent Address'),
 		})
@@ -78,23 +81,7 @@ const stepSchemas = [
 			reasonForImmigration: yup.string().nullable(),
 			financialSupport: yup.string().nullable(),
 			sponsorDetails: yup.string().nullable(),
-			proofOfFunds: yup.mixed().nullable(),
 			scholarships: yup.string().nullable(),
-		})
-		.required(),
-	yup
-		.object({
-			previousVisaApplications: yup.string().nullable(),
-			previousStudyAbroad: yup.string().nullable(),
-			visaType: yup.string().nullable(),
-			visaExpiryDate: yup.date().nullable(),
-			resume: yup.mixed().nullable(),
-			recommendationLetter: yup.mixed().nullable(),
-			sop: yup.mixed().nullable(),
-			transcripts: yup.mixed().nullable(),
-			certificates: yup.mixed().nullable(),
-			passportCopy: yup.mixed().nullable(),
-			languageTestReport: yup.mixed().nullable(),
 		})
 		.required(),
 	yup
@@ -106,7 +93,7 @@ const stepSchemas = [
 			referralContact: yup.string().nullable(),
 			leadStatus: yup.string().nullable(),
 			assignedAgent: yup.string().nullable(),
-			followUpDates: yup.date().nullable(),
+			followUpDates: yup.date(),
 			leadRating: yup.string().nullable(),
 			leadNotes: yup.string().nullable(),
 		})
@@ -114,10 +101,10 @@ const stepSchemas = [
 ]
 
 const AddLead = () => {
-	const { createLead } = useCreateLead()
+	const { createLead, visaCategories } = useCreateLead()
 	const [step, setStep] = useState(1)
 	const [collectedData, setCollectedData] = useState<CollectedData>({})
-
+	const [selectedVisaCategory, setSelectedVisaCategory] = useState<VisaCategory | null>(null)
 	const currentSchema: yup.ObjectSchema<any> = stepSchemas[step - 1] || yup.object().shape({});
 
 	const methods = useForm({
@@ -174,9 +161,20 @@ const AddLead = () => {
 		setStep(step - 1)
 	}
 
+	const handleSelect = (option: VisaCategory | null) => {
+		setSelectedVisaCategory(option)
+	}
+
+	function capitalizeFirstLetter(str) {
+		if (!str) return '';
+		return str.charAt(0).toUpperCase() + str.slice(1);
+	}
+
 	const onSubmit = async (data: any) => {
 		const finalData = { ...collectedData, ...data }
 		const formData = new FormData();
+		const visaCategory: any = selectedVisaCategory ? selectedVisaCategory.value : null;
+		formData.append("visaCategory", visaCategory);
 		Object.keys(finalData).forEach(key => {
 			if (finalData[key] instanceof FileList && finalData[key].length > 0) {
 				formData.append(key, finalData[key][0]);
@@ -186,12 +184,15 @@ const AddLead = () => {
 				formData.append(key, finalData[key]);
 			}
 		});
-		createLead(formData)
-		reset()
-		setCollectedData({})
-		setStep(1)
-		await Preferences.remove({ key: 'currentStep' })
-		await Preferences.remove({ key: 'formData' })
+		const submitFlag = await createLead(formData)
+		if(submitFlag){
+			reset()
+			setSelectedVisaCategory(null)
+			setCollectedData({})
+			setStep(1)
+			await Preferences.remove({ key: 'currentStep' })
+			await Preferences.remove({ key: 'formData' })
+		}
 	}
 
 	const printRef = useRef<HTMLDivElement>(null);
@@ -225,7 +226,6 @@ const AddLead = () => {
 								<Step label="Personal Details" />
 								<Step label="Academic Details" />
 								<Step label="Immigration Details" />
-								<Step label="Document Details" />
 								<Step label="Final Details" />
 								<Step label="View Lead Details" />
 							</Stepper>
@@ -416,6 +416,18 @@ const AddLead = () => {
 									)}
 									{step === 3 && (
 										<>
+											<Form.Group>
+												<Form.Label>Choose Visa Category</Form.Label>
+												<Select
+													className="select2 z-3"
+													options={visaCategories as any[]}
+													getOptionLabel={(e: any) => e.label}
+													getOptionValue={(e: any) => e.value}
+													value={selectedVisaCategory}
+													onChange={handleSelect}
+													isClearable={true}
+												/>
+											</Form.Group>
 											<FormInput
 												label="Country of Interest"
 												name="countryOfInterest"
@@ -481,14 +493,6 @@ const AddLead = () => {
 												errors={errors}
 											/>
 											<FormInput
-												label="Proof of Funds"
-												name="proofOfFunds"
-												type="file"
-												placeholder="Upload Proof of Funds"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
 												label="Scholarships/Grants"
 												name="scholarships"
 												type="text"
@@ -510,109 +514,6 @@ const AddLead = () => {
 										</>
 									)}
 									{step === 4 && (
-										<>
-											<FormInput
-												label="Previous Visa Applications"
-												name="previousVisaApplications"
-												type="text"
-												placeholder="Enter Previous Visa Applications"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
-												label="Previous Study Abroad Experience"
-												name="previousStudyAbroad"
-												type="text"
-												placeholder="Enter Previous Study Abroad Experience"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
-												label="Visa Type"
-												name="visaType"
-												type="text"
-												placeholder="Enter Visa Type"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
-												label="Visa Expiry Date"
-												name="visaExpiryDate"
-												type="date"
-												placeholder="Enter Visa Expiry Date"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
-												label="Resume/CV"
-												name="resume"
-												type="file"
-												placeholder="Upload Resume/CV"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
-												label="Letter of Recommendation"
-												name="recommendationLetter"
-												type="file"
-												placeholder="Upload Letter of Recommendation"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
-												label="Statement of Purpose"
-												name="sop"
-												type="file"
-												placeholder="Upload Statement of Purpose"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
-												label="Transcripts"
-												name="transcripts"
-												type="file"
-												placeholder="Upload Transcripts"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
-												label="Certificates"
-												name="certificates"
-												type="file"
-												placeholder="Upload Certificates"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
-												label="Passport Copy"
-												name="passportCopy"
-												type="file"
-												placeholder="Upload Passport Copy"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
-												label="Language Test Report"
-												name="languageTestReport"
-												type="file"
-												placeholder="Upload Language Test Report"
-												register={register}
-												errors={errors}
-											/>
-											{step > 1 && (
-												<Button
-													variant="secondary"
-													type="button"
-													onClick={handleBack}>
-													Back
-												</Button>
-											)}
-											<Button variant="primary m-2" type="submit">
-												Next
-											</Button>
-										</>
-									)}
-									{step === 5 && (
 										<>
 											<FormInput
 												label="Preferred Mode of Communication"
@@ -707,7 +608,7 @@ const AddLead = () => {
 											</Button>
 										</>
 									)}
-									{step === 6 && (
+									{step === 5 && (
 										<>
 											<div ref={printRef}>
 												<Table striped bordered hover>
@@ -720,10 +621,14 @@ const AddLead = () => {
 													<tbody>
 														{Object.keys(collectedData).map((key) => (
 															<tr key={key}>
-																<td>{key}</td>
+																<td>{capitalizeFirstLetter(key)}</td>
 																<td>{String(collectedData[key])}</td>
 															</tr>
 														))}
+														<tr>
+															<td>Visa Category</td>
+															<td>{selectedVisaCategory?.value}</td>
+														</tr>
 													</tbody>
 												</Table>
 											</div>

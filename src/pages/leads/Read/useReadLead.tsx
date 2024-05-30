@@ -32,6 +32,7 @@ interface LeadData {
     sponsorDetails: string;
     proofOfFunds: Record<string, any>;
     scholarships: string;
+    visaCategory: string;
     languageTestReport: Record<string, any>;
     passportCopy: Record<string, any>; 
     certificates: Record<string, any>;
@@ -39,10 +40,6 @@ interface LeadData {
     sop: Record<string, any>;
     recommendationLetter: Record<string, any>;
     resume: Record<string, any>; 
-    visaExpiryDate: string;
-    visaType: string;
-    previousStudyAbroad: string;
-    previousVisaApplications: string;
     leadNotes: string;
     leadRating: string;
     followUpDates: string;
@@ -55,6 +52,7 @@ interface LeadData {
     communicationMode: string;
     created_at: string
 }
+
 const useReadLead = (leadId: string) => {
 	const [leadData, setLeadData] = useState<LeadData | null>(null)
 	const [loading, setLoading] = useState(true)
