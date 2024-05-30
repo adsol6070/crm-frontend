@@ -1,4 +1,10 @@
-.custom-tabs .nav-link {
+/* LeadList.module.css */
+
+.customTabs {
+    margin: 0px 0px 20px 0px;
+}
+
+.navLink {
     display: flex;
     align-items: center;
     padding: 10px 15px;
@@ -7,18 +13,16 @@
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.custom-tabs .nav-link:hover, .custom-tabs .nav-link.active {
+.navLinkHover,
+.navLinkActive {
     background-color: #1a2942;
     color: #fff;
 }
 
-.custom-tabs .nav-link i {
+.navLinkIcon {
     margin-right: 8px;
 }
 
-.custom-tabs .nav-item + .nav-item {
+.navItem + .navItem {
     margin-left: 10px;
-}
-.custom-tabs{
-    margin: 0px 0px 20px 0px;
 }

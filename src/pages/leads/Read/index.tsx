@@ -7,7 +7,7 @@ import { format } from 'date-fns';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { PageBreadcrumb } from '@/components';
-import './ReadLead.css'; // Import custom CSS for additional styling
+import styles from './ReadLead.module.css'; // Import CSS module
 
 interface LeadData {
     [key: string]: any;
@@ -82,23 +82,23 @@ const ReadLead: React.FC = () => {
     return (
         <>
             <PageBreadcrumb title="Lead Details" subName="Leads" />
-            <Container ref={printRef} className="lead-details-container my-4">
+            <Container ref={printRef} className={`my-4 ${styles.leadDetailsContainer}`}>
                 <Card className="shadow-sm">
-                    <Card.Body className="print-container">
+                    <Card.Body className={styles.printContainer}>
                         <Row className="mb-4">
                             <Col>
-                                <h5 className="text-muted">Lead ID: {data.id}</h5>
+                                <h5 className={`text-muted ${styles.textMuted}`}>Lead ID: {data.id}</h5>
                             </Col>
                         </Row>
                         <Row className="mb-4">
                             <Col md={6}>
-                                <Card.Title as="h4" className="detail-title">Personal Information</Card.Title>
-                                <Table bordered hover>
+                                <Card.Title as="h4" className={styles.detailTitle}>Personal Information</Card.Title>
+                                <Table bordered hover className={styles.table}>
                                     <tbody>
                                         {Object.keys(data).filter(key =>
                                             ["firstname", "lastname", "email", "phone", "gender", "dob", "nationality", "maritalStatus", "currentAddress", "permanentAddress"].includes(key)).map((key) => (
                                                 <tr key={key}>
-                                                    <td className="font-weight-bold">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</td>
+                                                    <td className={styles.fontWeightBold}>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</td>
                                                     <td>{key === "dob" ? formatDate(data[key]) : (String(data[key]) === "" ? "N/A" : String(data[key]))}</td>
                                                 </tr>
                                             ))}
@@ -106,13 +106,13 @@ const ReadLead: React.FC = () => {
                                 </Table>
                             </Col>
                             <Col md={6}>
-                                <Card.Title as="h4" className="detail-title">Immigration Information</Card.Title>
-                                <Table bordered hover>
+                                <Card.Title as="h4" className={styles.detailTitle}>Immigration Information</Card.Title>
+                                <Table bordered hover className={styles.table}>
                                     <tbody>
                                         {Object.keys(data).filter(key =>
                                             ["visaCategory", "countryOfInterest", "passportExpiry", "visaExpiryDate", "courseOfInterest", "desiredFieldOfStudy", "preferredInstitutions", "intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails"].includes(key)).map((key) => (
                                                 <tr key={key}>
-                                                    <td className="font-weight-bold">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</td>
+                                                    <td className={styles.fontWeightBold}>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</td>
                                                     <td>{["passportExpiry", "visaExpiryDate"].includes(key) ? formatDate(data[key]) : (String(data[key]) === "" ? "N/A" : String(data[key]))}</td>
                                                 </tr>
                                             ))}
@@ -122,13 +122,13 @@ const ReadLead: React.FC = () => {
                         </Row>
                         <Row className="mb-4">
                             <Col>
-                                <Card.Title as="h4" className="detail-title">Academic Information</Card.Title>
-                                <Table bordered hover>
+                                <Card.Title as="h4" className={styles.detailTitle}>Academic Information</Card.Title>
+                                <Table bordered hover className={styles.table}>
                                     <tbody>
                                         {Object.keys(data).filter(key =>
                                             ["highestQualification", "scholarships", "fieldOfStudy", "institutionName", "graduationYear", "grade", "testType", "testScore"].includes(key)).map((key) => (
                                                 <tr key={key}>
-                                                    <td className="font-weight-bold">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</td>
+                                                    <td className={styles.fontWeightBold}>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</td>
                                                     <td>{String(data[key]) === "" ? "N/A" : String(data[key])}</td>
                                                 </tr>
                                             ))}
@@ -139,7 +139,7 @@ const ReadLead: React.FC = () => {
                     </Card.Body>
                 </Card>
             </Container>
-            <div className="d-flex justify-content-end mb-4">
+            <div className={`d-flex justify-content-end mb-4 ${styles.dFlexJustifyContentEndMb4}`}>
                 <ReactToPrint
                     trigger={() => <Button className="m-2" variant="secondary">Print</Button>}
                     content={() => printRef.current}

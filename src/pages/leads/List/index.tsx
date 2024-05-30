@@ -6,7 +6,7 @@ import { Lead } from '@/types';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import BulkLeadModal from './bulkLeadModal';
-import './LeadList.css'; // Import your custom CSS
+import styles from './LeadList.module.css'; // Import CSS module
 
 const LeadList = () => {
     const { columns, sizePerPageList, leadRecords, refreshLeads, downloadCSV, visaCategories } = useLeadList();
@@ -29,10 +29,10 @@ const LeadList = () => {
         setSelectedCategory(category);
     };
 
-    const capitalizeFirstLetter = (str: string)=> {
+    const capitalizeFirstLetter = (str: string) => {
         if (!str) return str;
         return str.charAt(0).toUpperCase() + str.slice(1);
-    }
+    };
 
     const filteredLeads = selectedCategory === 'All'
         ? leadRecords
@@ -73,16 +73,16 @@ const LeadList = () => {
                             </Row>
                         </Card.Header>
                         <Card.Body>
-                            <Nav variant="pills" activeKey={selectedCategory} onSelect={handleSelectCategory} className="custom-tabs">
-                                <Nav.Item>
-                                    <Nav.Link eventKey="All">
-                                        <i className="bi bi-list"></i> All
+                            <Nav variant="pills" activeKey={selectedCategory} onSelect={handleSelectCategory} className={styles.customTabs}>
+                                <Nav.Item className={styles.navItem}>
+                                    <Nav.Link eventKey="All" className={styles.navLink}>
+                                        <i className={`bi bi-list ${styles.navLinkIcon}`}></i> All
                                     </Nav.Link>
                                 </Nav.Item>
                                 {visaCategories.map(category => (
-                                    <Nav.Item key={category}>
-                                        <Nav.Link eventKey={category}>
-                                            <i className={`bi bi-${category.toLowerCase()}`}></i> {capitalizeFirstLetter(category)}
+                                    <Nav.Item key={category} className={styles.navItem}>
+                                        <Nav.Link eventKey={category} className={styles.navLink}>
+                                            <i className={`bi bi-${category.toLowerCase()} ${styles.navLinkIcon}`}></i> {capitalizeFirstLetter(category)}
                                         </Nav.Link>
                                     </Nav.Item>
                                 ))}

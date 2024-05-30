@@ -362,6 +362,11 @@
 	text-align: right;
 }
 
+.ctext-wrap-content {
+	max-width: 30vw;
+	text-wrap: wrap;
+}
+
 .chat-conversation .right .conversation-list .ctext-wrap .ctext-wrap-content {
 	order: 2;
 	background-color: #334e7b; /* Assuming --primary is #1a2942 */

@@ -1,14 +1,12 @@
-/* ReadLead.css */
-
-.lead-details-container {
+.leadDetailsContainer {
     max-width: 1200px;
 }
 
-.print-container {
+.printContainer {
     padding: 20px;
 }
 
-.detail-title {
+.detailTitle {
     border-bottom: 2px solid #343a40;
     padding-bottom: 5px;
     margin-bottom: 20px;
@@ -18,16 +16,16 @@
     margin-bottom: 20px;
 }
 
-.table-bordered th,
-.table-bordered td {
+.tableBordered th,
+.tableBordered td {
     border: 1px solid #dee2e6;
 }
 
-.font-weight-bold {
+.fontWeightBold {
     font-weight: 600 !important;
 }
 
-.d-flex.justify-content-end.mb-4 {
+.dFlexJustifyContentEndMb4 {
     margin-top: 20px;
 }
 
@@ -36,16 +34,16 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.card-body {
+.cardBody {
     background-color: #ffffff;
     border-radius: 10px;
 }
 
-.card-title {
+.cardTitle {
     font-size: 1.5rem;
     color: #343a40;
 }
 
-.text-muted {
+.textMuted {
     color: #6c757d !important;
 }

@@ -67,6 +67,7 @@ const ReadBlog: React.FC = () => {
 	const formattedDateTime = formatDateTime(created_at);
 
 	return (
+		
 		<>
 			<PageBreadcrumb title="Read Blog" subName="Blogs" />
 			<Container className="my-4">
