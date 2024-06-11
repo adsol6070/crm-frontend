@@ -80,6 +80,20 @@ export default function useAddDocumentChecklist(leadId: string) {
         }
     };
 
+    const updateSingleDocument = async (formData: FormData, filename: string) => {
+        setLoading(true);
+        try {
+            const data = await leadApi.updateSingleDocument(formData, leadId, filename);
+            getDocuments();
+            toast.success(data.message);
+        } catch (error: any) {
+            console.error('Error Updating documents:', error);
+            toast.error('Documents not updated');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const deleteSingleDocument = async (leadId: string, filename: string) => {
         setLoading(true);
         try {
@@ -124,5 +138,5 @@ export default function useAddDocumentChecklist(leadId: string) {
         await addDocuments(formData);
     };
 
-    return { loading, onSubmit, uploadedDocs, fetchDocuments, getDocuments, fetchUploadedDocuments, getSingleDocument, deleteSingleDocument, deleteDocuments };
+    return { loading, onSubmit, uploadedDocs, fetchDocuments, getDocuments, fetchUploadedDocuments, getSingleDocument, deleteSingleDocument, updateSingleDocument, deleteDocuments };
 }

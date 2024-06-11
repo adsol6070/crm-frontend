@@ -6,33 +6,12 @@ import { Lead } from '@/types';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import BulkLeadModal from './bulkLeadModal';
-import AssignModal from './assignModal';
-import styles from './LeadList.module.css';
-import { useUserList } from '@/pages/user/List/useUserList';
-import HistoryModal from './HistoryModal';
+import styles from './LeadList.module.css'; // Import CSS module
 
 const LeadList = () => {
-    const {
-        columns,
-        sizePerPageList,
-        leadRecords,
-        refreshLeads,
-        downloadCSV,
-        visaCategories,
-        showAssignModal,
-        selectedLeadId,
-        handleAssign,
-        showHistoryModal,
-        setShowHistoryModal,
-        historyData,
-        handleCloseAssignModal,
-        selectedAssignees,
-        setSelectedAssignees
-    } = useLeadList();
-
+    const { columns, sizePerPageList, leadRecords, refreshLeads, downloadCSV, visaCategories } = useLeadList();
     const [showModal, setShowModal] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('All');
-    const { userRecords } = useUserList();
 
     const handleShow = () => setShowModal(true);
     const handleClose = () => setShowModal(false);
@@ -111,7 +90,7 @@ const LeadList = () => {
                             <Table<Lead>
                                 columns={columns}
                                 data={filteredLeads}
-                                pageSize={5}
+                                pageSize={6}
                                 sizePerPageList={sizePerPageList}
                                 isSortable={true}
                                 pagination={true}
@@ -123,20 +102,6 @@ const LeadList = () => {
                 </Col>
             </Row>
             <BulkLeadModal show={showModal} handleClose={handleClose} refreshLeads={refreshLeads} />
-            <AssignModal
-                show={showAssignModal}
-                handleClose={handleCloseAssignModal}
-                handleAssign={handleAssign}
-                leadId={selectedLeadId}
-                users={userRecords}
-                selectedAssignees={selectedAssignees}
-                setSelectedAssignees={setSelectedAssignees}
-            />
-            <HistoryModal
-                show={showHistoryModal}
-                onHide={() => setShowHistoryModal(false)}
-                historyData={historyData}
-            />
         </>
     );
 };

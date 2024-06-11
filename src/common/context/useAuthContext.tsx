@@ -11,7 +11,7 @@ import { DecodedToken, Token } from '@/types'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import { authApi } from '../api'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import SocketManager from './SocketManager'
 
 const AuthContext = createContext<any>({})
@@ -31,6 +31,7 @@ const MySwal = withReactContent(Swal)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
 	const location = useLocation()
+	const navigate = useNavigate()
 	const [user, setUser] = useState<DecodedToken | undefined>(() => {
 		const token = localStorage.getItem(accessTokenKey)
 		return token ? jwtDecode<DecodedToken>(token) : undefined
@@ -75,6 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	const removeSession = async () => {
 		const refreshToken = localStorage.getItem(refreshTokenKey)
+		console.log("remove session refresh token ", refreshToken)
+
 		if (!refreshToken) {
 			return
 		}
@@ -98,16 +101,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current)
 		if (alertTimeoutIdRef.current) clearTimeout(alertTimeoutIdRef.current)
 	}
-
-	const setupAutoLogout = (exp: number) => {
+	
+	const setupAutoLogout = async (exp: number) => {
 		if (timeoutIdRef.current) clearTimeout(timeoutIdRef.current)
 		if (alertTimeoutIdRef.current) clearTimeout(alertTimeoutIdRef.current)
 
 		const currentTime = Date.now() / 1000
 		const delay = (exp - currentTime) * 1000
-
+	
 		if (delay < 0) {
-			removeSession()
+			await removeSession()
 		} else {
 			if (delay > 5000) {
 				alertTimeoutIdRef.current = setTimeout(() => {
@@ -116,19 +119,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 						text: 'Your session will expire in 5 seconds. Please refresh your session to continue.',
 						icon: 'warning',
 						timer: 5000,
-						willClose: () => {
-							removeSession()
+						willClose: async () => {
+							await removeSession()
 						},
 					})
 				}, delay - 5000)
 			}
 
-			timeoutIdRef.current = setTimeout(() => {
-				removeSession()
+			timeoutIdRef.current = setTimeout(async () => {
+				await removeSession()
 			}, delay)
 		}
 	}
-
+	
 	const saveSession = ({ accessToken, refreshToken }: Token) => {
 		localStorage.setItem(accessTokenKey, accessToken)
 		localStorage.setItem(refreshTokenKey, refreshToken)

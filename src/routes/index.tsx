@@ -41,6 +41,7 @@ const ReadLead = React.lazy(() => import('../pages/leads/Read'))
 const EditLead = React.lazy(() => import('../pages/leads/Update'))
 const AddLeadDocument = React.lazy(() => import('../pages/leads/DocumentChecklist'))
 const AddVisaCategory = React.lazy(() => import('../pages/leads/AddVisaCategory'))
+const LeadNotes = React.lazy(() => import('../pages/leads/LeadNotes/'))
 
 // // users
 const UserList = React.lazy(() => import('../pages/user/List'))
@@ -228,6 +229,12 @@ const leadRoutes = {
 			path: '/lead/addDocument/:leadId',
 			name: 'Add Lead Document',
 			element: <AddLeadDocument />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/lead/leadNotes/:leadId',
+			name: 'Add Lead Notes',
+			element: <LeadNotes />,
 			route: PrivateRoute,
 		},
 	],

@@ -49,17 +49,21 @@ interface LeadData {
 const useEditLead = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { isAuthenticated } = useAuthContext();
+  const { user, isAuthenticated } = useAuthContext();
 	const [visaCategories, setVisaCategories] = useState<VisaCategory[]>([])
 
   const editLead = async (updatedData: LeadData, leadId?: string) => {
     setLoading(true);
     try {
       console.log(updatedData)
+      const updatedUserWithUserID = {
+        ...updatedData, userID: user.sub
+      }
       // for (let [key, value] of updatedData.entries()) {
       //   console.log(`${key}: ${value}`);
       // }
-      const data = await leadApi.update(updatedData, leadId);
+      
+      const data = await leadApi.update(updatedUserWithUserID, leadId);
       toast.success(data.message);
     } catch (err: any) {
       console.error('Failed to update lead data:', err);

@@ -1,0 +1,66 @@
+.theadStyles {
+  background-color: #1a2942b8;
+  color: white;
+}
+
+.theadStyles th {
+  color: white;
+}
+.table{
+  vertical-align: middle !important;
+}
+.tableStriped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.tableStriped tbody tr:nth-of-type(even) {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.tableBordered {
+  border: 1px solid #dee2e6;
+}
+
+.tableBordered th,
+.tableBordered td {
+  border: 1px solid #dee2e6;
+}
+
+.btnPrimary,
+.btnSuccess,
+.btnInfo,
+.btnDanger {
+  margin-right: 10px;
+}
+
+.btnInfo,
+.btnDanger {
+  margin-top: 10px;
+}
+
+.dFlexJustifyContentEndMt3 {
+  margin-bottom: 20px;
+}
+
+.pdfWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: auto;
+}
+
+.reactPdfDocument {
+  width: 100%;
+}
+
+.reactPdfPage {
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .reactPdfPage {
+    width: 100%;
+  }
+}

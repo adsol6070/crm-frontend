@@ -55,3 +55,10 @@ export type VisaCategory = {
     id: string
     category: string
 }
+
+export type LeadNote = {
+    id: string
+    lead_id: string
+    user_id: string
+    note: string
+}

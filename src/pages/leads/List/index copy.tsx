@@ -20,14 +20,12 @@ const LeadList = () => {
         downloadCSV,
         visaCategories,
         showAssignModal,
+        setShowAssignModal,
         selectedLeadId,
         handleAssign,
         showHistoryModal,
         setShowHistoryModal,
         historyData,
-        handleCloseAssignModal,
-        selectedAssignees,
-        setSelectedAssignees
     } = useLeadList();
 
     const [showModal, setShowModal] = useState(false);
@@ -125,14 +123,12 @@ const LeadList = () => {
             <BulkLeadModal show={showModal} handleClose={handleClose} refreshLeads={refreshLeads} />
             <AssignModal
                 show={showAssignModal}
-                handleClose={handleCloseAssignModal}
+                handleClose={() => setShowAssignModal(false)}
                 handleAssign={handleAssign}
                 leadId={selectedLeadId}
                 users={userRecords}
-                selectedAssignees={selectedAssignees}
-                setSelectedAssignees={setSelectedAssignees}
             />
-            <HistoryModal
+              <HistoryModal
                 show={showHistoryModal}
                 onHide={() => setShowHistoryModal(false)}
                 historyData={historyData}

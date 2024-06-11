@@ -36,7 +36,7 @@ function BlogService() {
 				headers: getAuthHeaders(),
 			})
 		},
-
+																				
 		// Retrieve a single blog post by ID
 		getPostById: (postId: string) => {
 			return HttpClient.get(`/blog/${postId}`, {

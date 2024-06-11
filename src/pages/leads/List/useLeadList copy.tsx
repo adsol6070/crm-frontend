@@ -1,6 +1,6 @@
 import { Column } from 'react-table';
 import { PageSize } from '@/components';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Lead } from '@/types';
 import { leadApi } from '@/common';
 import { toast } from 'react-toastify';
@@ -25,9 +25,6 @@ interface LeadListHookResult {
     showHistoryModal: boolean;
     setShowHistoryModal: React.Dispatch<React.SetStateAction<boolean>>;
     historyData: HistoryItem[];
-    handleCloseAssignModal: () => void;
-    selectedAssignees: string[]
-    setSelectedAssignees: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 const capitalizeFirstLetter = (str: string) => {
@@ -44,30 +41,11 @@ export const useLeadList = (): LeadListHookResult => {
     const [selectedLeadId, setSelectedLeadId] = useState<string>('');
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [historyData, setHistoryData] = useState<HistoryItem[]>([]);
-    const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
 
-    const handleAssignButtonClick = async (leadId: string) => {
+    const handleAssignClick = (leadId: string) => {
         setSelectedLeadId(leadId);
-        try {
-            const leadAssignees = await leadApi.getAssigneeById(leadId);
-            console.log("LeadAssignees:", leadAssignees);
-            if (leadAssignees && leadAssignees.user_id) {
-                setSelectedAssignees(leadAssignees.user_id);
-            } else {
-                setSelectedAssignees([]);
-            }
-            setShowAssignModal(true);
-        } catch (error) {
-            console.error('Failed to fetch assignee data:', error);
-            setSelectedAssignees([]);
-            setShowAssignModal(true);
-        }
+        setShowAssignModal(true);
     };
-
-    const handleCloseAssignModal = async () => {
-        setSelectedAssignees([]);
-        setShowAssignModal(false)
-    }
 
     const transformLeadHistory = (leadHistory) => {
         return leadHistory.map((entry) => {
@@ -169,7 +147,7 @@ export const useLeadList = (): LeadListHookResult => {
             Cell: ({ cell }: any) => (
                 <button
                     className={`btn btn-sm btn-danger ${styles.assignButton}`}
-                    onClick={() => handleAssignButtonClick(cell.row.original.id)}
+                    onClick={() => handleAssignClick(cell.row.original.id)}
                 >
                     <i className={`ri-user-add-line ${styles.riUserAddLine}`}></i> Assign
                 </button>
@@ -193,12 +171,11 @@ export const useLeadList = (): LeadListHookResult => {
             accessor: 'actions',
             disableSortBy: true,
             Cell: ({ cell }: any) => (
-                <Dropdown className={styles.dropdownStyling}>
+                <Dropdown>
                     <Dropdown.Toggle as="button" className={styles.customActionButton}>
                         <i className={`ri-more-2-fill ${styles.riMore2Fill}`}></i>
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
-                        <Dropdown.Item onClick={() => handleAddNotes(cell.row.original.id)}>Add Notes</Dropdown.Item>
                         <Dropdown.Item onClick={() => handleView(cell.row.original.id)}>View</Dropdown.Item>
                         <Dropdown.Item onClick={() => handleEdit(cell.row.original.id)}>Edit</Dropdown.Item>
                         <Dropdown.Item onClick={() => handleChecklist(cell.row.original.id)}>Checklist</Dropdown.Item>
@@ -215,10 +192,6 @@ export const useLeadList = (): LeadListHookResult => {
 
     const handleChecklist = (leadId: string) => {
         navigate(`/lead/addDocument/${leadId}`);
-    };
-
-    const handleAddNotes = (leadId: string) => {
-        navigate(`/lead/leadNotes/${leadId}`);
     };
 
     const handleView = (leadId: string) => {
@@ -330,8 +303,5 @@ export const useLeadList = (): LeadListHookResult => {
         showHistoryModal,
         setShowHistoryModal,
         historyData,
-        handleCloseAssignModal,
-        selectedAssignees,
-        setSelectedAssignees
     };
 };

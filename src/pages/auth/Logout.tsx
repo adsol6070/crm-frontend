@@ -22,7 +22,7 @@ const Logout = () => {
 				console.error('Failed to logout:', error)
 			}
 		}
-
+		
 		performLogout()
 	}, [])
 
