@@ -1,16 +1,17 @@
 {
-    "Dashboards": "Cruscotti",
-    "Leads": "Lead",
-    "Add Lead": "Aggiungi Lead",
-    "Lead List": "Elenco Lead",
-    "Blogs": "Blog",
-    "Add Blog": "Aggiungi Blog",
-    "Add Category": "Aggiungi Categoria",
-    "Blog List": "Elenco Blog",
-    "Users": "Utenti",
-    "Create User": "Crea Utente",
-    "User List": "Elenco Utenti",
-    "Roles And Permissions": "Ruoli e Permessi",
-    "Settings": "Impostazioni"
-  }
-  
+	"Dashboards": "Cruscotti",
+	"Chats": "Chat",
+	"Leads": "Lead",
+	"Add Lead": "Aggiungi Lead",
+	"Add Visa Category": "Aggiungi Categoria Visto",
+	"Lead List": "Elenco Lead",
+	"Blogs": "Blog",
+	"Add Blog": "Aggiungi Blog",
+	"Add Category": "Aggiungi Categoria",
+	"Blog List": "Elenco Blog",
+	"Users": "Utenti",
+	"Create User": "Crea Utente",
+	"User List": "Elenco Utenti",
+	"Roles And Permissions": "Ruoli e Permessi",
+	"Settings": "Impostazioni"
+}

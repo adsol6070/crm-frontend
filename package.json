@@ -52,7 +52,7 @@
     "react-draft-wysiwyg": "^1.15.0",
     "react-dropzone": "^14.2.3",
     "react-easy-edit": "^1.17.2",
-    "react-flatpickr": "^3.10.13",
+    "react-flatpickr": "^3.10.13",  
     "react-form-stepper": "^2.0.3",
     "react-helmet": "^6.1.0",
     "react-hook-form": "^7.51.4",
