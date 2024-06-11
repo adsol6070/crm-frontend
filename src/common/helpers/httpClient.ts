@@ -3,13 +3,15 @@ import axios, {
 	AxiosRequestConfig,
 	AxiosResponse,
 	AxiosError,
+	AxiosRequestHeaders,
 } from 'axios'
 import { jwtDecode } from 'jwt-decode'
 import { DecodedToken } from '@/types'
 import SocketManager from '../context/SocketManager'
 
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
-	_retry?: boolean
+	_skipRefresh?: boolean
+	headers: AxiosRequestHeaders
 }
 
 interface QueueItem {
@@ -26,7 +28,7 @@ const ErrorCodeMessages: { [key: number]: string } = {
 let isRefreshing = false
 let failedQueue: QueueItem[] = []
 
-const processQueue = (error: any, token: string | null = null): void => {
+const processQueue = (error: any, token: string = ''): void => {
 	failedQueue.forEach((prom) => {
 		if (error) {
 			prom.reject(error)
@@ -34,22 +36,15 @@ const processQueue = (error: any, token: string | null = null): void => {
 			prom.resolve(token)
 		}
 	})
-
 	failedQueue = []
 }
 
 const refreshToken = async (): Promise<string | null> => {
 	try {
-		const access_token = localStorage.getItem('access_token')
+		localStorage.getItem('access_token')
 		const refresh_token = localStorage.getItem('refresh_token')
 
-		console.table({
-			OLD_ACCESS_TOKEN: access_token,
-			OLD_REFRESH_TOKEN: refresh_token,
-		})
-
 		if (!refresh_token) throw new Error('No refresh token available')
-		console.log('Refresh...')
 		const decodedRefreshToken = jwtDecode<DecodedToken>(refresh_token)
 		const response = await axios.post<{
 			accessToken: string
@@ -63,12 +58,7 @@ const refreshToken = async (): Promise<string | null> => {
 		localStorage.setItem('refresh_token', response.data.refreshToken)
 
 		const newAccesstoken = localStorage.getItem('access_token')
-		const newRefreshtoken = localStorage.getItem('refresh_token')
-
-		console.table({
-			NEW_ACCESS_TOKEN: newAccesstoken,
-			NEW_REFRESH_TOKEN: newRefreshtoken,
-		})
+		localStorage.getItem('refresh_token')
 
 		if (newAccesstoken) {
 			SocketManager.updateToken(response.data.accessToken)
@@ -93,6 +83,8 @@ function HttpClient(): { [key: string]: Function } {
 
 	_httpClient.interceptors.request.use(
 		async (config: CustomAxiosRequestConfig) => {
+			if (config._skipRefresh) return config
+
 			const accessToken = localStorage.getItem('access_token')
 			if (accessToken) {
 				const { exp } = jwtDecode<DecodedToken>(accessToken)
@@ -133,25 +125,15 @@ function HttpClient(): { [key: string]: Function } {
 	)
 
 	const _errorHandler = async (error: AxiosError) => {
-		if (error.response?.status === 401 && !error.config._retry) {
-			return refreshToken().then((newToken) => {
-				if (newToken) {
-					error.config.headers = error.config.headers || {}
-					error.config.headers['Authorization'] = `Bearer ${newToken}`
-					error.config._retry = true
-					return _httpClient(error.config)
-				} else {
-					return Promise.reject('Failed to refresh token')
-				}
-			})
-		}
+		const errorMessage =
+			error.response?.data && typeof error.response.data === 'object'
+				? (error.response?.data as { message: string }).message
+				: error.message
 
 		return Promise.reject(
 			Object.keys(ErrorCodeMessages).includes(String(error.response?.status))
 				? ErrorCodeMessages[error.response!.status]
-				: error.response?.data?.message
-					? error.response.data.message
-					: error.message || error
+				: errorMessage
 		)
 	}
 

@@ -28,7 +28,7 @@ export default function useCreateBlog() {
 			formData.append('description', description)
 			formData.append('content', content)
 			formData.append('category', category)
-			formData.append('uploadType', "Blog")
+			formData.append('uploadType', 'Blog')
 
 			if (blogImage) {
 				formData.append('blogImage', blogImage, blogImage.name)
@@ -45,14 +45,14 @@ export default function useCreateBlog() {
 	useEffect(() => {
 		const getCategories = async () => {
 			setLoading(true)
-			const categoriesData = await categoryApi.getAllCategory();
+			const categoriesData = await categoryApi.getAllCategory()
 			const newCategories = categoriesData.map((category: any) => {
 				return {
 					value: category.category,
-					label: category.category
+					label: category.category,
 				}
 			})
-			setBlogCategories(newCategories);
+			setBlogCategories(newCategories)
 			setLoading(false)
 		}
 
@@ -62,6 +62,6 @@ export default function useCreateBlog() {
 	return {
 		createBlog,
 		loading,
-		blogCategories
+		blogCategories,
 	}
 }

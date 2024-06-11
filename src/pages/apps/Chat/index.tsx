@@ -17,9 +17,15 @@ import {
 	Modal,
 	ModalHeader,
 	ModalBody,
-	ModalFooter,
 	ListGroup,
 	ListGroupItem,
+	Nav,
+	NavItem,
+	NavLink,
+	ModalFooter,
+	FormGroup,
+	Form,
+	Label,
 } from 'reactstrap'
 import { Link } from 'react-router-dom'
 import SimpleBar from 'simplebar-react'
@@ -28,41 +34,96 @@ import './chat.css'
 import SocketManager from '@/common/context/SocketManager'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { useOutsideClick, useUser, useUserImage } from '@/hooks'
+import classNames from 'classnames'
+import avatar1 from '@/assets/images/users/avatar-1.jpg'
+import { chatApi, useAuthContext } from '@/common'
 
 const Chat: React.FC = () => {
-	const [singlebtn, setSinglebtn] = useState(false)
-	const [activeTab, setActiveTab] = useState('1')
-	const [isLoading, setLoading] = useState(false)
-	const [singlebtn1, setSinglebtn1] = useState(false)
-	const [singlebtn2, setSinglebtn2] = useState(false)
-	const [isDisable, setDisable] = useState(false)
-	const [curMessage, setCurMessage] = useState('')
+	const { user } = useAuthContext()
+	const typingTimeout = useRef<NodeJS.Timeout | null>(null)
+	const [singleButton, setSingleButton] = useState<boolean>(false)
+	const [isLoading, setLoading] = useState<boolean>(false)
+	const [singleButton1, setSingleButton1] = useState<boolean>(false)
+	const [singleButton2, setSingleButton2] = useState<boolean>(false)
+	const [isDisable, setDisable] = useState<boolean>(false)
+	const [curMessage, setCurMessage] = useState<string>('')
 	const [copyMsgAlert, setCopyMsgAlert] = useState(false)
-	const [currentRoomId, setCurrentRoomId] = useState('')
-	const [chatBoxUsername, setChatBoxUsername] = useState('')
-	const [chatBoxUserStatus, setChatBoxUserStatus] = useState('')
-	const [chatBoxUserImage, setChatBoxUserImage] = useState('')
+	const [currentRoomId, setCurrentRoomId] = useState<string>('')
+	const [chatBoxUsername, setChatBoxUsername] = useState<string>('')
+	const [chatBoxUserStatus, setChatBoxUserStatus] = useState<string>('')
+	const [chatBoxUserImage, setChatBoxUserImage] = useState<string>('')
 	const [selectedImage, setSelectedImage] = useState<string | null>(null)
 	const [chats, setChats] = useState<any[]>([])
 	const [messages, setMessages] = useState<any[]>([])
-	const [showEmojiPicker, setShowEmojiPicker] = useState(false)
-	const [searchTerm, setSearchTerm] = useState('')
-	const [isLoadingMessages, setIsLoadingMessages] = useState(false)
-	const [showForwardModal, setShowForwardModal] = useState(false)
+	const [members, setMembers] = useState<any[]>([])
+	const [activeTab, setActiveTab] = useState<string>('1')
+	const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false)
+	const [searchTerm, setSearchTerm] = useState<string>('')
+	const [isLoadingMessages, setIsLoadingMessages] = useState<boolean>(false)
+	const [showForwardModal, setShowForwardModal] = useState<boolean>(false)
 	const [messageToForward, setMessageToForward] = useState<any>(null)
 	const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set())
-	const [showCreateGroupModal, setShowCreateGroupModal] = useState(false)
-	const [groupName, setGroupName] = useState('')
+	const [showCreateGroupModal, setShowCreateGroupModal] =
+		useState<boolean>(false)
+	const [showGroupInfoModal, setShowGroupInfoModal] = useState<boolean>(false)
+	const [showAddUserModal, setShowAddUserModal] = useState<boolean>(false)
+	const [groupName, setGroupName] = useState<string>('')
+	const [groups, setGroups] = useState<any[]>([])
+	const [typingUsers, setTypingUsers] = useState<any[]>([])
+	const [isTyping, setIsTyping] = useState<boolean>(false)
+	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+	const [deleteConfirmationData, setDeleteConfirmationData] = useState<{
+		groupId: string
+		userId: string
+	} | null>(null)
 	const scrollRef = useRef<SimpleBar>(null)
 	const emojiPickerRef = useRef<HTMLDivElement>(null)
 	const [currentUser] = useUser()
 	const fetchUserImage = useUserImage()
+
+	const [showDeleteGroupModal, setShowDeleteGroupModal] =
+		useState<boolean>(false)
+	const [groupToDelete, setGroupToDelete] = useState<any>(null) // State to store group to be deleted
+	const [groupImage, setGroupImage] = useState<any | null>(null)
+
+	const [showSelectNewOwnerModal, setShowSelectNewOwnerModal] =
+		useState<boolean>(false)
+	const [selectedMember, setSelectedMember] = useState<string>('')
+
+	console.log('SelectedMembers:', selectedMember)
+
+	const handleGroupImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0]
+		if (file) {
+			setGroupImage(file)
+		}
+	}
+
+	const fetchGroupImage = async (groupId: string) => {
+		try {
+			const response = await chatApi.getGroupImage(groupId)
+			const imageUrl = URL.createObjectURL(response)
+			return imageUrl
+		} catch (error) {
+			console.error('Error fetching group image:', error)
+			return avatar1
+		}
+	}
+
+	const handleCloseCreateGroupModal = () => {
+		setShowCreateGroupModal(false)
+		setGroupName('')
+		setSelectedUsers(new Set())
+		setGroupImage(null)
+	}
 
 	useOutsideClick(emojiPickerRef, () => setShowEmojiPicker(false))
 
 	useEffect(() => {
 		const socket = SocketManager.getSocket()
 		socket?.emit('requestInitialUsers')
+		socket?.emit('requestInitialGroups')
+
 		socket?.on('initialUsers', async (users: any[]) => {
 			const transformedChats = await Promise.all(
 				users.map(async (user) => {
@@ -95,19 +156,27 @@ const Chat: React.FC = () => {
 					}
 				})
 			)
-
 			setChats(transformedChats)
+		})
+
+		socket?.on('initialGroups', async (groups: any[]) => {
+			const transformedGroups = await Promise.all(
+				groups.map(async (group) => {
+					const imageUrl = await fetchGroupImage(group.id)
+					return {
+						...group,
+						image: imageUrl,
+					}
+				})
+			)
+			setGroups(transformedGroups)
 		})
 
 		socket?.on('userStatusUpdated', ({ userId, status, description }) => {
 			setChats((prevChats) =>
 				prevChats.map((chat) =>
 					chat.id === userId
-						? {
-								...chat,
-								status: status ? 'Online' : 'Offline',
-								description,
-							}
+						? { ...chat, status: status ? 'Online' : 'Offline', description }
 						: chat
 				)
 			)
@@ -115,6 +184,14 @@ const Chat: React.FC = () => {
 
 		socket?.on('chatHistory', (chatHistory: any[]) => {
 			setMessages(chatHistory)
+			scrollToBottom()
+			setIsLoadingMessages(false)
+		})
+
+		socket?.on('groupChatHistory', ({ chatHistory, members }) => {
+			// Update to handle group members
+			setMessages(chatHistory)
+			setMembers(members)
 			scrollToBottom()
 			setIsLoadingMessages(false)
 		})
@@ -130,6 +207,12 @@ const Chat: React.FC = () => {
 			)
 		})
 
+		socket?.on('groupMessageDeletedForUser', ({ messageId }) => {
+			setMessages((prevMessages) =>
+				prevMessages.filter((message) => message.id !== messageId)
+			)
+		})
+
 		socket?.on('receiveGroupMessage', (newMessage: any) => {
 			if (currentRoomId === newMessage.group_id) {
 				setMessages((prevMessages) => [...prevMessages, newMessage])
@@ -137,20 +220,183 @@ const Chat: React.FC = () => {
 			}
 		})
 
+		socket?.on('groupCreated', async (newGroup: any) => {
+			const imageUrl = await fetchGroupImage(newGroup.id)
+			const modifiedNewGroup = {
+				...newGroup,
+				image: imageUrl,
+			}
+			setGroups((prevGroups) => [...prevGroups, modifiedNewGroup])
+		})
+
+		socket?.on('groupDeleted', ({ groupId }) => {
+			setGroups((prevGroups) =>
+				prevGroups.filter((group) => group.id !== groupId)
+			)
+		})
+
+		socket?.on('userAddedToGroup', ({ groupId, userId, user }) => {
+			setGroups((prevGroups) =>
+				prevGroups.map((group) =>
+					group.id === groupId
+						? {
+								...group,
+								users: [...group.users, userId],
+								members: [...group.members, user],
+							}
+						: group
+				)
+			)
+			if (groupId === currentRoomId) {
+				setMembers((prevMembers) => [...prevMembers, user])
+			}
+		})
+
+		socket?.on('userRemovedFromGroup', ({ groupId, userId }) => {
+			setGroups((prevGroups) =>
+				prevGroups.map((group) =>
+					group.id === groupId
+						? {
+								...group,
+								users: group.users.filter((id: string) => id !== userId),
+								members: group.members.filter(
+									(user: any) => user.id !== userId
+								),
+							}
+						: group
+				)
+			)
+			if (groupId === currentRoomId) {
+				setMembers((prevMembers) =>
+					prevMembers.filter((user: any) => user.id !== userId)
+				)
+			}
+		})
+
+		socket?.on('typing', ({ user, groupId, userId, isGroup }) => {
+			if (
+				(isGroup && groupId === currentRoomId) ||
+				(!isGroup && user.id === currentRoomId)
+			) {
+				setTypingUsers((prevTypingUsers) => {
+					const existingUser = prevTypingUsers.find((u) => u.id === user.id)
+					if (!existingUser) {
+						return [...prevTypingUsers, user]
+					}
+					return prevTypingUsers
+				})
+				setIsTyping(true)
+			}
+		})
+
+		socket?.on('stopTyping', ({ user, groupId, userId, isGroup }) => {
+			if (
+				(isGroup && groupId === currentRoomId) ||
+				(!isGroup && user.id === currentRoomId)
+			) {
+				setTypingUsers((prevTypingUsers) =>
+					prevTypingUsers.filter((u) => u.id !== user.id)
+				)
+				setIsTyping(false)
+			}
+		})
+
+		socket?.on('confirmDeleteLastUser', ({ groupId, userId, message }) => {
+			setDeleteConfirmationData({ groupId, userId })
+			setShowDeleteConfirmation(true)
+		})
+
+		socket?.on('promptSelectNewOwner', ({ groupId }) => {
+			if (
+				currentUser?.id ===
+				groups.find((group) => group.id === groupId)?.creator_id
+			) {
+				handleOpenSelectNewOwnerModal()
+			}
+		})
+
+		socket?.on('groupOwnershipTransferred', ({ groupId, newOwnerId }) => {
+			if (groupId === currentRoomId && currentUser?.id === newOwnerId) {
+				setCurrentRoomId(groupId)
+			}
+			setGroups((prevGroups) =>
+				prevGroups.map((group) =>
+					group.id === groupId ? { ...group, creator_id: newOwnerId } : group
+				)
+			)
+			if (groupId === currentRoomId) {
+				socket.emit('fetchGroupChatHistory', { groupId })
+			}
+		})
+
 		return () => {
 			socket?.off('initialUsers')
+			socket?.off('initialGroups')
 			socket?.off('userStatusUpdated')
 			socket?.off('chatHistory')
+			socket?.off('groupChatHistory')
 			socket?.off('receiveMessage')
 			socket?.off('messageDeleted')
 			socket?.off('receiveGroupMessage')
+			socket?.off('groupCreated')
+			socket?.off('groupDeleted')
+			socket?.off('userAddedToGroup')
+			socket?.off('userRemovedFromGroup')
+			socket?.off('groupMessageDeletedForUser')
+			socket?.off('typing')
+			socket?.off('stopTyping')
+			socket?.off('confirmDeleteLastUser')
+			socket?.off('promptSelectNewOwner')
+			socket?.off('groupOwnershipTransferred')
 		}
-	}, [])
+	}, [currentRoomId])
+
+	const handleConfirmDeleteGroup = (confirmed: boolean) => {
+		const socket = SocketManager.getSocket()
+		if (deleteConfirmationData) {
+			socket?.emit('confirmDeleteGroup', {
+				groupId: deleteConfirmationData.groupId,
+				userId: deleteConfirmationData.userId,
+				confirmed,
+			})
+			setShowDeleteConfirmation(false)
+		}
+	}
 
 	const onKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Enter') {
 			addMessage()
 		}
+	}
+
+	const handleTyping = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const inputValue = e.target.value
+		setCurMessage(inputValue)
+		setDisable(inputValue.length > 0)
+
+		const isTyping = inputValue.length > 0
+		const socket = SocketManager.getSocket()
+
+		if (isTyping) {
+			if (groups.some((group) => group.id === currentRoomId)) {
+				socket?.emit('startTyping', { groupId: currentRoomId })
+			} else {
+				socket?.emit('startTyping', { userId: currentRoomId })
+			}
+		}
+
+		if (typingTimeout.current) {
+			clearTimeout(typingTimeout.current)
+		}
+
+		// Set a new timer to trigger the stop typing event
+		typingTimeout.current = setTimeout(() => {
+			if (groups.some((group) => group.id === currentRoomId)) {
+				socket?.emit('stopTyping', { groupId: currentRoomId })
+			} else {
+				socket?.emit('stopTyping', { userId: currentRoomId })
+			}
+		}, 500) // Set the timeout duration (e.g., 1 second)
 	}
 
 	const addMessage = () => {
@@ -160,17 +406,33 @@ const Chat: React.FC = () => {
 				toUserId: currentRoomId,
 				message: curMessage,
 			}
-			socket?.emit('sendMessage', newMessage)
+
+			if (groups.some((group) => group.id === currentRoomId)) {
+				socket?.emit('sendGroupMessage', {
+					groupId: currentRoomId,
+					message: curMessage,
+				})
+			} else {
+				socket?.emit('sendMessage', newMessage)
+			}
 			setCurMessage('')
 			setDisable(false)
 			setSelectedImage(null)
+			handleTyping({ target: { value: '' } })
 			scrollToBottom()
 		}
 	}
 
 	const deleteMessage = (messageId: string) => {
 		const socket = SocketManager.getSocket()
-		socket?.emit('deleteMessage', { messageId })
+
+		if (groups.some((group) => group.id === currentRoomId)) {
+			socket?.emit('deleteGroupMessageForUser', {
+				messageId,
+			})
+		} else {
+			socket?.emit('deleteMessage', { messageId })
+		}
 	}
 
 	const openForwardModal = (message: any) => {
@@ -189,6 +451,12 @@ const Chat: React.FC = () => {
 		setSelectedUsers(new Set())
 	}
 
+	const toggleTab = (tab: string) => {
+		if (activeTab !== tab) {
+			setActiveTab(tab)
+		}
+	}
+
 	const userChatOpen = (chat: any) => {
 		setChatBoxUsername(chat.name)
 		setChatBoxUserStatus(chat.status)
@@ -196,9 +464,25 @@ const Chat: React.FC = () => {
 		setChatBoxUserImage(chat.image)
 		setMessages([])
 		setCurMessage('')
+		setMembers([]) // Clear members when opening a user chat
 
 		const socket = SocketManager.getSocket()
 		socket?.emit('fetchChatHistory', { userId: chat.roomId })
+	}
+
+	const groupChatOpen = (group: any) => {
+		setChatBoxUsername(group.name)
+		setCurrentRoomId(group.id)
+		setChatBoxUserImage(avatar1)
+		setMessages([])
+		setCurMessage('')
+
+		const socket = SocketManager.getSocket()
+		socket?.emit('fetchGroupChatHistory', { groupId: group.id })
+	}
+
+	const openGroupInfoModal = () => {
+		setShowGroupInfoModal(true)
 	}
 
 	const copyMsg = (ele: HTMLElement) => {
@@ -235,8 +519,14 @@ const Chat: React.FC = () => {
 	}
 
 	const handleEmojiClick = (emojiObject: EmojiClickData) => {
-		setCurMessage((prevMessage) => prevMessage + emojiObject.emoji)
-		setDisable(true)
+		setCurMessage((prevMessage) => {
+			const newMessage = prevMessage + emojiObject.emoji
+			setDisable(newMessage.length > 0)
+			handleTyping({
+				target: { value: newMessage },
+			} as React.ChangeEvent<HTMLInputElement>)
+			return newMessage
+		})
 	}
 
 	const scrollToBottom = () => {
@@ -244,9 +534,9 @@ const Chat: React.FC = () => {
 			scrollRef.current
 				?.getScrollElement()
 				.scrollTo(0, scrollRef.current?.getScrollElement().scrollHeight)
-		}, 0);
+		}, 0)
 	}
-	
+
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchTerm(e.target.value)
 	}
@@ -263,20 +553,185 @@ const Chat: React.FC = () => {
 		})
 	}
 
-	const handleCreateGroup = () => {
+	const handleCreateGroup = async () => {
 		const socket = SocketManager.getSocket()
+		let imageUrl = ''
+
+		if (groupImage) {
+			const formData = new FormData()
+			formData.append('tenantID', user.tenantID)
+			formData.append('uploadType', 'ChatGroupImages')
+			formData.append('groupImage', groupImage)
+
+			try {
+				const response = await chatApi.uploadGroupImage(formData)
+				imageUrl = response.imageUrl
+			} catch (error) {
+				console.error('Error uploading image:', error)
+				return
+			}
+		}
+
 		socket?.emit('createGroup', {
+			tenantID: user.tenantID,
 			groupName,
 			userIds: Array.from(selectedUsers),
+			image: imageUrl,
 		})
-		setShowCreateGroupModal(false)
-		setGroupName('')
-		setSelectedUsers(new Set())
+		handleCloseCreateGroupModal()
+	}
+
+	const handleGroupContextMenu = (event: React.MouseEvent, group: any) => {
+		event.preventDefault()
+		setGroupToDelete(group)
+		setShowDeleteGroupModal(true)
+	}
+
+	const handleDeleteGroup = () => {
+		if (groupToDelete) {
+			const socket = SocketManager.getSocket()
+			socket?.emit('deleteGroup', { groupId: groupToDelete.id })
+			setShowDeleteGroupModal(false)
+			setGroupToDelete(null)
+		}
+	}
+
+	const addUserToGroup = async (groupId: string, userId: string) => {
+		const socket = SocketManager.getSocket()
+		socket?.emit('addUserToGroup', { groupId, userId })
+	}
+
+	const removeUserFromGroup = async (groupId: string, userId: string) => {
+		const socket = SocketManager.getSocket()
+		socket?.emit('removeUserFromGroup', { groupId, userId })
+	}
+
+	const handleOpenSelectNewOwnerModal = () => {
+		setShowSelectNewOwnerModal(true)
+	}
+
+	const leaveGroup = async (groupId: string) => {
+		const socket = SocketManager.getSocket()
+		socket?.emit('leaveGroup', { groupId })
+	}
+
+	const renderLeaveGroupButton = () => {
+		if (isGroupChat) {
+			return (
+				<Button color="danger" onClick={() => leaveGroup(currentRoomId)}>
+					Leave Group
+				</Button>
+			)
+		}
+	}
+
+	const renderAddRemoveUserOptions = () => {
+		if (
+			isGroupChat &&
+			currentUser.id ===
+				groups.find((group) => group.id === currentRoomId)?.creator_id
+		) {
+			return (
+				<Button
+					color="primary"
+					onClick={() => setShowAddUserModal(true)}
+					className="ms-2">
+					Add or Remove User
+				</Button>
+			)
+		}
+	}
+
+	const handleCloseSelectNewOwnerModal = () => {
+		setShowSelectNewOwnerModal(false)
+		setSelectedMember('')
+	}
+
+	const handleSelectNewOwner = (id: string) => {
+		setSelectedMember(id)
+	}
+
+	const handleConfirmNewOwner = () => {
+		const socket = SocketManager.getSocket()
+		if (selectedMember) {
+			socket?.emit('transferGroupOwnership', {
+				groupId: currentRoomId,
+				newOwnerId: selectedMember,
+			})
+			handleCloseSelectNewOwnerModal()
+		}
+	}
+
+	const renderSelectNewOwnerModal = () => {
+		const filteredMembers = members.filter(
+			(member) => member.id !== currentUser?.id
+		)
+
+		return (
+			<Modal
+				isOpen={showSelectNewOwnerModal}
+				toggle={handleCloseSelectNewOwnerModal}>
+				<ModalHeader toggle={handleCloseSelectNewOwnerModal}>
+					Select New Group Owner
+				</ModalHeader>
+				<ModalBody>
+					<ListGroup>
+						{filteredMembers.map((member) => (
+							<ListGroupItem
+								key={member.id}
+								onClick={() => handleSelectNewOwner(member.id)}
+								className={`d-flex align-items-center ${selectedMember === member.id ? 'bg-light' : ''}`}
+								style={{ cursor: 'pointer' }}>
+								<input
+									type="checkbox"
+									checked={selectedMember === member.id}
+									onChange={() => handleSelectNewOwner(member.id)}
+									className="me-3"
+									onClick={(e) => e.stopPropagation()}
+								/>
+								<img
+									src={member.image || avatar1}
+									className="rounded-circle me-3"
+									alt=""
+									style={{ height: '2.6rem', width: '2.6rem' }}
+								/>
+								<div>
+									<h5 className="mb-0">{`${member.firstname} ${member.lastname}`}</h5>
+									<p className="text-muted mb-0">
+										{member.online
+											? 'Online'
+											: `Last seen at ${new Date(
+													member.last_active
+												).toLocaleTimeString([], {
+													hour: '2-digit',
+													minute: '2-digit',
+												})}`}
+									</p>
+								</div>
+							</ListGroupItem>
+						))}
+					</ListGroup>
+				</ModalBody>
+				<ModalFooter>
+					<Button color="secondary" onClick={handleCloseSelectNewOwnerModal}>
+						Cancel
+					</Button>
+					<Button color="primary" onClick={handleConfirmNewOwner}>
+						Confirm
+					</Button>
+				</ModalFooter>
+			</Modal>
+		)
 	}
 
 	const filteredChats = chats.filter((chat) =>
 		chat.name.toLowerCase().includes(searchTerm.toLowerCase())
 	)
+	const filteredGroups = groups.filter((group) =>
+		group.name.toLowerCase().includes(searchTerm.toLowerCase())
+	)
+
+	const isGroupChat = groups.some((group) => group.id === currentRoomId)
 
 	return (
 		<>
@@ -288,8 +743,8 @@ const Chat: React.FC = () => {
 							<div className="text-end">
 								<Dropdown
 									className="chat-noti-dropdown"
-									isOpen={singlebtn}
-									toggle={() => setSinglebtn(!singlebtn)}>
+									isOpen={singleButton}
+									toggle={() => setSingleButton(!singleButton)}>
 									<DropdownToggle tag="a" className="p-0">
 										<i className="ri-settings-3-line"></i>
 									</DropdownToggle>
@@ -336,41 +791,127 @@ const Chat: React.FC = () => {
 						</div>
 						<Button
 							color="primary"
-							className="w-100 mt-3"
+							className="w-100 mt-2"
 							onClick={() => setShowCreateGroupModal(true)}>
 							Create Group
 						</Button>
 					</div>
 
 					<div className="chat-leftsidebar-nav">
+						<Nav pills justified className="bg-light m-3 rounded">
+							<NavItem className="nav-item-hover">
+								<NavLink
+									className={classNames({
+										active: activeTab === '1',
+									})}
+									onClick={() => {
+										toggleTab('1')
+									}}>
+									<i className="bx bx-chat font-size-20 d-sm-none"></i>
+									<span className="d-none d-sm-block">Chat</span>
+								</NavLink>
+							</NavItem>
+							<NavItem className="nav-item-hover">
+								<NavLink
+									className={classNames({
+										active: activeTab === '2',
+									})}
+									onClick={() => {
+										toggleTab('2')
+									}}>
+									<i className="bx bx-group font-size-20 d-sm-none"></i>
+									<span className="d-none d-sm-block">Groups</span>
+								</NavLink>
+							</NavItem>
+						</Nav>
 						<TabContent activeTab={activeTab}>
 							<TabPane tabId="1">
 								<SimpleBar className="chat-message-list">
 									<div>
 										<div className="px-3">
 											<h5 className="font-size-14">Recent</h5>
+											<ul className="list-unstyled chat-list p-3">
+												{filteredChats.map((chat) => (
+													<li
+														key={chat.id + chat.status}
+														className={
+															currentRoomId === chat.roomId ? 'active' : ''
+														}>
+														<Link
+															to="#"
+															onClick={() => {
+																userChatOpen(chat)
+															}}>
+															<div className="d-flex align-items-center">
+																<div
+																	className={`flex-shrink-0 user-img ${chat.status} align-self-center me-3`}>
+																	<img
+																		src={chat.image}
+																		className="rounded-circle"
+																		style={{
+																			height: '2.6rem',
+																			width: '2.6rem',
+																		}}
+																		alt=""
+																	/>
+																	<span className="user-status"></span>
+																</div>
+
+																<div className="flex-grow-1 overflow-hidden">
+																	<h5 className="text-truncate font-size-15 mb-0">
+																		{chat.name}
+																	</h5>
+																	<p className="text-muted mb-0 mt-1 text-truncate">
+																		{chat.description}
+																	</p>
+																</div>
+																<div className="flex-shrink-0 ms-3">
+																	<span
+																		className="badge bg-danger"
+																		style={{
+																			paddingRight: '.6em',
+																			paddingLeft: '.6em',
+																		}}>
+																		{chat.time}
+																	</span>
+																</div>
+															</div>
+														</Link>
+													</li>
+												))}
+											</ul>
 										</div>
-										<ul className="list-unstyled chat-list p-3">
-											{isLoading ? (
-												<Spinners setLoading={setLoading} />
-											) : (
-												<SimpleBar>
-													{filteredChats.map((chat) => (
+									</div>
+								</SimpleBar>
+							</TabPane>
+
+							<TabPane tabId="2">
+								<SimpleBar className="chat-message-list">
+									<div className="pt-3">
+										<div className="px-3">
+											<h5 className="font-size-14 mb-3">Groups</h5>
+											<ul className="list-unstyled chat-list p-3 pt-0">
+												{groups &&
+													filteredGroups.map((group) => (
 														<li
-															key={chat.id + chat.status}
+															key={group.id}
 															className={
-																currentRoomId === chat.roomId ? 'active' : ''
-															}>
+																currentRoomId === group.id ? 'active' : ''
+															}
+															onContextMenu={(event) =>
+																handleGroupContextMenu(event, group)
+															} // Add right-click handler
+														>
 															<Link
 																to="#"
 																onClick={() => {
-																	userChatOpen(chat)
+																	groupChatOpen(group)
 																}}>
 																<div className="d-flex align-items-center">
 																	<div
-																		className={`flex-shrink-0 user-img ${chat.status} align-self-center me-3`}>
+																		className={`flex-shrink-0 user-img  align-self-center me-3`}>
 																		<img
-																			src={chat.image}
+																			src={group.image}
 																			className="rounded-circle"
 																			style={{
 																				height: '2.6rem',
@@ -378,34 +919,19 @@ const Chat: React.FC = () => {
 																			}}
 																			alt=""
 																		/>
-																		<span className="user-status"></span>
 																	</div>
 
-																	<div className="flex-grow-1 overflow-hidden">
-																		<h5 className="text-truncate font-size-15 mb-0">
-																			{chat.name}
+																	<div className="flex-grow-1">
+																		<h5 className="font-size-13 mb-0">
+																			{group.name}
 																		</h5>
-																		<p className="text-muted mb-0 mt-1 text-truncate">
-																			{chat.description}
-																		</p>
-																	</div>
-																	<div className="flex-shrink-0 ms-3">
-																		<span
-																			className="badge bg-danger"
-																			style={{
-																				paddingRight: '.6em',
-																				paddingLeft: '.6em',
-																			}}>
-																			{chat.time}
-																		</span>
 																	</div>
 																</div>
 															</Link>
 														</li>
 													))}
-												</SimpleBar>
-											)}
-										</ul>
+											</ul>
+										</div>
 									</div>
 								</SimpleBar>
 							</TabPane>
@@ -422,29 +948,39 @@ const Chat: React.FC = () => {
 										<Col xl={4} className="col-7">
 											<div className="d-flex align-items-center">
 												<div
-													className="flex-shrink-0  me-3 d-sm-block d-none"
+													className={`flex-shrink-0 me-3 d-sm-block d-none ${
+														isGroupChat ? 'cursor-pointer' : ''
+													}`}
 													style={{
 														height: '2.6rem',
 														width: '2.6rem',
-													}}>
+													}}
+													onClick={isGroupChat ? openGroupInfoModal : undefined} // Add onClick handler
+												>
 													<img
 														src={chatBoxUserImage}
 														alt=""
-														className="img-fluid d-block  rounded-circle"
+														className="img-fluid d-block rounded-circle"
 														style={{
 															height: '2.6rem',
 															width: '2.6rem',
 														}}
 													/>
 												</div>
-												<div className="flex-grow-1">
+												<div
+													className={`flex-grow-1 ${
+														isGroupChat ? 'cursor-pointer' : ''
+													}`}
+													onClick={
+														isGroupChat ? openGroupInfoModal : undefined
+													}>
 													<h5 className="font-size-16 mb-1 text-truncate">
 														<Link to="#" className="text-reset">
 															{chatBoxUsername}
 														</Link>
 													</h5>
 													<p className="text-muted text-truncate mb-0">
-														{chatBoxUserStatus}
+														{isGroupChat ? 'Users' : chatBoxUserStatus}
 													</p>
 												</div>
 											</div>
@@ -453,8 +989,8 @@ const Chat: React.FC = () => {
 											<ul className="list-inline user-chat-nav text-end mb-0">
 												<li className="list-inline-item">
 													<Dropdown
-														isOpen={singlebtn1}
-														toggle={() => setSinglebtn1(!singlebtn1)}>
+														isOpen={singleButton1}
+														toggle={() => setSingleButton1(!singleButton1)}>
 														<DropdownToggle className="btn nav-btn" tag="a">
 															<i className="ri-search-line"></i>
 														</DropdownToggle>
@@ -474,8 +1010,8 @@ const Chat: React.FC = () => {
 
 												<li className="list-inline-item">
 													<Dropdown
-														isOpen={singlebtn2}
-														toggle={() => setSinglebtn2(!singlebtn2)}>
+														isOpen={singleButton2}
+														toggle={() => setSingleButton2(!singleButton2)}>
 														<DropdownToggle className="btn nav-btn" tag="a">
 															<i className="ri-more-2-fill"></i>
 														</DropdownToggle>
@@ -496,75 +1032,109 @@ const Chat: React.FC = () => {
 									{isLoadingMessages ? (
 										<Spinners setLoading={setLoading} />
 									) : (
-										<ul className="list-unstyled mb-0">
-											{messages.map((msg, index) => (
-												<li
-													key={index}
-													className={
-														msg.fromUserId === currentRoomId ? '' : 'right'
-													}>
-													<div className="conversation-list">
-														<div className="d-flex">
-															{msg.images && (
-																<img
-																	src={msg.images}
-																	className="rounded-circle avatar"
-																	alt=""
-																/>
-															)}
-															<div className="flex-1 ms-3">
-																<div className="d-flex justify-content-between">
-																	<h5 className="font-size-16 conversation-name align-middle">
-																		{msg.fromUserId === currentRoomId
-																			? chatBoxUsername
-																			: 'You'}
-																	</h5>
-																	{msg.timestamp && (
-																		<span className="time fw-normal text-muted me-0 me-md-4">
-																			{new Date(
-																				msg.timestamp
-																			).toLocaleTimeString([], {
-																				hour: '2-digit',
-																				minute: '2-digit',
-																			})}
-																		</span>
+										<>
+											<ul className="list-unstyled mb-0">
+												{messages.map((msg, index) => {
+													return (
+														<li
+															key={index}
+															className={
+																msg.fromUserId === currentRoomId ? '' : 'right'
+															}>
+															<div className="conversation-list">
+																<div className="d-flex">
+																	{msg.images && (
+																		<img
+																			src={msg.images}
+																			className="rounded-circle avatar"
+																			alt=""
+																		/>
 																	)}
-																</div>
-																<div className="ctext-wrap">
-																	<div className="ctext-wrap-content">
-																		<p className="mb-0">{msg.message}</p>
+																	<div className="flex-1 ms-3">
+																		<div className="d-flex justify-content-between">
+																			<h5 className="font-size-16 conversation-name align-middle">
+																				{msg.group_id
+																					? msg.user
+																						? `${msg.user.firstname} ${msg.user.lastname}`
+																						: 'Unknown'
+																					: msg.fromUserId === currentRoomId
+																						? 'You'
+																						: chatBoxUsername}
+																			</h5>
+																			{msg.timestamp && (
+																				<span className="time fw-normal text-muted me-0 me-md-4">
+																					{new Date(
+																						msg.timestamp
+																					).toLocaleTimeString([], {
+																						hour: '2-digit',
+																						minute: '2-digit',
+																					})}
+																				</span>
+																			)}
+																		</div>
+																		<div className="ctext-wrap">
+																			<div className="ctext-wrap-content">
+																				<p className="mb-0">{msg.message}</p>
+																			</div>
+																			<UncontrolledDropdown className="align-self-start">
+																				<DropdownToggle tag="a">
+																					<i className="ri-more-2-fill"></i>
+																				</DropdownToggle>
+																				<DropdownMenu>
+																					<DropdownItem
+																						onClick={(e) =>
+																							copyMsg(e.target as HTMLElement)
+																						}>
+																						Copy
+																					</DropdownItem>
+																					<DropdownItem>Save</DropdownItem>
+																					<DropdownItem
+																						onClick={() =>
+																							openForwardModal(msg)
+																						}>
+																						Forward
+																					</DropdownItem>
+																					<DropdownItem
+																						onClick={() =>
+																							deleteMessage(msg.id)
+																						}>
+																						Delete
+																					</DropdownItem>
+																				</DropdownMenu>
+																			</UncontrolledDropdown>
+																		</div>
 																	</div>
-																	<UncontrolledDropdown className="align-self-start">
-																		<DropdownToggle tag="a">
-																			<i className="ri-more-2-fill"></i>
-																		</DropdownToggle>
-																		<DropdownMenu>
-																			<DropdownItem
-																				onClick={(e) =>
-																					copyMsg(e.target as HTMLElement)
-																				}>
-																				Copy
-																			</DropdownItem>
-																			<DropdownItem>Save</DropdownItem>
-																			<DropdownItem
-																				onClick={() => openForwardModal(msg)}>
-																				Forward
-																			</DropdownItem>
-																			<DropdownItem
-																				onClick={() => deleteMessage(msg.id)}>
-																				Delete
-																			</DropdownItem>
-																		</DropdownMenu>
-																	</UncontrolledDropdown>
 																</div>
 															</div>
-														</div>
-													</div>
-												</li>
-											))}
-										</ul>
+														</li>
+													)
+												})}
+											</ul>
+										</>
 									)}
 								</SimpleBar>
+								{isTyping && (
+									<div className="chat-wrap-content typing-indicator">
+										{isGroupChat ? (
+											typingUsers.map((user) => (
+												<div key={user.id} className="typing-user">
+													{user.firstname} {user.lastname} is typing
+													<div className="typing-dots">
+														<span></span>
+														<span></span>
+														<span></span>
+													</div>
+												</div>
+											))
+										) : (
+											<div className="typing-dots">
+												<span></span>
+												<span></span>
+												<span></span>
+											</div>
+										)}
+									</div>
+								)}
 								{copyMsgAlert && (
 									<UncontrolledAlert color="warning" dismissible role="alert">
 										Message copied
@@ -577,10 +1147,7 @@ const Chat: React.FC = () => {
 												type="text"
 												value={curMessage}
 												onKeyPress={onKeyPress}
-												onChange={(e) => {
-													setCurMessage(e.target.value)
-													setDisable(true)
-												}}
+												onChange={handleTyping}
 												className="form-control border chat-input"
 												placeholder="Enter Message..."
 											/>
@@ -648,7 +1215,10 @@ const Chat: React.FC = () => {
 										src={chat.image}
 										className="rounded-circle me-3"
 										alt=""
-										style={{ height: '2.6rem', width: '2.6rem' }}
+										style={{
+											height: '2.6rem',
+											width: '2.6rem',
+										}}
 									/>
 									<div>
 										<h5 className="mb-0">{chat.name}</h5>
@@ -668,51 +1238,69 @@ const Chat: React.FC = () => {
 					</Button>
 				</ModalFooter>
 			</Modal>
-			<Modal
-				isOpen={showCreateGroupModal}
-				toggle={() => setShowCreateGroupModal(false)}>
-				<ModalHeader toggle={() => setShowCreateGroupModal(false)}>
+			<Modal isOpen={showCreateGroupModal} toggle={handleCloseCreateGroupModal}>
+				<ModalHeader toggle={handleCloseCreateGroupModal}>
 					Create Group
 				</ModalHeader>
 				<ModalBody>
-					<Input
-						type="text"
-						placeholder="Group Name"
-						value={groupName}
-						onChange={(e) => setGroupName(e.target.value)}
-					/>
-					<ListGroup className="mt-3">
-						{chats.map((chat) => (
-							<ListGroupItem
-								key={chat.id}
-								onClick={() => handleUserSelect(chat.id)}
-								style={{ cursor: 'pointer' }}>
-								<div className="d-flex align-items-center">
-									<input
-										type="checkbox"
-										checked={selectedUsers.has(chat.id)}
-										onChange={() => handleUserSelect(chat.id)}
-										className="me-2"
-									/>
-									<img
-										src={chat.image}
-										className="rounded-circle me-3"
-										alt=""
-										style={{ height: '2.6rem', width: '2.6rem' }}
-									/>
-									<div>
-										<h5 className="mb-0">{chat.name}</h5>
-										<p className="text-muted mb-0">{chat.description}</p>
-									</div>
-								</div>
-							</ListGroupItem>
-						))}
-					</ListGroup>
+					<Form>
+						<FormGroup>
+							<Label for="groupName">Group Name</Label>
+							<Input
+								type="text"
+								id="groupName"
+								placeholder="Enter group name"
+								value={groupName}
+								onChange={(e) => setGroupName(e.target.value)}
+							/>
+						</FormGroup>
+						<FormGroup>
+							<Label for="groupImage">Group Image</Label>
+							<Input
+								type="file"
+								id="groupImage"
+								className="mt-2"
+								onChange={handleGroupImageChange}
+							/>
+						</FormGroup>
+						<FormGroup>
+							<Label>Select Members</Label>
+							<ListGroup className="mt-3 chat-list">
+								{chats.map((chat) => (
+									<ListGroupItem
+										key={chat.id}
+										style={{ cursor: 'pointer' }}
+										className={selectedUsers.has(chat.id) ? 'active' : ''}>
+										<div className="d-flex align-items-center">
+											<input
+												type="checkbox"
+												checked={selectedUsers.has(chat.id)}
+												onChange={() => handleUserSelect(chat.id)}
+												className="me-2"
+											/>
+											<div
+												className="d-flex align-items-center"
+												onClick={() => handleUserSelect(chat.id)}>
+												<img
+													src={chat.image}
+													className="rounded-circle me-3"
+													alt=""
+													style={{ height: '2.6rem', width: '2.6rem' }}
+												/>
+												<div>
+													<h5 className="mb-0">{chat.name}</h5>
+													<p className="text-muted mb-0">{chat.description}</p>
+												</div>
+											</div>
+										</div>
+									</ListGroupItem>
+								))}
+							</ListGroup>
+						</FormGroup>
+					</Form>
 				</ModalBody>
 				<ModalFooter>
-					<Button
-						color="secondary"
-						onClick={() => setShowCreateGroupModal(false)}>
+					<Button color="secondary" onClick={handleCloseCreateGroupModal}>
 						Cancel
 					</Button>
 					<Button color="primary" onClick={handleCreateGroup}>
@@ -720,6 +1308,170 @@ const Chat: React.FC = () => {
 					</Button>
 				</ModalFooter>
 			</Modal>
+			<Modal
+				isOpen={showGroupInfoModal}
+				toggle={() => setShowGroupInfoModal(false)}>
+				<ModalHeader toggle={() => setShowGroupInfoModal(false)}>
+					<div className="d-flex justify-content-between align-items-center w-100">
+						<div>Group Information</div>
+						{renderAddRemoveUserOptions()}
+					</div>
+				</ModalHeader>
+				<ModalBody>
+					<ListGroup>
+						{members.map((member) => (
+							<ListGroupItem key={member.id}>
+								<div className="d-flex align-items-center">
+									<img
+										src={member.image || avatar1}
+										className="rounded-circle me-3"
+										alt=""
+										style={{
+											height: '2.6rem',
+											width: '2.6rem',
+										}}
+									/>
+									<div>
+										<h5 className="mb-0">
+											{member.firstname} {member.lastname}
+										</h5>
+										<p className="text-muted mb-0">
+											{member.online
+												? 'Online'
+												: `Last seen at ${new Date(
+														member.last_active
+													).toLocaleTimeString([], {
+														hour: '2-digit',
+														minute: '2-digit',
+													})}`}
+										</p>
+									</div>
+								</div>
+							</ListGroupItem>
+						))}
+					</ListGroup>
+				</ModalBody>
+				<ModalFooter>{renderLeaveGroupButton()}</ModalFooter>
+			</Modal>
+			<Modal
+				isOpen={showAddUserModal}
+				toggle={() => setShowAddUserModal(false)}>
+				<ModalHeader toggle={() => setShowAddUserModal(false)}>
+					Add/Remove User to Group
+				</ModalHeader>
+				<ModalBody>
+					<ListGroup>
+						{filteredChats.map((chat) => {
+							const isMember = members.some((member) => member.id === chat.id)
+							if (chat.id === currentUser?.id) {
+								return null // Skip rendering if the user is the group owner
+							}
+							return (
+								<ListGroupItem
+									key={chat.id}
+									onClick={() => handleUserSelect(chat.id)}
+									style={{
+										cursor: 'pointer',
+										background: isMember ? '#f8f9fa' : '',
+									}}>
+									<div className="d-flex align-items-center">
+										<input
+											type="checkbox"
+											checked={isMember || selectedUsers.has(chat.id)}
+											onChange={() => handleUserSelect(chat.id)}
+											className="me-2"
+											disabled={isMember}
+										/>
+										<img
+											src={chat.image}
+											className="rounded-circle me-3"
+											alt=""
+											style={{
+												height: '2.6rem',
+												width: '2.6rem',
+											}}
+										/>
+										<div>
+											<h5 className="mb-0">{chat.name}</h5>
+											<p className="text-muted mb-0">{chat.description}</p>
+										</div>
+										{isMember && (
+											<Button
+												color="danger"
+												onClick={() =>
+													removeUserFromGroup(currentRoomId, chat.id)
+												}
+												size="sm"
+												className="ms-auto">
+												Remove
+											</Button>
+										)}
+									</div>
+								</ListGroupItem>
+							)
+						})}
+					</ListGroup>
+				</ModalBody>
+				<ModalFooter>
+					<Button color="secondary" onClick={() => setShowAddUserModal(false)}>
+						Cancel
+					</Button>
+					<Button
+						color="primary"
+						onClick={() => {
+							selectedUsers.forEach((userId) => {
+								if (!members.some((member) => member.id === userId)) {
+									addUserToGroup(currentRoomId, userId)
+								}
+							})
+							setShowAddUserModal(false)
+						}}>
+						Add
+					</Button>
+				</ModalFooter>
+			</Modal>
+			<Modal
+				isOpen={showDeleteGroupModal}
+				toggle={() => setShowDeleteGroupModal(false)}>
+				<ModalHeader toggle={() => setShowDeleteGroupModal(false)}>
+					Delete Group
+				</ModalHeader>
+				<ModalBody>
+					Are you sure you want to delete the group "{groupToDelete?.name}"?
+				</ModalBody>
+				<ModalFooter>
+					<Button
+						color="secondary"
+						onClick={() => setShowDeleteGroupModal(false)}>
+						Cancel
+					</Button>
+					<Button color="danger" onClick={handleDeleteGroup}>
+						Delete
+					</Button>
+				</ModalFooter>
+			</Modal>
+			<Modal
+				isOpen={showDeleteConfirmation}
+				toggle={() => setShowDeleteConfirmation(false)}>
+				<ModalHeader toggle={() => setShowDeleteConfirmation(false)}>
+					Confirm Deletion
+				</ModalHeader>
+				<ModalBody>
+					Deleting the last user will delete this group. Are you sure you want
+					to proceed?
+				</ModalBody>
+				<ModalFooter>
+					<Button
+						color="secondary"
+						onClick={() => handleConfirmDeleteGroup(false)}>
+						Cancel
+					</Button>
+					<Button color="danger" onClick={() => handleConfirmDeleteGroup(true)}>
+						Confirm
+					</Button>
+				</ModalFooter>
+			</Modal>
+			{renderSelectNewOwnerModal()}
 		</>
 	)
 }

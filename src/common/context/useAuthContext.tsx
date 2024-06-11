@@ -73,7 +73,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		}
 	}, [location])
 
-	const removeSession = async () => {
+	const removeSession = async (
+		removeSessionSetTimeOut = false,
+		source = 'Default call'
+	) => {
+		console.log(`removeSession called from: ${source}`)
 		const refreshToken = localStorage.getItem(refreshTokenKey)
 		if (!refreshToken) {
 			return
@@ -81,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		if (refreshToken) {
 			try {
 				await authApi.logout({
+					tenantID: user?.tenantID,
 					refreshToken,
 				})
 			} catch (error) {
@@ -107,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		const delay = (exp - currentTime) * 1000
 
 		if (delay < 0) {
-			removeSession()
+			removeSession(false, 'Expired immediately')
 		} else {
 			if (delay > 5000) {
 				alertTimeoutIdRef.current = setTimeout(() => {
@@ -117,14 +122,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 						icon: 'warning',
 						timer: 5000,
 						willClose: () => {
-							removeSession()
+							removeSession(false, 'Alert	timeout expired')
 						},
 					})
 				}, delay - 5000)
 			}
 
 			timeoutIdRef.current = setTimeout(() => {
-				removeSession()
+				removeSession(false, 'Session timeout expired')
 			}, delay)
 		}
 	}

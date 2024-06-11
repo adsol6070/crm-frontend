@@ -1,16 +1,17 @@
 {
-    "Dashboards": "डैशबोर्ड",
-    "Leads": "लीड्स",
-    "Add Lead": "लीड जोड़ें",
-    "Lead List": "लीड सूची",
-    "Blogs": "ब्लॉग",
-    "Add Blog": "ब्लॉग जोड़ें",
-    "Add Category": "श्रेणी जोड़ें",
-    "Blog List": "ब्लॉग सूची",
-    "Users": "उपयोगकर्ता",
-    "Create User": "उपयोगकर्ता बनाएँ",
-    "User List": "उपयोगकर्ता सूची",
-    "Roles And Permissions": "भूमिकाएं और अनुमतियां",
-    "Settings": "सेटिंग्स"
-  }
-  
+	"Dashboards": "डैशबोर्ड",
+	"Chats": "चैट्स",
+	"Leads": "लीड्स",
+	"Add Lead": "लीड जोड़ें",
+	"Add Visa Category": "वीजा श्रेणी जोड़ें",
+	"Lead List": "लीड सूची",
+	"Blogs": "ब्लॉग",
+	"Add Blog": "ब्लॉग जोड़ें",
+	"Add Category": "श्रेणी जोड़ें",
+	"Blog List": "ब्लॉग सूची",
+	"Users": "उपयोगकर्ता",
+	"Create User": "उपयोगकर्ता बनाएँ",
+	"User List": "उपयोगकर्ता सूची",
+	"Roles And Permissions": "भूमिकाएं और अनुमतियां",
+	"Settings": "सेटिंग्स"
+}

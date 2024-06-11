@@ -95,7 +95,7 @@
 
 @media (min-width: 992px) {
 	.chat-message-list {
-		height: calc(100vh - 600px);
+		height: calc(100vh - 700px);
 	}
 }
 
@@ -457,4 +457,71 @@
 	justify-content: center;
 	align-items: center;
 	height: 100%;
+}
+
+.cursor-pointer {
+	cursor: pointer;
+}
+
+.nav-item-hover:hover {
+	cursor: pointer;
+}
+
+.typing-indicator {
+	display: flex;
+	align-items: center;
+	height: 1.5rem;
+}
+
+.typing-indicator p {
+	margin: 0;
+	padding-right: 0.5rem;
+}
+
+.typing-dots {
+	display: flex;
+	align-items: flex-end;
+}
+
+.typing-dots span {
+	display: block;
+	width: 0.5rem;
+	height: 0.5rem;
+	margin-right: 0.2rem;
+	background-color: #333;
+	border-radius: 50%;
+	animation: bounce 1s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(1) {
+	animation-delay: 0s;
+}
+
+.typing-dots span:nth-child(2) {
+	animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+	animation-delay: 0.4s;
+}
+
+.chat-wrap-content {
+	padding: 20px 27px;
+	background-color: #d5d8db;
+	border-radius: 0px 15px 15px 15px;
+	color: #000000;
+	position: absolute;
+	margin-left: 3.2rem;
+	bottom: 7rem;
+	left: 2.5rem;
+}
+
+@keyframes bounce {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-8px);
+	}
 }
