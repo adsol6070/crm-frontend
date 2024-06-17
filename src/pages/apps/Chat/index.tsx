@@ -37,6 +37,10 @@ import { useOutsideClick, useUser, useUserImage } from '@/hooks'
 import classNames from 'classnames'
 import avatar1 from '@/assets/images/users/avatar-1.jpg'
 import { chatApi, useAuthContext } from '@/common'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 const Chat: React.FC = () => {
 	const { user } = useAuthContext()
@@ -81,6 +85,8 @@ const Chat: React.FC = () => {
 	const [currentUser] = useUser()
 	const fetchUserImage = useUserImage()
 
+	const [disabledGroups, setDisabledGroups] = useState<Set<string>>(new Set())
+
 	const [showDeleteGroupModal, setShowDeleteGroupModal] =
 		useState<boolean>(false)
 	const [groupToDelete, setGroupToDelete] = useState<any>(null) // State to store group to be deleted
@@ -89,8 +95,12 @@ const Chat: React.FC = () => {
 	const [showSelectNewOwnerModal, setShowSelectNewOwnerModal] =
 		useState<boolean>(false)
 	const [selectedMember, setSelectedMember] = useState<string>('')
-
-	console.log('SelectedMembers:', selectedMember)
+	const [unreadMessages, setUnreadMessages] = useState<Map<string, number>>(
+		new Map()
+	)
+	const [unreadGroupMessages, setUnreadGroupMessages] = useState<
+		Map<string, number>
+	>(new Map())
 
 	const handleGroupImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0]
@@ -123,6 +133,7 @@ const Chat: React.FC = () => {
 		const socket = SocketManager.getSocket()
 		socket?.emit('requestInitialUsers')
 		socket?.emit('requestInitialGroups')
+		socket?.emit('getUnreadMessages')
 
 		socket?.on('initialUsers', async (users: any[]) => {
 			const transformedChats = await Promise.all(
@@ -159,17 +170,19 @@ const Chat: React.FC = () => {
 			setChats(transformedChats)
 		})
 
-		socket?.on('initialGroups', async (groups: any[]) => {
+		socket?.on('initialGroups', async ({ groups, disabledGroups }: any) => {
 			const transformedGroups = await Promise.all(
 				groups.map(async (group) => {
 					const imageUrl = await fetchGroupImage(group.id)
 					return {
 						...group,
 						image: imageUrl,
+						members: group.members || [],
 					}
 				})
 			)
 			setGroups(transformedGroups)
+			setDisabledGroups(new Set(disabledGroups))
 		})
 
 		socket?.on('userStatusUpdated', ({ userId, status, description }) => {
@@ -188,35 +201,56 @@ const Chat: React.FC = () => {
 			setIsLoadingMessages(false)
 		})
 
-		socket?.on('groupChatHistory', ({ chatHistory, members }) => {
-			// Update to handle group members
+		socket?.on('groupChatHistory', async ({ chatHistory, members }) => {
+			const modifiedMembers = await Promise.all(
+				members.map(async (member: any) => {
+					const image = await fetchUserImage(member)
+					return {
+						...member,
+						profileImage: image,
+					}
+				})
+			)
 			setMessages(chatHistory)
-			setMembers(members)
+			setMembers(modifiedMembers || [])
 			scrollToBottom()
 			setIsLoadingMessages(false)
 		})
 
+		socket?.on(
+			'unreadMessagesCount',
+			({ unreadMessagesMap, unreadGroupMessagesMap }) => {
+				setUnreadMessages(new Map(Object.entries(unreadMessagesMap)))
+				setUnreadGroupMessages(new Map(Object.entries(unreadGroupMessagesMap)))
+			}
+		)
+
 		socket?.on('receiveMessage', (newMessage: any) => {
+			if (newMessage.fromUserId !== currentRoomId) {
+				socket.emit('getUnreadMessages')
+			}
 			setMessages((prevMessages) => [...prevMessages, newMessage])
 			scrollToBottom()
 		})
 
-		socket?.on('messageDeleted', ({ messageId }) => {
-			setMessages((prevMessages) =>
-				prevMessages.filter((message) => message.id !== messageId)
-			)
-		})
-
-		socket?.on('groupMessageDeletedForUser', ({ messageId }) => {
-			setMessages((prevMessages) =>
-				prevMessages.filter((message) => message.id !== messageId)
-			)
+		socket?.on('messageRead', ({ fromUserId }) => {
+			setUnreadMessages((prev) => {
+				const updated = new Map(prev)
+				updated.delete(fromUserId)
+				return updated
+			})
 		})
 
 		socket?.on('receiveGroupMessage', (newMessage: any) => {
+			const isSentByCurrentUser = newMessage.from_user_id === currentUser?.id
 			if (currentRoomId === newMessage.group_id) {
-				setMessages((prevMessages) => [...prevMessages, newMessage])
+				setMessages((prevMessages) => [
+					...prevMessages,
+					{ ...newMessage, isSentByCurrentUser },
+				])
 				scrollToBottom()
+			} else {
+				socket.emit('getUnreadMessages')
 			}
 		})
 
@@ -225,6 +259,7 @@ const Chat: React.FC = () => {
 			const modifiedNewGroup = {
 				...newGroup,
 				image: imageUrl,
+				members: newGroup.members || [],
 			}
 			setGroups((prevGroups) => [...prevGroups, modifiedNewGroup])
 		})
@@ -235,20 +270,30 @@ const Chat: React.FC = () => {
 			)
 		})
 
-		socket?.on('userAddedToGroup', ({ groupId, userId, user }) => {
+		socket?.on('userAddedToGroup', async ({ groupId, userId, user }) => {
+			const image = await fetchUserImage(user)
+			const modifiedUser = {
+				...user,
+				profileImage: image,
+			}
 			setGroups((prevGroups) =>
 				prevGroups.map((group) =>
 					group.id === groupId
 						? {
 								...group,
 								users: [...group.users, userId],
-								members: [...group.members, user],
+								members: [...group.members, modifiedUser],
 							}
 						: group
 				)
 			)
 			if (groupId === currentRoomId) {
-				setMembers((prevMembers) => [...prevMembers, user])
+				setMembers((prevMembers) => [...prevMembers, modifiedUser])
+				setDisabledGroups((prev) => {
+					const newSet = new Set(prev)
+					newSet.delete(groupId)
+					return newSet
+				})
 			}
 		})
 
@@ -259,7 +304,7 @@ const Chat: React.FC = () => {
 						? {
 								...group,
 								users: group.users.filter((id: string) => id !== userId),
-								members: group.members.filter(
+								members: group.members?.filter(
 									(user: any) => user.id !== userId
 								),
 							}
@@ -329,25 +374,71 @@ const Chat: React.FC = () => {
 			}
 		})
 
+		socket?.on('groupDisabled', ({ groupId }) => {
+			setDisabledGroups((prev) => new Set(prev).add(groupId))
+		})
+
+		socket?.on('groupDeletedForUser', ({ groupId }) => {
+			setGroups((prevGroups) =>
+				prevGroups.filter((group) => group.id !== groupId)
+			)
+		})
+
+		socket?.on('groupMessageDeletedForEveryone', ({ messageId }) => {
+			setMessages((prevMessages) =>
+				prevMessages.filter((message) => message.id !== messageId)
+			)
+		})
+
+		socket?.on('groupMessageDeletedForMe', ({ messageId }) => {
+			setMessages((prevMessages) =>
+				prevMessages.map((message) =>
+					message.id === messageId
+						? { ...message, deletedForMe: true }
+						: message
+				)
+			)
+		})
+
+		socket?.on('messageDeletedForEveryone', ({ messageId }) => {
+			setMessages((prevMessages) =>
+				prevMessages.filter((message) => message.id !== messageId)
+			)
+		})
+
+		socket?.on('messageDeletedForMe', ({ messageId }) => {
+			setMessages((prevMessages) =>
+				prevMessages.map((message) =>
+					message.id === messageId
+						? { ...message, deletedForMe: true }
+						: message
+				)
+			)
+		})
+
 		return () => {
 			socket?.off('initialUsers')
 			socket?.off('initialGroups')
 			socket?.off('userStatusUpdated')
 			socket?.off('chatHistory')
 			socket?.off('groupChatHistory')
+			socket?.off('unreadMessagesCount')
 			socket?.off('receiveMessage')
-			socket?.off('messageDeleted')
+			socket?.off('messageRead')
 			socket?.off('receiveGroupMessage')
 			socket?.off('groupCreated')
 			socket?.off('groupDeleted')
 			socket?.off('userAddedToGroup')
 			socket?.off('userRemovedFromGroup')
-			socket?.off('groupMessageDeletedForUser')
 			socket?.off('typing')
 			socket?.off('stopTyping')
 			socket?.off('confirmDeleteLastUser')
 			socket?.off('promptSelectNewOwner')
 			socket?.off('groupOwnershipTransferred')
+			socket?.off('groupDisabled')
+			socket?.off('groupDeletedForUser')
+			socket?.off('groupMessageDeletedForEveryone')
+			socket?.off('groupMessageDeletedForMe')
 		}
 	}, [currentRoomId])
 
@@ -423,18 +514,6 @@ const Chat: React.FC = () => {
 		}
 	}
 
-	const deleteMessage = (messageId: string) => {
-		const socket = SocketManager.getSocket()
-
-		if (groups.some((group) => group.id === currentRoomId)) {
-			socket?.emit('deleteGroupMessageForUser', {
-				messageId,
-			})
-		} else {
-			socket?.emit('deleteMessage', { messageId })
-		}
-	}
-
 	const openForwardModal = (message: any) => {
 		setMessageToForward(message)
 		setShowForwardModal(true)
@@ -464,21 +543,36 @@ const Chat: React.FC = () => {
 		setChatBoxUserImage(chat.image)
 		setMessages([])
 		setCurMessage('')
-		setMembers([]) // Clear members when opening a user chat
+		setMembers([])
 
 		const socket = SocketManager.getSocket()
 		socket?.emit('fetchChatHistory', { userId: chat.roomId })
+		socket?.emit('messageRead', { fromUserId: chat.roomId })
+
+		setUnreadMessages((prev) => {
+			const updated = new Map(prev)
+			updated.delete(chat.roomId)
+			return updated
+		})
 	}
 
-	const groupChatOpen = (group: any) => {
+	const groupChatOpen = async (group: any) => {
+		const groupImage = await fetchGroupImage(group.id)
 		setChatBoxUsername(group.name)
 		setCurrentRoomId(group.id)
-		setChatBoxUserImage(avatar1)
+		setChatBoxUserImage(groupImage)
 		setMessages([])
 		setCurMessage('')
 
 		const socket = SocketManager.getSocket()
 		socket?.emit('fetchGroupChatHistory', { groupId: group.id })
+		socket?.emit('messageRead', { groupId: group.id })
+
+		setUnreadGroupMessages((prev) => {
+			const updated = new Map(prev)
+			updated.delete(group.id)
+			return updated
+		})
 	}
 
 	const openGroupInfoModal = () => {
@@ -572,10 +666,13 @@ const Chat: React.FC = () => {
 			}
 		}
 
+		const userIds = Array.from(selectedUsers)
+		userIds.push(currentUser?.id as string)
+
 		socket?.emit('createGroup', {
 			tenantID: user.tenantID,
 			groupName,
-			userIds: Array.from(selectedUsers),
+			userIds,
 			image: imageUrl,
 		})
 		handleCloseCreateGroupModal()
@@ -583,8 +680,28 @@ const Chat: React.FC = () => {
 
 	const handleGroupContextMenu = (event: React.MouseEvent, group: any) => {
 		event.preventDefault()
-		setGroupToDelete(group)
-		setShowDeleteGroupModal(true)
+
+		const userIsActive = !disabledGroups.has(group.id)
+
+		if (userIsActive) {
+			setGroupToDelete(group)
+			setShowDeleteGroupModal(true)
+		} else {
+			MySwal.fire({
+				title: 'Remove from Group?',
+				text: 'You are not an active member of this group. Do you want to remove this group from your view?',
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#d33',
+				confirmButtonText: 'Yes, remove it!',
+			}).then((result) => {
+				if (result.isConfirmed) {
+					const socket = SocketManager.getSocket()
+					socket?.emit('deleteGroup', { groupId: group.id })
+				}
+			})
+		}
 	}
 
 	const handleDeleteGroup = () => {
@@ -611,12 +728,28 @@ const Chat: React.FC = () => {
 	}
 
 	const leaveGroup = async (groupId: string) => {
-		const socket = SocketManager.getSocket()
-		socket?.emit('leaveGroup', { groupId })
+		const result = await MySwal.fire({
+			title: 'Are you sure?',
+			text: 'Are you sure you want to leave this group?',
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#3085d6',
+			cancelButtonColor: '#d33',
+			confirmButtonText: 'Yes, leave it!',
+		})
+
+		if (result.isConfirmed) {
+			const socket = SocketManager.getSocket()
+			socket?.emit('leaveGroup', { groupId })
+			setShowGroupInfoModal(false)
+		}
 	}
 
 	const renderLeaveGroupButton = () => {
-		if (isGroupChat) {
+		if (
+			isGroupChat &&
+			members.some((member) => member.id === currentUser?.id)
+		) {
 			return (
 				<Button color="danger" onClick={() => leaveGroup(currentRoomId)}>
 					Leave Group
@@ -628,7 +761,7 @@ const Chat: React.FC = () => {
 	const renderAddRemoveUserOptions = () => {
 		if (
 			isGroupChat &&
-			currentUser.id ===
+			currentUser?.id ===
 				groups.find((group) => group.id === currentRoomId)?.creator_id
 		) {
 			return (
@@ -662,6 +795,29 @@ const Chat: React.FC = () => {
 		}
 	}
 
+	const deleteGroupMessageForEveryone = (
+		messageId: string,
+		groupId: string
+	) => {
+		const socket = SocketManager.getSocket()
+		socket?.emit('deleteGroupMessageForEveryone', { messageId, groupId })
+	}
+
+	const deleteGroupMessageForMe = (messageId: string, groupId: string) => {
+		const socket = SocketManager.getSocket()
+		socket?.emit('deleteGroupMessageForMe', { messageId, groupId })
+	}
+
+	const deleteMessageForEveryone = (messageId: string, userId: string) => {
+		const socket = SocketManager.getSocket()
+		socket?.emit('deleteMessageForEveryone', { messageId, userId })
+	}
+
+	const deleteMessageForMe = (messageId: string) => {
+		const socket = SocketManager.getSocket()
+		socket?.emit('deleteMessageForMe', { messageId })
+	}
+
 	const renderSelectNewOwnerModal = () => {
 		const filteredMembers = members.filter(
 			(member) => member.id !== currentUser?.id
@@ -690,7 +846,7 @@ const Chat: React.FC = () => {
 									onClick={(e) => e.stopPropagation()}
 								/>
 								<img
-									src={member.image || avatar1}
+									src={member.profileImage}
 									className="rounded-circle me-3"
 									alt=""
 									style={{ height: '2.6rem', width: '2.6rem' }}
@@ -866,14 +1022,16 @@ const Chat: React.FC = () => {
 																	</p>
 																</div>
 																<div className="flex-shrink-0 ms-3">
-																	<span
-																		className="badge bg-danger"
-																		style={{
-																			paddingRight: '.6em',
-																			paddingLeft: '.6em',
-																		}}>
-																		{chat.time}
-																	</span>
+																	{unreadMessages.get(chat.roomId) > 0 && (
+																		<span
+																			className="badge bg-danger"
+																			style={{
+																				paddingRight: '.6em',
+																				paddingLeft: '.6em',
+																			}}>
+																			{unreadMessages.get(chat.roomId)}
+																		</span>
+																	)}
 																</div>
 															</div>
 														</Link>
@@ -925,6 +1083,19 @@ const Chat: React.FC = () => {
 																		<h5 className="font-size-13 mb-0">
 																			{group.name}
 																		</h5>
+																	</div>
+
+																	<div className="flex-shrink-0 ms-3">
+																		{unreadGroupMessages.get(group.id) > 0 && (
+																			<span
+																				className="badge bg-danger"
+																				style={{
+																					paddingRight: '.6em',
+																					paddingLeft: '.6em',
+																				}}>
+																				{unreadGroupMessages.get(group.id)}
+																			</span>
+																		)}
 																	</div>
 																</div>
 															</Link>
@@ -1035,6 +1206,33 @@ const Chat: React.FC = () => {
 										<>
 											<ul className="list-unstyled mb-0">
 												{messages.map((msg, index) => {
+													if (msg.deletedForMe) {
+														return (
+															<li
+																key={index}
+																className={
+																	msg.fromUserId === currentRoomId
+																		? ''
+																		: 'right'
+																}>
+																<div className="conversation-list">
+																	<div className="d-flex">
+																		<div className="flex-1 ms-3">
+																			<div className="d-flex justify-content-between">
+																				<h5 className="font-size-16 conversation-name align-middle">
+																					Message deleted
+																				</h5>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+															</li>
+														)
+													}
+
+													const isSentByCurrentUser =
+														msg.fromUserId === currentUser?.id
+
 													return (
 														<li
 															key={index}
@@ -1054,10 +1252,13 @@ const Chat: React.FC = () => {
 																		<div className="d-flex justify-content-between">
 																			<h5 className="font-size-16 conversation-name align-middle">
 																				{msg.group_id
-																					? msg.user
-																						? `${msg.user.firstname} ${msg.user.lastname}`
-																						: 'Unknown'
-																					: msg.fromUserId === currentRoomId
+																					? isSentByCurrentUser ||
+																						msg.isSentByCurrentUser
+																						? 'You'
+																						: msg.user
+																							? `${msg.user.firstname} ${msg.user.lastname}`
+																							: 'Unknown'
+																					: msg.fromUserId !== currentRoomId
 																						? 'You'
 																						: chatBoxUsername}
 																			</h5>
@@ -1094,12 +1295,56 @@ const Chat: React.FC = () => {
 																						}>
 																						Forward
 																					</DropdownItem>
-																					<DropdownItem
-																						onClick={() =>
-																							deleteMessage(msg.id)
-																						}>
-																						Delete
-																					</DropdownItem>
+																					{isGroupChat ? (
+																						<>
+																							{(isSentByCurrentUser ||
+																								msg.isSentByCurrentUser) && (
+																								<DropdownItem
+																									onClick={() =>
+																										deleteGroupMessageForEveryone(
+																											msg.id,
+																											currentRoomId
+																										)
+																									}>
+																									Delete for Everyone
+																								</DropdownItem>
+																							)}
+																							<DropdownItem
+																								onClick={() =>
+																									deleteGroupMessageForMe(
+																										msg.id,
+																										currentRoomId
+																									)
+																								}>
+																								Delete for Me
+																							</DropdownItem>
+																						</>
+																					) : isSentByCurrentUser ? (
+																						<>
+																							<DropdownItem
+																								onClick={() =>
+																									deleteMessageForEveryone(
+																										msg.id,
+																										currentRoomId
+																									)
+																								}>
+																								Delete for Everyone
+																							</DropdownItem>
+																							<DropdownItem
+																								onClick={() =>
+																									deleteMessageForMe(msg.id)
+																								}>
+																								Delete for Me
+																							</DropdownItem>
+																						</>
+																					) : (
+																						<DropdownItem
+																							onClick={() =>
+																								deleteMessageForMe(msg.id)
+																							}>
+																							Delete for Me
+																						</DropdownItem>
+																					)}
 																				</DropdownMenu>
 																			</UncontrolledDropdown>
 																		</div>
@@ -1141,46 +1386,58 @@ const Chat: React.FC = () => {
 									</UncontrolledAlert>
 								)}
 								<div className="p-3 border-top">
-									<div className="row">
-										<div className="col input-container">
-											<input
-												type="text"
-												value={curMessage}
-												onKeyPress={onKeyPress}
-												onChange={handleTyping}
-												className="form-control border chat-input"
-												placeholder="Enter Message..."
-											/>
-											<Button
-												type="button"
-												color="link"
-												className="emoji-btn"
-												onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
-												😊
-											</Button>
-											{showEmojiPicker && (
-												<div
-													className="emoji-picker position-absolute"
-													ref={emojiPickerRef}>
-													<EmojiPicker onEmojiClick={handleEmojiClick} />
+									{disabledGroups.has(currentRoomId) ? (
+										<div className="text-center text-muted">
+											<p>
+												You can't send messages to this group because you're no
+												longer a member.
+											</p>
+										</div>
+									) : (
+										<>
+											<div className="row">
+												<div className="col input-container">
+													<input
+														type="text"
+														value={curMessage}
+														onKeyPress={onKeyPress}
+														onChange={handleTyping}
+														className="form-control border chat-input"
+														placeholder="Enter Message..."
+													/>
+													<Button
+														type="button"
+														color="link"
+														className="emoji-btn"
+														onClick={() =>
+															setShowEmojiPicker(!showEmojiPicker)
+														}>
+														😊
+													</Button>
+													{showEmojiPicker && (
+														<div
+															className="emoji-picker position-absolute"
+															ref={emojiPickerRef}>
+															<EmojiPicker onEmojiClick={handleEmojiClick} />
+														</div>
+													)}
 												</div>
-											)}
-										</div>
-
-										<div className="col-auto">
-											<Button
-												type="button"
-												color="primary"
-												disabled={!isDisable}
-												onClick={addMessage}
-												className="chat-send w-md waves-effect waves-light">
-												<span className="d-none d-sm-inline-block me-2">
-													Send
-												</span>
-												<i className="mdi mdi-send float-end"></i>
-											</Button>
-										</div>
-									</div>
+												<div className="col-auto">
+													<Button
+														type="button"
+														color="primary"
+														disabled={!isDisable}
+														onClick={addMessage}
+														className="chat-send w-md waves-effect waves-light">
+														<span className="d-none d-sm-inline-block me-2">
+															Send
+														</span>
+														<i className="mdi mdi-send float-end"></i>
+													</Button>
+												</div>
+											</div>
+										</>
+									)}
 								</div>
 							</>
 						) : (
@@ -1266,35 +1523,39 @@ const Chat: React.FC = () => {
 						<FormGroup>
 							<Label>Select Members</Label>
 							<ListGroup className="mt-3 chat-list">
-								{chats.map((chat) => (
-									<ListGroupItem
-										key={chat.id}
-										style={{ cursor: 'pointer' }}
-										className={selectedUsers.has(chat.id) ? 'active' : ''}>
-										<div className="d-flex align-items-center">
-											<input
-												type="checkbox"
-												checked={selectedUsers.has(chat.id)}
-												onChange={() => handleUserSelect(chat.id)}
-												className="me-2"
-											/>
-											<div
-												className="d-flex align-items-center"
-												onClick={() => handleUserSelect(chat.id)}>
-												<img
-													src={chat.image}
-													className="rounded-circle me-3"
-													alt=""
-													style={{ height: '2.6rem', width: '2.6rem' }}
+								{chats
+									.filter((chat) => chat.id !== currentUser?.id) // Exclude the current user
+									.map((chat) => (
+										<ListGroupItem
+											key={chat.id}
+											style={{ cursor: 'pointer' }}
+											className={selectedUsers.has(chat.id) ? 'active' : ''}>
+											<div className="d-flex align-items-center">
+												<input
+													type="checkbox"
+													checked={selectedUsers.has(chat.id)}
+													onChange={() => handleUserSelect(chat.id)}
+													className="me-2"
 												/>
-												<div>
-													<h5 className="mb-0">{chat.name}</h5>
-													<p className="text-muted mb-0">{chat.description}</p>
+												<div
+													className="d-flex align-items-center"
+													onClick={() => handleUserSelect(chat.id)}>
+													<img
+														src={chat.image}
+														className="rounded-circle me-3"
+														alt=""
+														style={{ height: '2.6rem', width: '2.6rem' }}
+													/>
+													<div>
+														<h5 className="mb-0">{chat.name}</h5>
+														<p className="text-muted mb-0">
+															{chat.description}
+														</p>
+													</div>
 												</div>
 											</div>
-										</div>
-									</ListGroupItem>
-								))}
+										</ListGroupItem>
+									))}
 							</ListGroup>
 						</FormGroup>
 					</Form>
@@ -1323,7 +1584,7 @@ const Chat: React.FC = () => {
 							<ListGroupItem key={member.id}>
 								<div className="d-flex align-items-center">
 									<img
-										src={member.image || avatar1}
+										src={member.profileImage}
 										className="rounded-circle me-3"
 										alt=""
 										style={{
@@ -1364,7 +1625,7 @@ const Chat: React.FC = () => {
 						{filteredChats.map((chat) => {
 							const isMember = members.some((member) => member.id === chat.id)
 							if (chat.id === currentUser?.id) {
-								return null // Skip rendering if the user is the group owner
+								return null
 							}
 							return (
 								<ListGroupItem
