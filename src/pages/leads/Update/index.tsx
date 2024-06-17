@@ -46,20 +46,17 @@ interface LeadData {
   scholarships: string;
   visaCategory: string;
   languageTestReport: Record<string, any>;
-  passportCopy: Record<string, any>; 
+  passportCopy: Record<string, any>;
   certificates: Record<string, any>;
-  transcripts: Record<string, any>; 
+  transcripts: Record<string, any>;
   sop: Record<string, any>;
   recommendationLetter: Record<string, any>;
-  resume: Record<string, any>; 
-  leadNotes: string;
+  resume: Record<string, any>;
   leadRating: string;
   followUpDates: string;
-  assignedAgent: string;
   leadStatus: string;
   referralContact: string;
   leadSource: string;
-  notes: string;
   preferredContactTime: string;
   communicationMode: string;
   created_at: string;
@@ -69,7 +66,6 @@ const EditLead: React.FC = () => {
   const { leadData, loading, error } = useReadLead(leadId as string);
   const { editLead, visaCategories } = useEditLead();
   const [selectedVisaCategory, setSelectedVisaCategory] = useState<VisaCategory | null>(null)
-console.log(leadData)
   const methods = useForm({
     defaultValues: leadData ?? {},
   });
@@ -85,7 +81,7 @@ console.log(leadData)
           setValue(key, leadData[key] ? new Date(leadData[key]).toLocaleDateString('en-CA') : '');
         } else if (key === 'passportExpiry') {
           setValue(key, leadData[key] ? new Date(leadData[key]).toLocaleDateString('en-CA') : '');
-        }  else {
+        } else {
           setValue(key as keyof LeadData, leadData[key as keyof LeadData]);
         }
       });
@@ -101,8 +97,8 @@ console.log(leadData)
   }, [leadData, setValue]);
 
   const handleSelect = (option: VisaCategory | null) => {
-		setSelectedVisaCategory(option)
-	}
+    setSelectedVisaCategory(option)
+  }
 
   const onSubmit = async (data: any) => {
     const completeData = {
@@ -529,20 +525,20 @@ console.log(leadData)
                               </Col>
                               <Col lg={4} md={6} sm={12}>
                                 <FormInput
-                                  label="Notes/Comments"
-                                  name="notes"
+                                  label="Source of Lead"
+                                  name="leadSource"
                                   type="text"
-                                  placeholder="Enter Notes/Comments"
+                                  placeholder="Enter Source of Lead"
                                   register={register}
                                   errors={errors}
                                 />
                               </Col>
                               <Col lg={4} md={6} sm={12}>
                                 <FormInput
-                                  label="Source of Lead"
-                                  name="leadSource"
-                                  type="text"
-                                  placeholder="Enter Source of Lead"
+                                  label="Follow-up Dates"
+                                  name="followUpDates"
+                                  type="date"
+                                  placeholder="Enter Follow-up Dates"
                                   register={register}
                                   errors={errors}
                                 />
@@ -575,46 +571,10 @@ console.log(leadData)
                               </Col>
                               <Col lg={4} md={6} sm={12}>
                                 <FormInput
-                                  label="Assigned Agent/Counselor"
-                                  name="assignedAgent"
-                                  type="text"
-                                  placeholder="Enter Assigned Agent/Counselor"
-                                  register={register}
-                                  errors={errors}
-                                />
-                              </Col>
-                            </Row>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td>
-                            <Row>
-                              <Col lg={4} md={6} sm={12}>
-                                <FormInput
-                                  label="Follow-up Dates"
-                                  name="followUpDates"
-                                  type="date"
-                                  placeholder="Enter Follow-up Dates"
-                                  register={register}
-                                  errors={errors}
-                                />
-                              </Col>
-                              <Col lg={4} md={6} sm={12}>
-                                <FormInput
                                   label="Lead Rating"
                                   name="leadRating"
                                   type="text"
                                   placeholder="Enter Lead Rating"
-                                  register={register}
-                                  errors={errors}
-                                />
-                              </Col>
-                              <Col lg={4} md={6} sm={12}>
-                                <FormInput
-                                  label="Lead Notes"
-                                  name="leadNotes"
-                                  type="text"
-                                  placeholder="Enter Lead Notes"
                                   register={register}
                                   errors={errors}
                                 />

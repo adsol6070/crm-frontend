@@ -6,9 +6,11 @@
 .theadStyles th {
   color: white;
 }
+
 .table{
   vertical-align: middle !important;
 }
+
 .tableStriped tbody tr:nth-of-type(odd) {
   background-color: rgba(0, 0, 0, 0.05);
 }

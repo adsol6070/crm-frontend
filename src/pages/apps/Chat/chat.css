@@ -75,6 +75,10 @@
 	font-size: 20px !important;
 }
 
+.profileStyles{
+	padding: 10px;
+}
+
 .search-box .form-control {
 	border-radius: 30px;
 	padding-left: 40px;
@@ -95,7 +99,7 @@
 
 @media (min-width: 992px) {
 	.chat-message-list {
-		height: calc(100vh - 700px);
+		height: calc(100vh - 610px);
 	}
 }
 

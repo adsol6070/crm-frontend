@@ -42,7 +42,7 @@ export type Lead = {
     leadRating: string;
     followUpDates: string;
     assignedAgent: string;
-    leadStatus: string;
+    status: string; 
     referralContact: string;
     leadSource: string;
     notes: string;

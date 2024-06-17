@@ -25,7 +25,7 @@ const UserList = () => {
 							<Table<User>
 								columns={columns}
 								data={userRecords}
-								pageSize={6}
+								pageSize={5}
 								sizePerPageList={sizePerPageList}
 								isSortable={true}
 								pagination={true}

@@ -13,6 +13,7 @@ import {
 } from 'react-table'
 import classNames from 'classnames'
 import { Pagination, PageSize } from './Pagination'
+import styles from './Table.module.css'
 
 export type CellFormatter<T extends Object = {}> = {
 	row: Row<T>
@@ -213,7 +214,7 @@ const Table = <TableValues extends object = {}>(
 				/>
 			)}
 
-			<div className="table-responsive">
+			<div className={`table-responsive ${styles.tableStyles}`}>
 				<table
 					{...dataTable.getTableProps()}
 					className={classNames(
@@ -254,6 +255,11 @@ const Table = <TableValues extends object = {}>(
 						})}
 					</tbody>
 				</table>
+				{rows.length === 0 && (
+					<div className={styles.noDataMessage}>
+                                    <p>No data available</p>
+					</div>
+                        )}
 			</div>
 
 			{pagination && (

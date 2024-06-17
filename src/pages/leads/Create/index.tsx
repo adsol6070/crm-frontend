@@ -30,8 +30,8 @@ const fieldOrder = [
 	"intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails",
 	"scholarships",
 	"visaExpiryDate", "visaType", "previousStudyAbroad", "previousVisaApplications",
-	"leadNotes", "leadRating", "followUpDates", "assignedAgent", "leadStatus",
-	"referralContact", "leadSource", "notes", "preferredContactTime", "communicationMode"
+    "leadRating", "followUpDates", "leadStatus",
+	"referralContact", "leadSource", "preferredContactTime", "communicationMode"
 ]
 
 const reorderData = (data: any, order: any) => {
@@ -88,14 +88,11 @@ const stepSchemas = [
 		.object({
 			communicationMode: yup.string().nullable(),
 			preferredContactTime: yup.string().nullable(),
-			notes: yup.string().nullable(),
 			leadSource: yup.string().nullable(),
 			referralContact: yup.string().nullable(),
 			leadStatus: yup.string().nullable(),
-			assignedAgent: yup.string().nullable(),
 			followUpDates: yup.date(),
 			leadRating: yup.string().nullable(),
-			leadNotes: yup.string().nullable(),
 		})
 		.required(),
 ]
@@ -532,14 +529,6 @@ const AddLead = () => {
 												errors={errors}
 											/>
 											<FormInput
-												label="Notes/Comments"
-												name="notes"
-												type="text"
-												placeholder="Enter Notes/Comments"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
 												label="Source of Lead"
 												name="leadSource"
 												type="text"
@@ -564,14 +553,6 @@ const AddLead = () => {
 												errors={errors}
 											/>
 											<FormInput
-												label="Assigned Agent/Counselor"
-												name="assignedAgent"
-												type="text"
-												placeholder="Enter Assigned Agent/Counselor"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
 												label="Follow-up Dates"
 												name="followUpDates"
 												type="date"
@@ -584,14 +565,6 @@ const AddLead = () => {
 												name="leadRating"
 												type="text"
 												placeholder="Enter Lead Rating"
-												register={register}
-												errors={errors}
-											/>
-											<FormInput
-												label="Lead Notes"
-												name="leadNotes"
-												type="text"
-												placeholder="Enter Lead Notes"
 												register={register}
 												errors={errors}
 											/>

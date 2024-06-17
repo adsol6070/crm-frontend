@@ -2,11 +2,23 @@ import { Column } from 'react-table';
 import { PageSize } from '@/components';
 import React, { useEffect, useState } from 'react';
 import { Lead } from '@/types';
-import { leadApi } from '@/common';
+import { leadApi, useAuthContext } from '@/common';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { Dropdown } from 'react-bootstrap';
-import styles from './LeadList.module.css'
+import Swal from 'sweetalert2';
+import styles from './LeadList.module.css';
+
+interface HistoryItem {
+    action: string;
+    timestamp: string;
+    details: {
+        createdBy?: { firstname: string; lastname: string };
+        updatedBy?: { firstname: string; lastname: string };
+        statusUpdatedBy?: { firstname: string; lastname: string };
+        assignedAgents?: { id: string; firstname: string; lastname: string }[];
+    };
+}
 
 interface LeadListHookResult {
     columns: ReadonlyArray<Column>;
@@ -16,6 +28,7 @@ interface LeadListHookResult {
     downloadCSV: (category: string) => void;
     refreshLeads: () => void;
     uploadLeads: (formData: FormData) => Promise<void>;
+    deleteAllLeads: () => void;
     visaCategories: string[];
     showAssignModal: boolean;
     setShowAssignModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -26,19 +39,21 @@ interface LeadListHookResult {
     setShowHistoryModal: React.Dispatch<React.SetStateAction<boolean>>;
     historyData: HistoryItem[];
     handleCloseAssignModal: () => void;
-    selectedAssignees: string[]
-    setSelectedAssignees: React.Dispatch<React.SetStateAction<string[]>>
+    selectedAssignees: string[];
+    setSelectedAssignees: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const capitalizeFirstLetter = (str: string) => {
     if (!str) return str;
     return str.charAt(0).toUpperCase() + str.slice(1);
-}
+};
 
 export const useLeadList = (): LeadListHookResult => {
     const navigate = useNavigate();
+    const { user } = useAuthContext();
     const [loading, setLoading] = useState(false);
     const [leadRecords, setLeadRecords] = useState<Lead[]>([]);
+    const [leadStatuses, setLeadStatuses] = useState<{ [key: string]: string }>({});
     const [visaCategories, setVisaCategories] = useState<string[]>([]);
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [selectedLeadId, setSelectedLeadId] = useState<string>('');
@@ -50,7 +65,6 @@ export const useLeadList = (): LeadListHookResult => {
         setSelectedLeadId(leadId);
         try {
             const leadAssignees = await leadApi.getAssigneeById(leadId);
-            console.log("LeadAssignees:", leadAssignees);
             if (leadAssignees && leadAssignees.user_id) {
                 setSelectedAssignees(leadAssignees.user_id);
             } else {
@@ -66,36 +80,28 @@ export const useLeadList = (): LeadListHookResult => {
 
     const handleCloseAssignModal = async () => {
         setSelectedAssignees([]);
-        setShowAssignModal(false)
-    }
+        setShowAssignModal(false);
+    };
 
-    const transformLeadHistory = (leadHistory) => {
+    const transformLeadHistory = (leadHistory: any[]) => {
         return leadHistory.map((entry) => {
-            const key = Object.keys(entry)[0];
-            const value = entry[key];
-
             let action = '';
-            let details = {};
+            let details = entry.details;
 
-            switch (key) {
-                case 'createdBy':
-                    action = `Created by ${value.firstname} ${value.lastname}`;
-                    break;
-                case 'updatedBy':
-                    action = `Updated by ${value.firstname} ${value.lastname}`;
-                    break;
-                case 'assignedAgents':
-                    action = 'Assigned Agents';
-                    details.assignedAgents = value;
-                    break;
-                default:
-                    action = key;
+            if (entry.details.updatedBy) {
+                action = `Updated by ${entry.details.updatedBy.firstname} ${entry.details.updatedBy.lastname}`;
+            } else if (entry.details.createdBy) {
+                action = `Created by ${entry.details.createdBy.firstname} ${entry.details.createdBy.lastname}`;
+            } else if (entry.details.statusUpdatedBy) {
+                action = `Status Updated by ${entry.details.statusUpdatedBy.firstname} ${entry.details.statusUpdatedBy.lastname}`;
+            } else {
+                action = entry.action;
             }
 
             return {
                 action,
-                timestamp: new Date().toISOString(), // Assuming the current timestamp for simplicity
-                details
+                timestamp: entry.timestamp,
+                details,
             };
         });
     };
@@ -103,7 +109,6 @@ export const useLeadList = (): LeadListHookResult => {
     const handleHistoryClick = async (leadId: string) => {
         try {
             const response = await leadApi.getLeadHistory(leadId);
-            console.log(response)
             const transformedHistory = transformLeadHistory(response.fullLeadHistory);
             setHistoryData(transformedHistory);
             setShowHistoryModal(true);
@@ -158,9 +163,7 @@ export const useLeadList = (): LeadListHookResult => {
             Header: 'Visa Category',
             accessor: 'visaCategory',
             defaultCanSort: true,
-            Cell: ({ cell }: any) => (
-                capitalizeFirstLetter(cell.value)
-            ),
+            Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
         },
         {
             Header: 'Assign',
@@ -189,15 +192,34 @@ export const useLeadList = (): LeadListHookResult => {
             ),
         },
         {
+            Header: 'Status',
+            accessor: 'status',
+            disableSortBy: true,
+            Cell: ({ cell }: any) => (
+                <Dropdown onSelect={(status: any) => handleStatus(cell.row.original.id, status)}>
+                    <Dropdown.Toggle as="div" className={`badge btn btn-${getStatusBadgeClass(leadStatuses[cell.row.original.id])} ${styles.statusStyling}`} id="dropdown-basic">
+                        <span>
+                            {leadStatuses[cell.row.original.id] ? capitalizeFirstLetter(leadStatuses[cell.row.original.id]) : 'No Status'}
+                        </span>
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        <Dropdown.Item eventKey="pending">Pending</Dropdown.Item>
+                        <Dropdown.Item eventKey="inprogress">Inprogress</Dropdown.Item>
+                        <Dropdown.Item eventKey="completed">Completed</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
+            ),
+        },
+        {
             Header: 'Actions',
             accessor: 'actions',
             disableSortBy: true,
             Cell: ({ cell }: any) => (
                 <Dropdown className={styles.dropdownStyling}>
                     <Dropdown.Toggle as="button" className={styles.customActionButton}>
-                        <i className={`ri-more-2-fill ${styles.riMore2Fill}`}></i>
+                        <i className={`bi bi-gear ${styles.biGear}`}></i>
                     </Dropdown.Toggle>
-                    <Dropdown.Menu>
+                    <Dropdown.Menu className={styles.customMenuStyle}>
                         <Dropdown.Item onClick={() => handleAddNotes(cell.row.original.id)}>Add Notes</Dropdown.Item>
                         <Dropdown.Item onClick={() => handleView(cell.row.original.id)}>View</Dropdown.Item>
                         <Dropdown.Item onClick={() => handleEdit(cell.row.original.id)}>Edit</Dropdown.Item>
@@ -208,6 +230,54 @@ export const useLeadList = (): LeadListHookResult => {
             ),
         },
     ];
+
+    const handleStatus = async (leadId: string, status: string) => {
+        try {
+            const data = {
+                userID: user.sub,
+                leadStatus: status,
+            };
+            await leadApi.updateLeadStatusById(leadId, data);
+            setLeadStatuses((prevStatuses) => ({
+                ...prevStatuses,
+                [leadId]: status,
+            }));
+            toast.success('Lead status updated successfully.');
+        } catch (error) {
+            toast.error('Failed to update lead status.');
+            console.error(error);
+        }
+    };
+
+    const getLeadStatuses = async () => {
+        try {
+            const response = await leadApi.get();
+            const leadStatuses = response.reduce(
+                (acc: any, curr: any) => {
+                    acc[curr.id] = curr.leadStatus;
+                    return acc;
+                },
+                {}
+            );
+            setLeadStatuses(leadStatuses);
+        } catch (error) {
+            toast.error('Failed to get lead statuses.');
+            console.error(error);
+        }
+    };
+
+    const getStatusBadgeClass = (status: string) => {
+        switch (status) {
+            case 'pending':
+                return 'warning';
+            case 'inprogress':
+                return 'primary';
+            case 'completed':
+                return 'success';
+            default:
+                return 'secondary';
+        }
+    };
 
     const handleEdit = (leadId: string) => {
         navigate(`/lead/edit/${leadId}`);
@@ -232,6 +302,29 @@ export const useLeadList = (): LeadListHookResult => {
         toast.success('Lead deleted successfully.');
     };
 
+    const deleteAllLeads = async () => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to get your leads back",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete all!',
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await leadApi.deleteAllLeads();
+                    setLeadRecords([]);
+                    toast.success('All leads deleted successfully.');
+                } catch (error) {
+                    toast.error('Failed to delete all leads');
+                    console.error(error);
+                }
+            }
+        });
+    };
+
     const sizePerPageList: PageSize[] = [
         {
             text: '5',
@@ -253,12 +346,32 @@ export const useLeadList = (): LeadListHookResult => {
 
     const getLeads = async () => {
         setLoading(true);
-        const leadData = await leadApi.get();
-        const leadsWithIndex = leadData.map((lead: any, index: any) => ({ ...lead, sno: index + 1 }));
-        setLeadRecords(leadsWithIndex);
-        const categories: any = [...new Set(leadData.map((lead: any) => lead.visaCategory))];
-        setVisaCategories(categories);
-        setLoading(false);
+        try {
+            if (user.role === 'superAdmin') {
+                const leadData = await leadApi.get();
+                const leadsWithIndex = leadData.map((lead: any, index: any) => ({ ...lead, sno: index + 1 }));
+                setLeadRecords(leadsWithIndex);
+
+                await getLeadStatuses();
+
+                const categories: any = [...new Set(leadData.map((lead: any) => lead.visaCategory))];
+                setVisaCategories(categories);
+            } else {
+                const leadData = await leadApi.getSpecificLead(user.sub);
+                const leadsWithIndex = leadData.map((lead: any, index: any) => ({ ...lead, sno: index + 1 }));
+                setLeadRecords(leadsWithIndex);
+
+                await getLeadStatuses();
+
+                const categories: any = [...new Set(leadData.map((lead: any) => lead.visaCategory))];
+                setVisaCategories(categories);
+            }
+        } catch (error) {
+            toast.error('Failed to fetch leads');
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -268,13 +381,10 @@ export const useLeadList = (): LeadListHookResult => {
     const uploadLeads = async (formData: FormData) => {
         setLoading(true);
         try {
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-            }
             const data = await leadApi.uploadBulkLeads(formData);
             toast.success(data.message);
         } catch (error: any) {
-            toast.error("Lead not imported");
+            toast.error('Lead not imported');
         } finally {
             setLoading(false);
         }
@@ -285,19 +395,40 @@ export const useLeadList = (): LeadListHookResult => {
     };
 
     const convertToCSV = (array: any[]) => {
-        const header = Object.keys(array[0]).join(',') + '\n';
-        const rows = array.map(obj => Object.values(obj).join(',')).join('\n');
+        const excludedFields = ['tenantID', 'sno', 'leadHistory'];
+        const header = Object.keys(array[0])
+            .filter((key) => !excludedFields.includes(key))
+            .join(',') + '\n';
+
+        const rows = array
+            .map((obj) => {
+                return Object.keys(obj)
+                    .filter((key) => !excludedFields.includes(key))
+                    .map((key) => {
+                        if (key === 'leadHistory') {
+                            return JSON.stringify(obj[key]);
+                        }
+                        return obj[key];
+                    })
+                    .join(',');
+            })
+            .join('\n');
+
         return header + rows;
     };
 
     const downloadCSV = (category: string) => {
         let filteredRecords = leadRecords;
         if (category !== 'All') {
-            filteredRecords = leadRecords.filter(lead => lead.visaCategory === category);
+            filteredRecords = leadRecords.filter((lead) => lead.visaCategory === category);
         }
 
         if (filteredRecords.length === 0) {
-            alert('No data to download');
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Data',
+                text: 'No data to download',
+            });
             return;
         }
 
@@ -311,6 +442,12 @@ export const useLeadList = (): LeadListHookResult => {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Download Complete',
+            text: 'Your CSV file has been downloaded.',
+        });
     };
 
     return {
@@ -321,6 +458,7 @@ export const useLeadList = (): LeadListHookResult => {
         refreshLeads,
         uploadLeads,
         downloadCSV,
+        deleteAllLeads,
         visaCategories,
         showAssignModal,
         setShowAssignModal,
@@ -332,6 +470,6 @@ export const useLeadList = (): LeadListHookResult => {
         historyData,
         handleCloseAssignModal,
         selectedAssignees,
-        setSelectedAssignees
+        setSelectedAssignees,
     };
 };

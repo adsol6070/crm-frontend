@@ -6,6 +6,7 @@ import { Col, Row } from 'react-bootstrap';
 import useCreateLeadNote from './useLeadNotes';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Swal from 'sweetalert2';
 
 // Note type definition
 interface User {
@@ -69,8 +70,20 @@ const LeadNotes: React.FC = () => {
     };
 
     const handleDeleteAllNotes = async () => {
-        await deleteAllLeadNotes();
-        await getAllLeadNotes();
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to get your notes back",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete all!'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                await deleteAllLeadNotes();
+                await getAllLeadNotes();
+            }
+        });
     };
 
     // Start editing a note
@@ -155,7 +168,7 @@ const LeadNotes: React.FC = () => {
                                             <div className="card-body">
                                                 <p className="card-text"><strong>Note: </strong>{note.note}</p>
                                                 <div className={styles.userDetails}>
-                                                    <small><strong>Created By: </strong>{capitalizeFirstLetter(note.user?.firstname)} {capitalizeFirstLetter(note.user?.lastname)}</small>
+                                                    <small><strong>Created By: </strong> {note.user?.firstname ? capitalizeFirstLetter(note.user.firstname) : ''} {note.user?.lastname ? capitalizeFirstLetter(note.user.lastname) : ''}</small>
                                                 </div>
                                                 <div className={styles.noteTimestamps}>
                                                     <small><strong>Created at: </strong>{new Date(note.created_at!).toLocaleString()}</small>

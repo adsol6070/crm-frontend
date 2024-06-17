@@ -1,5 +1,12 @@
+.tabStyling{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0px 0px 15px 0px;
+}
+
 .customTabs {
-    margin: 0px 0px 20px 0px;
+    margin: 0px 0px 0px 0px;
 }
 
 .navLink {
@@ -24,23 +31,98 @@
 .navItem + .navItem {
     margin-left: 10px;
 }
-.dropdownStyling{
-    position: absolute;
+
+.assignButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5em 1em;
+    background-color: #dc3545;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
+
+.assignButton:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+.riUserAddLine {
+    margin-right: 5px;
+    font-size: 1.2em;
+}
+
+.historyButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5em 1em;
+    background-color: #17a2b8;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.historyButton:hover {
+    background-color: #138496;
+    transform: translateY(-2px);
+}
+
+.riHistoryLine {
+    margin-right: 5px;
+    font-size: 1.2em;
+}
+
+.dropdownStyling{
+    display: flex;
+    align-items: center;
+    position: relative; 
+}
+
+.statusStyling{
+    font-size: 0.8rem;
+}
+
 .customActionButton {
     border: none;
     background: transparent;
     cursor: pointer;
-    position: absolute;
 }
 
-.riMore2Fill {
-    font-size: 1.2em;
+.customMenuStyle {
+    position: absolute; 
+    z-index: 1050; 
+    padding: 0; 
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem; 
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    background-color: white; 
 }
 
-.riUserAddLine {
-    font-size: 1.2em;
+.tableStyles{
+    min-height: 50vh !important;
 }
+
+.customActionButton::after {
+    display: none !important;
+}
+
+.biGear {
+    font-size: 1.2em;
+    color: #000000;
+    transition: color 0.3s ease;
+    font-weight: bold;
+}
+
+.biGear:hover {
+    color: #007bff;
+}
+
 .stepper {
     display: flex;
     flex-direction: column;

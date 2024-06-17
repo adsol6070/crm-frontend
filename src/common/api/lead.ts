@@ -32,6 +32,16 @@ function LeadService() {
 				headers: getAuthHeaders(),
 			})
 		},
+		getSpecificLead: async (userId: string) => {
+			return await HttpClient.get(`/lead/getSpecificLeads/${userId}`, {
+				headers: getAuthHeaders(),
+			})
+		},
+		deleteAllLeads: async () => {
+			return await HttpClient.delete('/lead/', {
+				headers: getAuthHeaders(),
+			})
+		},
 		getLeadById: async (leadId: string) => {
 			return await HttpClient.get(`/lead/${leadId}`, {
 				headers: getAuthHeaders(),
@@ -42,6 +52,11 @@ function LeadService() {
 				headers: getAuthHeaders(),
 			})
 			return data
+		},
+		updateLeadStatusById: async (leadId: string, values: any) => {
+			return await HttpClient.patch(`/lead/leadStatus/${leadId}`, values, {
+				headers: getAuthHeaders(),
+			})
 		},
 		getUploadedDocuments: async (leadId?: string) => {
 			return await HttpClient.get(`/lead/getDocument/${leadId}`, {

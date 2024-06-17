@@ -9,15 +9,24 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
 import { permissionService } from '@/common'
 
+interface RoleOptions {
+	value: string
+	label: string
+}
+
 const toTitleCase = (str: string) => {
 	return str.toLowerCase().replace(/\b(\w)/g, (s) => s.toUpperCase())
 }
 
 const CreateUser = () => {
 	const [profileImage, setProfileImage] = useState<File | null>(null)
-	const [selectedRole, setSelectedRole] = useState<string | null>(null)
+	const [selectedRole, setSelectedRole] = useState<RoleOptions | null>(null)
 	const [roleOptions, setRoleOptions] = useState([])
 	const { loading, createUser } = useCreateUser()
+
+	const handleSelect = (option: RoleOptions | null) => {
+		setSelectedRole(option)
+	}
 
 	const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		if (event.target.files && event.target.files[0]) {
@@ -53,7 +62,7 @@ const CreateUser = () => {
 	const onSubmit = (data: any, { reset }: any) => {
 		const completeData = {
 			...data,
-			role: selectedRole,
+			role: selectedRole ? selectedRole.value : null,
 			profileImage,
 		}
 		createUser(completeData)
@@ -120,7 +129,7 @@ const CreateUser = () => {
 											onChange={handleImageChange}
 											containerClass="mb-3"
 										/>
-										<Form.Group className="mb-3">
+										{/* <Form.Group className="mb-3">
 											<Form.Label>Role</Form.Label>
 											<Select
 												className="select2 z-3"
@@ -132,6 +141,18 @@ const CreateUser = () => {
 												onChange={(option: any) =>
 													setSelectedRole(option ? option.value : null)
 												}
+											/>
+										</Form.Group> */}
+										<Form.Group className="mb-3">
+											<Form.Label>Categories</Form.Label>
+											<Select
+												className="select2 z-3"
+												options={roleOptions as any[]}
+												getOptionLabel={(e: any) => e.label}
+												getOptionValue={(e: any) => e.value}
+												value={selectedRole}
+												onChange={handleSelect}
+												isClearable={true}
 											/>
 										</Form.Group>
 										<Button

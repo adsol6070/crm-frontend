@@ -13,6 +13,7 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import styles from './AddLeadChecklist.module.css';
 import { useAuthContext } from '@/common';
+import Swal from 'sweetalert2';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -92,8 +93,20 @@ const AddLeadChecklist: React.FC = () => {
   });
 
   const handleDelete = async () => {
-    await deleteDocuments(leadId);
-    fetchDocuments();
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'You will not be able to recover these documents!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete them!'
+    });
+  
+    if (result.isConfirmed) {
+      await deleteDocuments(leadId);
+      fetchDocuments();
+    }
   };
 
   const handleDownload = async () => {

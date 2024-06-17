@@ -143,12 +143,12 @@ const Chat: React.FC = () => {
 						description: user.online
 							? 'Online'
 							: `Last seen at ${new Date(user.last_active).toLocaleTimeString(
-									[],
-									{
-										hour: '2-digit',
-										minute: '2-digit',
-									}
-								)}`,
+								[],
+								{
+									hour: '2-digit',
+									minute: '2-digit',
+								}
+							)}`,
 						time: new Date(user.last_active).toLocaleTimeString([], {
 							hour: '2-digit',
 							minute: '2-digit',
@@ -240,10 +240,10 @@ const Chat: React.FC = () => {
 				prevGroups.map((group) =>
 					group.id === groupId
 						? {
-								...group,
-								users: [...group.users, userId],
-								members: [...group.members, user],
-							}
+							...group,
+							users: [...group.users, userId],
+							members: [...group.members, user],
+						}
 						: group
 				)
 			)
@@ -257,12 +257,12 @@ const Chat: React.FC = () => {
 				prevGroups.map((group) =>
 					group.id === groupId
 						? {
-								...group,
-								users: group.users.filter((id: string) => id !== userId),
-								members: group.members.filter(
-									(user: any) => user.id !== userId
-								),
-							}
+							...group,
+							users: group.users.filter((id: string) => id !== userId),
+							members: group.members.filter(
+								(user: any) => user.id !== userId
+							),
+						}
 						: group
 				)
 			)
@@ -629,7 +629,7 @@ const Chat: React.FC = () => {
 		if (
 			isGroupChat &&
 			currentUser.id ===
-				groups.find((group) => group.id === currentRoomId)?.creator_id
+			groups.find((group) => group.id === currentRoomId)?.creator_id
 		) {
 			return (
 				<Button
@@ -701,11 +701,11 @@ const Chat: React.FC = () => {
 										{member.online
 											? 'Online'
 											: `Last seen at ${new Date(
-													member.last_active
-												).toLocaleTimeString([], {
-													hour: '2-digit',
-													minute: '2-digit',
-												})}`}
+												member.last_active
+											).toLocaleTimeString([], {
+												hour: '2-digit',
+												minute: '2-digit',
+											})}`}
 									</p>
 								</div>
 							</ListGroupItem>
@@ -738,7 +738,7 @@ const Chat: React.FC = () => {
 			<PageBreadcrumb title="Chat" subName="Chat" />
 			<div className="d-lg-flex">
 				<Card className="chat-leftsidebar">
-					<CardBody>
+					<CardBody className='profileStyles'>
 						<div className="text-center bg-light rounded px-4 py-3">
 							<div className="text-end">
 								<Dropdown
@@ -778,7 +778,7 @@ const Chat: React.FC = () => {
 							)}
 						</div>
 					</CardBody>
-					<div className="p-3">
+					<div className="px-3">
 						<div className="search-box position-relative">
 							<Input
 								type="text"
@@ -808,7 +808,7 @@ const Chat: React.FC = () => {
 										toggleTab('1')
 									}}>
 									<i className="bx bx-chat font-size-20 d-sm-none"></i>
-									<span className="d-none d-sm-block">Chat</span>
+									<span className="d-sm-block">Chat</span>
 								</NavLink>
 							</NavItem>
 							<NavItem className="nav-item-hover">
@@ -820,7 +820,7 @@ const Chat: React.FC = () => {
 										toggleTab('2')
 									}}>
 									<i className="bx bx-group font-size-20 d-sm-none"></i>
-									<span className="d-none d-sm-block">Groups</span>
+									<span className="d-sm-block">Groups</span>
 								</NavLink>
 							</NavItem>
 						</Nav>
@@ -830,7 +830,7 @@ const Chat: React.FC = () => {
 									<div>
 										<div className="px-3">
 											<h5 className="font-size-14">Recent</h5>
-											<ul className="list-unstyled chat-list p-3">
+											<ul className="list-unstyled chat-list px-1">
 												{filteredChats.map((chat) => (
 													<li
 														key={chat.id + chat.status}
@@ -887,10 +887,10 @@ const Chat: React.FC = () => {
 
 							<TabPane tabId="2">
 								<SimpleBar className="chat-message-list">
-									<div className="pt-3">
+									<div>
 										<div className="px-3">
-											<h5 className="font-size-14 mb-3">Groups</h5>
-											<ul className="list-unstyled chat-list p-3 pt-0">
+											<h5 className="font-size-14">Groups</h5>
+											<ul className="list-unstyled chat-list px-1">
 												{groups &&
 													filteredGroups.map((group) => (
 														<li
@@ -948,9 +948,8 @@ const Chat: React.FC = () => {
 										<Col xl={4} className="col-7">
 											<div className="d-flex align-items-center">
 												<div
-													className={`flex-shrink-0 me-3 d-sm-block d-none ${
-														isGroupChat ? 'cursor-pointer' : ''
-													}`}
+													className={`flex-shrink-0 me-3 d-sm-block d-none ${isGroupChat ? 'cursor-pointer' : ''
+														}`}
 													style={{
 														height: '2.6rem',
 														width: '2.6rem',
@@ -968,9 +967,8 @@ const Chat: React.FC = () => {
 													/>
 												</div>
 												<div
-													className={`flex-grow-1 ${
-														isGroupChat ? 'cursor-pointer' : ''
-													}`}
+													className={`flex-grow-1 ${isGroupChat ? 'cursor-pointer' : ''
+														}`}
 													onClick={
 														isGroupChat ? openGroupInfoModal : undefined
 													}>
@@ -1339,11 +1337,11 @@ const Chat: React.FC = () => {
 											{member.online
 												? 'Online'
 												: `Last seen at ${new Date(
-														member.last_active
-													).toLocaleTimeString([], {
-														hour: '2-digit',
-														minute: '2-digit',
-													})}`}
+													member.last_active
+												).toLocaleTimeString([], {
+													hour: '2-digit',
+													minute: '2-digit',
+												})}`}
 										</p>
 									</div>
 								</div>

@@ -4,10 +4,11 @@ import { useParams } from 'react-router-dom';
 import { Table, Button, Card, Container, Row, Col, Spinner } from 'react-bootstrap';
 import ReactToPrint from 'react-to-print';
 import { format } from 'date-fns';
+import { Badge } from 'react-bootstrap';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { PageBreadcrumb } from '@/components';
-import styles from './ReadLead.module.css'; // Import CSS module
+import styles from './ReadLead.module.css';
 
 interface LeadData {
     [key: string]: any;
@@ -40,6 +41,19 @@ const ReadLead: React.FC = () => {
             } catch (error) {
                 return "Invalid date";
             }
+        }
+    };
+
+    const getStatusBadgeClass = (status: string) => {
+        switch (status) {
+            case 'pending':
+                return 'warning';
+            case 'inprogress':
+                return 'primary';
+            case 'completed':
+                return 'success';
+            default:
+                return 'secondary';
         }
     };
 
@@ -88,12 +102,15 @@ const ReadLead: React.FC = () => {
                         <Row className="mb-4">
                             <Col>
                                 <h5 className={`text-muted ${styles.textMuted}`}>Lead ID: {data.id}</h5>
+                                <Badge className={styles.styleStatus} bg={getStatusBadgeClass(data.leadStatus)}>
+                                    {data.leadStatus ? data.leadStatus.charAt(0).toUpperCase() + data.leadStatus.slice(1) : 'No Status'}
+                                </Badge>
                             </Col>
                         </Row>
                         <Row className="mb-4">
                             <Col md={6}>
                                 <Card.Title as="h4" className={styles.detailTitle}>Personal Information</Card.Title>
-                                <Table bordered hover className={styles.table}>
+                                <Table bordered hover striped className={styles.table}>
                                     <tbody>
                                         {Object.keys(data).filter(key =>
                                             ["firstname", "lastname", "email", "phone", "gender", "dob", "nationality", "maritalStatus", "currentAddress", "permanentAddress"].includes(key)).map((key) => (
@@ -107,7 +124,7 @@ const ReadLead: React.FC = () => {
                             </Col>
                             <Col md={6}>
                                 <Card.Title as="h4" className={styles.detailTitle}>Immigration Information</Card.Title>
-                                <Table bordered hover className={styles.table}>
+                                <Table bordered hover striped className={styles.table}>
                                     <tbody>
                                         {Object.keys(data).filter(key =>
                                             ["visaCategory", "countryOfInterest", "passportExpiry", "visaExpiryDate", "courseOfInterest", "desiredFieldOfStudy", "preferredInstitutions", "intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails"].includes(key)).map((key) => (
@@ -123,7 +140,7 @@ const ReadLead: React.FC = () => {
                         <Row className="mb-4">
                             <Col>
                                 <Card.Title as="h4" className={styles.detailTitle}>Academic Information</Card.Title>
-                                <Table bordered hover className={styles.table}>
+                                <Table bordered hover striped className={styles.table}>
                                     <tbody>
                                         {Object.keys(data).filter(key =>
                                             ["highestQualification", "scholarships", "fieldOfStudy", "institutionName", "graduationYear", "grade", "testType", "testScore"].includes(key)).map((key) => (

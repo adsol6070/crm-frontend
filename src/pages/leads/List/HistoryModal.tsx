@@ -35,11 +35,13 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ show, onHide, historyData }
                                         <h6 className={styles.assignedAgentsTitle}>Assigned Agents:</h6>
                                         <ul className={styles.assignedAgentsList}>
                                             {item.details.assignedAgents.map(agent => (
-                                                <li key={agent.id} className={styles.agentItem}>
-                                                    <span className={styles.agentName}>
-                                                        {agent.firstname} {agent.lastname}
-                                                    </span>
-                                                </li>
+                                                agent ? (
+                                                    <li key={agent.id} className={styles.agentItem}>
+                                                        <span className={styles.agentName}>
+                                                            {agent.firstname} {agent.lastname}
+                                                        </span>
+                                                    </li>
+                                                ) : null
                                             ))}
                                         </ul>
                                     </div>

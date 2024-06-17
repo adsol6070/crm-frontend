@@ -10,13 +10,16 @@ import AssignModal from './assignModal';
 import styles from './LeadList.module.css';
 import { useUserList } from '@/pages/user/List/useUserList';
 import HistoryModal from './HistoryModal';
+import { useAuthContext } from '@/common';
 
 const LeadList = () => {
+    const { user } = useAuthContext();
     const {
         columns,
         sizePerPageList,
         leadRecords,
         refreshLeads,
+        deleteAllLeads,
         downloadCSV,
         visaCategories,
         showAssignModal,
@@ -94,6 +97,7 @@ const LeadList = () => {
                             </Row>
                         </Card.Header>
                         <Card.Body>
+                            <div className={styles.tabStyling}>
                             <Nav variant="pills" activeKey={selectedCategory} onSelect={handleSelectCategory} className={styles.customTabs}>
                                 <Nav.Item className={styles.navItem}>
                                     <Nav.Link eventKey="All" className={styles.navLink}>
@@ -108,6 +112,10 @@ const LeadList = () => {
                                     </Nav.Item>
                                 ))}
                             </Nav>
+                            {user.role === 'superAdmin' &&
+                            <button className="btn btn-danger" onClick={deleteAllLeads}>Delete All Leads</button>
+}
+                            </div>
                             <Table<Lead>
                                 columns={columns}
                                 data={filteredLeads}
@@ -115,7 +123,6 @@ const LeadList = () => {
                                 sizePerPageList={sizePerPageList}
                                 isSortable={true}
                                 pagination={true}
-                                isSelectable={true}
                                 isSearchable={true}
                             />
                         </Card.Body>
