@@ -16,7 +16,6 @@ interface HistoryItem {
         createdBy?: { firstname: string; lastname: string };
         updatedBy?: { firstname: string; lastname: string };
         statusUpdatedBy?: { firstname: string; lastname: string };
-        assignedAgents?: { id: string; firstname: string; lastname: string }[];
     };
 }
 
