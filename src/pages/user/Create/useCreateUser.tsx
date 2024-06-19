@@ -47,7 +47,7 @@ export default function useCreateUser() {
 			const data = await userApi.create(formData)
 			toast.success(data.message)
 		} catch (error: any) {
-			if(error == "Email already taken"){
+			if (error == 'Email already taken') {
 				toast.error(error)
 			}
 		} finally {
