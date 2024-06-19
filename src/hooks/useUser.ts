@@ -9,6 +9,8 @@ interface User {
 	lastname: string
 	email: string
 	phone: string
+	city: string
+	address: string
 	profileImage: string | null
 	isEmailVerified: boolean
 	role: string

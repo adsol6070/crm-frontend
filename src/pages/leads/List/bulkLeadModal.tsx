@@ -28,6 +28,7 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({ show, handleClose, refreshLe
         }
         const formData = new FormData();
         formData.append('tenantID', user.tenantID)
+        formData.append('userID', user.sub)
         formData.append('uploadType', "Lead Files");
         formData.append('leadFile', file, file.name);
         await uploadLeads(formData);

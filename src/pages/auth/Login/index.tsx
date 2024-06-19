@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Button, Col, Row } from 'react-bootstrap'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -43,14 +42,9 @@ const schema = yup.object().shape({
 
 const Login = () => {
 	const { loading, login, redirectUrl, isAuthenticated } = useLogin()
-	const [rememberMe, setRememberMe] = useState(false)
-
-	const handleCheckboxChange = () => {
-		setRememberMe((prev) => !prev)
-	}
 
 	const onSubmit = (data: UserData) => {
-		const completeData = { ...data, rememberMe }
+		const completeData = { ...data }
 		login(completeData)
 	}
 
@@ -89,14 +83,6 @@ const Login = () => {
 							<small>Forgot your password?</small>
 						</Link>
 					</FormInput>
-					<FormInput
-						label="Remember me"
-						type="checkbox"
-						name="rememberMe"
-						checked={rememberMe}
-						onChange={handleCheckboxChange}
-						containerClass="mb-3"
-					/>
 					<div className="mb-0 text-start">
 						<Button
 							variant="soft-primary"

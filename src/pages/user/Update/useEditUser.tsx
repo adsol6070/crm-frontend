@@ -11,6 +11,8 @@ interface UserData {
   password?: string;
   email: string;
   phone: string;
+  city: string;
+  address: string;
   isEmailVerified: boolean;
   role: string;
   profileImage?: string;
@@ -55,9 +57,6 @@ const useEditUser = (userId?: string) => {
     setLoading(true);
     try {
       console.log(updatedData)
-      // for (let [key, value] of updatedData.entries()) {
-      //   console.log(`${key}: ${value}`);
-      // }
       const data = await userApi.update(updatedData, userId);
       toast.success(data.message);
       setUserData((prev) => (prev ? { ...prev, ...data.user } : null));

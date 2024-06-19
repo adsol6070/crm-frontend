@@ -137,12 +137,12 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				url: '/user/roles',
 				parentKey: 'user',
 			},
-			{
-				key: 'user-Settings',
-				label: 'Settings',
-				url: '/admin/settings',
-				parentKey: 'user',
-			},
+			// {
+			// 	key: 'user-Settings',
+			// 	label: 'Settings',
+			// 	url: '/admin/settings',
+			// 	parentKey: 'user',
+			// },
 		],
 	},
 ]

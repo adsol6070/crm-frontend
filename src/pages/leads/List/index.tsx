@@ -98,22 +98,28 @@ const LeadList = () => {
                         </Card.Header>
                         <Card.Body>
                             <div className={styles.tabStyling}>
-                            <Nav variant="pills" activeKey={selectedCategory} onSelect={handleSelectCategory} className={styles.customTabs}>
-                                <Nav.Item className={styles.navItem}>
-                                    <Nav.Link eventKey="All" className={styles.navLink}>
-                                        <i className={`bi bi-list ${styles.navLinkIcon}`}></i> All
-                                    </Nav.Link>
-                                </Nav.Item>
-                                {visaCategories.map(category => (
-                                    <Nav.Item key={category} className={styles.navItem}>
-                                        <Nav.Link eventKey={category} className={styles.navLink}>
-                                            <i className={`bi bi-${category.toLowerCase()} ${styles.navLinkIcon}`}></i> {capitalizeFirstLetter(category)}
+                                <Nav variant="pills" activeKey={selectedCategory} onSelect={handleSelectCategory} className={styles.customTabs}>
+                                    <Nav.Item className={styles.navItem}>
+                                        <Nav.Link eventKey="All" className={styles.navLink}>
+                                            <i className={`bi bi-list ${styles.navLinkIcon}`}></i> All
                                         </Nav.Link>
                                     </Nav.Item>
-                                ))}
-                            </Nav>
-                            {user.role === 'superAdmin' &&
-                            <button className="btn btn-danger" onClick={deleteAllLeads}>Delete All Leads</button>
+                                    {visaCategories.map(category => (
+                                        <Nav.Item key={category} className={styles.navItem}>
+                                            <Nav.Link eventKey={category} className={styles.navLink}>
+                                                <i className={`bi bi-${category.toLowerCase()} ${styles.navLinkIcon}`}></i> {capitalizeFirstLetter(category)}
+                                            </Nav.Link>
+                                        </Nav.Item>
+                                    ))}
+                                </Nav>
+                                {user.role === 'superAdmin' &&
+                                <button
+                                    className="btn btn-danger"
+                                    onClick={deleteAllLeads}
+                                    disabled={leadRecords.length === 0}
+                                >
+                                    Delete All Leads
+                                </button>
 }
                             </div>
                             <Table<Lead>

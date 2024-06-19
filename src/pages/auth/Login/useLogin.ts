@@ -21,14 +21,13 @@ export default function useLogin() {
 			: '/'
 	}, [location.state])
 
-	const login = async ({ email, password, rememberMe }: LoginData) => {
+	const login = async ({ email, password }: LoginData) => {
 		setLoading(true)
 		try {
-			const res = await authApi.login({ email, password, rememberMe })
+			const res = await authApi.login({ email, password })
 			if (res.tokens) {
 				saveSession(res.tokens)
-
-				// Show success alert
+				
 				Swal.fire({
 					icon: 'success',
 					title: 'Login Successful',

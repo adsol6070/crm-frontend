@@ -44,7 +44,7 @@ const ProfilePages = () => {
 										{capitalizeFirstLetter(loggedInUser?.role)}
 									</p>
 									<p className="text-muted mb-0">
-										<small>California, United States</small>
+										<small>{`${loggedInUser?.address}, ${loggedInUser?.city}`}</small>
 									</p>
 								</div>
 							</Col>
@@ -110,6 +110,18 @@ const ProfilePages = () => {
 															<th scope="row">Phone</th>
 															<td className="ng-binding">
 																{loggedInUser?.phone}
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">City</th>
+															<td className="ng-binding">
+																{loggedInUser?.city}
+															</td>
+														</tr>
+														<tr>
+															<th scope="row">Address</th>
+															<td className="ng-binding">
+																{loggedInUser?.address}
 															</td>
 														</tr>
 													</tbody>

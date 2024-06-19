@@ -29,7 +29,6 @@ const UserList = () => {
 								sizePerPageList={sizePerPageList}
 								isSortable={true}
 								pagination={true}
-								isSelectable={true}
 								isSearchable={true}
 							/>
 						</Card.Body>

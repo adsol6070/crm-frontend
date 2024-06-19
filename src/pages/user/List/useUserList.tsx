@@ -72,6 +72,22 @@ export const useUserList = (): UserListHookResult => {
 			defaultCanSort: false,
 		},
 		{
+			Header: 'City',
+			accessor: 'city',
+			defaultCanSort: false,
+			Cell: ({ cell }: any) => (
+				<span>{cell.value || 'N/A'}</span>
+			),
+		},
+		{
+			Header: 'Address',
+			accessor: 'address',
+			defaultCanSort: false,
+			Cell: ({ cell }: any) => (
+				<span>{cell.value || 'N/A'}</span>
+			),
+		},
+		{
 			Header: 'Role',
 			accessor: 'role',
 			defaultCanSort: false,

@@ -1235,7 +1235,7 @@ const Chat: React.FC = () => {
 														<li
 															key={index}
 															className={
-																msg.fromUserId === currentRoomId ? '' : 'right'
+																msg.fromUserId === currentUser?.id || msg.isSentByCurrentUser ? 'right' : ''
 															}>
 															<div className="conversation-list">
 																<div className="d-flex">
@@ -1520,7 +1520,7 @@ const Chat: React.FC = () => {
 						</FormGroup>
 						<FormGroup>
 							<Label>Select Members</Label>
-							<ListGroup className="mt-3 chat-list">
+							<ListGroup className="mt-3 chat-list modalStyle">
 								{chats
 									.filter((chat) => chat.id !== currentUser?.id) // Exclude the current user
 									.map((chat) => (
@@ -1577,7 +1577,7 @@ const Chat: React.FC = () => {
 					</div>
 				</ModalHeader>
 				<ModalBody>
-					<ListGroup>
+					<ListGroup className="modalStyle">
 						{members.map((member) => (
 							<ListGroupItem key={member.id}>
 								<div className="d-flex align-items-center">
@@ -1619,7 +1619,7 @@ const Chat: React.FC = () => {
 					Add/Remove User to Group
 				</ModalHeader>
 				<ModalBody>
-					<ListGroup>
+					<ListGroup className="modalStyle">
 						{filteredChats.map((chat) => {
 							const isMember = members.some((member) => member.id === chat.id)
 							if (chat.id === currentUser?.id) {
@@ -1741,7 +1741,7 @@ const Spinners: React.FC<{ setLoading: (loading: boolean) => void }> = ({
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setLoading(false)
-		}, 1000) // Simulate loading for 1 second
+		}, 1000)
 
 		return () => clearTimeout(timer)
 	}, [setLoading])

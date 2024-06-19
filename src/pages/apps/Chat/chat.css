@@ -107,6 +107,11 @@
 	margin: 0;
 }
 
+.modalStyle{
+	height: 20vh;
+	overflow-y: scroll;
+}
+
 .chat-list .active {
 	background: #383838; /* Assuming --primary is #1a2942 */
 	border-radius: 0.75rem !important;

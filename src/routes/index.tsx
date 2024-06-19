@@ -9,6 +9,7 @@ import PrivateRoute from './PrivateRoute'
 // auth
 const Login = React.lazy(() => import('../pages/auth/Login'))
 const Register = React.lazy(() => import('../pages/auth/Register'))
+const OrganizationRegister = React.lazy(() => import('../pages/auth/Organization'))
 const Logout = React.lazy(() => import('../pages/auth/Logout'))
 const ForgotPassword = React.lazy(() => import('../pages/auth/ForgotPassword'))
 const ResetPassword = React.lazy(() => import('../pages/auth/ResetPassword'))
@@ -290,6 +291,12 @@ const authRoutes: RoutesProps[] = [
 		path: '/auth/register',
 		name: 'Register',
 		element: <Register />,
+		route: Route,
+	},
+	{
+		path: '/auth/Organization',
+		name: 'Organization',
+		element: <OrganizationRegister />,
 		route: Route,
 	},
 	{

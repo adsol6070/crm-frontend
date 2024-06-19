@@ -171,6 +171,22 @@ const EditUser: React.FC = () => {
                       register={register}
                     />
                     <FormInput
+                      label="City"
+                      name="city"
+                      type="text"
+                      register={register}
+                      errors={errors}
+                      containerClass="mb-3"
+                    />
+                    <FormInput
+                      label="Address"
+                      name="address"
+                      type="text"
+                      register={register}
+                      errors={errors}
+                      containerClass="mb-3"
+                    />
+                    <FormInput
                       label="Set New Profile Image"
                       type="file"
                       name="profileImage"

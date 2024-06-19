@@ -101,7 +101,7 @@ const CreateUser = () => {
 										/>
 										<FormInput
 											label="Email address"
-											type="text"
+											type="email"
 											name="email"
 											placeholder="Enter your email"
 											containerClass="mb-3"
@@ -121,7 +121,22 @@ const CreateUser = () => {
 											placeholder="Enter your phone"
 											containerClass="mb-3"
 										/>
-
+										<FormInput
+											label="City"
+											type="text"
+											name="city"
+											placeholder="Enter your city"
+											containerClass="mb-3"
+											required
+										/>
+										<FormInput
+											label="Address"
+											type="text"
+											name="address"
+											placeholder="Enter your address"
+											containerClass="mb-3"
+											required
+										/>
 										<FormInput
 											label="Profile Image"
 											type="file"
@@ -129,22 +144,8 @@ const CreateUser = () => {
 											onChange={handleImageChange}
 											containerClass="mb-3"
 										/>
-										{/* <Form.Group className="mb-3">
-											<Form.Label>Role</Form.Label>
-											<Select
-												className="select2 z-3"
-												placeholder="Select Role"
-												options={roleOptions}
-												value={roleOptions.find(
-													(option: any) => option.value === selectedRole
-												)}
-												onChange={(option: any) =>
-													setSelectedRole(option ? option.value : null)
-												}
-											/>
-										</Form.Group> */}
 										<Form.Group className="mb-3">
-											<Form.Label>Categories</Form.Label>
+											<Form.Label>Role</Form.Label>
 											<Select
 												className="select2 z-3"
 												options={roleOptions as any[]}

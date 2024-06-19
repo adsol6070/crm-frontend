@@ -2,6 +2,9 @@ import { HttpClient } from '../helpers'
 
 function AuthService() {
 	return {
+		createOrganization: (values: any) => {
+			return HttpClient.post('/tenant/create', values)
+		},
 		register: (values: any) => {
 			return HttpClient.post('/auth/register', values, {
 				headers: {
