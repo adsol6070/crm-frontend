@@ -52,6 +52,10 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				label: 'Add Lead',
 				url: '/leads/add-lead',
 				parentKey: 'leads',
+				permissions: {
+					Create: true,
+				},
+				permissionsKey: 'Leads',
 			},
 			{
 				key: 'leads-visaCategory',
@@ -64,6 +68,10 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				label: 'Lead List',
 				url: '/leads/list-leads',
 				parentKey: 'leads',
+				permissions: {
+					View: true,
+				},
+				permissionsKey: 'Leads',
 			},
 		],
 	},

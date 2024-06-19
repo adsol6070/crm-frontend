@@ -154,12 +154,12 @@ const Chat: React.FC = () => {
 						description: user.online
 							? 'Online'
 							: `Last seen at ${new Date(user.last_active).toLocaleTimeString(
-								[],
-								{
-									hour: '2-digit',
-									minute: '2-digit',
-								}
-							)}`,
+									[],
+									{
+										hour: '2-digit',
+										minute: '2-digit',
+									}
+								)}`,
 						time: new Date(user.last_active).toLocaleTimeString([], {
 							hour: '2-digit',
 							minute: '2-digit',
@@ -229,6 +229,9 @@ const Chat: React.FC = () => {
 			if (newMessage.fromUserId !== currentRoomId) {
 				socket.emit('getUnreadMessages')
 			}
+			if (newMessage.fromUserId === currentRoomId) {
+				socket?.emit('messageRead', { fromUserId: newMessage.fromUserId })
+			}
 			setMessages((prevMessages) => [...prevMessages, newMessage])
 			scrollToBottom()
 		})
@@ -244,6 +247,7 @@ const Chat: React.FC = () => {
 		socket?.on('receiveGroupMessage', (newMessage: any) => {
 			const isSentByCurrentUser = newMessage.from_user_id === currentUser?.id
 			if (currentRoomId === newMessage.group_id) {
+				socket?.emit('messageRead', { groupId: newMessage.group_id })
 				setMessages((prevMessages) => [
 					...prevMessages,
 					{ ...newMessage, isSentByCurrentUser },
@@ -857,11 +861,11 @@ const Chat: React.FC = () => {
 										{member.online
 											? 'Online'
 											: `Last seen at ${new Date(
-												member.last_active
-											).toLocaleTimeString([], {
-												hour: '2-digit',
-												minute: '2-digit',
-											})}`}
+													member.last_active
+												).toLocaleTimeString([], {
+													hour: '2-digit',
+													minute: '2-digit',
+												})}`}
 									</p>
 								</div>
 							</ListGroupItem>
@@ -894,7 +898,7 @@ const Chat: React.FC = () => {
 			<PageBreadcrumb title="Chat" subName="Chat" />
 			<div className="d-lg-flex">
 				<Card className="chat-leftsidebar">
-					<CardBody className='profileStyles'>
+					<CardBody className="profileStyles">
 						<div className="text-center bg-light rounded px-4 py-3">
 							<div className="text-end">
 								<Dropdown
@@ -1119,8 +1123,9 @@ const Chat: React.FC = () => {
 										<Col xl={4} className="col-7">
 											<div className="d-flex align-items-center">
 												<div
-													className={`flex-shrink-0 me-3 d-sm-block d-none ${isGroupChat ? 'cursor-pointer' : ''
-														}`}
+													className={`flex-shrink-0 me-3 d-sm-block d-none ${
+														isGroupChat ? 'cursor-pointer' : ''
+													}`}
 													style={{
 														height: '2.6rem',
 														width: '2.6rem',
@@ -1138,8 +1143,9 @@ const Chat: React.FC = () => {
 													/>
 												</div>
 												<div
-													className={`flex-grow-1 ${isGroupChat ? 'cursor-pointer' : ''
-														}`}
+													className={`flex-grow-1 ${
+														isGroupChat ? 'cursor-pointer' : ''
+													}`}
 													onClick={
 														isGroupChat ? openGroupInfoModal : undefined
 													}>
@@ -1598,11 +1604,11 @@ const Chat: React.FC = () => {
 											{member.online
 												? 'Online'
 												: `Last seen at ${new Date(
-													member.last_active
-												).toLocaleTimeString([], {
-													hour: '2-digit',
-													minute: '2-digit',
-												})}`}
+														member.last_active
+													).toLocaleTimeString([], {
+														hour: '2-digit',
+														minute: '2-digit',
+													})}`}
 										</p>
 									</div>
 								</div>
@@ -1741,7 +1747,7 @@ const Spinners: React.FC<{ setLoading: (loading: boolean) => void }> = ({
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setLoading(false)
-		}, 1000) // Simulate loading for 1 second
+		}, 1000)
 
 		return () => clearTimeout(timer)
 	}, [setLoading])

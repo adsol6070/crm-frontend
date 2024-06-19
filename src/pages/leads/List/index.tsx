@@ -1,151 +1,177 @@
-import { useState } from 'react';
-import { PageBreadcrumb, Table } from '@/components';
-import { Row, Col, Card, Button, Nav } from 'react-bootstrap';
-import { useLeadList } from './useLeadList';
-import { Lead } from '@/types';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import BulkLeadModal from './bulkLeadModal';
-import AssignModal from './assignModal';
-import styles from './LeadList.module.css';
-import { useUserList } from '@/pages/user/List/useUserList';
-import HistoryModal from './HistoryModal';
-import { useAuthContext } from '@/common';
+import { useState } from 'react'
+import { PageBreadcrumb, Table } from '@/components'
+import { Row, Col, Card, Button, Nav } from 'react-bootstrap'
+import { useLeadList } from './useLeadList'
+import { Lead } from '@/types'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import BulkLeadModal from './bulkLeadModal'
+import AssignModal from './assignModal'
+import styles from './LeadList.module.css'
+import { useUserList } from '@/pages/user/List/useUserList'
+import HistoryModal from './HistoryModal'
+import { usePermissions } from '@/common'
+import { hasPermission } from '@/utils'
 
 const LeadList = () => {
-    const { user } = useAuthContext();
-    const {
-        columns,
-        sizePerPageList,
-        leadRecords,
-        refreshLeads,
-        deleteAllLeads,
-        downloadCSV,
-        visaCategories,
-        showAssignModal,
-        selectedLeadId,
-        handleAssign,
-        showHistoryModal,
-        setShowHistoryModal,
-        historyData,
-        handleCloseAssignModal,
-        selectedAssignees,
-        setSelectedAssignees
-    } = useLeadList();
+	const { permissions } = usePermissions()
+	const {
+		columns,
+		sizePerPageList,
+		leadRecords,
+		refreshLeads,
+		deleteAllLeads,
+		downloadCSV,
+		visaCategories,
+		showAssignModal,
+		selectedLeadId,
+		handleAssign,
+		showHistoryModal,
+		setShowHistoryModal,
+		historyData,
+		handleCloseAssignModal,
+		selectedAssignees,
+		setSelectedAssignees,
+	} = useLeadList()
 
-    const [showModal, setShowModal] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState('All');
-    const { userRecords } = useUserList();
+	const [showModal, setShowModal] = useState(false)
+	const [selectedCategory, setSelectedCategory] = useState('All')
+	const { userRecords } = useUserList()
 
-    const handleShow = () => setShowModal(true);
-    const handleClose = () => setShowModal(false);
+	const handleShow = () => setShowModal(true)
+	const handleClose = () => setShowModal(false)
 
-    const downloadCSVTemplate = () => {
-        const link = document.createElement('a');
-        link.href = '/format-file.csv';
-        link.setAttribute('download', 'Bulk-Lead-Format.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+	const downloadCSVTemplate = () => {
+		const link = document.createElement('a')
+		link.href = '/format-file.csv'
+		link.setAttribute('download', 'Bulk-Lead-Format.csv')
+		document.body.appendChild(link)
+		link.click()
+		document.body.removeChild(link)
+	}
 
-    const handleSelectCategory = (category: any) => {
-        setSelectedCategory(category);
-    };
+	const handleSelectCategory = (category: any) => {
+		setSelectedCategory(category)
+	}
 
-    const capitalizeFirstLetter = (str: string) => {
-        if (!str) return str;
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    };
+	const capitalizeFirstLetter = (str: string) => {
+		if (!str) return str
+		return str.charAt(0).toUpperCase() + str.slice(1)
+	}
 
-    const filteredLeads = selectedCategory === 'All'
-        ? leadRecords
-        : leadRecords.filter(lead => lead.visaCategory === selectedCategory);
+	const filteredLeads =
+		selectedCategory === 'All'
+			? leadRecords
+			: leadRecords.filter((lead) => lead.visaCategory === selectedCategory)
 
-    return (
-        <>
-            <ToastContainer />
-            <PageBreadcrumb title="Leads List" subName="Leads" />
-            <Row>
-                <Col>
-                    <Card>
-                        <Card.Header>
-                            <Row className="align-items-center">
-                                <Col xs={12} md={6}>
-                                    <h4 className="header-title">Lead Management</h4>
-                                    <p className="text-muted mb-0">
-                                        View and manage Lead accounts in the system.
-                                    </p>
-                                </Col>
-                                <Col xs={12} md={6} className="text-md-end text-center mt-3 mt-md-0">
-                                    <Button className='m-2'
-                                        variant="secondary"
-                                        onClick={downloadCSVTemplate}>
-                                        Download CSV Format
-                                    </Button>
-                                    <Button className='m-2'
-                                        variant="success"
-                                        onClick={handleShow}>
-                                        Import Bulk Leads
-                                    </Button>
-                                    <Button className='m-2'
-                                        variant="primary"
-                                        onClick={() => downloadCSV(selectedCategory)}>
-                                        Download CSV
-                                    </Button>
-                                </Col>
-                            </Row>
-                        </Card.Header>
-                        <Card.Body>
-                            <div className={styles.tabStyling}>
-                            <Nav variant="pills" activeKey={selectedCategory} onSelect={handleSelectCategory} className={styles.customTabs}>
-                                <Nav.Item className={styles.navItem}>
-                                    <Nav.Link eventKey="All" className={styles.navLink}>
-                                        <i className={`bi bi-list ${styles.navLinkIcon}`}></i> All
-                                    </Nav.Link>
-                                </Nav.Item>
-                                {visaCategories.map(category => (
-                                    <Nav.Item key={category} className={styles.navItem}>
-                                        <Nav.Link eventKey={category} className={styles.navLink}>
-                                            <i className={`bi bi-${category.toLowerCase()} ${styles.navLinkIcon}`}></i> {capitalizeFirstLetter(category)}
-                                        </Nav.Link>
-                                    </Nav.Item>
-                                ))}
-                            </Nav>
-                            {user.role === 'superAdmin' &&
-                            <button className="btn btn-danger" onClick={deleteAllLeads}>Delete All Leads</button>
+	return (
+		<>
+			<ToastContainer />
+			<PageBreadcrumb title="Leads List" subName="Leads" />
+			<Row>
+				<Col>
+					<Card>
+						<Card.Header>
+							<Row className="align-items-center">
+								<Col xs={12} md={6}>
+									<h4 className="header-title">Lead Management</h4>
+									<p className="text-muted mb-0">
+										View and manage Lead accounts in the system.
+									</p>
+								</Col>
+								<Col
+									xs={12}
+									md={6}
+									className="text-md-end text-center mt-3 mt-md-0">
+									{hasPermission(permissions, 'Leads', 'DownloadCSVFormat') && (
+										<Button
+											className="m-2"
+											variant="secondary"
+											onClick={downloadCSVTemplate}>
+											Download CSV Format
+										</Button>
+									)}
+									{hasPermission(permissions, 'Leads', 'ImportBulk') && (
+										<Button
+											className="m-2"
+											variant="success"
+											onClick={handleShow}>
+											Import Bulk Leads
+										</Button>
+									)}
+									{hasPermission(permissions, 'Leads', 'DownloadCSV') && (
+										<Button
+											className="m-2"
+											variant="primary"
+											onClick={() => downloadCSV(selectedCategory)}>
+											Download CSV
+										</Button>
+									)}
+								</Col>
+							</Row>
+						</Card.Header>
+						<Card.Body>
+							<div className={styles.tabStyling}>
+								<Nav
+									variant="pills"
+									activeKey={selectedCategory}
+									onSelect={handleSelectCategory}
+									className={styles.customTabs}>
+									<Nav.Item className={styles.navItem}>
+										<Nav.Link eventKey="All" className={styles.navLink}>
+											<i className={`bi bi-list ${styles.navLinkIcon}`}></i> All
+										</Nav.Link>
+									</Nav.Item>
+									{visaCategories.map((category) => (
+										<Nav.Item key={category} className={styles.navItem}>
+											<Nav.Link eventKey={category} className={styles.navLink}>
+												<i
+													className={`bi bi-${category.toLowerCase()} ${styles.navLinkIcon}`}></i>{' '}
+												{capitalizeFirstLetter(category)}
+											</Nav.Link>
+										</Nav.Item>
+									))}
+								</Nav>
+								{hasPermission(permissions, 'Leads', 'DeleteAll') && (
+									<button className="btn btn-danger" onClick={deleteAllLeads}>
+										Delete All Leads
+									</button>
+								)}
+							</div>
+							<Table<Lead>
+								columns={columns}
+								data={filteredLeads}
+								pageSize={5}
+								sizePerPageList={sizePerPageList}
+								isSortable={true}
+								pagination={true}
+								isSearchable={true}
+							/>
+						</Card.Body>
+					</Card>
+				</Col>
+			</Row>
+			<BulkLeadModal
+				show={showModal}
+				handleClose={handleClose}
+				refreshLeads={refreshLeads}
+			/>
+			<AssignModal
+				show={showAssignModal}
+				handleClose={handleCloseAssignModal}
+				handleAssign={handleAssign}
+				leadId={selectedLeadId}
+				users={userRecords}
+				selectedAssignees={selectedAssignees}
+				setSelectedAssignees={setSelectedAssignees}
+			/>
+			<HistoryModal
+				show={showHistoryModal}
+				onHide={() => setShowHistoryModal(false)}
+				historyData={historyData}
+			/>
+		</>
+	)
 }
-                            </div>
-                            <Table<Lead>
-                                columns={columns}
-                                data={filteredLeads}
-                                pageSize={5}
-                                sizePerPageList={sizePerPageList}
-                                isSortable={true}
-                                pagination={true}
-                                isSearchable={true}
-                            />
-                        </Card.Body>
-                    </Card>
-                </Col>
-            </Row>
-            <BulkLeadModal show={showModal} handleClose={handleClose} refreshLeads={refreshLeads} />
-            <AssignModal
-                show={showAssignModal}
-                handleClose={handleCloseAssignModal}
-                handleAssign={handleAssign}
-                leadId={selectedLeadId}
-                users={userRecords}
-                selectedAssignees={selectedAssignees}
-                setSelectedAssignees={setSelectedAssignees}
-            />
-            <HistoryModal
-                show={showHistoryModal}
-                onHide={() => setShowHistoryModal(false)}
-                historyData={historyData}
-            />
-        </>
-    );
-};
 
-export default LeadList;
+export default LeadList
