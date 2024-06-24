@@ -1,7 +1,6 @@
 import { Image } from 'react-bootstrap'
 import { ThemeSettings, useThemeContext } from '@/common'
 import { Link } from 'react-router-dom'
-
 // assets
 import logo from '@/assets/images/logo.png'
 import logoSm from '@/assets/images/logo-sm.png'
@@ -22,7 +21,8 @@ import {
 } from '@/components'
 import { useThemeCustomizer } from '@/components'
 import { useUser, useViewport } from '@/hooks'
-
+import SocketManager from '@/common/context/SocketManager'
+import { useEffect, useState } from 'react'
 /**
  * for subtraction minutes
  */
@@ -40,10 +40,10 @@ export interface MessageItem {
 
 export interface NotificationItem {
 	id: number
-	title: string
+	message: string
 	icon: string
 	variant: string
-	createdAt: Date
+	created_at: Date
 }
 
 export interface ProfileOption {
@@ -89,53 +89,6 @@ const Messages: MessageItem[] = [
 	},
 ]
 
-/**
- * notification items
- */
-const Notifications: NotificationItem[] = [
-	{
-		id: 1,
-		title: 'Caleb Flakelar commented on Admin',
-		icon: 'mdi mdi-comment-account-outline',
-		variant: 'primary',
-		createdAt: subtractHours(new Date(), 1),
-	},
-	{
-		id: 2,
-		title: 'New user registered.',
-		icon: 'mdi mdi-account-plus',
-		variant: 'warning',
-		createdAt: subtractHours(new Date(), 300),
-	},
-	{
-		id: 3,
-		title: 'Carlos Crouch liked',
-		icon: 'mdi mdi-heart',
-		variant: 'danger',
-		createdAt: subtractHours(new Date(), 4320),
-	},
-	{
-		id: 4,
-		title: 'Caleb Flakelar commented on Admi',
-		icon: 'mdi mdi-comment-account-outline',
-		variant: 'pink',
-		createdAt: subtractHours(new Date(), 5760),
-	},
-	{
-		id: 5,
-		title: 'New user registered.',
-		icon: 'mdi mdi-account-plus',
-		variant: 'purple',
-		createdAt: subtractHours(new Date(), 10960),
-	},
-	{
-		id: 6,
-		title: 'Carlos Crouch liked Admin',
-		icon: 'mdi mdi-heart',
-		variant: 'success',
-		createdAt: subtractHours(new Date(), 10960),
-	},
-]
 const profileMenus: ProfileOption[] = [
 	{
 		label: 'My Account',
@@ -173,9 +126,44 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 	const { sideBarType } = useThemeCustomizer()
 	const { width } = useViewport()
 	const [getProfile] = useUser()
-	/**
-	 * Toggle the leftmenu when having mobile screen
-	 */
+	const socket = SocketManager.getSocket();
+	const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  
+	useEffect(() => {
+  
+	  const requestInitialNotifications = () => {
+		socket?.emit('requestInitialNotifications');
+	  };
+  
+	  const receiveInitialNotifications = (leadNotifications: any) => {
+		setNotifications(leadNotifications);
+	  };
+  
+	  const receiveNewNotification = (newNotification: any) => {
+		setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
+		playNotificationSound();
+	  };
+  
+	  const notificationsCleared = () => {
+		setNotifications([]);
+	  };
+  
+	  socket?.on('initialNotifications', receiveInitialNotifications);
+	  socket?.on('notification', receiveNewNotification);
+	  socket?.on('notificationsCleared', notificationsCleared);
+  
+	  requestInitialNotifications();
+  
+	  return () => {
+		socket?.off('initialNotifications', receiveInitialNotifications);
+		socket?.off('notification', receiveNewNotification);
+		socket?.off('notificationsCleared', notificationsCleared);
+	  };
+	}, []);
+  
+	const handleClear = () => {
+	  socket?.emit('clearAllNotifications');
+	};
 
 	const handleLeftMenuCallBack = () => {
 		if (width < 768) {
@@ -232,6 +220,11 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 		} else {
 			updateSettings({ theme: ThemeSettings.theme.dark })
 		}
+	}
+
+	const playNotificationSound = () => {
+		const audio = new Audio('/sounds/notification.mp3')
+		audio.play()
 	}
 
 	const handleRightSideBar = () => {
@@ -306,7 +299,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							<MessageDropdown messages={Messages} />
 						</li>
 						<li className="dropdown notification-list">
-							<NotificationDropdown notifications={Notifications} />
+							<NotificationDropdown handleClear={handleClear} notifications={notifications} />
 						</li>
 						<li className="d-none d-sm-inline-block">
 							<button className="nav-link" onClick={handleRightSideBar}>

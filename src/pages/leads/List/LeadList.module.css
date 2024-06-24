@@ -80,6 +80,24 @@
     font-size: 1.2em;
 }
 
+.deleteAllLeads{
+	display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5em 1em;
+    background-color: #ff0000;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.deleteAllLeads:hover {
+    background-color: #ff0000;
+    transform: translateY(-2px);
+}
+
 .dropdownStyling{
     display: flex;
     align-items: center;

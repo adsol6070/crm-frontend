@@ -133,7 +133,7 @@ const LeadList = () => {
 									))}
 								</Nav>
 								{hasPermission(permissions, 'Leads', 'DeleteAll') && (
-									<button className="btn btn-danger" onClick={deleteAllLeads}>
+									<button className={`${styles.deleteAllLeads}`} onClick={deleteAllLeads}>
 										Delete All Leads
 									</button>
 								)}

@@ -367,6 +367,14 @@ export const useLeadList = (): LeadListHookResult => {
 	}
 
 	const deleteAllLeads = async () => {
+        if (leadRecords.length === 0) {
+			Swal.fire({
+				icon: 'warning',
+				title: 'No Data',
+				text: 'No Leads found to delete',
+			})
+			return
+		}
 		Swal.fire({
 			title: 'Are you sure?',
 			text: "You won't be able to get your leads back",

@@ -6,10 +6,10 @@ import SimpleBar from 'simplebar-react'
 
 interface NotificationDropDownProps {
 	notifications: Array<NotificationItem>
+	handleClear: () => void
 }
-const NotificationDropdown = ({ notifications }: NotificationDropDownProps) => {
+const NotificationDropdown = ({ notifications, handleClear }: NotificationDropDownProps) => {
 	const [dropDownOpen, setDropDownOpen] = useState<boolean>(false)
-
 	/**
 	 * Get time since
 	 */
@@ -71,7 +71,7 @@ const NotificationDropdown = ({ notifications }: NotificationDropDownProps) => {
 				onClick={toggleDropDown}
 			>
 				<i className="ri-notification-3-line fs-22" />
-				<span className="noti-icon-badge badge text-bg-pink">3</span>
+				<span className="noti-icon-badge badge text-bg-pink">{notifications.length}</span>
 			</Dropdown.Toggle>
 			<Dropdown.Menu
 				align="end"
@@ -86,42 +86,54 @@ const NotificationDropdown = ({ notifications }: NotificationDropDownProps) => {
 							<h6 className="m-0 fs-16 fw-semibold"> Notification</h6>
 						</div>
 						<div className="col-auto">
-							<Link to="#" className="text-dark text-decoration-underline">
+							{/* <Link to="#" className="text-dark text-decoration-underline">
 								<small>Clear All</small>
-							</Link>
+							</Link> */}
+							<button
+								onClick={handleClear}
+								style={{
+									background: 'none',
+									border: 'none',
+									padding: 0,
+									cursor: 'pointer',
+									color: 'dark',
+									textDecoration: 'underline'
+								}}
+								className="text-dark text-decoration-underline"
+							>
+								<small>Clear All</small>
+							</button>
 						</div>
 					</div>
 				</div>
 				<SimpleBar style={{ maxHeight: 300 }}>
-					{/* item*/}
-
-					{(notifications || []).map((notification, idx) => {
-						return (
+					{notifications.length > 0 ? (
+						notifications.map((notification, idx) => (
 							<Link key={idx} to="" className="dropdown-item notify-item">
-								<div
-									className={`notify-icon bg-${notification.variant}-subtle`}
-								>
-									<i
-										className={`${notification.icon} text-${notification.variant}`}
-									/>
+								<div className={`notify-icon bg-${notification.variant}-subtle`}>
+									<i className={`${notification.icon} text-${notification.variant}`} />
 								</div>
-								<p className="notify-details">
-									{notification.title}
+								<p className="notify-details" style={{ textWrap: "wrap" }}>
+									{notification.message}
 									<small className="noti-time">
-										{timeSince(notification.createdAt)}
+										{timeSince(notification.created_at)}
 									</small>
 								</p>
 							</Link>
-						)
-					})}
+						))
+					) : (
+						<div className="text-center p-3">
+							<p className="text-muted mb-0">No notifications available</p>
+						</div>
+					)}
 				</SimpleBar>
 				{/* All*/}
-				<Link
+				{/* <Link
 					to="#"
 					className="dropdown-item text-center text-primary text-decoration-underline fw-bold notify-item border-top border-light py-2"
 				>
 					View All
-				</Link>
+				</Link> */}
 			</Dropdown.Menu>
 		</Dropdown>
 	)

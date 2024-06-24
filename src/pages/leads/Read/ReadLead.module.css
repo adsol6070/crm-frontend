@@ -15,6 +15,7 @@
 .styleStatus{
     padding: 5px;
     font-size: 0.8rem;
+    animation: blink 1.5s infinite;
 }
 
 .table {
@@ -51,4 +52,10 @@
 
 .textMuted {
     color: #6c757d !important;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
 }

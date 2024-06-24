@@ -46,9 +46,7 @@ export default function useRegister() {
         didOpen: () => {
           const copyButton = document.getElementById('copyButton');
           copyButton?.addEventListener('click', () => {
-            const textToCopy = `
-              ${tenantId}\n
-            `;
+            const textToCopy = `${tenantId}`;
             navigator.clipboard.writeText(textToCopy).then(() => {
               Swal.fire({
                 icon: 'success',
