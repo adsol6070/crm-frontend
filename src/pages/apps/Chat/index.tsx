@@ -46,7 +46,6 @@ const Chat: React.FC = () => {
 	const { user } = useAuthContext()
 	const typingTimeout = useRef<NodeJS.Timeout | null>(null)
 	const [singleButton, setSingleButton] = useState<boolean>(false)
-	const [isLoading, setLoading] = useState<boolean>(false)
 	const [singleButton1, setSingleButton1] = useState<boolean>(false)
 	const [singleButton2, setSingleButton2] = useState<boolean>(false)
 	const [isDisable, setDisable] = useState<boolean>(false)
@@ -85,11 +84,13 @@ const Chat: React.FC = () => {
 	const [currentUser] = useUser()
 	const fetchUserImage = useUserImage()
 
-	const [disabledGroups, setDisabledGroups] = useState<Set<string>>(new Set())
+	const [disabledGroups, setDisabledGroups] = useState<Map<string, boolean>>(
+		new Map()
+	)
 
 	const [showDeleteGroupModal, setShowDeleteGroupModal] =
 		useState<boolean>(false)
-	const [groupToDelete, setGroupToDelete] = useState<any>(null) // State to store group to be deleted
+	const [groupToDelete, setGroupToDelete] = useState<any>(null)
 	const [groupImage, setGroupImage] = useState<any | null>(null)
 
 	const [showSelectNewOwnerModal, setShowSelectNewOwnerModal] =
@@ -182,7 +183,13 @@ const Chat: React.FC = () => {
 				})
 			)
 			setGroups(transformedGroups)
-			setDisabledGroups(new Set(disabledGroups))
+			const disabledGroupsMap = new Map(
+				disabledGroups.map((group: any) => [
+					group.groupId,
+					group.removedByAdmin,
+				])
+			)
+			setDisabledGroups(disabledGroupsMap)
 		})
 
 		socket?.on('userStatusUpdated', ({ userId, status, description }) => {
@@ -201,21 +208,26 @@ const Chat: React.FC = () => {
 			setIsLoadingMessages(false)
 		})
 
-		socket?.on('groupChatHistory', async ({ chatHistory, members }) => {
-			const modifiedMembers = await Promise.all(
-				members.map(async (member: any) => {
-					const image = await fetchUserImage(member)
-					return {
-						...member,
-						profileImage: image,
-					}
-				})
-			)
-			setMessages(chatHistory)
-			setMembers(modifiedMembers || [])
-			scrollToBottom()
-			setIsLoadingMessages(false)
-		})
+		socket?.on(
+			'groupChatHistory',
+			async ({ groupId, chatHistory, members }) => {
+				if (groupId === currentRoomId) {
+					const modifiedMembers = await Promise.all(
+						members.map(async (member: any) => {
+							const image = await fetchUserImage(member)
+							return {
+								...member,
+								profileImage: image,
+							}
+						})
+					)
+					setMessages(chatHistory)
+					setMembers(modifiedMembers || [])
+					scrollToBottom()
+					setIsLoadingMessages(false)
+				}
+			}
+		)
 
 		socket?.on(
 			'unreadMessagesCount',
@@ -294,33 +306,61 @@ const Chat: React.FC = () => {
 			if (groupId === currentRoomId) {
 				setMembers((prevMembers) => [...prevMembers, modifiedUser])
 				setDisabledGroups((prev) => {
-					const newSet = new Set(prev)
+					const newSet = new Map(prev)
 					newSet.delete(groupId)
 					return newSet
 				})
 			}
 		})
 
-		socket?.on('userRemovedFromGroup', ({ groupId, userId }) => {
-			setGroups((prevGroups) =>
-				prevGroups.map((group) =>
-					group.id === groupId
-						? {
-								...group,
-								users: group.users.filter((id: string) => id !== userId),
-								members: group.members?.filter(
-									(user: any) => user.id !== userId
-								),
-							}
-						: group
-				)
-			)
-			if (groupId === currentRoomId) {
-				setMembers((prevMembers) =>
-					prevMembers.filter((user: any) => user.id !== userId)
-				)
-			}
+		socket?.on('groupReenabled', async (groupDetails) => {
+			const imageUrl = await fetchGroupImage(groupDetails.id)
+			setGroups((prevGroups) => {
+				const groupIndex = prevGroups.findIndex((g) => g.id === groupDetails.id)
+				if (groupIndex !== -1) {
+					// Update the existing group
+					const updatedGroups = [...prevGroups]
+					updatedGroups[groupIndex] = {
+						...groupDetails,
+						image: imageUrl,
+						members: updatedGroups[groupIndex].members,
+					}
+					return updatedGroups
+				}
+				return [...prevGroups, { ...groupDetails, image: imageUrl }]
+			})
 		})
+
+		socket?.on(
+			'userRemovedFromGroup',
+			({ groupId, userId, removedByAdmin }) => {
+				setGroups((prevGroups) =>
+					prevGroups.map((group) =>
+						group.id === groupId
+							? {
+									...group,
+									users: group.users.filter((id: string) => id !== userId),
+									members: group.members?.filter(
+										(user: any) => user.id !== userId
+									),
+								}
+							: group
+					)
+				)
+				if (groupId === currentRoomId) {
+					setMembers((prevMembers) =>
+						prevMembers.filter((user: any) => user.id !== userId)
+					)
+					if (removedByAdmin && userId === currentUser?.id) {
+						setDisabledGroups((prev) => {
+							const newSet = new Map(prev)
+							newSet.set(groupId, true)
+							return newSet
+						})
+					}
+				}
+			}
+		)
 
 		socket?.on('typing', ({ user, groupId, userId, isGroup }) => {
 			if (
@@ -378,8 +418,12 @@ const Chat: React.FC = () => {
 			}
 		})
 
-		socket?.on('groupDisabled', ({ groupId }) => {
-			setDisabledGroups((prev) => new Set(prev).add(groupId))
+		socket?.on('groupDisabled', ({ groupId, removedByAdmin }) => {
+			setDisabledGroups((prev) => {
+				const newSet = new Map(prev)
+				newSet.set(groupId, removedByAdmin)
+				return newSet
+			})
 		})
 
 		socket?.on('groupDeletedForUser', ({ groupId }) => {
@@ -420,6 +464,16 @@ const Chat: React.FC = () => {
 			)
 		})
 
+		socket?.on('userRemovedNotification', (notificationMessage: any) => {
+			setMessages((prevMessages) => [...prevMessages, notificationMessage])
+			scrollToBottom()
+		})
+
+		socket?.on('userRejoinedNotification', (notificationMessage: any) => {
+			setMessages((prevMessages) => [...prevMessages, notificationMessage])
+			scrollToBottom()
+		})
+
 		return () => {
 			socket?.off('initialUsers')
 			socket?.off('initialGroups')
@@ -433,6 +487,7 @@ const Chat: React.FC = () => {
 			socket?.off('groupCreated')
 			socket?.off('groupDeleted')
 			socket?.off('userAddedToGroup')
+			socket?.off('groupReenabled')
 			socket?.off('userRemovedFromGroup')
 			socket?.off('typing')
 			socket?.off('stopTyping')
@@ -443,6 +498,8 @@ const Chat: React.FC = () => {
 			socket?.off('groupDeletedForUser')
 			socket?.off('groupMessageDeletedForEveryone')
 			socket?.off('groupMessageDeletedForMe')
+			socket?.off('userRemovedNotification')
+			socket?.off('userRejoinedNotification')
 		}
 	}, [currentRoomId])
 
@@ -523,14 +580,23 @@ const Chat: React.FC = () => {
 		setShowForwardModal(true)
 	}
 
+	const closeForwardModal = () => {
+		setShowForwardModal(false)
+		setMessageToForward(null)
+		setSelectedUsers(new Set())
+	}
+
 	const forwardMessage = () => {
 		const socket = SocketManager.getSocket()
 		socket?.emit('forwardMessage', {
 			messageId: messageToForward.id,
 			toUserIds: Array.from(selectedUsers),
 		})
-		setShowForwardModal(false)
-		setMessageToForward(null)
+		closeForwardModal()
+	}
+
+	const closeAddRemoveUserModal = () => {
+		setShowAddUserModal(false)
 		setSelectedUsers(new Set())
 	}
 
@@ -566,7 +632,9 @@ const Chat: React.FC = () => {
 		setCurrentRoomId(group.id)
 		setChatBoxUserImage(groupImage)
 		setMessages([])
+		setMembers([])
 		setCurMessage('')
+		setIsLoadingMessages(true)
 
 		const socket = SocketManager.getSocket()
 		socket?.emit('fetchGroupChatHistory', { groupId: group.id })
@@ -615,6 +683,20 @@ const Chat: React.FC = () => {
 			console.error('Error in copyMsg function: ', err)
 		}
 	}
+
+	useEffect(() => {
+		const style = document.createElement('style')
+		style.innerHTML = `
+			.simplebar-content {
+				height: 100%;
+			}
+		`
+		document.head.appendChild(style)
+
+		return () => {
+			document.head.removeChild(style)
+		}
+	}, [])
 
 	const handleEmojiClick = (emojiObject: EmojiClickData) => {
 		setCurMessage((prevMessage) => {
@@ -841,23 +923,36 @@ const Chat: React.FC = () => {
 								key={member.id}
 								onClick={() => handleSelectNewOwner(member.id)}
 								className={`d-flex align-items-center ${selectedMember === member.id ? 'bg-light' : ''}`}
-								style={{ cursor: 'pointer' }}>
+								style={{ cursor: 'pointer', userSelect: 'none' }}>
 								<input
 									type="checkbox"
 									checked={selectedMember === member.id}
 									onChange={() => handleSelectNewOwner(member.id)}
 									className="me-3"
 									onClick={(e) => e.stopPropagation()}
+									style={{ userSelect: 'none' }}
 								/>
 								<img
 									src={member.profileImage}
 									className="rounded-circle me-3"
 									alt=""
-									style={{ height: '2.6rem', width: '2.6rem' }}
+									style={{
+										height: '2.6rem',
+										width: '2.6rem',
+										userSelect: 'none',
+									}}
 								/>
 								<div>
-									<h5 className="mb-0">{`${member.firstname} ${member.lastname}`}</h5>
-									<p className="text-muted mb-0">
+									<h5
+										className="mb-0"
+										style={{
+											userSelect: 'none',
+										}}>{`${member.firstname} ${member.lastname}`}</h5>
+									<p
+										className="text-muted mb-0"
+										style={{
+											userSelect: 'none',
+										}}>
 										{member.online
 											? 'Online'
 											: `Last seen at ${new Date(
@@ -1062,8 +1157,7 @@ const Chat: React.FC = () => {
 															}
 															onContextMenu={(event) =>
 																handleGroupContextMenu(event, group)
-															} // Add right-click handler
-														>
+															}>
 															<Link
 																to="#"
 																onClick={() => {
@@ -1205,11 +1299,23 @@ const Chat: React.FC = () => {
 
 								<SimpleBar ref={scrollRef} className="chat-conversation p-4">
 									{isLoadingMessages ? (
-										<Spinners setLoading={setLoading} />
+										<Spinners />
 									) : (
 										<>
 											<ul className="list-unstyled mb-0">
 												{messages.map((msg, index) => {
+													if (msg.system) {
+														return (
+															<li key={index} className="system-message">
+																<div className="d-flex justify-content-center">
+																	<p className="text-muted mb-2">
+																		{msg.message}
+																	</p>
+																</div>
+															</li>
+														)
+													}
+
 													if (msg.deletedForMe) {
 														return (
 															<li
@@ -1241,7 +1347,10 @@ const Chat: React.FC = () => {
 														<li
 															key={index}
 															className={
-																msg.fromUserId === currentUser?.id || msg.isSentByCurrentUser ? 'right' : ''
+																msg.fromUserId === currentUser?.id ||
+																msg.isSentByCurrentUser
+																	? 'right'
+																	: ''
 															}>
 															<div className="conversation-list">
 																<div className="d-flex">
@@ -1393,8 +1502,9 @@ const Chat: React.FC = () => {
 									{disabledGroups.has(currentRoomId) ? (
 										<div className="text-center text-muted">
 											<p>
-												You can't send messages to this group because you're no
-												longer a member.
+												{disabledGroups.get(currentRoomId)
+													? 'You have been removed from this group by an admin. You cannot send messages.'
+													: 'You cannot send messages to this group because you are no longer a member.'}
 											</p>
 										</div>
 									) : (
@@ -1452,14 +1562,10 @@ const Chat: React.FC = () => {
 					</Card>
 				</div>
 			</div>
-			<Modal
-				isOpen={showForwardModal}
-				toggle={() => setShowForwardModal(false)}>
-				<ModalHeader toggle={() => setShowForwardModal(false)}>
-					Forward Message
-				</ModalHeader>
+			<Modal isOpen={showForwardModal} toggle={closeForwardModal}>
+				<ModalHeader toggle={closeForwardModal}>Forward Message</ModalHeader>
 				<ModalBody>
-					<ListGroup>
+					<ListGroup style={{ userSelect: 'none' }}>
 						{chats.map((chat) => (
 							<ListGroupItem
 								key={chat.id}
@@ -1470,7 +1576,9 @@ const Chat: React.FC = () => {
 										type="checkbox"
 										checked={selectedUsers.has(chat.id)}
 										onChange={() => handleUserSelect(chat.id)}
+										onClick={(e) => e.stopPropagation()}
 										className="me-2"
+										style={{ cursor: 'pointer' }}
 									/>
 									<img
 										src={chat.image}
@@ -1491,7 +1599,7 @@ const Chat: React.FC = () => {
 					</ListGroup>
 				</ModalBody>
 				<ModalFooter>
-					<Button color="secondary" onClick={() => setShowForwardModal(false)}>
+					<Button color="secondary" onClick={closeForwardModal}>
 						Cancel
 					</Button>
 					<Button color="primary" onClick={forwardMessage}>
@@ -1506,17 +1614,26 @@ const Chat: React.FC = () => {
 				<ModalBody>
 					<Form>
 						<FormGroup>
-							<Label for="groupName">Group Name</Label>
+							<Label
+								for="groupName"
+								style={{ userSelect: 'none', cursor: 'pointer' }}>
+								Group Name
+							</Label>
 							<Input
 								type="text"
 								id="groupName"
 								placeholder="Enter group name"
 								value={groupName}
 								onChange={(e) => setGroupName(e.target.value)}
+								style={{ userSelect: 'none' }}
 							/>
 						</FormGroup>
 						<FormGroup>
-							<Label for="groupImage">Group Image</Label>
+							<Label
+								for="groupImage"
+								style={{ userSelect: 'none', cursor: 'pointer' }}>
+								Group Image
+							</Label>
 							<Input
 								type="file"
 								id="groupImage"
@@ -1525,25 +1642,27 @@ const Chat: React.FC = () => {
 							/>
 						</FormGroup>
 						<FormGroup>
-							<Label>Select Members</Label>
+							<Label style={{ userSelect: 'none' }}>Select Members</Label>
 							<ListGroup className="mt-3 chat-list modalStyle">
 								{chats
-									.filter((chat) => chat.id !== currentUser?.id) // Exclude the current user
+									.filter((chat) => chat.id !== currentUser?.id)
 									.map((chat) => (
 										<ListGroupItem
 											key={chat.id}
-											style={{ cursor: 'pointer' }}
-											className={selectedUsers.has(chat.id) ? 'active' : ''}>
+											style={{ cursor: 'pointer', userSelect: 'none' }}
+											className={selectedUsers.has(chat.id) ? 'active' : ''}
+											onClick={() => handleUserSelect(chat.id)}>
 											<div className="d-flex align-items-center">
 												<input
 													type="checkbox"
 													checked={selectedUsers.has(chat.id)}
-													onChange={() => handleUserSelect(chat.id)}
+													onClick={(e) => e.stopPropagation()}
+													onChange={(e) => {
+														handleUserSelect(chat.id)
+													}}
 													className="me-2"
 												/>
-												<div
-													className="d-flex align-items-center"
-													onClick={() => handleUserSelect(chat.id)}>
+												<div className="d-flex align-items-center">
 													<img
 														src={chat.image}
 														className="rounded-circle me-3"
@@ -1582,10 +1701,12 @@ const Chat: React.FC = () => {
 						{renderAddRemoveUserOptions()}
 					</div>
 				</ModalHeader>
-				<ModalBody>
-					<ListGroup className="modalStyle">
+				<ModalBody className="modalStyle">
+					<ListGroup>
 						{members.map((member) => (
-							<ListGroupItem key={member.id}>
+							<ListGroupItem
+								key={member.id}
+								style={{ cursor: 'pointer', userSelect: 'none' }}>
 								<div className="d-flex align-items-center">
 									<img
 										src={member.profileImage}
@@ -1618,14 +1739,12 @@ const Chat: React.FC = () => {
 				</ModalBody>
 				<ModalFooter>{renderLeaveGroupButton()}</ModalFooter>
 			</Modal>
-			<Modal
-				isOpen={showAddUserModal}
-				toggle={() => setShowAddUserModal(false)}>
-				<ModalHeader toggle={() => setShowAddUserModal(false)}>
+			<Modal isOpen={showAddUserModal} toggle={closeAddRemoveUserModal}>
+				<ModalHeader toggle={closeAddRemoveUserModal}>
 					Add/Remove User to Group
 				</ModalHeader>
-				<ModalBody>
-					<ListGroup className="modalStyle">
+				<ModalBody className="modalStyle">
+					<ListGroup>
 						{filteredChats.map((chat) => {
 							const isMember = members.some((member) => member.id === chat.id)
 							if (chat.id === currentUser?.id) {
@@ -1643,6 +1762,7 @@ const Chat: React.FC = () => {
 										<input
 											type="checkbox"
 											checked={isMember || selectedUsers.has(chat.id)}
+											onClick={(e) => e.stopPropagation()}
 											onChange={() => handleUserSelect(chat.id)}
 											className="me-2"
 											disabled={isMember}
@@ -1654,9 +1774,10 @@ const Chat: React.FC = () => {
 											style={{
 												height: '2.6rem',
 												width: '2.6rem',
+												userSelect: 'none',
 											}}
 										/>
-										<div>
+										<div style={{ userSelect: 'none' }}>
 											<h5 className="mb-0">{chat.name}</h5>
 											<p className="text-muted mb-0">{chat.description}</p>
 										</div>
@@ -1678,7 +1799,7 @@ const Chat: React.FC = () => {
 					</ListGroup>
 				</ModalBody>
 				<ModalFooter>
-					<Button color="secondary" onClick={() => setShowAddUserModal(false)}>
+					<Button color="secondary" onClick={closeAddRemoveUserModal}>
 						Cancel
 					</Button>
 					<Button
@@ -1741,18 +1862,16 @@ const Chat: React.FC = () => {
 	)
 }
 
-const Spinners: React.FC<{ setLoading: (loading: boolean) => void }> = ({
-	setLoading,
-}) => {
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			setLoading(false)
-		}, 1000)
-
-		return () => clearTimeout(timer)
-	}, [setLoading])
-
-	return <div>Loading...</div>
+const Spinners: React.FC = () => {
+	return (
+		<div
+			className="d-flex justify-content-center align-items-center"
+			style={{ height: '100%' }}>
+			<div className="spinner-border text-primary" role="status">
+				<span className="visually-hidden">Loading...</span>
+			</div>
+		</div>
+	)
 }
 
 export default Chat

@@ -11,14 +11,14 @@ import styles from './LeadList.module.css'
 import { hasPermission } from '@/utils'
 
 interface HistoryItem {
-    action: string;
-    timestamp: string;
-    details: {
-        createdBy?: { firstname: string; lastname: string };
-        updatedBy?: { firstname: string; lastname: string };
-        statusUpdatedBy?: { firstname: string; lastname: string };
-        assignedAgents?: { id: string; firstname: string; lastname: string }[];
-    };
+	action: string
+	timestamp: string
+	details: {
+		createdBy?: { firstname: string; lastname: string }
+		updatedBy?: { firstname: string; lastname: string }
+		statusUpdatedBy?: { firstname: string; lastname: string }
+		assignedAgents?: { id: string; firstname: string; lastname: string }[]
+	}
 }
 
 interface LeadListHookResult {
@@ -367,6 +367,14 @@ export const useLeadList = (): LeadListHookResult => {
 	}
 
 	const deleteAllLeads = async () => {
+		if (leadRecords.length === 0) {
+			Swal.fire({
+				icon: 'warning',
+				title: 'No Data',
+				text: 'No Leads found to delete',
+			})
+			return
+		}
 		Swal.fire({
 			title: 'Are you sure?',
 			text: "You won't be able to get your leads back",
