@@ -11,14 +11,14 @@ import styles from './LeadList.module.css'
 import { hasPermission } from '@/utils'
 
 interface HistoryItem {
-    action: string;
-    timestamp: string;
-    details: {
-        createdBy?: { firstname: string; lastname: string };
-        updatedBy?: { firstname: string; lastname: string };
-        statusUpdatedBy?: { firstname: string; lastname: string };
-        assignedAgents?: { id: string; firstname: string; lastname: string }[];
-    };
+	action: string
+	timestamp: string
+	details: {
+		createdBy?: { firstname: string; lastname: string }
+		updatedBy?: { firstname: string; lastname: string }
+		statusUpdatedBy?: { firstname: string; lastname: string }
+		assignedAgents?: { id: string; firstname: string; lastname: string }[]
+	}
 }
 
 interface LeadListHookResult {

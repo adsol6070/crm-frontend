@@ -51,43 +51,6 @@ export interface ProfileOption {
 	icon: string
 	redirectTo: string
 }
-const Messages: MessageItem[] = [
-	{
-		id: 1,
-		name: 'Cristina Pride',
-		subText: 'Hi, How are you? What about our next meeting',
-		avatar: avatar1,
-		createdAt: subtractHours(new Date(), 1440),
-	},
-	{
-		id: 2,
-		name: 'Sam Garret',
-		subText: 'Yeah everything is fine',
-		avatar: avatar2,
-		createdAt: subtractHours(new Date(), 2880),
-	},
-	{
-		id: 3,
-		name: 'Karen Robinson',
-		subText: "Wow that's great",
-		avatar: avatar3,
-		createdAt: subtractHours(new Date(), 2880),
-	},
-	{
-		id: 4,
-		name: 'Sherry Marshall',
-		subText: 'Hi, How are you? What about our next meeting',
-		avatar: avatar4,
-		createdAt: subtractHours(new Date(), 4320),
-	},
-	{
-		id: 5,
-		name: 'Shawn Millard',
-		subText: 'Yeah everything is fine',
-		avatar: avatar5,
-		createdAt: subtractHours(new Date(), 5760),
-	},
-]
 
 const profileMenus: ProfileOption[] = [
 	{
@@ -122,6 +85,7 @@ type TopbarProps = {
 	toggleMenu?: () => void
 	navOpen?: boolean
 }
+
 const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 	const { sideBarType } = useThemeCustomizer()
 	const { width } = useViewport()
@@ -296,7 +260,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							<LanguageDropdown />
 						</li>
 						<li className="dropdown notification-list">
-							<MessageDropdown messages={Messages} />
+							<MessageDropdown />
 						</li>
 						<li className="dropdown notification-list">
 							<NotificationDropdown handleClear={handleClear} notifications={notifications} />

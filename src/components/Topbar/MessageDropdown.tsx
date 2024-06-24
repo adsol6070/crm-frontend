@@ -1,20 +1,74 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Card, Col, Dropdown, Image, Row } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
 import SimpleBar from 'simplebar-react'
 import { MessageItem } from '@/Layouts/Topbar'
+import SocketManager from '@/common/context/SocketManager'
 
-interface MessageDropDownProps {
-	messages: Array<MessageItem>
-}
-const MessageDropdown = ({ messages }: MessageDropDownProps) => {
+const MessageDropdown = () => {
+	const socket = SocketManager.getSocket()
 	const [dropDownOpen, setDropDownOpen] = useState<boolean>(false)
+	const [newMessages, setNewMessages] = useState<MessageItem[]>([])
+	const [userInteracted, setUserInteracted] = useState<boolean>(true)
+	const audioRef = useRef(new Audio('/sounds/Chat_Notification.mp3'))
+
+	useEffect(() => {
+		// Request initial message notifications
+		socket?.emit('requestInitialMessageNotifications')
+
+		// Listen for new message notifications
+		socket?.on('messageNotification', (notification: MessageItem) => {
+			setNewMessages((prevMessages) => [notification, ...prevMessages])
+			if (userInteracted) {
+				playNotificationSound()
+			}
+		})
+
+		socket?.on(
+			'initialMessageNotifications',
+			(notifications: MessageItem[]) => {
+				setNewMessages(notifications)
+			}
+		)
+
+		socket?.on('notificationsCleared', () => {
+			setNewMessages([])
+		})
+
+		const handleUserInteraction = () => {
+			setUserInteracted(true)
+			document.removeEventListener('click', handleUserInteraction)
+			document.removeEventListener('keydown', handleUserInteraction)
+		}
+
+		document.addEventListener('click', handleUserInteraction)
+		document.addEventListener('keydown', handleUserInteraction)
+
+		return () => {
+			socket?.off('messageNotification')
+			socket?.off('initialMessageNotifications')
+			socket?.off('notificationsCleared')
+			document.removeEventListener('click', handleUserInteraction)
+			document.removeEventListener('keydown', handleUserInteraction)
+		}
+	}, [])
 
 	/**
 	 * Toggles the notification dropdown
 	 */
 	const toggleDropDown = () => {
 		setDropDownOpen(!dropDownOpen)
+	}
+
+	const playNotificationSound = () => {
+		const audio = audioRef.current
+		audio.play().catch((error) => {
+			console.log('Failed to play sound:', error)
+		})
+	}
+
+	const clearAllNotifications = () => {
+		socket?.emit('clearAllMessageNotifications')
 	}
 
 	/**
@@ -67,25 +121,27 @@ const MessageDropdown = ({ messages }: MessageDropDownProps) => {
 					as="a"
 					className="nav-link dropdown-toggle arrow-none"
 					role="button"
-					onClick={toggleDropDown}
-				>
+					onClick={toggleDropDown}>
 					<i className="ri-mail-line fs-22" />
-					<span className="noti-icon-badge badge text-bg-purple">4</span>
+					<span className="noti-icon-badge badge text-bg-purple">
+						{newMessages.length}
+					</span>
 				</Dropdown.Toggle>
 				<Dropdown.Menu
 					align="end"
-					className="dropdown-menu-animated dropdown-lg py-0"
-				>
+					className="dropdown-menu-animated dropdown-lg py-0">
 					<div
 						className="p-2 border-top-0 border-start-0 border-end-0 border-dashed border"
-						onClick={toggleDropDown}
-					>
+						onClick={toggleDropDown}>
 						<Row className="align-items-center">
 							<Col>
 								<h6 className="m-0 fs-16 fw-semibold"> Messages</h6>
 							</Col>
 							<div className="col-auto">
-								<Link to="#" className="text-dark text-decoration-underline">
+								<Link
+									to="#"
+									className="text-dark text-decoration-underline"
+									onClick={clearAllNotifications}>
 									<small>Clear All</small>
 								</Link>
 							</div>
@@ -93,13 +149,12 @@ const MessageDropdown = ({ messages }: MessageDropDownProps) => {
 					</div>
 					<SimpleBar style={{ maxHeight: 300 }}>
 						{/* item*/}
-						{(messages || []).map((message, idx) => {
+						{(newMessages || []).map((message, idx) => {
 							return (
 								<Link
 									key={idx}
 									to=""
-									className="dropdown-item p-0 notify-item read-noti card m-0 shadow-none"
-								>
+									className="dropdown-item p-0 notify-item read-noti card m-0 shadow-none">
 									<Card.Body>
 										<div className="d-flex align-items-center">
 											<div className="flex-shrink-0">
@@ -131,8 +186,7 @@ const MessageDropdown = ({ messages }: MessageDropDownProps) => {
 					{/* All*/}
 					<Link
 						to="#"
-						className="dropdown-item text-center text-primary text-decoration-underline fw-bold notify-item border-top border-light py-2"
-					>
+						className="dropdown-item text-center text-primary text-decoration-underline fw-bold notify-item border-top border-light py-2">
 						View All
 					</Link>
 				</Dropdown.Menu>
