@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { useLeadList } from './useLeadList';
+import { useLeadList } from '../useLeadList';
 import { FormInput } from '@/components';
 import { useAuthContext } from '@/common';
 

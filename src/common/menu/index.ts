@@ -3,6 +3,7 @@ import {
 	MENU_ITEMS,
 	MenuItemTypes,
 } from '@/constants/menu'
+
 const getMenuItems = () => {
 	// NOTE - You can fetch from server and return here as well
 	return MENU_ITEMS

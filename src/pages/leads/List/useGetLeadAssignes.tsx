@@ -15,16 +15,19 @@ const useGetLeadAssignee = (leadId: string) => {
 
   useEffect(() => {
     const fetchLeadAssignedData = async () => {
+      setLoading(true);
+      setError('');
+
       try {
         const data = (await leadApi.getAssigneeById(leadId)) as LeadAssignee;
-        console.log("assign data", data);
+        console.log('assign data', data);
         if (data) {
           setLeadAssignee(data);
         }
-        setLoading(false);
       } catch (err) {
         console.error('Failed to fetch assignee data:', err);
         setError('Failed to load the assignee data.');
+      } finally {
         setLoading(false);
       }
     };

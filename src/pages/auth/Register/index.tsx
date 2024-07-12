@@ -24,11 +24,11 @@ const BottomLink = () => {
 	return (
 		<Row>
 			<Col xs={12} className="text-center">
-				<p className="text-dark-emphasis">
-					Already have account?{' '}
+				<p className="text-dark-emphasis" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+					Already have account?
 					<Button
 						variant="link"
-						className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline"
+						className="text-dark fw-bold link-offset-3 text-decoration-underline"
 						onClick={() => navigate('/auth/login', { replace: true })}>
 						<b>Log In</b>
 					</Button>

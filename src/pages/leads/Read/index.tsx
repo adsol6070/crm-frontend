@@ -6,7 +6,7 @@ import ReactToPrint from 'react-to-print';
 import { format } from 'date-fns';
 import { Badge } from 'react-bootstrap';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import autoTable from 'jspdf-autotable';
 import { PageBreadcrumb } from '@/components';
 import styles from './ReadLead.module.css';
 
@@ -15,13 +15,17 @@ interface LeadData {
 }
 
 const ReadLead: React.FC = () => {
-    const { leadId } = useParams() as { leadId: string };
-    const { leadData, loading, error } = useReadLead(leadId);
+    const { leadId } = useParams<{ leadId: string }>();
+    const { leadData, loading, error } = useReadLead(leadId as string);
     const data = leadData as LeadData;
     const printRef = useRef<HTMLDivElement>(null);
 
     if (loading) {
-        return <Spinner animation="border" />;
+        return (
+            <div className="d-flex justify-content-center align-items-center vh-100">
+                <Spinner animation="border" />
+            </div>
+        );
     }
 
     if (error) {
@@ -33,14 +37,11 @@ const ReadLead: React.FC = () => {
     }
 
     const formatDate = (dateString: string) => {
-        if (dateString === null) {
+        if (dateString === null) return "N/A";
+        try {
+            return format(new Date(dateString), 'dd/MM/yyyy');
+        } catch {
             return "N/A";
-        } else {
-            try {
-                return format(new Date(dateString), 'dd/MM/yyyy');
-            } catch (error) {
-                return "Invalid date";
-            }
         }
     };
 
@@ -58,40 +59,87 @@ const ReadLead: React.FC = () => {
     };
 
     const handleSaveAsPDF = () => {
-        const input = printRef.current;
-        if (input) {
-            html2canvas(input, { scale: 2, useCORS: true })
-                .then((canvas) => {
-                    const imgData = canvas.toDataURL('image/png');
-                    const pdf = new jsPDF('p', 'mm', 'a4');
-                    const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const pdfHeight = pdf.internal.pageSize.getHeight();
-                    const imgProps = pdf.getImageProperties(imgData);
-                    const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pageWidth = pdf.internal.pageSize.getWidth();
 
-                    if (imgHeight > pdfHeight) {
-                        let heightLeft = imgHeight;
-                        let position = 0;
+        pdf.setFontSize(18);
+        pdf.text('Lead Detail', pageWidth / 2, 10, { align: 'center' });
 
-                        while (heightLeft > 0) {
-                            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-                            heightLeft -= pdfHeight;
-                            position -= pdfHeight;
-                            if (heightLeft > 0) {
-                                pdf.addPage();
-                            }
-                        }
-                    } else {
-                        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
-                    }
+        pdf.setFontSize(12);
+        pdf.text(`Lead ID: ${data.id}`, 10, 17);
+        pdf.text(`Created At: ${data.created_at}`, 10, 25);
+        pdf.text(`Status: ${data.leadStatus ? data.leadStatus.charAt(0).toUpperCase() + data.leadStatus.slice(1) : 'No Status'}`, 10, 35);
 
-                    pdf.save(`Lead_${data.firstname}.pdf`);
-                })
-                .catch((error) => {
-                    console.error('Error generating PDF:', error);
-                });
-        }
+        const formatField = (key: string, value: any) => {
+            if (key === 'dob' || key === 'passportExpiry' || key === 'visaExpiryDate') {
+                return formatDate(value);
+            }
+            if (value === "" || value === null || value === undefined) {
+                return "N/A";
+            }
+            return String(value);
+        };
+
+        const sections = [
+            { title: 'Personal Information', fields: ["firstname", "lastname", "email", "phone", "gender", "dob", "nationality", "maritalStatus", "currentAddress", "permanentAddress"] },
+            { title: 'Immigration Information', fields: ["visaCategory", "countryOfInterest", "passportExpiry", "visaExpiryDate", "courseOfInterest", "desiredFieldOfStudy", "preferredInstitutions", "intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails"] },
+            { title: 'Academic Information', fields: ["highestQualification", "scholarships", "fieldOfStudy", "institutionName", "graduationYear", "grade", "testType", "testScore"] },
+            { title: 'Address Information', fields: ["pincode", "country", "state", "district", "city"] }
+        ];
+
+        const tableData = sections.map(section => {
+            return section.fields.map(key => {
+                const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                const value = formatField(key, data[key]);
+                return [formattedKey, value];
+            });
+        }).flat();
+
+        autoTable(pdf, {
+            head: [['Field', 'Value']],
+            body: tableData,
+            startY: 40,
+            theme: 'striped',
+            headStyles: { fillColor: [41, 128, 185] },
+            alternateRowStyles: { fillColor: [230, 230, 230] },
+            styles: { fontSize: 10 },
+            margin: { top: 10 },
+            columnStyles: {
+                0: { cellWidth: 70 },
+                1: { cellWidth: 'auto' }
+            }
+        });
+
+        pdf.save(`Lead_${data.firstname}.pdf`);
     };
+
+    const renderTableRows = (fields: string[]) => (
+        fields.map(key => (
+            <tr key={key}>
+                <td className={styles.fontWeightBold}>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</td>
+                <td style={key === 'email' ? { textTransform: 'lowercase' } : { textTransform: 'capitalize' }}>
+                    {formatField(key, data[key])}
+                </td>
+            </tr>
+        ))
+    );
+
+    const formatField = (key: string, value: any) => {
+        if (key === 'dob' || key === 'passportExpiry' || key === 'visaExpiryDate') {
+            return formatDate(value);
+        }
+        if (value === "" || value === null || value === undefined) {
+            return "N/A";
+        }
+        return String(value);
+    };
+
+    const sections = [
+        { title: 'Personal Information', fields: ["firstname", "lastname", "email", "phone", "gender", "dob", "nationality", "maritalStatus", "currentAddress", "permanentAddress"] },
+        { title: 'Immigration Information', fields: ["visaCategory", "countryOfInterest", "passportExpiry", "visaExpiryDate", "courseOfInterest", "desiredFieldOfStudy", "preferredInstitutions", "intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails"] },
+        { title: 'Academic Information', fields: ["highestQualification", "scholarships", "fieldOfStudy", "institutionName", "graduationYear", "grade", "testType", "testScore"] },
+        { title: 'Address Information', fields: ["pincode", "country", "state", "district", "city"] }
+    ];
 
     return (
         <>
@@ -102,57 +150,24 @@ const ReadLead: React.FC = () => {
                         <Row className="mb-4">
                             <Col>
                                 <h5 className={`text-muted ${styles.textMuted}`}>Lead ID: {data.id}</h5>
+                                <div><p>Created At - {formatDate(data.created_at)}</p></div>
                                 <Badge className={styles.styleStatus} bg={getStatusBadgeClass(data.leadStatus)}>
                                     {data.leadStatus ? data.leadStatus.charAt(0).toUpperCase() + data.leadStatus.slice(1) : 'No Status'}
                                 </Badge>
                             </Col>
                         </Row>
-                        <Row className="mb-4">
-                            <Col md={6}>
-                                <Card.Title as="h4" className={styles.detailTitle}>Personal Information</Card.Title>
-                                <Table bordered hover striped className={styles.table}>
-                                    <tbody>
-                                        {Object.keys(data).filter(key =>
-                                            ["firstname", "lastname", "email", "phone", "gender", "dob", "nationality", "maritalStatus", "currentAddress", "permanentAddress"].includes(key)).map((key) => (
-                                                <tr key={key}>
-                                                    <td className={styles.fontWeightBold}>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</td>
-                                                    <td>{key === "dob" ? formatDate(data[key]) : (String(data[key]) === "" ? "N/A" : String(data[key]))}</td>
-                                                </tr>
-                                            ))}
-                                    </tbody>
-                                </Table>
-                            </Col>
-                            <Col md={6}>
-                                <Card.Title as="h4" className={styles.detailTitle}>Immigration Information</Card.Title>
-                                <Table bordered hover striped className={styles.table}>
-                                    <tbody>
-                                        {Object.keys(data).filter(key =>
-                                            ["visaCategory", "countryOfInterest", "passportExpiry", "visaExpiryDate", "courseOfInterest", "desiredFieldOfStudy", "preferredInstitutions", "intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails"].includes(key)).map((key) => (
-                                                <tr key={key}>
-                                                    <td className={styles.fontWeightBold}>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</td>
-                                                    <td>{["passportExpiry", "visaExpiryDate"].includes(key) ? formatDate(data[key]) : (String(data[key]) === "" ? "N/A" : String(data[key]))}</td>
-                                                </tr>
-                                            ))}
-                                    </tbody>
-                                </Table>
-                            </Col>
-                        </Row>
-                        <Row className="mb-4">
-                            <Col>
-                                <Card.Title as="h4" className={styles.detailTitle}>Academic Information</Card.Title>
-                                <Table bordered hover striped className={styles.table}>
-                                    <tbody>
-                                        {Object.keys(data).filter(key =>
-                                            ["highestQualification", "scholarships", "fieldOfStudy", "institutionName", "graduationYear", "grade", "testType", "testScore"].includes(key)).map((key) => (
-                                                <tr key={key}>
-                                                    <td className={styles.fontWeightBold}>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</td>
-                                                    <td>{String(data[key]) === "" ? "N/A" : String(data[key])}</td>
-                                                </tr>
-                                            ))}
-                                    </tbody>
-                                </Table>
-                            </Col>
-                        </Row>
+                        {sections.map(section => (
+                            <Row className="mb-4" key={section.title}>
+                                <Col>
+                                    <Card.Title as="h4" className={styles.detailTitle}>{section.title}</Card.Title>
+                                    <Table bordered hover striped className={styles.table}>
+                                        <tbody>
+                                            {renderTableRows(section.fields)}
+                                        </tbody>
+                                    </Table>
+                                </Col>
+                            </Row>
+                        ))}
                     </Card.Body>
                 </Card>
             </Container>

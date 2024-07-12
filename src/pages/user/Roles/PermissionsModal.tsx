@@ -32,7 +32,9 @@ interface PermissionsModalProps {
 
 const initialPermissions: Permissions = {
 	Blogs: { Create: false, Read: false, Update: false, Delete: false },
+	BlogCategory: { Create: false },
 	Users: { Create: false, Read: false, Update: false, Delete: false },
+	Scores: { Create: false, Read: false, Delete: false, DeleteAll: false },
 	Leads: {
 		Create: false,
 		View: false,
@@ -48,6 +50,7 @@ const initialPermissions: Permissions = {
 		DownloadCSV: false,
 		DownloadCSVFormat: false,
 	},
+	VisaCategory: { Create: false },
 }
 
 const standardizeRoleName = (role: string) => {

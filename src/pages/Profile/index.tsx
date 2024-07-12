@@ -2,15 +2,11 @@ import { Button, Card, Col, Image, Nav, Row, Tab } from 'react-bootstrap'
 import { Link, useNavigate } from 'react-router-dom'
 import bgProfile from '@/assets/images/bg-profile.jpg'
 import { useUser } from '@/hooks'
+import { capitalizeFirstLetter } from '@/utils'
 
 const ProfilePages = () => {
 	const navigate = useNavigate()
 	const [loggedInUser] = useUser()
-
-	const capitalizeFirstLetter = (line: any) => {
-		if (!line) return line
-		return line.charAt(0).toUpperCase() + line.slice(1)
-	}
 
 	const handleEdit = (userId: string) => {
 		navigate(`/user/edit/${userId}`)
@@ -37,11 +33,11 @@ const ProfilePages = () => {
 								</div>
 								<div>
 									<h4 className="mt-4 fs-17 ellipsis">
-										{capitalizeFirstLetter(loggedInUser?.firstname)}{' '}
-										{capitalizeFirstLetter(loggedInUser?.lastname)}
+										{capitalizeFirstLetter(String(loggedInUser?.firstname))}{' '}
+										{capitalizeFirstLetter(String(loggedInUser?.lastname))}
 									</h4>
 									<p className="font-13">
-										{capitalizeFirstLetter(loggedInUser?.role)}
+										{capitalizeFirstLetter(String(loggedInUser?.role))}
 									</p>
 									<p className="text-muted mb-0">
 										<small>{`${loggedInUser?.address}, ${loggedInUser?.city}`}</small>
@@ -93,7 +89,7 @@ const ProfilePages = () => {
 														<tr>
 															<th scope="row">Role</th>
 															<td className="ng-binding">
-																{capitalizeFirstLetter(loggedInUser?.role)}
+																{capitalizeFirstLetter(String(loggedInUser?.role))}
 															</td>
 														</tr>
 														<tr>

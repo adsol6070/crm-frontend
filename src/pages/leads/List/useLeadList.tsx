@@ -1,14 +1,14 @@
 import { Column } from 'react-table'
 import { PageSize } from '@/components'
 import React, { useEffect, useState } from 'react'
-import { Lead } from '@/types'
+import { LeadData } from '@/types'
 import { leadApi, useAuthContext, usePermissions } from '@/common'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { Dropdown } from 'react-bootstrap'
 import Swal from 'sweetalert2'
 import styles from './LeadList.module.css'
-import { hasPermission } from '@/utils'
+import { capitalizeFirstLetter, hasPermission } from '@/utils'
 
 interface HistoryItem {
 	action: string
@@ -24,7 +24,7 @@ interface HistoryItem {
 interface LeadListHookResult {
 	columns: ReadonlyArray<Column>
 	sizePerPageList: PageSize[]
-	leadRecords: Lead[]
+	leadRecords: LeadData[]
 	loading: boolean
 	downloadCSV: (category: string) => void
 	refreshLeads: () => void
@@ -44,17 +44,12 @@ interface LeadListHookResult {
 	setSelectedAssignees: React.Dispatch<React.SetStateAction<string[]>>
 }
 
-const capitalizeFirstLetter = (str: string) => {
-	if (!str) return str
-	return str.charAt(0).toUpperCase() + str.slice(1)
-}
-
 export const useLeadList = (): LeadListHookResult => {
 	const { permissions } = usePermissions()
 	const navigate = useNavigate()
 	const { user } = useAuthContext()
-	const [loading, setLoading] = useState(false)
-	const [leadRecords, setLeadRecords] = useState<Lead[]>([])
+	const [loading, setLoading] = useState(true)
+	const [leadRecords, setLeadRecords] = useState<LeadData[]>([])
 	const [leadStatuses, setLeadStatuses] = useState<{ [key: string]: string }>(
 		{}
 	)
@@ -150,11 +145,13 @@ export const useLeadList = (): LeadListHookResult => {
 			Header: 'Firstname',
 			accessor: 'firstname',
 			defaultCanSort: true,
+			Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value)
 		},
 		{
 			Header: 'Lastname',
 			accessor: 'lastname',
 			defaultCanSort: false,
+			Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value)
 		},
 		{
 			Header: 'Email',
@@ -292,10 +289,8 @@ export const useLeadList = (): LeadListHookResult => {
 		}
 	}
 
-	// Insert the Actions column
 	columns.push(actionsColumn)
 
-	// Call the function to insert the columns before the Actions column
 	insertColumnsBeforeActions()
 
 	const handleStatus = async (leadId: string, status: string) => {
@@ -360,14 +355,19 @@ export const useLeadList = (): LeadListHookResult => {
 	}
 
 	const handleDelete = async (leadId: string) => {
-		await leadApi.delete(leadId)
-		const updatedLeadRecords = leadRecords.filter((lead) => lead.id !== leadId)
-		setLeadRecords(updatedLeadRecords)
-		toast.success('Lead deleted successfully.')
+		try {
+			await leadApi.delete(leadId)
+			const updatedLeadRecords = leadRecords.filter((lead) => lead.id !== leadId)
+			setLeadRecords(updatedLeadRecords)
+			toast.success('Lead deleted successfully.')
+		} catch (error) {
+			toast.error('Failed to delete lead.')
+			console.error(error)
+		}
 	}
 
 	const deleteAllLeads = async () => {
-        if (leadRecords.length === 0) {
+		if (leadRecords.length === 0) {
 			Swal.fire({
 				icon: 'warning',
 				title: 'No Data',
@@ -469,6 +469,7 @@ export const useLeadList = (): LeadListHookResult => {
 			toast.success(data.message)
 		} catch (error: any) {
 			toast.error('Lead not imported')
+			console.error(error)
 		} finally {
 			setLoading(false)
 		}

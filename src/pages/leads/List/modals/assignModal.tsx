@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Image, ListGroup } from 'react-bootstrap';
 import { User } from '@/types';
-import useGetLeadAssignee from './useGetLeadAssignes';
+import { capitalizeFirstLetter } from '@/utils';
 
 interface AssignModalProps {
   show: boolean;
@@ -9,25 +9,11 @@ interface AssignModalProps {
   handleAssign: (leadId: string, assignees: string[]) => void;
   leadId: string;
   users: User[];
+  selectedAssignees: string[]
+  setSelectedAssignees: React.Dispatch<React.SetStateAction<string[]>>
 }
 
-const AssignModal: React.FC<AssignModalProps> = ({ show, handleClose, handleAssign, leadId, users }) => {
-  const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
-
-  console.log("SelectedAssignees:", selectedAssignees);
-
-  const { leadAssignee } = useGetLeadAssignee(leadId);
-
-  // Reset selected assignees when modal is shown or leadAssignee changes
-  useEffect(() => {
-    if (show) {
-      if (leadAssignee && leadAssignee.user_id) {
-        setSelectedAssignees(leadAssignee.user_id);
-      } else {
-        setSelectedAssignees([]);
-      }
-    }
-  }, [show, leadAssignee]);
+const AssignModal: React.FC<AssignModalProps> = ({ show, handleClose, handleAssign, leadId, users, selectedAssignees, setSelectedAssignees }) => {
 
   const handleCheckboxChange = (userId: string) => {
     setSelectedAssignees(prevState =>
@@ -35,11 +21,6 @@ const AssignModal: React.FC<AssignModalProps> = ({ show, handleClose, handleAssi
         ? prevState.filter(id => id !== userId)
         : [...prevState, userId]
     );
-  };
-
-  const capitalizeFirstLetter = (str: string | undefined) => {
-    if (!str) return str;
-    return str.charAt(0).toUpperCase() + str.slice(1);
   };
 
   const onAssign = () => {
@@ -67,7 +48,7 @@ const AssignModal: React.FC<AssignModalProps> = ({ show, handleClose, handleAssi
                   alt={`${user.firstname} ${user.lastname}`}
                 />
                 <div className="flex-grow-1">
-                  <div>{capitalizeFirstLetter(user.firstname)} {capitalizeFirstLetter(user.lastname)}</div>
+                  <div>{capitalizeFirstLetter(user.firstname)} {capitalizeFirstLetter(String(user.lastname))}</div>
                   <small>{capitalizeFirstLetter(user.role)}</small>
                 </div>
                 <Form.Check

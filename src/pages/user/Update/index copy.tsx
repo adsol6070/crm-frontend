@@ -7,6 +7,7 @@ import useEditUser from './useEditUser'
 import { useForm } from 'react-hook-form'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
+import { capitalizeFirstLetter } from '@/utils'
 
 interface User {
 	id: string
@@ -75,7 +76,7 @@ const EditUser = () => {
 		<>
 			<ToastContainer />
 			<PageBreadcrumb
-				title={`Edit User - ${user.firstname} ${user.lastname}`}
+				title={`Edit User - ${capitalizeFirstLetter(user.firstname)} ${capitalizeFirstLetter(user.lastname)}`}
 				subName="Users"
 			/>
 			<Row>

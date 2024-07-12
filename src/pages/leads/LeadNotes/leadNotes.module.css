@@ -73,7 +73,6 @@
     transform: scale(1.05);
 }
 
-/* Notes container styles */
 .notesContainer {
     display: flex;
     flex-wrap: wrap;

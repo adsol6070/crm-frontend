@@ -28,6 +28,10 @@ const StarterPages = React.lazy(() => import('../pages/other/Starter'))
 const ContactListPages = React.lazy(() => import('../pages/other/ContactList'))
 const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
 
+// Express Entry 
+const CalculateCRS = React.lazy(() => import('../pages/CalculateCRS/Calculate'))
+const ListCRSscores = React.lazy(() => import('../pages/CalculateCRS/ListResults'))
+
 // blogs
 const AddBlog = React.lazy(() => import('../pages/blogs/Create'))
 const BlogList = React.lazy(() => import('../pages/blogs/List'))
@@ -241,6 +245,28 @@ const leadRoutes = {
 	],
 }
 
+// Express Entry Routes
+const expressEntryRoutes = {
+	path: '/calculateCRS',
+	name: 'Calculate CRS',
+	icon: 'pages',
+	header: 'Custom',
+	children: [
+		{
+			path: '/calculateCRS/calculate',
+			name: 'Calculate',
+			element: <CalculateCRS />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/calculateCRS/listResults',
+			name: 'Saved Results',
+			element: <ListCRSscores />,
+			route: PrivateRoute,
+		},
+	],
+}
+
 // Admin Routes
 const adminRoutes = {
 	path: '/users',
@@ -388,6 +414,7 @@ const authProtectedRoutes = [
 	blogRoutes,
 	chatRoutes,
 	leadRoutes,
+	expressEntryRoutes,
 	adminRoutes,
 	customPagesRoutes,
 ]

@@ -8,14 +8,13 @@ import * as yup from 'yup';
 import useAddDocumentChecklist from './useDocumentChecklist';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { FaCheckCircle, FaDownload, FaTrash, FaPlus, FaEdit, FaEye, FaClock, FaUpload } from 'react-icons/fa';
+import { FaCheckCircle, FaDownload, FaTrash, FaPlus, FaEdit, FaEye, FaClock } from 'react-icons/fa';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import styles from './AddLeadChecklist.module.css';
 import { leadApi, useAuthContext } from '@/common';
 import Swal from 'sweetalert2';
 import { visaDocuments, VisaType } from './visaDocuments';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
@@ -44,7 +43,6 @@ const updateSchema = yup.object().shape({
       return value && ['application/pdf'].includes(value.type);
     }),
 });
-
 
 const AddLeadChecklist: React.FC = () => {
   const { user } = useAuthContext();
@@ -103,9 +101,7 @@ const AddLeadChecklist: React.FC = () => {
             filteredDocumentFields.forEach((doc) => append({ name: doc.name, file: null }));
           }
         } else {
-          if (!fields.length) {
-            documentFields.forEach((doc) => append({ name: doc.name, file: null }));
-          }
+          documentFields.forEach((doc) => append({ name: doc.name, file: null }));
         }
       } else {
         console.log("Visa category is undefined.");
@@ -227,26 +223,12 @@ const AddLeadChecklist: React.FC = () => {
 
   const handleSingleDocumentSubmit = async (index: number) => {
     const document = addMethods.getValues(`documents.${index}`);
-
-    try {
-      await addSchema.validate({ documents: [document] }, { abortEarly: false });
-    } catch (validationError) {
-      if (validationError.inner) {
-        validationError.inner.forEach((error: any) => {
-          const fieldName = error.path.split('.')[1];
-          if (fieldName === 'name') {
-            addMethods.setError(`documents.${index}.name`, {
-              type: 'manual',
-              message: error.message,
-            });
-          } else if (fieldName === 'file') {
-            addMethods.setError(`documents.${index}.file`, {
-              type: 'manual',
-              message: error.message,
-            });
-          }
-        });
-      }
+    if (!document.file) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'File Required',
+        text: 'Please select a file to upload.',
+      });
       return;
     }
 
@@ -270,7 +252,9 @@ const AddLeadChecklist: React.FC = () => {
     formData.append('name', data.updateDocumentName);
     formData.append('uploadType', `leadDocuments-${leadId}`);
     formData.append('documents', data.updateDocumentFile);
+
     await updateDocument(formData, currentFilename);
+
     closeUpdateModal();
     updateReset();
   };
@@ -279,15 +263,8 @@ const AddLeadChecklist: React.FC = () => {
     <>
       <ToastContainer />
       <PageBreadcrumb title="Add Documents" subName="Leads" />
-      {loading ? (
-        <Container className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-        </Container>
-      ) : (
       <FormProvider {...addMethods}>
-        <Container className="my-2">
+        <Container className="my-4">
           <Table responsive="md" className={`table-striped table-bordered text-center ${styles.tableStriped} ${styles.tableBordered}`}>
             <thead className={styles.theadStyles}>
               <tr>
@@ -299,98 +276,78 @@ const AddLeadChecklist: React.FC = () => {
               </tr>
             </thead>
             <tbody className={styles.tableBodyDesign}>
-              <TransitionGroup component={null}>
-                {uploadedDocs && uploadedDocs.length > 0 && uploadedDocs.map((doc, index) => (
-                  <CSSTransition key={`uploaded-${index}`} timeout={500} classNames={{
-                    enter: styles.iconEnter,
-                    enterActive: styles.iconEnterActive,
-                    exit: styles.iconExit,
-                    exitActive: styles.iconExitActive
-                  }}>
-                    <tr>
-                      <td>{index + 1}</td>
-                      <td>{doc.name}</td>
-                      <td>
-                        <p>Uploaded</p>
-                      </td>
-                      <td>
-                        <div className={styles.actionGroup}>
-                          <Button variant="info" className={`m-1 ${styles.actionButton}`} onClick={() => handleViewDocument(doc.filename!)}>
-                            <FaEye />
-                          </Button>
-                          <Button variant="warning" className={`m-1 ${styles.actionButton}`} onClick={() => openUpdateModal(doc.filename!, doc.name)}>
-                            <FaEdit />
-                          </Button>
-                          <Button variant="info" className={`m-1 ${styles.actionButton}`} onClick={() => handleDownloadDocument(doc.filename!)}>
-                            <FaDownload />
-                          </Button>
-                          <Button variant="danger" className={`m-1 ${styles.actionButton}`} onClick={() => handleDeleteSingleDocument(doc.filename!, doc.name)}>
-                            <FaTrash />
-                          </Button>
-                        </div>
-                      </td>
-                      <td>
-                        <FaCheckCircle color="green" size="1.5em" />
-                      </td>
-                    </tr>
-                  </CSSTransition>
-                ))}
-                {fields.map((field, index) => (
-                  <CSSTransition key={field.id} timeout={500} classNames={{
-                    enter: styles.iconEnter,
-                    enterActive: styles.iconEnterActive,
-                    exit: styles.iconExit,
-                    exitActive: styles.iconExitActive
-                  }}>
-                    <tr>
-                      <td>{uploadedDocs.length + index + 1}</td>
-                      <td>
-                        <Form.Control
-                          type="text"
-                          placeholder="Enter document name"
-                          {...register(`documents.${index}.name` as const)}
-                          isInvalid={!!errors.documents?.[index]?.name}
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {errors.documents?.[index]?.name?.message}
-                        </Form.Control.Feedback>
-                      </td>
-                      <td>
-                        <Form.Control
-                          type="file"
-                          onChange={(e: any) =>
-                            setValue(`documents.${index}.file`, e.target.files ? e.target.files[0] : null)
-                          }
-                          isInvalid={!!errors.documents?.[index]?.file}
-                        />
-                        <Form.Control.Feedback type='invalid'>
-                          {errors.documents?.[index]?.file?.message}
-                        </Form.Control.Feedback>
-                      </td>
-                      <td>
-                        <div className={styles.buttonGroup}>
-                          <Button variant="success" onClick={() => handleSingleDocumentSubmit(index)} className={`m-1 ${styles.actionButton}`}>
-                            <FaUpload /> Upload
-                          </Button>
-                        </div>
-                      </td>
-                      <td>
-                        <FaClock color="orange" size="1.5em" />
-                      </td>
-                    </tr>
-                  </CSSTransition>
-                ))}
-                <tr>
-                  <td colSpan={5} className="text-center">
-                    <Button variant="primary" className="mx-1" onClick={() => append({ name: '', file: null })}>
-                      <FaPlus /> Add Document
+              {uploadedDocs && uploadedDocs.length > 0 && uploadedDocs.map((doc, index) => (
+                <tr key={`uploaded-${index}`}>
+                  <td>{index + 1}</td>
+                  <td>{doc.name}</td>
+                  <td>
+                    <p>Uploaded</p>
+                  </td>
+                  <td>
+                    <Button variant="info" className="m-1" onClick={() => handleViewDocument(doc.filename!)}>
+                      <FaEye />
                     </Button>
-                    <Button variant="success" className="mx-1" onClick={handleSubmit(handleFormSubmit)} disabled={loading}>
-                      <FaUpload /> Upload All
+                    <Button variant="warning" className="m-1" onClick={() => openUpdateModal(doc.filename!, doc.name)}>
+                      <FaEdit />
+                    </Button>
+                    <Button variant="info" className="m-1" onClick={() => handleDownloadDocument(doc.filename!)}>
+                      <FaDownload />
+                    </Button>
+                    <Button variant="danger" className="m-1" onClick={() => handleDeleteSingleDocument(doc.filename!, doc.name)}>
+                      <FaTrash />
                     </Button>
                   </td>
+                  <td>
+                    <FaCheckCircle color="green" size="1.5em" />
+                  </td>
                 </tr>
-              </TransitionGroup>
+              ))}
+              {fields.map((field, index) => (
+                <tr key={field.id}>
+                  <td>{uploadedDocs.length + index + 1}</td>
+                  <td>
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter document name"
+                      {...register(`documents.${index}.name` as const)}
+                      isInvalid={!!errors.documents?.[index]?.name}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.documents?.[index]?.name?.message}
+                    </Form.Control.Feedback>
+                  </td>
+                  <td>
+                    <Form.Control
+                      type="file"
+                      onChange={(e: any) =>
+                        setValue(`documents.${index}.file`, e.target.files ? e.target.files[0] : null)
+                      }
+                      isInvalid={!!errors.documents?.[index]?.file}
+                    />
+                    <Form.Control.Feedback type='invalid'>
+                      {errors.documents?.[index]?.file?.message}
+                    </Form.Control.Feedback>
+                  </td>
+                  <td>
+                    <Button variant="success" onClick={() => handleSingleDocumentSubmit(index)} className="m-1">
+                      Upload
+                    </Button>
+                  </td>
+                  <td>
+                    <FaClock color="orange" size="1.5em" />
+                  </td>
+                </tr>
+              ))}
+              <tr>
+                <td colSpan={5} className="text-center">
+                  <Button variant="primary" className="mx-1" onClick={() => append({ name: '', file: null })}>
+                    <FaPlus /> Add Document
+                  </Button>
+                  <Button variant="success" className="mx-1" onClick={handleSubmit(handleFormSubmit)} disabled={loading}>
+                    Upload All
+                  </Button>
+                </td>
+              </tr>
             </tbody>
           </Table>
           {uploadedDocs?.length > 0 && (
@@ -404,7 +361,7 @@ const AddLeadChecklist: React.FC = () => {
             </div>
           )}
         </Container>
-      </FormProvider>)}
+      </FormProvider>
       {selectedPdf && (
         <Modal show={true} onHide={() => setSelectedPdf(null)} size="lg">
           <Modal.Header closeButton>

@@ -8,20 +8,19 @@ export default function useCreateLead() {
 	const [loading, setLoading] = useState(false)
 	const { isAuthenticated, user } = useAuthContext()
 	const [visaCategories, setVisaCategories] = useState<VisaCategory[]>([])
+
 	const createLead = async (formData: FormData) => {
 		setLoading(true)
 		try {
 			formData.append('tenantID', user.tenantID)
 			formData.append('userID', user.sub)
-			// for (let [key, value] of formData.entries()) {
-			// 	console.log(`${key}: ${value}`);
-			//   }
 			const data = await leadApi.create(formData)
 			toast.success(data.message)
-			return true;
+			return true
 		} catch (error: any) {
+			console.error("Error creating lead:", error)
 			toast.error("Lead not added")
-			return false;
+			return false
 		} finally {
 			setLoading(false)
 		}
@@ -30,15 +29,21 @@ export default function useCreateLead() {
 	useEffect(() => {
 		const getCategories = async () => {
 			setLoading(true)
-			const categoriesData = await visaCategoryApi.getAllCategory();
-			const newCategories = categoriesData.map((category: any) => {
-				return {
-					value: category.category,
-					label: category.category
-				}
-			})
-			setVisaCategories(newCategories);
-			setLoading(false)
+			try {
+				const categoriesData = await visaCategoryApi.getAllCategory()
+				const newCategories = categoriesData.map((category: any) => {
+					return {
+						value: category.category,
+						label: category.category,
+					}
+				})
+				setVisaCategories(newCategories)
+			} catch (error: any) {
+				console.error("Error fetching visa categories:", error)
+				toast.error("Failed to load visa categories")
+			} finally {
+				setLoading(false)
+			}
 		}
 
 		getCategories()

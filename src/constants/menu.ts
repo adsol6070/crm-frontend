@@ -62,6 +62,10 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				label: 'Add Visa Category',
 				url: '/leads/lead-visaCategory',
 				parentKey: 'leads',
+				permissions: {
+					Create: true,
+				},
+				permissionsKey: 'VisaCategory',
 			},
 			{
 				key: 'leads-LeadList',
@@ -76,10 +80,39 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		],
 	},
 	{
+		key: 'CalculateCRS',
+		label: 'Calculate CRS',
+		isTitle: false,
+		icon: 'ri-calculator-line',
+		children: [
+			{
+				key: 'calculateCRS-calculate',
+				label: 'Calculate',
+				url: '/calculateCRS/calculate',
+				parentKey: 'CalculateCRS',
+				permissions: {
+					Create: true,
+				},
+				permissionsKey: 'Scores',
+			},
+			{
+				key: 'calculateCRS-results',
+				label: 'Saved Results',
+				url: '/calculateCRS/listResults',
+				parentKey: 'CalculateCRS',
+				permissions: {
+					Read: true,
+				},
+				permissionsKey: 'Scores',
+			},
+		],
+	},
+	{
 		key: 'blogs',
 		label: 'Blogs',
 		isTitle: false,
 		icon: 'ri-newspaper-line',
+		permissionsKey: 'Blogs',
 		children: [
 			{
 				key: 'blogs-AddBlog',
@@ -99,7 +132,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 				permissions: {
 					Create: true,
 				},
-				permissionsKey: 'Blogs',
+				permissionsKey: 'BlogCategory',
 			},
 			{
 				key: 'blogs-BlogList',

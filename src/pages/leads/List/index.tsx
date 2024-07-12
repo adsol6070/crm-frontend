@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import { PageBreadcrumb, Table } from '@/components'
-import { Row, Col, Card, Button, Nav } from 'react-bootstrap'
+import { Row, Col, Card, Button, Nav, Spinner } from 'react-bootstrap'
 import { useLeadList } from './useLeadList'
-import { Lead } from '@/types'
+import { LeadData } from '@/types'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import BulkLeadModal from './bulkLeadModal'
-import AssignModal from './assignModal'
+import BulkLeadModal from './modals/bulkLeadModal'
+import AssignModal from './modals/assignModal'
 import styles from './LeadList.module.css'
 import { useUserList } from '@/pages/user/List/useUserList'
-import HistoryModal from './HistoryModal'
+import HistoryModal from './modals/HistoryModal'
 import { usePermissions } from '@/common'
-import { hasPermission } from '@/utils'
+import { capitalizeFirstLetter, hasPermission } from '@/utils'
 
 const LeadList = () => {
 	const { permissions } = usePermissions()
@@ -32,6 +32,7 @@ const LeadList = () => {
 		handleCloseAssignModal,
 		selectedAssignees,
 		setSelectedAssignees,
+		loading,
 	} = useLeadList()
 
 	const [showModal, setShowModal] = useState(false)
@@ -52,11 +53,6 @@ const LeadList = () => {
 
 	const handleSelectCategory = (category: any) => {
 		setSelectedCategory(category)
-	}
-
-	const capitalizeFirstLetter = (str: string) => {
-		if (!str) return str
-		return str.charAt(0).toUpperCase() + str.slice(1)
 	}
 
 	const filteredLeads =
@@ -138,7 +134,14 @@ const LeadList = () => {
 									</button>
 								)}
 							</div>
-							<Table<Lead>
+							{loading ? (
+                                <div className="text-center">
+                                    <Spinner animation="border" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </Spinner>
+                                </div>
+                            ) : (
+							<Table<LeadData>
 								columns={columns}
 								data={filteredLeads}
 								pageSize={5}
@@ -146,7 +149,7 @@ const LeadList = () => {
 								isSortable={true}
 								pagination={true}
 								isSearchable={true}
-							/>
+							/>)}
 						</Card.Body>
 					</Card>
 				</Col>

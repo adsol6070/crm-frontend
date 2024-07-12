@@ -1,82 +1,79 @@
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import styles from './leadNotes.module.css'
-import { PageBreadcrumb } from '@/components'
-import { Col, Row } from 'react-bootstrap'
-import useCreateLeadNote from './useLeadNotes'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import Swal from 'sweetalert2'
-import { hasPermission } from '@/utils'
-import { usePermissions } from '@/common'
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import styles from './leadNotes.module.css';
+import { PageBreadcrumb } from '@/components';
+import { Col, Row, Spinner } from 'react-bootstrap';
+import useCreateLeadNote from './useLeadNotes';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Swal from 'sweetalert2';
+import { capitalizeFirstLetter, hasPermission } from '@/utils';
+import { usePermissions } from '@/common';
 
-// Note type definition
 interface User {
-	id: string
-	tenantID: string
-	firstname: string
-	lastname: string
-	email: string
-	phone: string
-	profileImage: string | null
-	isEmailVerified: boolean
-	role: string
-	created_at: string
-	updated_at: string
-	online: boolean
-	last_active: string
+	id: string;
+	tenantID: string;
+	firstname: string;
+	lastname: string;
+	email: string;
+	phone: string;
+	profileImage: string | null;
+	isEmailVerified: boolean;
+	role: string;
+	created_at: string;
+	updated_at: string;
+	online: boolean;
+	last_active: string;
 }
 
 interface Note {
-	id?: string
-	lead_id?: string
-	user_id?: string
-	note?: string
-	created_at?: string
-	updated_at?: string
-	user?: User
+	id?: string;
+	lead_id?: string;
+	user_id?: string;
+	note?: string;
+	created_at?: string;
+	updated_at?: string;
+	user?: User;
 }
 
 const LeadNotes: React.FC = () => {
-	const { permissions } = usePermissions()
-	const { leadId } = useParams() as { leadId: string }
-	const [notes, setNotes] = useState<Note[]>([])
-	const [newNote, setNewNote] = useState<string>('')
-	const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
-	const [editingNoteText, setEditingNoteText] = useState<string>('')
+	const { permissions } = usePermissions();
+	const { leadId } = useParams() as { leadId: string };
+	const [notes, setNotes] = useState<Note[]>([]);
+	const [newNote, setNewNote] = useState<string>('');
+	const [isNoteValid, setIsNoteValid] = useState<boolean>(false);
+	const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+	const [editingNoteText, setEditingNoteText] = useState<string>('');
+	const [loading, setLoading] = useState<boolean>(true);
 	const {
 		createLeadNote,
 		fetchNotes,
 		deleteNotesById,
 		deleteAllLeadNotes,
 		updateLeadNote,
-	} = useCreateLeadNote(leadId)
-
-	const capitalizeFirstLetter = (str: string) => {
-		if (!str) return str
-		return str.charAt(0).toUpperCase() + str.slice(1)
-	}
+	} = useCreateLeadNote(leadId);
 
 	const getAllLeadNotes = async () => {
-		const data: Note[] = await fetchNotes()
-		setNotes(data)
-	}
+		setLoading(true);
+		const data: Note[] = await fetchNotes();
+		setNotes(data);
+		setLoading(false);
+	};
 
-	// Create a new note
 	const handleAddNote = async () => {
-		if (newNote.trim() !== '') {
-			const newNoteObj: Note = { note: newNote }
-			await createLeadNote(newNoteObj)
-			await getAllLeadNotes()
-			setNewNote('')
+		if (isNoteValid) {
+			const newNoteObj: Note = { note: newNote };
+			await createLeadNote(newNoteObj);
+			await getAllLeadNotes();
+			setNewNote('');
+			setIsNoteValid(false);
 		}
-	}
+	};
 
-	// Delete a note
 	const handleDeleteNote = async (id: string) => {
-		await deleteNotesById(id)
-		await getAllLeadNotes()
-	}
+		await deleteNotesById(id);
+		await getAllLeadNotes();
+	};
 
 	const handleDeleteAllNotes = async () => {
 		Swal.fire({
@@ -89,32 +86,36 @@ const LeadNotes: React.FC = () => {
 			confirmButtonText: 'Yes, delete all!',
 		}).then(async (result) => {
 			if (result.isConfirmed) {
-				await deleteAllLeadNotes()
-				await getAllLeadNotes()
+				await deleteAllLeadNotes();
+				await getAllLeadNotes();
 			}
-		})
-	}
+		});
+	};
 
-	// Start editing a note
 	const handleEditNote = (note: Note) => {
-		setEditingNoteId(note.id || null)
-		setEditingNoteText(note.note || '')
-	}
+		setEditingNoteId(note.id || null);
+		setEditingNoteText(note.note || '');
+	};
 
-	// Save the edited note
 	const handleSaveEditNote = async () => {
 		if (editingNoteId) {
-			const updatedNote: Note = { note: editingNoteText }
-			await updateLeadNote(editingNoteId, updatedNote)
-			setEditingNoteId(null)
-			setEditingNoteText('')
-			await getAllLeadNotes()
+			const updatedNote: Note = { note: editingNoteText };
+			await updateLeadNote(editingNoteId, updatedNote);
+			setEditingNoteId(null);
+			setEditingNoteText('');
+			await getAllLeadNotes();
 		}
-	}
+	};
+
+	const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+		const noteText = e.target.value;
+		setNewNote(noteText);
+		setIsNoteValid(noteText.trim() !== '');
+	};
 
 	useEffect(() => {
-		getAllLeadNotes()
-	}, [leadId])
+		getAllLeadNotes();
+	}, [leadId]);
 
 	return (
 		<>
@@ -125,7 +126,7 @@ const LeadNotes: React.FC = () => {
 					<div className={styles.noteInput}>
 						<textarea
 							value={newNote}
-							onChange={(e) => setNewNote(e.target.value)}
+							onChange={handleNoteChange}
 							placeholder="Add a new note"
 							className="form-control"
 						/>
@@ -133,7 +134,9 @@ const LeadNotes: React.FC = () => {
 					<div>
 						<button
 							onClick={handleAddNote}
-							className={`btn btn-primary my-2 ${styles.addButton}`}>
+							className={`btn btn-primary my-2 ${styles.addButton}`}
+							disabled={!isNoteValid}
+						>
 							Add Note
 						</button>
 					</div>
@@ -141,7 +144,13 @@ const LeadNotes: React.FC = () => {
 			</Row>
 			<Row>
 				<Col className="container" md={8}>
-					{notes.length === 0 ? (
+					{loading ? (
+						<div className="d-flex justify-content-center my-4">
+							<Spinner animation="border" role="status">
+								<span className="visually-hidden">Loading...</span>
+							</Spinner>
+						</div>
+					) : notes.length === 0 ? (
 						<div className={styles.noNotesBox}>
 							<p>No notes to display</p>
 						</div>
@@ -151,7 +160,8 @@ const LeadNotes: React.FC = () => {
 								<div className="d-flex align-items-center justify-content-end my-1">
 									<button
 										className={`btn btn-danger ${styles.deleteAllButton}`}
-										onClick={handleDeleteAllNotes}>
+										onClick={handleDeleteAllNotes}
+									>
 										Delete All Notes
 									</button>
 								</div>
@@ -163,19 +173,22 @@ const LeadNotes: React.FC = () => {
 											{editingNoteId === note.id ? (
 												<button
 													onClick={handleSaveEditNote}
-													className={styles.iconButton}>
+													className={styles.iconButton}
+												>
 													<i className="ri-save-line"></i>
 												</button>
 											) : (
 												<>
 													<button
 														onClick={() => handleEditNote(note)}
-														className={styles.iconButton}>
+														className={styles.iconButton}
+													>
 														<i className="ri-edit-2-line"></i>
 													</button>
 													<button
 														onClick={() => handleDeleteNote(note.id!)}
-														className={styles.iconButton}>
+														className={styles.iconButton}
+													>
 														<i className="ri-delete-bin-6-line"></i>
 													</button>
 												</>
@@ -222,7 +235,7 @@ const LeadNotes: React.FC = () => {
 				</Col>
 			</Row>
 		</>
-	)
-}
+	);
+};
 
-export default LeadNotes
+export default LeadNotes;

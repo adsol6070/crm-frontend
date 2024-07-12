@@ -1,0 +1,156 @@
+.body {
+    background-color: #f0f2f5;
+    font-family: 'Arial', sans-serif;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.cardHeader {
+    background-color: #0056b3;
+    color: white;
+    border-radius: 10px 10px 0 0;
+    padding: 20px;
+    text-align: center;
+}
+
+.cardTitle {
+    font-size: 26px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.cardBody {
+    padding: 40px;
+}
+
+.formGroup {
+    margin-bottom: 25px;
+}
+
+.formLabel {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.formControl {
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    padding: 12px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.formControl:focus {
+    border-color: #0056b3;
+    box-shadow: none;
+}
+
+.select2 {
+    width: 100%;
+}
+
+.select2Control {
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.select2ControlFocused {
+    border-radius: 5px;
+    border: 1px solid #0056b3;
+    box-shadow: none;
+}
+
+.button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+.textDanger {
+    color: #dc3545;
+    font-size: 14px;
+}
+
+.passFailMessage {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.successMessage {
+    color: #28a745;
+}
+
+.failMessage {
+    color: #dc3545;
+}
+
+.row {
+    margin-bottom: 20px;
+}
+
+.modalHeader {
+    background-color: #0056b3;
+    color: white;
+}
+
+.modalTitle {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.modalBody {
+    padding: 30px;
+}
+
+.modalFooter {
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .formGroup {
+        margin-bottom: 15px;
+    }
+
+    .cardBody {
+        padding: 20px;
+    }
+
+    .button {
+        width: 100%;
+        padding: 10px;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.scoreAlert {
+    font-size: 24px;
+    font-weight: bold;
+    color: #0056b3;
+    animation: fadeIn 0.5s ease-in-out;
+}
+

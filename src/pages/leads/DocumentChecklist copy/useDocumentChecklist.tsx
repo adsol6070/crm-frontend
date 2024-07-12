@@ -14,17 +14,16 @@ interface Document {
 
 const useAddDocumentChecklist = (leadId: string) => {
     const { user } = useAuthContext();
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [uploadedDocs, setUploadedDocs] = useState<Document[]>([]);
 
     const fetchDocuments = async () => {
-        setLoading(true);
         try {
+            setLoading(true);
             const documents = await leadApi.getUploadedDocuments(leadId);
             setUploadedDocs(documents.documents);
         } catch (error) {
             console.error('Error fetching documents:', error);
-            toast.error('Error fetching documents');
         } finally {
             setLoading(false);
         }
@@ -37,7 +36,6 @@ const useAddDocumentChecklist = (leadId: string) => {
             return URL.createObjectURL(blob);
         } catch (error) {
             console.error('Error fetching documents:', error);
-            toast.error('Error fetching documents');
             return '';
         }
     };
@@ -46,10 +44,9 @@ const useAddDocumentChecklist = (leadId: string) => {
         try {
             const response = await leadApi.getSingleDocument(leadId, filename);
             const blob = new Blob([response], { type: 'application/pdf' });
-            return URL.createObjectURL(blob);
+            return URL.createObjectURL(blob)
         } catch (error) {
             console.error('Error fetching document:', error);
-            toast.error('Error fetching document');
             return '';
         }
     }
@@ -81,7 +78,7 @@ const useAddDocumentChecklist = (leadId: string) => {
             }
         });
 
-        await handleDocumentAction(
+        handleDocumentAction(
             () => leadApi.uploadChecklist(formData, leadId),
             'Documents uploaded successfully',
             'Error uploading documents'
@@ -89,7 +86,7 @@ const useAddDocumentChecklist = (leadId: string) => {
     };
 
     const updateDocument = async (formData: FormData, filename: string) => {
-        await handleDocumentAction(
+        handleDocumentAction(
             () => leadApi.updateSingleDocument(formData, leadId, filename),
             'Document updated successfully',
             'Error updating document'
@@ -97,7 +94,7 @@ const useAddDocumentChecklist = (leadId: string) => {
     };
 
     const deleteDocument = async (filename: string) => {
-        await handleDocumentAction(
+        handleDocumentAction(
             () => leadApi.deleteSingleDocument(leadId, filename),
             'Document deleted successfully',
             'Error deleting document'
@@ -105,7 +102,7 @@ const useAddDocumentChecklist = (leadId: string) => {
     };
 
     const deleteAllDocuments = async () => {
-        await handleDocumentAction(
+        handleDocumentAction(
             () => leadApi.deleteDocuments(leadId),
             'All documents deleted successfully',
             'Error deleting all documents'
@@ -115,4 +112,4 @@ const useAddDocumentChecklist = (leadId: string) => {
     return { loading, onSubmit, uploadedDocs, setUploadedDocs, fetchDocuments, getDocumentsUrl, getSingleDocumentUrl, deleteDocument, updateDocument, deleteAllDocuments };
 }
 
-export default useAddDocumentChecklist;
+export default useAddDocumentChecklist

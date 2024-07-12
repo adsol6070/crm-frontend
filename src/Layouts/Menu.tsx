@@ -41,7 +41,7 @@ const MenuItemWithChildren = ({
 		return false
 	}
 
-	const canViewMenuItem = (menuItem: MenuItemTypes, permissions: any) => {
+	const canViewMenuItem = (menuItem: MenuItemTypes, permissions: any): any => {
 		if (isSuperAdmin) {
 			return true
 		}
@@ -49,14 +49,21 @@ const MenuItemWithChildren = ({
 		if (menuItem.key === 'user-ManageRoles' && !isSuperAdmin) {
 			return null
 		}
-
+		
 		if (menuItem.permissions) {
 			return Object.keys(menuItem.permissions).some((action) =>
 				hasPermission(permissions, menuItem.permissionsKey as string, action)
 			)
 		}
+		
+		if (menuItem.children) {
+			return menuItem.children.some((child) => canViewMenuItem(child, permissions))
+		}
+
 		return true
 	}
+
+	if (!canViewMenuItem(item, permissions)) return null
 
 	return (
 		<li className={`side-nav-item ${open ? 'menuitem-active' : ''}`}>

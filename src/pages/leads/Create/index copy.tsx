@@ -187,8 +187,12 @@ const AddLead = () => {
 
 	useEffect(() => {
 		const fetchSavedData = async () => {
-			const savedStep = localStorage.getItem('currentStep');
-			const savedData = localStorage.getItem('formData');
+			const savedStep = localStorage.getItem('currentStep')
+			const savedData = localStorage.getItem('formData')
+			const savedCountry = localStorage.getItem('selectedCountry')
+			const savedState = localStorage.getItem('selectedState')
+			const savedDistrict = localStorage.getItem('selectedDistrict')
+			const savedCity = localStorage.getItem('selectedCity')
 
 			if (savedStep) setStep(JSON.parse(savedStep))
 			if (savedData) {
@@ -198,6 +202,11 @@ const AddLead = () => {
 					setValue(key, data[key])
 				})
 			}
+
+			if (savedCountry) setSelectedCountry(JSON.parse(savedCountry))
+			if (savedState) setSelectedState(JSON.parse(savedState))
+			if (savedDistrict) setSelectedDistrict(JSON.parse(savedDistrict))
+			if (savedCity) setSelectedCity(JSON.parse(savedCity))
 		}
 		fetchSavedData()
 	}, [setValue])
@@ -209,6 +218,22 @@ const AddLead = () => {
 	useEffect(() => {
 		localStorage.setItem('formData', JSON.stringify(collectedData))
 	}, [collectedData])
+
+	useEffect(() => {
+		if (selectedCountry) localStorage.setItem('selectedCountry', JSON.stringify(selectedCountry))
+	}, [selectedCountry])
+
+	useEffect(() => {
+		if (selectedState) localStorage.setItem('selectedState', JSON.stringify(selectedState))
+	}, [selectedState])
+
+	useEffect(() => {
+		if (selectedDistrict) localStorage.setItem('selectedDistrict', JSON.stringify(selectedDistrict))
+	}, [selectedDistrict])
+
+	useEffect(() => {
+		if (selectedCity) localStorage.setItem('selectedCity', JSON.stringify(selectedCity))
+	}, [selectedCity])
 
 	const handleNext = (data: any) => {
 		const newData = { ...collectedData, ...data }
@@ -303,6 +328,10 @@ const AddLead = () => {
 			setStep(1)
 			localStorage.removeItem('currentStep')
 			localStorage.removeItem('formData')
+			localStorage.removeItem('selectedCountry')
+			localStorage.removeItem('selectedState')
+			localStorage.removeItem('selectedDistrict')
+			localStorage.removeItem('selectedCity')
 		}
 	}
 

@@ -1,14 +1,18 @@
 .theadStyles {
-  background-color: #1a2942b8;
+  background-color: #343a40;
   color: white;
 }
 
 .theadStyles th {
   color: white;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
-.table{
+.table {
   vertical-align: middle !important;
+  border-collapse: separate;
+  border-spacing: 0 15px;
 }
 
 .tableStriped tbody tr:nth-of-type(odd) {
@@ -21,11 +25,19 @@
 
 .tableBordered {
   border: 1px solid #dee2e6;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .tableBordered th,
 .tableBordered td {
   border: 1px solid #dee2e6;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.tableBodyDesign {
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 .btnPrimary,
@@ -59,10 +71,59 @@
 .reactPdfPage {
   display: flex;
   justify-content: center;
+  transition: transform 0.3s ease-in-out;
 }
 
 @media (max-width: 768px) {
   .reactPdfPage {
     width: 100%;
   }
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  font-size: 1.2em;
+  transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.actionButton:hover {
+  background-color: #0056b3;
+  color: white;
+}
+
+.buttonGroup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionGroup{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconEnter {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.iconEnterActive {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 500ms, transform 500ms;
+}
+
+.iconExit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.iconExitActive {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 500ms, transform 500ms;
 }

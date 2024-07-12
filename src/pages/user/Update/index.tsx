@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { permissionService } from '@/common';
+import { capitalizeFirstLetter } from '@/utils';
 
 interface User {
   id: string;
@@ -117,7 +118,7 @@ const EditUser: React.FC = () => {
   return (
     <>
       <ToastContainer />
-      <PageBreadcrumb title={`Edit User - ${userData.firstname} ${userData.lastname}`} subName="Users" />
+      <PageBreadcrumb title={`Edit User - ${capitalizeFirstLetter(userData.firstname)} ${capitalizeFirstLetter(userData.lastname)}`} subName="Users" />
       <Row>
         <Col>
           <Card>

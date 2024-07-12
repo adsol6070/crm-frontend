@@ -1,24 +1,21 @@
 import { useAuthContext } from '@/common';
 import visaCategory from '@/common/api/visaCategory';
-import { PageSize } from '@/components'
-import { VisaCategory } from '@/types'
+import { PageSize } from '@/components';
+import { VisaCategory } from '@/types';
+import { capitalizeFirstLetter } from '@/utils';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { RiDeleteBinLine, RiEdit2Line, RiSaveLine } from 'react-icons/ri';
-import { Column } from 'react-table'
+import { Column } from 'react-table';
 import { toast } from 'react-toastify';
 
 export function useVisaCategory() {
-    const [loading, setLoading] = useState(false)
-    const { user } = useAuthContext()
+    const [loading, setLoading] = useState(false);
+    const [dataLoading, setDataLoading] = useState(true);
+    const { user } = useAuthContext();
     const [editCategoryId, setEditCategoryId] = useState<string | null>(null);
     const [editCategoryValue, setEditCategoryValue] = useState<string>("");
     const [category, setCategory] = useState<string>("");
-    const [visaCategories, setVisaCategories] = useState<VisaCategory[]>([])
-
-    const capitalizeFirstLetter = (str: string)=> {
-        if (!str) return str;
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
+    const [visaCategories, setVisaCategories] = useState<VisaCategory[]>([]);
 
     const columns: ReadonlyArray<Column> = [
         {
@@ -83,19 +80,27 @@ export function useVisaCategory() {
                 );
             },
         },
-    ]
+    ];
 
     const handleDelete = async (categoryID: string) => {
-        await visaCategory.deleteCategory(categoryID)
-        const updatedVisaCategory = visaCategories.filter((category) => category.id !== categoryID)
-        const updatedCategoriesWithSno = updatedVisaCategory.map((category, index) => ({
-            ...category,
-            sno: index + 1
-        }));
-        setVisaCategories(updatedCategoriesWithSno);
-        toast.success("Category Deleted successfully!");
+        try {
+            setLoading(true);
+            await visaCategory.deleteCategory(categoryID);
+            const updatedVisaCategory = visaCategories.filter((category) => category.id !== categoryID);
+            const updatedCategoriesWithSno = updatedVisaCategory.map((category, index) => ({
+                ...category,
+                sno: index + 1
+            }));
+            setVisaCategories(updatedCategoriesWithSno);
+            toast.success("Category Deleted successfully!");
+        } catch (error) {
+            console.error('Error deleting category:', error);
+            toast.error("Failed to delete category.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    }
     const handleEdit = (categoryID: string, currentCategory: string) => {
         setEditCategoryId(categoryID);
         setEditCategoryValue(currentCategory);
@@ -117,7 +122,7 @@ export function useVisaCategory() {
             setEditCategoryId(null);
             toast.success("Category updated successfully!");
         } catch (error) {
-            console.error(error);
+            console.error('Error updating category:', error);
             toast.error("Failed to update category.");
         } finally {
             setLoading(false);
@@ -141,59 +146,68 @@ export function useVisaCategory() {
             text: 'All',
             value: visaCategories.length,
         },
-    ]
+    ];
 
     useEffect(() => {
         const getCategories = async () => {
-            setLoading(true)
+            setLoading(true);
+            setDataLoading(true);
             try {
                 const response = await visaCategory.getAllCategory();
-                setVisaCategories(response.map((category: any, index: any) => ({ ...category, sno: index + 1 })))
+                setVisaCategories(response.map((category: any, index: any) => ({ ...category, sno: index + 1 })));
             } catch (error) {
                 console.error('Error fetching categories:', error);
+                toast.error("Failed to load visa categories");
             } finally {
-                setLoading(false)
+                setLoading(false);
+                setDataLoading(false);
             }
-        }
+        };
 
-        getCategories()
-    }, [])
+        getCategories();
+    }, []);
 
     const handleCategoryChange = (event: ChangeEvent<HTMLInputElement>) => {
         setCategory(event.target.value);
-    }
+    };
 
     const createCategory = async ({
         category,
     }: {
         category: string
     }) => {
+        if (category.trim() === '') {
+            toast.error("Please enter a valid category name.");
+            return;
+        }
         try {
-            setLoading(true)
-            const formData = new FormData()
-            formData.append('tenantID', user.tenantID)
-            formData.append('category', category)
+            setLoading(true);
+            const formData = new FormData();
+            formData.append('tenantID', user.tenantID);
+            formData.append('category', category.trim());
 
             const data = await visaCategory.createVisaCategory(formData);
 
             const newCategory = { ...data.visaCategory, sno: visaCategories.length + 1 };
             setVisaCategories(visaCategories => [...visaCategories, newCategory]);
             toast.success(data.message);
-            setLoading(false)
+            setCategory('');
         } catch (error) {
-            console.error(error)
+            console.error('Error creating category:', error);
+            toast.error("Failed to create category.");
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }
+    };
 
     return {
         visaCategories,
         columns,
         loading,
+        dataLoading,
         category,
         createCategory,
         handleCategoryChange,
-        sizePerPageList
-    }
+        sizePerPageList,
+    };
 }

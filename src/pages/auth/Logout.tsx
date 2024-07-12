@@ -34,11 +34,11 @@ const Logout = () => {
 		return (
 			<Row>
 				<Col xs={12} className="text-center">
-					<p className="text-dark-emphasis">
-						Back To{' '}
+					<p className="text-dark-emphasis" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+						Back To
 						<Button
 							variant="link"
-							className="text-dark fw-bold ms-1 link-offset-3 text-decoration-underline"
+							className="text-dark fw-bold link-offset-3 text-decoration-underline"
 							onClick={handleLoginClick}>
 							<b>Log In</b>
 						</Button>

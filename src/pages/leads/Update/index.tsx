@@ -8,69 +8,106 @@ import Select from 'react-select'
 import { PageBreadcrumb, FormInput } from '@/components';
 import useEditLead from './useEditLead';
 import useReadLead from '../Read/useReadLead';
+import CountryList from 'react-select-country-list';
+import { Country, State, City } from 'country-state-city';
+import { LeadData } from '@/types';
+import { capitalizeFirstLetter, nationalityOptions, genderOptions } from '@/utils'
 
-interface VisaCategory {
-  value: string
-  label: string
+interface DropdownOptions {
+  value?: string
+  label?: string
 }
 
-interface LeadData {
-  permanentAddress: string;
-  currentAddress: string;
-  passportExpiry: string;
-  passportNumber: string;
-  maritalStatus: string;
-  nationality: string;
-  dob: string;
-  gender: string;
-  phone: string;
-  email: string;
-  lastname: string;
-  firstname: string;
-  highestQualification: string;
-  fieldOfStudy: string;
-  institutionName: string;
-  graduationYear: string;
-  grade: string;
-  testType: string;
-  testScore: string;
-  countryOfInterest: string;
-  courseOfInterest: string;
-  desiredFieldOfStudy: string;
-  preferredInstitutions: string;
-  intakeSession: string;
-  reasonForImmigration: string;
-  financialSupport: string;
-  sponsorDetails: string;
-  proofOfFunds: Record<string, any>;
-  scholarships: string;
-  visaCategory: string;
-  languageTestReport: Record<string, any>;
-  passportCopy: Record<string, any>;
-  certificates: Record<string, any>;
-  transcripts: Record<string, any>;
-  sop: Record<string, any>;
-  recommendationLetter: Record<string, any>;
-  resume: Record<string, any>;
-  leadRating: string;
-  followUpDates: string;
-  leadStatus: string;
-  referralContact: string;
-  leadSource: string;
-  preferredContactTime: string;
-  communicationMode: string;
-  created_at: string;
-}
 const EditLead: React.FC = () => {
   const { leadId } = useParams<{ leadId: string }>();
+  const [countryOptions, setCountryOptions] = useState(() => CountryList().getData());
   const { leadData, loading, error } = useReadLead(leadId as string);
   const { editLead, visaCategories } = useEditLead();
-  const [selectedVisaCategory, setSelectedVisaCategory] = useState<VisaCategory | null>(null)
+  const [selectedVisaCategory, setSelectedVisaCategory] = useState<DropdownOptions | null>(null)
+  const [selectedGender, setSelectedGender] = useState<DropdownOptions | null>(null)
+  const [selectedNationality, setSelectedNationality] = useState<DropdownOptions | null>(null)
+  const [selectedCountryOfInterest, setSelectedCountryOfInterest] = useState<DropdownOptions | null>(null)
+  const [countries, setCountries] = useState<DropdownOptions[]>([]);
+  const [states, setStates] = useState<DropdownOptions[]>([]);
+  const [cities, setCities] = useState<DropdownOptions[]>([]);
+  const [districts, setDistricts] = useState<DropdownOptions[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState<DropdownOptions | null>(null)
+  const [selectedState, setSelectedState] = useState<DropdownOptions | null>(null)
+  const [selectedDistrict, setSelectedDistrict] = useState<DropdownOptions | null>(null)
+  const [selectedCity, setSelectedCity] = useState<DropdownOptions | null>(null)
+
   const methods = useForm({
     defaultValues: leadData ?? {},
   });
 
   const { register, handleSubmit, setValue, formState: { errors } } = methods;
+  
+  const getCountryISOCode = (countryName: any) => {
+    const country = Country.getAllCountries().find((country) => country.name === countryName);
+    return country ? country.isoCode : null;
+  };
+
+
+  const getStateCode = (stateName: any) => {
+    const state = State.getAllStates().find((state) => state.name === stateName);
+    return state ? state?.isoCode : null;
+  };
+
+  useEffect(() => {
+    const countryOptions = Country.getAllCountries().map((country) => ({
+      value: country.isoCode,
+      label: country.name,
+    }));
+    setCountries(countryOptions);
+  }, []);
+
+  useEffect(() => {
+    if (selectedCountry) {
+      const isoCode: any = getCountryISOCode(selectedCountry.label);
+      if (isoCode !== selectedCountry.value) {
+        setSelectedCountry({ value: isoCode, label: selectedCountry.label });
+      }
+      const stateOptions = State.getStatesOfCountry(isoCode).map((state) => ({
+        value: state.isoCode,
+        label: state.name,
+      }));
+      setStates(stateOptions);
+      setSelectedState(selectedState);
+      setSelectedDistrict(selectedDistrict);
+      setSelectedCity(selectedCity);
+      setDistricts([]);
+      setCities([]);
+    }
+  }, [selectedCountry]);
+
+  useEffect(() => {
+    if (selectedState && selectedCountry) {
+      const stateCode = getStateCode(selectedState.label);
+      if (stateCode !== selectedState.value) {
+        setSelectedState({ value: stateCode, label: selectedState.label });
+      }
+      const districtOptions = City.getCitiesOfState(selectedCountry.value, stateCode).map((city) => ({
+        value: city.name,
+        label: city.name,
+      }));
+      setDistricts(districtOptions);
+      setSelectedDistrict(selectedDistrict);
+      setSelectedCity(selectedCity);
+      setCities([]);
+    }
+  }, [selectedState, selectedCountry]);
+
+  useEffect(() => {
+    if (selectedDistrict) {
+      const cityOptions = City.getCitiesOfState(selectedCountry?.value ?? '', selectedState?.value ?? '').map((city) => ({
+        value: city.name,
+        label: city.name,
+      }));
+      setCities(cityOptions);
+      setSelectedCity(selectedCity);
+    }
+  }, [selectedDistrict, selectedState, selectedCountry]);
+
 
   useEffect(() => {
     if (leadData) {
@@ -86,9 +123,57 @@ const EditLead: React.FC = () => {
         }
       });
 
+      if (leadData.gender) {
+        setSelectedGender({
+          label: capitalizeFirstLetter(leadData.gender),
+          value: leadData.gender,
+        })
+      }
+
+      if (leadData.nationality) {
+        setSelectedNationality({
+          label: capitalizeFirstLetter(leadData.nationality),
+          value: leadData.nationality,
+        })
+      }
+      if (leadData.country) {
+        setSelectedCountry({
+          label: leadData.country,
+          value: leadData.country,
+        })
+      }
+
+      if (leadData.state) {
+        setSelectedState({
+          label: leadData.state,
+          value: leadData.state,
+        })
+      }
+
+      if (leadData.district) {
+        setSelectedDistrict({
+          label: leadData.district,
+          value: leadData.district,
+        })
+      }
+
+      if (leadData.city) {
+        setSelectedCity({
+          label: leadData.city,
+          value: leadData.city,
+        })
+      }
+
+      if (leadData.countryOfInterest) {
+        setSelectedCountryOfInterest({
+          label: leadData.countryOfInterest,
+          value: leadData.countryOfInterest,
+        })
+      }
+
       if (leadData.visaCategory) {
         setSelectedVisaCategory({
-          label: leadData.visaCategory,
+          label: capitalizeFirstLetter(leadData.visaCategory),
           value: leadData.visaCategory,
         })
       }
@@ -96,13 +181,42 @@ const EditLead: React.FC = () => {
 
   }, [leadData, setValue]);
 
-  const handleSelect = (option: VisaCategory | null) => {
+  const handleSelect = (option: DropdownOptions | null) => {
     setSelectedVisaCategory(option)
   }
 
+  const handleSelect2 = (option: DropdownOptions | null) => {
+    setSelectedGender(option)
+  }
+
+  const handleSelect3 = (option: DropdownOptions | null) => {
+    setSelectedNationality(option)
+  }
+
+  const handleSelect4 = (option: DropdownOptions | null) => {
+    setSelectedCountryOfInterest(option)
+  }
+
+  const handleSelect5 = (option: DropdownOptions | null) => {
+    setSelectedCountry(option)
+  }
+
+  const handleSelect6 = (option: DropdownOptions | null) => {
+    setSelectedState(option)
+  }
+
+  const handleSelect7 = (option: DropdownOptions | null) => {
+    setSelectedDistrict(option)
+  }
+
+  const handleSelect8 = (option: DropdownOptions | null) => {
+    setSelectedCity(option)
+  }
+
+
   const onSubmit = async (data: any) => {
     const completeData = {
-      ...data, visaCategory: selectedVisaCategory?.value
+      ...data, visaCategory: selectedVisaCategory?.value, gender: selectedGender?.value, countryOfInterest: selectedCountryOfInterest?.label, nationality: selectedNationality?.value, country: selectedCountry?.label, state: selectedState?.label, district: selectedDistrict?.value, city: selectedCity?.value
     }
     await editLead(completeData, leadId);
   };
@@ -201,14 +315,18 @@ const EditLead: React.FC = () => {
                                 />
                               </Col>
                               <Col lg={4} md={6} sm={12}>
-                                <FormInput
-                                  label="Gender"
-                                  name="gender"
-                                  type="text"
-                                  placeholder="Enter Gender"
-                                  register={register}
-                                  errors={errors}
-                                />
+                                <Form.Group>
+                                  <Form.Label>Gender</Form.Label>
+                                  <Select
+                                    className="select2"
+                                    options={genderOptions}
+                                    getOptionLabel={(e) => e.label ?? ''}
+                                    getOptionValue={(e) => e.value ?? ''}
+                                    value={selectedGender}
+                                    onChange={handleSelect2}
+                                    isClearable={true}
+                                  />
+                                </Form.Group>
                               </Col>
                               <Col lg={4} md={6} sm={12}>
                                 <FormInput
@@ -227,14 +345,18 @@ const EditLead: React.FC = () => {
                           <td>
                             <Row>
                               <Col lg={4} md={6} sm={12}>
-                                <FormInput
-                                  label="Nationality"
-                                  name="nationality"
-                                  type="text"
-                                  placeholder="Enter Nationality"
-                                  register={register}
-                                  errors={errors}
-                                />
+                                <Form.Group>
+                                  <Form.Label>Nationality</Form.Label>
+                                  <Select
+                                    className="select2"
+                                    options={nationalityOptions}
+                                    getOptionLabel={(e) => e.label ?? ''}
+                                    getOptionValue={(e) => e.value ?? ''}
+                                    value={selectedNationality}
+                                    onChange={handleSelect3}
+                                    isClearable={true}
+                                  />
+                                </Form.Group>
                               </Col>
                               <Col lg={4} md={6} sm={12}>
                                 <FormInput
@@ -288,6 +410,85 @@ const EditLead: React.FC = () => {
                                   name="permanentAddress"
                                   type="text"
                                   placeholder="Enter Permanent Address"
+                                  register={register}
+                                  errors={errors}
+                                />
+                              </Col>
+                            </Row>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <Row>
+                              <Col lg={4} md={6} sm={12}>
+                                <Form.Group>
+                                  <Form.Label>Country</Form.Label>
+                                  <Select
+                                    className="select2"
+                                    options={countries}
+                                    getOptionLabel={(e) => e.label ?? ''}
+                                    getOptionValue={(e) => e.value ?? ''}
+                                    value={selectedCountry}
+                                    onChange={handleSelect5}
+                                    isClearable={true}
+                                  />
+                                </Form.Group>
+                              </Col>
+                              <Col lg={4} md={6} sm={12}>
+                                <Form.Group>
+                                  <Form.Label>State</Form.Label>
+                                  <Select
+                                    className="select2"
+                                    options={states}
+                                    getOptionLabel={(e) => e.label ?? ''}
+                                    getOptionValue={(e) => e.value ?? ''}
+                                    value={selectedState}
+                                    onChange={handleSelect6}
+                                    isClearable={true}
+                                  />
+                                </Form.Group>
+                              </Col>
+                              <Col lg={4} md={6} sm={12}>
+                                <Form.Group>
+                                  <Form.Label>District</Form.Label>
+                                  <Select
+                                    className="select2"
+                                    options={districts}
+                                    getOptionLabel={(e) => e.label ?? ''}
+                                    getOptionValue={(e) => e.value ?? ''}
+                                    value={selectedDistrict}
+                                    onChange={handleSelect7}
+                                    isClearable={true}
+                                  />
+
+                                </Form.Group>
+                              </Col>
+                            </Row>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <Row>
+                              <Col lg={4} md={6} sm={12}>
+                                <Form.Group>
+                                  <Form.Label>City</Form.Label>
+                                  <Select
+                                    className="select2"
+                                    options={cities}
+                                    getOptionLabel={(e) => e.label ?? ''}
+                                    getOptionValue={(e) => e.value ?? ''}
+                                    value={selectedCity}
+                                    onChange={handleSelect8}
+                                    isClearable={true}
+                                  />
+                                </Form.Group>
+                              </Col>
+                              <Col lg={4} md={6} sm={12}>
+                                <FormInput
+                                  label="Pincode"
+                                  name="pincode"
+                                  type="text"
+                                  placeholder="Enter Pincode"
                                   register={register}
                                   errors={errors}
                                 />
@@ -385,7 +586,6 @@ const EditLead: React.FC = () => {
                                   <Form.Label>Visa Category</Form.Label>
                                   <Select
                                     className="select2 z-3"
-                                    defaultValue={selectedVisaCategory}
                                     options={visaCategories as any[]}
                                     getOptionLabel={(e: any) => e.label}
                                     getOptionValue={(e: any) => e.value}
@@ -396,14 +596,18 @@ const EditLead: React.FC = () => {
                                 </Form.Group>
                               </Col>
                               <Col lg={4} md={6} sm={12}>
-                                <FormInput
-                                  label="Country of Interest"
-                                  name="countryOfInterest"
-                                  type="text"
-                                  placeholder="Enter Country of Interest"
-                                  register={register}
-                                  errors={errors}
-                                />
+                                <Form.Group>
+                                  <Form.Label>Country of Interest</Form.Label>
+                                  <Select
+                                    className="select2"
+                                    options={countryOptions}
+                                    getOptionLabel={(e) => e.label ?? ''}
+                                    getOptionValue={(e) => e.value ?? ''}
+                                    value={selectedCountryOfInterest}
+                                    onChange={handleSelect4}
+                                    isClearable={true}
+                                  />
+                                </Form.Group>
                               </Col>
                               <Col lg={4} md={6} sm={12}>
                                 <FormInput

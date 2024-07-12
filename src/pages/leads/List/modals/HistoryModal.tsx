@@ -1,12 +1,24 @@
 import React from 'react';
 import { Modal } from 'react-bootstrap';
-import styles from './LeadList.module.css';
+import styles from '../LeadList.module.css';
+import { capitalizeFirstLetter, capitalizeFirstLetterOfEachWord } from '@/utils';
+
+interface Agent {
+    id: string;
+    firstname: string;
+    lastname: string;
+}
 
 interface HistoryItem {
     action: string;
     timestamp: string;
     details?: {
-        assignedAgents?: { id: string; firstname: string; lastname: string }[];
+        createdBy?: { firstname: string; lastname: string };
+        updatedBy?: { firstname: string; lastname: string };
+        statusUpdatedBy?: { firstname: string; lastname: string };
+        previousStatus?: string;
+        upcomingStatus?: string;
+        assignedAgents?: Agent[];
     };
 }
 
@@ -17,6 +29,19 @@ interface HistoryModalProps {
 }
 
 const HistoryModal: React.FC<HistoryModalProps> = ({ show, onHide, historyData }) => {
+    const getStatusClass = (status: string | null) => {
+        switch (status) {
+            case 'pending':
+                return styles.pendingStatus;
+            case 'inprogress':
+                return styles.inProgressStatus;
+            case 'completed':
+                return styles.completedStatus;
+            default:
+                return styles.noStatus;
+        }
+    };
+
     return (
         <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>
@@ -28,7 +53,22 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ show, onHide, historyData }
                         <div key={index} className={styles.step}>
                             <div className={styles.stepNumber}>{index + 1}</div>
                             <div className={styles.stepContent}>
-                                <h5 className={styles.action}>{item.action}</h5>
+                                <h5 className={styles.action}>{capitalizeFirstLetterOfEachWord(item.action)}</h5>
+                                {item.details?.statusUpdatedBy && (
+                                    <div className={styles.statusChange}>
+                                        <div className={styles.statusProgress}>
+                                            <div className={styles.statusCircleWrapper}>
+                                                <div className={`${styles.statusCircle} ${getStatusClass(String(item.details.previousStatus))}`}>
+                                                    {capitalizeFirstLetter(item.details.previousStatus === null ? "No Status" : String(item.details.previousStatus))}
+                                                </div>
+                                                <div className={styles.statusLine}></div>
+                                                <div className={`${styles.statusCircle} ${getStatusClass(String(item.details.upcomingStatus))}`}>
+                                                    {capitalizeFirstLetter(item.details.upcomingStatus || '')}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                                 <p className={styles.timestamp}>{new Date(item.timestamp).toLocaleString()}</p>
                                 {item.details?.assignedAgents && item.details.assignedAgents.length > 0 && (
                                     <div className={styles.assignedAgents}>
@@ -38,7 +78,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ show, onHide, historyData }
                                                 agent ? (
                                                     <li key={agent.id} className={styles.agentItem}>
                                                         <span className={styles.agentName}>
-                                                            {agent.firstname} {agent.lastname}
+                                                            {capitalizeFirstLetter(agent.firstname)} {capitalizeFirstLetter(agent.lastname)}
                                                         </span>
                                                     </li>
                                                 ) : null

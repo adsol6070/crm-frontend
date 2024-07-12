@@ -1,4 +1,4 @@
-export type Lead = {
+export type LeadData = {
 	id: string;
 	tenantID: string;
 	permanentAddress: string;
@@ -7,6 +7,10 @@ export type Lead = {
     passportNumber: string;
     maritalStatus: string;
     nationality: string;
+    country: string;
+    state: string;
+    district: string;
+    city: string;
     dob: string;
     gender: string;
     phone: string;

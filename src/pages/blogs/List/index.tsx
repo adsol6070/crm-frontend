@@ -4,6 +4,7 @@ import useGetBlogPosts from './useBlogList'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
 import { useAuthContext } from '@/common/context'
+import { capitalizeFirstLetter } from '@/utils'
 
 const BlogList = () => {
 	const {
@@ -28,10 +29,7 @@ const BlogList = () => {
 		}
 		return text
 	}
-	function capitalizeFirstLetter(line: any) {
-		if (!line) return line
-		return line.charAt(0).toUpperCase() + line.slice(1)
-	}
+	
 	return (
 		<>
 			<ToastContainer />
