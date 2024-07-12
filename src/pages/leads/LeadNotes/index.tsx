@@ -179,18 +179,20 @@ const LeadNotes: React.FC = () => {
 												</button>
 											) : (
 												<>
+												{hasPermission(permissions, 'Leads', 'EditNote') && (
 													<button
 														onClick={() => handleEditNote(note)}
 														className={styles.iconButton}
 													>
 														<i className="ri-edit-2-line"></i>
-													</button>
+													</button>)}
+													{hasPermission(permissions, 'Leads', 'DeleteNote') && (
 													<button
 														onClick={() => handleDeleteNote(note.id!)}
 														className={styles.iconButton}
 													>
 														<i className="ri-delete-bin-6-line"></i>
-													</button>
+													</button>)}
 												</>
 											)}
 										</div>

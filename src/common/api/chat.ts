@@ -30,6 +30,17 @@ function ChatService() {
 				headers: getAuthHeaders(),
 			})
 		},
+		uploadChatFile: async (values: any) => {
+			return await HttpClient.post('/chat/uploadChatFile', values, {
+				headers: getAuthHeaders(true),
+			})
+		},
+		getChatFile: async (values: any) => {
+			return await HttpClient.post('/chat/getChatFile', values, {
+				responseType: 'blob',
+				headers: getAuthHeaders(),
+			})
+		},
 	}
 }
 

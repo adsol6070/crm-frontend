@@ -90,44 +90,46 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 	const { sideBarType } = useThemeCustomizer()
 	const { width } = useViewport()
 	const [getProfile] = useUser()
-	const socket = SocketManager.getSocket();
-	const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  
+	const socket = SocketManager.getSocket()
+	const [notifications, setNotifications] = useState<NotificationItem[]>([])
+
 	useEffect(() => {
-  
-	  const requestInitialNotifications = () => {
-		socket?.emit('requestInitialNotifications');
-	  };
-  
-	  const receiveInitialNotifications = (leadNotifications: any) => {
-		setNotifications(leadNotifications);
-	  };
-  
-	  const receiveNewNotification = (newNotification: any) => {
-		setNotifications((prevNotifications) => [...prevNotifications, newNotification]);
-		playNotificationSound();
-	  };
-  
-	  const notificationsCleared = () => {
-		setNotifications([]);
-	  };
-  
-	  socket?.on('initialNotifications', receiveInitialNotifications);
-	  socket?.on('notification', receiveNewNotification);
-	  socket?.on('notificationsCleared', notificationsCleared);
-  
-	  requestInitialNotifications();
-  
-	  return () => {
-		socket?.off('initialNotifications', receiveInitialNotifications);
-		socket?.off('notification', receiveNewNotification);
-		socket?.off('notificationsCleared', notificationsCleared);
-	  };
-	}, []);
-  
+		const requestInitialNotifications = () => {
+			socket?.emit('requestInitialNotifications')
+		}
+
+		const receiveInitialNotifications = (leadNotifications: any) => {
+			setNotifications(leadNotifications)
+		}
+
+		const receiveNewNotification = (newNotification: any) => {
+			setNotifications((prevNotifications) => [
+				...prevNotifications,
+				newNotification,
+			])
+			playNotificationSound()
+		}
+
+		const notificationsCleared = () => {
+			setNotifications([])
+		}
+
+		socket?.on('initialNotifications', receiveInitialNotifications)
+		socket?.on('notification', receiveNewNotification)
+		socket?.on('notificationsCleared', notificationsCleared)
+
+		requestInitialNotifications()
+
+		return () => {
+			socket?.off('initialNotifications', receiveInitialNotifications)
+			socket?.off('notification', receiveNewNotification)
+			socket?.off('notificationsCleared', notificationsCleared)
+		}
+	}, [])
+
 	const handleClear = () => {
-	  socket?.emit('clearAllNotifications');
-	};
+		socket?.emit('clearAllNotifications')
+	}
 
 	const handleLeftMenuCallBack = () => {
 		if (width < 768) {
@@ -263,7 +265,10 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							<MessageDropdown />
 						</li>
 						<li className="dropdown notification-list">
-							<NotificationDropdown handleClear={handleClear} notifications={notifications} />
+							<NotificationDropdown
+								handleClear={handleClear}
+								notifications={notifications}
+							/>
 						</li>
 						<li className="d-none d-sm-inline-block">
 							<button className="nav-link" onClick={handleRightSideBar}>

@@ -41,6 +41,8 @@ const initialPermissions: Permissions = {
 		Assign: false,
 		Status: false,
 		AddNotes: false,
+		EditNote: false,
+		DeleteNote: false,
 		DeleteNotes: false,
 		History: false,
 		Edit: false,
