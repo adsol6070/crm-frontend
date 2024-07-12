@@ -1,0 +1,5 @@
+const CHAT_TAB = '1'
+const GROUP_TAB = '2'
+const MESSAGE_TYPING_TIMEOUT = 500 // 0.5 second
+
+export { CHAT_TAB, GROUP_TAB, MESSAGE_TYPING_TIMEOUT }
