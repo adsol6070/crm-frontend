@@ -8,17 +8,17 @@
   status = 200
 
 [[redirects]]
-  from = "/static/*"
+  from = "./static/*"
   to = "/static/:splat"
   status = 200
 
 [[redirects]]
-  from = "/assets/*"
+  from = "./assets/*"
   to = "/assets/:splat"
   status = 200
 
 [[redirects]]
-  from = "/images/*"
+  from = "./images/*"
   to = "/images/:splat"
   status = 200
 
