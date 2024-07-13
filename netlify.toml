@@ -8,32 +8,32 @@
   status = 200
 
 [[redirects]]
-  from = "dist/static/*"
+  from = "/static/*"
   to = "/static/:splat"
   status = 200
 
 [[redirects]]
-  from = "dist/assets/*"
+  from = "/assets/*"
   to = "/assets/:splat"
   status = 200
 
 [[redirects]]
-  from = "dist/images/*"
+  from = "/images/*"
   to = "/images/:splat"
   status = 200
 
 [[redirects]]
-  from = "dist/favicon.ico"
+  from = "/favicon.ico"
   to = "/favicon.ico"
   status = 200
 
 [[redirects]]
-  from = "dist/manifest.json"
+  from = "/manifest.json"
   to = "/manifest.json"
   status = 200
 
 [[redirects]]
-  from = "dist/robots.txt"
+  from = "/robots.txt"
   to = "/robots.txt"
   status = 200
 
