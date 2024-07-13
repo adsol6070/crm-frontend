@@ -37,11 +37,7 @@
   to = "/robots.txt"
   status = 200
 
-[[redirects]]
-  from = "/index.html"
-  to = "/index.html"
-  status = 200
-
+# This wildcard redirect should be the last one to catch all other routes
 [[redirects]]
   from = "/*"
   to = "/index.html"
