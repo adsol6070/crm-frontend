@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="/favicon.ico" type="image/svg+xml" href="/logo.svg" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Adsol CRM</title>
   <style>
@@ -41,15 +41,29 @@
 <body>
   <div id="root"></div>
   <div id="splash-screen">
-    <img alt="Logo" class="light" src="./images/logo-dark.png" style="height: 10%" />
+    <img alt="Logo" class="light" src="/images/logo-dark.png" style="height: 10%" />
   </div>
-  <script type="module" src="/src/main.tsx"></script>
   <script>
-    document.querySelector('#root')?.addEventListener('DOMNodeInserted', () => {
-      console.log('DOMNodeInserted event fired');
-      document.querySelector('#splash-screen')?.classList.add('remove');
-    })
+    const targetNode = document.querySelector('#root');
+    const observerOptions = {
+      childList: true,
+      subtree: true
+    };
+
+    const observerCallback = (mutationsList, observer) => {
+      for (const mutation of mutationsList) {
+        if (mutation.addedNodes.length) {
+          document.querySelector('#splash-screen')?.classList.add('remove');
+          observer.disconnect();
+          break;
+        }
+      }
+    };
+
+    const observer = new MutationObserver(observerCallback);
+    observer.observe(targetNode, observerOptions);
   </script>
+  <script type="module" src="/dist/main.js"></script>
 </body>
 
 </html>
