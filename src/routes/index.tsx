@@ -7,59 +7,59 @@ import PrivateRoute from './PrivateRoute'
 // lazy load all the views
 
 // auth
-const Login = React.lazy(() => import('/pages/auth/Login'))
-const Register = React.lazy(() => import('/pages/auth/Register'))
-const OrganizationRegister = React.lazy(() => import('/pages/auth/Organization'))
-const Logout = React.lazy(() => import('/pages/auth/Logout'))
-const ForgotPassword = React.lazy(() => import('/pages/auth/ForgotPassword'))
-const ResetPassword = React.lazy(() => import('/pages/auth/ResetPassword'))
-const LockScreen = React.lazy(() => import('/pages/auth/LockScreen'))
+const Login = React.lazy(() => import('../pages/auth/Login'))
+const Register = React.lazy(() => import('../pages/auth/Register'))
+const OrganizationRegister = React.lazy(() => import('../pages/auth/Organization'))
+const Logout = React.lazy(() => import('../pages/auth/Logout'))
+const ForgotPassword = React.lazy(() => import('../pages/auth/ForgotPassword'))
+const ResetPassword = React.lazy(() => import('../pages/auth/ResetPassword'))
+const LockScreen = React.lazy(() => import('../pages/auth/LockScreen'))
 
 // // dashboard
-const Dashboard = React.lazy(() => import('/pages/Dashboard'))
+const Dashboard = React.lazy(() => import('../pages/Dashboard'))
 
 // // pages
-const ProfilePages = React.lazy(() => import('/pages/Profile/'))
-const InvoicePages = React.lazy(() => import('/pages/other/Invoice'))
-const FAQPages = React.lazy(() => import('/pages/other/FAQ'))
-const PricingPages = React.lazy(() => import('/pages/other/Pricing'))
-const MaintenancePages = React.lazy(() => import('/pages/other/Maintenance'))
-const StarterPages = React.lazy(() => import('/pages/other/Starter'))
-const ContactListPages = React.lazy(() => import('/pages/other/ContactList'))
-const TimelinePages = React.lazy(() => import('/pages/other/Timeline'))
+const ProfilePages = React.lazy(() => import('../pages/Profile/'))
+const InvoicePages = React.lazy(() => import('../pages/other/Invoice'))
+const FAQPages = React.lazy(() => import('../pages/other/FAQ'))
+const PricingPages = React.lazy(() => import('../pages/other/Pricing'))
+const MaintenancePages = React.lazy(() => import('../pages/other/Maintenance'))
+const StarterPages = React.lazy(() => import('../pages/other/Starter'))
+const ContactListPages = React.lazy(() => import('../pages/other/ContactList'))
+const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
 
 // Express Entry 
-const CalculateCRS = React.lazy(() => import('/pages/CalculateCRS/Calculate'))
-const ListCRSscores = React.lazy(() => import('/pages/CalculateCRS/ListResults'))
+const CalculateCRS = React.lazy(() => import('../pages/CalculateCRS/Calculate'))
+const ListCRSscores = React.lazy(() => import('../pages/CalculateCRS/ListResults'))
 
 // blogs
-const AddBlog = React.lazy(() => import('/pages/blogs/Create'))
-const BlogList = React.lazy(() => import('/pages/blogs/List'))
-const BlogEdit = React.lazy(() => import('/pages/blogs/Edit'))
-const ReadBlog = React.lazy(() => import('/pages/blogs/Readblog'))
-const AddCategory = React.lazy(() => import('/pages/blogs/AddCategory'))
+const AddBlog = React.lazy(() => import('../pages/blogs/Create'))
+const BlogList = React.lazy(() => import('../pages/blogs/List'))
+const BlogEdit = React.lazy(() => import('../pages/blogs/Edit'))
+const ReadBlog = React.lazy(() => import('../pages/blogs/Readblog'))
+const AddCategory = React.lazy(() => import('../pages/blogs/AddCategory'))
 
 // leads
-const AddLead = React.lazy(() => import('/pages/leads/Create'))
-const ListLead = React.lazy(() => import('/pages/leads/List'))
-const ReadLead = React.lazy(() => import('/pages/leads/Read'))
-const EditLead = React.lazy(() => import('/pages/leads/Update'))
-const AddLeadDocument = React.lazy(() => import('/pages/leads/DocumentChecklist'))
-const AddVisaCategory = React.lazy(() => import('/pages/leads/AddVisaCategory'))
-const LeadNotes = React.lazy(() => import('/pages/leads/LeadNotes/'))
+const AddLead = React.lazy(() => import('../pages/leads/Create'))
+const ListLead = React.lazy(() => import('../pages/leads/List'))
+const ReadLead = React.lazy(() => import('../pages/leads/Read'))
+const EditLead = React.lazy(() => import('../pages/leads/Update'))
+const AddLeadDocument = React.lazy(() => import('../pages/leads/DocumentChecklist'))
+const AddVisaCategory = React.lazy(() => import('../pages/leads/AddVisaCategory'))
+const LeadNotes = React.lazy(() => import('../pages/leads/LeadNotes/'))
 
 // // users
-const UserList = React.lazy(() => import('/pages/user/List'))
-const CreateUser = React.lazy(() => import('/pages/user/Create'))
-const EditUser = React.lazy(() => import('/pages/user/Update'))
-const UserRoles = React.lazy(() => import('/pages/user/Roles'))
+const UserList = React.lazy(() => import('../pages/user/List'))
+const CreateUser = React.lazy(() => import('../pages/user/Create'))
+const EditUser = React.lazy(() => import('../pages/user/Update'))
+const UserRoles = React.lazy(() => import('../pages/user/Roles'))
 
-const Chats = React.lazy(() => import('/pages/apps/Chat'))
+const Chats = React.lazy(() => import('../pages/apps/Chat'))
 
 // // error
-const Error404 = React.lazy(() => import('/pages/error/Error404'))
-const Error404Alt = React.lazy(() => import('/pages/error/Error404Alt'))
-const Error500 = React.lazy(() => import('/pages/error/Error500'))
+const Error404 = React.lazy(() => import('../pages/error/Error404'))
+const Error404Alt = React.lazy(() => import('../pages/error/Error404Alt'))
+const Error500 = React.lazy(() => import('../pages/error/Error500'))
 
 export interface RoutesProps {
 	path: RouteProps['path']
@@ -402,7 +402,7 @@ const flattenRoutes = (routes: RoutesProps[]) => {
 	routes.forEach((item: RoutesProps) => {
 		flatRoutes.push(item)
 		if (typeof item.children !== 'undefined') {
-			flatRoutes = [.flatRoutes, .flattenRoutes(item.children)]
+			flatRoutes = [...flatRoutes, ...flattenRoutes(item.children)]
 		}
 	})
 	return flatRoutes
@@ -418,10 +418,10 @@ const authProtectedRoutes = [
 	adminRoutes,
 	customPagesRoutes,
 ]
-const publicRoutes = [.authRoutes, .otherPublicRoutes]
+const publicRoutes = [...authRoutes, ...otherPublicRoutes]
 
-const authProtectedFlattenRoutes = flattenRoutes([.authProtectedRoutes])
-const publicProtectedFlattenRoutes = flattenRoutes([.publicRoutes])
+const authProtectedFlattenRoutes = flattenRoutes([...authProtectedRoutes])
+const publicProtectedFlattenRoutes = flattenRoutes([...publicRoutes])
 export {
 	publicRoutes,
 	authProtectedRoutes,
