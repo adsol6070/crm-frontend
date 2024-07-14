@@ -46,6 +46,7 @@
   <script type="module" src="/src/main.tsx"></script>
   <script>
     document.querySelector('#root')?.addEventListener('DOMNodeInserted', () => {
+      console.log('DOMNodeInserted event fired');
       document.querySelector('#splash-screen')?.classList.add('remove');
     })
   </script>
