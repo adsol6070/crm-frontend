@@ -7,7 +7,7 @@ class SocketManager {
 
 	static getInstance(token: string): Socket {
 		if (!SocketManager.instance) {
-			SocketManager.instance = io(`https://crm-backend-cr5u.onrender.com`, {
+			SocketManager.instance = io(`${process.env.VITE_SOCKET_URL}`, {
 				auth: { token },
 			})
 

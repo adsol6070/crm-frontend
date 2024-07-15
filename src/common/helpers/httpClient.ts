@@ -49,7 +49,7 @@ const refreshToken = async (): Promise<string | null> => {
 		const response = await axios.post<{
 			accessToken: string
 			refreshToken: string
-		}>(`${import.meta.env.VITE_HOST_URL}/auth/refresh-tokens`, {
+		}>(`${process.env.VITE_API_URL}/auth/refresh-tokens`, {
 			tenantID: decodedRefreshToken.tenantID,
 			refresh_token,
 		})
@@ -74,7 +74,7 @@ const refreshToken = async (): Promise<string | null> => {
 
 function HttpClient(): { [key: string]: Function } {
 	const _httpClient: AxiosInstance = axios.create({
-		baseURL: `${import.meta.env.VITE_HOST_URL}`,
+		baseURL: `${process.env.VITE_API_URL}`,
 		timeout: 6000,
 		headers: {
 			'Content-Type': 'application/json',
