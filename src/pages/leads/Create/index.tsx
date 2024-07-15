@@ -165,7 +165,7 @@ const AddLead = () => {
 
   useEffect(() => {
     if (selectedState && selectedCountry) {
-      console.log("Selected State", selectedState)
+      console.log("Selected States", selectedState)
       const districtOptions = City.getCitiesOfState(selectedCountry.value, selectedState.value).map((city) => ({
         value: city.name,
         label: city.name,
