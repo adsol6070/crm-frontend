@@ -20,23 +20,25 @@ import classNames from 'classnames'
 import { CHAT_TAB, GROUP_TAB } from '@/constants/chat'
 import styled from 'styled-components'
 import { filterByName } from '@/utils'
+import { useChatContext } from '../context/chatContext'
 
 const Sidebar = ({
-	singleButton,
-	setSingleButton,
-	currentUser,
+	// currentUser,
 	setShowCreateGroupModal,
-	activeTab,
-	setActiveTab,
-	chats,
 	userChatOpen,
-	unreadMessages,
-	groups,
 	groupChatOpen,
-	unreadGroupMessages,
-	currentRoomId,
 	handleGroupContextMenu,
 }) => {
+	const {
+		chats,
+		groups,
+		currentRoomId,
+		unreadMessages,
+		unreadGroupMessages,
+		currentUser,
+	} = useChatContext()
+	const [singleButton, setSingleButton] = useState<boolean>(false)
+	const [activeTab, setActiveTab] = useState<string>(CHAT_TAB)
 	const [searchTerm, setSearchTerm] = useState<string>('')
 	const [filteredChats, setFilteredChats] = useState(chats)
 	const [filteredGroups, setFilteredGroups] = useState(groups)

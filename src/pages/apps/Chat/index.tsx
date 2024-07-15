@@ -18,6 +18,7 @@ import SelectNewOwnerModal from './Modals/SelectNewOwnerModal'
 import { CHAT_TAB } from '@/constants/chat'
 import Sidebar from './components/Sidebar'
 import ChatWindow from './components/ChatWindow'
+import { ChatProvider } from './context/chatContext'
 
 const MySwal = withReactContent(Swal)
 
@@ -25,7 +26,6 @@ const Chat: React.FC = () => {
 	const { user } = useAuthContext()
 	const typingTimeout = useRef<NodeJS.Timeout | null>(null)
 	const fileInputRef = useRef<HTMLInputElement>(null)
-	const [singleButton, setSingleButton] = useState<boolean>(false)
 	const [singleButton1, setSingleButton1] = useState<boolean>(false)
 	const [singleButton2, setSingleButton2] = useState<boolean>(false)
 	const [isDisable, setDisable] = useState<boolean>(false)
@@ -50,7 +50,6 @@ const Chat: React.FC = () => {
 	const [chats, setChats] = useState<any[]>([])
 	const [messages, setMessages] = useState<any[]>([])
 	const [members, setMembers] = useState<any[]>([])
-	const [activeTab, setActiveTab] = useState<string>(CHAT_TAB)
 	const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false)
 	const [isLoadingMessages, setIsLoadingMessages] = useState<boolean>(false)
 	const [showForwardModal, setShowForwardModal] = useState<boolean>(false)
@@ -1208,23 +1207,13 @@ const Chat: React.FC = () => {
 	}
 
 	return (
-		<>
+		<ChatProvider>
 			<PageBreadcrumb title="Chat" subName="Chat" />
 			<div className="d-lg-flex">
 				<Sidebar
-					singleButton={singleButton}
-					setSingleButton={setSingleButton}
-					currentUser={currentUser}
 					setShowCreateGroupModal={setShowCreateGroupModal}
-					activeTab={activeTab}
-					setActiveTab={setActiveTab}
-					chats={chats}
 					userChatOpen={userChatOpen}
-					unreadMessages={unreadMessages}
-					groups={groups}
 					groupChatOpen={groupChatOpen}
-					unreadGroupMessages={unreadGroupMessages}
-					currentRoomId={currentRoomId}
 					handleGroupContextMenu={handleGroupContextMenu}
 				/>
 				<ChatWindow
@@ -1322,7 +1311,7 @@ const Chat: React.FC = () => {
 				handleSelectNewOwner={handleSelectNewOwner}
 				handleConfirmNewOwner={handleConfirmNewOwner}
 			/>
-		</>
+		</ChatProvider>
 	)
 }
 
