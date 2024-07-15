@@ -135,7 +135,6 @@ export const useResultList = (): ResultListHookResult => {
                 setResultRecords(usersWithSno);
             } catch (error) {
                 console.error('Failed to fetch results:', error);
-                toast.error('Failed to fetch results.');
             } finally {
                 setLoading(false);
             }

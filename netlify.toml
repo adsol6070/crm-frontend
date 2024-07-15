@@ -1,0 +1,44 @@
+[build]
+  command = "npm install && npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from = "/_/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/static/*"
+  to = "/static/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/assets/*"
+  to = "/assets/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/images/*"
+  to = "/images/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/favicon.ico"
+  to = "/favicon.ico"
+  status = 200
+
+[[redirects]]
+  from = "/manifest.json"
+  to = "/manifest.json"
+  status = 200
+
+[[redirects]]
+  from = "/robots.txt"
+  to = "/robots.txt"
+  status = 200
+
+# This wildcard redirect should be the last one to catch all other routes
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

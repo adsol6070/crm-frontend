@@ -12,7 +12,6 @@ import 'react-toastify/dist/ReactToastify.css'
 interface UserData {
 	email: string
 	password: string
-	rememberMe?: boolean
 }
 
 const BottomLinks = () => {
