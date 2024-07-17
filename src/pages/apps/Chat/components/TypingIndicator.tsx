@@ -1,76 +1,85 @@
-import React from 'react'
+import styled, { keyframes } from 'styled-components'
+import { useChatContext } from '../context/chatContext'
 
-const TypingIndicator = ({ isTyping, typingUsers, isGroupChat }) => {
-	return (
-		<>
-			{isTyping && (
-				<div className="chat-wrap-content typing-indicator">
-					{isGroupChat ? (
-						typingUsers.map((user) => (
-							<div key={user.id} className="typing-user">
-								{user.firstname} {user.lastname} is typing
-								<div className="typing-dots">
-									<span></span>
-									<span></span>
-									<span></span>
-								</div>
-							</div>
-						))
-					) : (
-						<div className="typing-dots">
-							<span></span>
-							<span></span>
-							<span></span>
-						</div>
-					)}
-				</div>
-			)}
-		</>
-	)
-}
+const bounce = keyframes`
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+`
 
-export default TypingIndicator
-
-/* 
-
-.typing-indicator {
+const TypingIndicatorWrapper = styled.div`
+	position: absolute;
 	display: flex;
 	align-items: center;
-	height: 1.5rem;
-}
+	background-color: transparent;
+	padding: 15px;
+	border-radius: 0px 15px 15px 15px;
+	bottom: 100px;
+	left: 75px;
+	color: black;
+`
 
-.typing-indicator p {
+const TypingUser = styled.div`
 	margin: 0;
 	padding-right: 0.5rem;
-}
+`
 
-
-.typing-dots {
+const TypingDots = styled.div`
 	display: flex;
 	align-items: flex-end;
-}
+`
 
-.typing-dots span {
+const Dot = styled.span`
 	display: block;
 	width: 0.5rem;
 	height: 0.5rem;
 	margin-right: 0.2rem;
 	background-color: #333;
 	border-radius: 50%;
-	animation: bounce 1s infinite ease-in-out;
+	animation: ${bounce} 1s infinite ease-in-out;
+
+	&:nth-child(1) {
+		animation-delay: 0s;
+	}
+	&:nth-child(2) {
+		animation-delay: 0.2s;
+	}
+	&:nth-child(3) {
+		animation-delay: 0.4s;
+	}
+`
+
+const TypingIndicator = () => {
+	const { isTyping, typingUsers, isGroupChat } = useChatContext()
+	return (
+		<>
+			{isTyping && (
+				<TypingIndicatorWrapper>
+					{isGroupChat ? (
+						typingUsers.map((user) => (
+							<TypingUser key={user.id} className="typing-user">
+								{user.firstname} {user.lastname} is typing
+								<TypingDots>
+									<Dot />
+									<Dot />
+									<Dot />
+								</TypingDots>
+							</TypingUser>
+						))
+					) : (
+						<TypingDots>
+							<Dot />
+							<Dot />
+							<Dot />
+						</TypingDots>
+					)}
+				</TypingIndicatorWrapper>
+			)}
+		</>
+	)
 }
 
-.typing-dots span:nth-child(1) {
-	animation-delay: 0s;
-}
-
-.typing-dots span:nth-child(2) {
-	animation-delay: 0.2s;
-}
-
-.typing-dots span:nth-child(3) {
-	animation-delay: 0.4s;
-}
-
-
-*/
+export default TypingIndicator

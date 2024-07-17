@@ -1,29 +1,37 @@
-import React from 'react'
 import GenericModal from '../components/GenericModal'
 import { Button, ListGroup, ListGroupItem } from 'reactstrap'
+import { useChatContext } from '../context/chatContext'
+import SocketManager from '@/common/context/SocketManager'
 
-interface SelectNewOwnerModalProps {
-	isOpen: boolean
-	toggle: () => void
-	members: any[]
-	currentUser: any
-	selectedMember: string
-	handleSelectNewOwner: (id: string) => void
-	handleConfirmNewOwner: () => void
-}
+const SelectNewOwnerModal = () => {
+	const {
+		currentUser,
+		currentRoomId,
+		showSelectNewOwnerModal,
+		handleCloseSelectNewOwnerModal,
+		selectedMember,
+		setSelectedMember,
+		members,
+	} = useChatContext()
 
-const SelectNewOwnerModal: React.FC<SelectNewOwnerModalProps> = ({
-	isOpen,
-	toggle,
-	members,
-	currentUser,
-	selectedMember,
-	handleSelectNewOwner,
-	handleConfirmNewOwner,
-}) => {
 	const filteredMembers = members.filter(
 		(member) => member.id !== currentUser?.id
 	)
+
+	const handleSelectNewOwner = (id: string) => {
+		setSelectedMember(id)
+	}
+
+	const handleConfirmNewOwner = () => {
+		const socket = SocketManager.getSocket()
+		if (selectedMember) {
+			socket?.emit('transferGroupOwnership', {
+				groupId: currentRoomId,
+				newOwnerId: selectedMember,
+			})
+			handleCloseSelectNewOwnerModal()
+		}
+	}
 
 	const body = (
 		<ListGroup>
@@ -71,7 +79,7 @@ const SelectNewOwnerModal: React.FC<SelectNewOwnerModalProps> = ({
 
 	const footer = (
 		<>
-			<Button color="secondary" onClick={toggle}>
+			<Button color="secondary" onClick={handleCloseSelectNewOwnerModal}>
 				Cancel
 			</Button>
 			<Button color="primary" onClick={handleConfirmNewOwner}>
@@ -82,8 +90,8 @@ const SelectNewOwnerModal: React.FC<SelectNewOwnerModalProps> = ({
 
 	return (
 		<GenericModal
-			isOpen={isOpen}
-			toggle={toggle}
+			isOpen={showSelectNewOwnerModal}
+			toggle={handleCloseSelectNewOwnerModal}
 			title="Select New Group Owner"
 			body={body}
 			footer={footer}

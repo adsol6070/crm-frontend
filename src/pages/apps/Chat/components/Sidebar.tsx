@@ -22,13 +22,7 @@ import styled from 'styled-components'
 import { filterByName } from '@/utils'
 import { useChatContext } from '../context/chatContext'
 
-const Sidebar = ({
-	// currentUser,
-	setShowCreateGroupModal,
-	userChatOpen,
-	groupChatOpen,
-	handleGroupContextMenu,
-}) => {
+const Sidebar = () => {
 	const {
 		chats,
 		groups,
@@ -36,6 +30,10 @@ const Sidebar = ({
 		unreadMessages,
 		unreadGroupMessages,
 		currentUser,
+		userChatOpen,
+		groupChatOpen,
+		handleGroupContextMenu,
+		setShowCreateGroupModal,
 	} = useChatContext()
 	const [singleButton, setSingleButton] = useState<boolean>(false)
 	const [activeTab, setActiveTab] = useState<string>(CHAT_TAB)

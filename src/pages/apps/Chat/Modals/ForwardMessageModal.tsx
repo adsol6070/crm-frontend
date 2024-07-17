@@ -1,24 +1,48 @@
-import React from 'react'
+import { useState } from 'react'
 import GenericModal from '../components/GenericModal'
 import { Button, ListGroup, ListGroupItem } from 'reactstrap'
+import { useChatContext } from '../context/chatContext'
+import SocketManager from '@/common/context/SocketManager'
 
-interface ForwardMessageModalProps {
-	isOpen: boolean
-	toggle: () => void
-	chats: any[]
-	selectedUsers: Set<string>
-	handleUserSelect: (id: string) => void
-	forwardMessage: () => void
-}
+const ForwardMessageModal = () => {
+	const {
+		chats,
+		isGroupChat,
+		showForwardModal,
+		setShowForwardModal,
+		messageToForward,
+		setMessageToForward,
+	} = useChatContext()
+	const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set())
 
-const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
-	isOpen,
-	toggle,
-	chats,
-	selectedUsers,
-	handleUserSelect,
-	forwardMessage,
-}) => {
+	const handleUserSelect = (userId: string) => {
+		setSelectedUsers((prevSelected) => {
+			const newSelected = new Set(prevSelected)
+			if (newSelected.has(userId)) {
+				newSelected.delete(userId)
+			} else {
+				newSelected.add(userId)
+			}
+			return newSelected
+		})
+	}
+
+	const forwardMessage = () => {
+		const socket = SocketManager.getSocket()
+		socket?.emit('forwardMessage', {
+			messageId: messageToForward.id,
+			toUserIds: Array.from(selectedUsers),
+			isGroup: isGroupChat,
+		})
+		closeForwardModal()
+	}
+
+	const closeForwardModal = () => {
+		setShowForwardModal(false)
+		setMessageToForward(null)
+		setSelectedUsers(new Set())
+	}
+
 	const body = (
 		<ListGroup style={{ userSelect: 'none' }}>
 			{chats.map((chat) => (
@@ -56,7 +80,7 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
 
 	const footer = (
 		<>
-			<Button color="secondary" onClick={toggle}>
+			<Button color="secondary" onClick={closeForwardModal}>
 				Cancel
 			</Button>
 			<Button color="primary" onClick={forwardMessage}>
@@ -67,8 +91,8 @@ const ForwardMessageModal: React.FC<ForwardMessageModalProps> = ({
 
 	return (
 		<GenericModal
-			isOpen={isOpen}
-			toggle={toggle}
+			isOpen={showForwardModal}
+			toggle={closeForwardModal}
 			title="Forward Message"
 			body={body}
 			footer={footer}

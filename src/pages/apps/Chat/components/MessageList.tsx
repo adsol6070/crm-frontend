@@ -5,6 +5,7 @@ import {
 	UncontrolledDropdown,
 } from 'reactstrap'
 import styled from 'styled-components'
+import { useChatContext } from '../context/chatContext'
 
 const List = styled.ul`
 	list-style-type: none;
@@ -102,24 +103,25 @@ const Avatar = styled.div`
 	}
 `
 
-const MessageList = ({
-	messages,
-	currentRoomId,
-	currentUser,
-	chatBoxUsername,
-	openForwardModal,
-	deleteSelfMessage,
-	deleteGroupMessageForEveryone,
-	deleteGroupMessageForMe,
-	deleteMessageForEveryone,
-	deleteMessageForMe,
-	copyMsg,
-	isGroupChat,
-	renderFilePreview,
-}) => {
+const MessageList = ({ filteredMessages }) => {
+	const {
+		currentRoomId,
+		currentUser,
+		chatBoxUsername,
+		openForwardModal,
+		deleteSelfMessage,
+		deleteGroupMessageForEveryone,
+		deleteGroupMessageForMe,
+		deleteMessageForMe,
+		deleteMessageForEveryone,
+		copyMsg,
+		isGroupChat,
+		renderFilePreview,
+	} = useChatContext()
+
 	return (
 		<List>
-			{messages.map((msg, index) => {
+			{filteredMessages.map((msg, index) => {
 				if (msg.system) {
 					return (
 						<SystemMessage key={index}>

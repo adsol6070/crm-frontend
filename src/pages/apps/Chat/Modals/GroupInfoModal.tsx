@@ -1,22 +1,74 @@
-import React from 'react'
 import GenericModal from '../components/GenericModal'
-import { ListGroup, ListGroupItem } from 'reactstrap'
+import { Button, ListGroup, ListGroupItem } from 'reactstrap'
+import { useChatContext } from '../context/chatContext'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+import SocketManager from '@/common/context/SocketManager'
 
-interface GroupInfoModalProps {
-	isOpen: boolean
-	toggle: () => void
-	members: any[]
-	renderAddRemoveUserOptions: () => JSX.Element | null
-	renderLeaveGroupButton: () => JSX.Element | null
-}
+const MySwal = withReactContent(Swal)
 
-const GroupInfoModal: React.FC<GroupInfoModalProps> = ({
-	isOpen,
-	toggle,
-	members,
-	renderAddRemoveUserOptions,
-	renderLeaveGroupButton,
-}) => {
+const GroupInfoModal = () => {
+	const {
+		isGroupChat,
+		currentUser,
+		groups,
+		currentRoomId,
+		members,
+		setShowAddUserModal,
+		showGroupInfoModal,
+		setShowGroupInfoModal,
+	} = useChatContext()
+
+	const leaveGroup = async (groupId: string) => {
+		const result = await MySwal.fire({
+			title: 'Are you sure?',
+			text: 'Are you sure you want to leave this group?',
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#3085d6',
+			cancelButtonColor: '#d33',
+			confirmButtonText: 'Yes, leave it!',
+		})
+
+		if (result.isConfirmed) {
+			const socket = SocketManager.getSocket()
+			socket?.emit('leaveGroup', { groupId })
+			setShowGroupInfoModal(false)
+		}
+	}
+
+	const renderAddRemoveUserOptions = () => {
+		if (
+			isGroupChat &&
+			currentUser?.id ===
+				groups.find((group) => group.id === currentRoomId)?.creator_id
+		) {
+			return (
+				<Button
+					color="primary"
+					onClick={() => setShowAddUserModal(true)}
+					className="ms-2">
+					Add or Remove User
+				</Button>
+			)
+		}
+		return null
+	}
+
+	const renderLeaveGroupButton = () => {
+		if (
+			isGroupChat &&
+			members.some((member) => member.id === currentUser?.id)
+		) {
+			return (
+				<Button color="danger" onClick={() => leaveGroup(currentRoomId)}>
+					Leave Group
+				</Button>
+			)
+		}
+		return null
+	}
+
 	const body = (
 		<ListGroup>
 			{members.map((member) => (
@@ -55,8 +107,8 @@ const GroupInfoModal: React.FC<GroupInfoModalProps> = ({
 
 	return (
 		<GenericModal
-			isOpen={isOpen}
-			toggle={toggle}
+			isOpen={showGroupInfoModal}
+			toggle={() => setShowGroupInfoModal(false)}
 			title={
 				<div className="d-flex justify-content-between align-items-center w-100">
 					<div>Group Information</div>

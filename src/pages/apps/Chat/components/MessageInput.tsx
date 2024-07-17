@@ -1,27 +1,30 @@
 import EmojiPicker from 'emoji-picker-react'
 import { Button } from 'reactstrap'
 import styled from 'styled-components'
+import { useChatContext } from '../context/chatContext'
 
-const MessageInput = ({
-	disabledGroups,
-	currentRoomId,
-	curMessage,
-	onKeyPress,
-	handleTyping,
-	showEmojiPicker,
-	setShowEmojiPicker,
-	handleEmojiClick,
-	fileInputRef,
-	emojiPickerRef,
-	isDisable,
-	isCaptionTyping,
-	handleFileUpload,
-	addMessage,
-	selectedFile,
-	caption,
-	handleCaptionChange,
-	handleSendFileMessage,
-}) => {
+const MessageInput = () => {
+	const {
+		curMessage,
+		onKeyPress,
+		handleTyping,
+		showEmojiPicker,
+		setShowEmojiPicker,
+		handleEmojiClick,
+		fileInputRef,
+		handleFileUpload,
+		addMessage,
+		selectedFile,
+		caption,
+		handleCaptionChange,
+		handleSendFileMessage,
+		isDisable,
+		isCaptionTyping,
+		disabledGroups,
+		emojiPickerRef,
+		currentRoomId,
+	} = useChatContext()
+
 	return (
 		<div className="p-3 border-top">
 			{disabledGroups.has(currentRoomId) ? (

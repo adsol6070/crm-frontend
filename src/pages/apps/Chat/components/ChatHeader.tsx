@@ -12,6 +12,7 @@ import styled, { keyframes } from 'styled-components'
 import Swal from 'sweetalert2'
 import { saveAs } from 'file-saver'
 import JSZip from 'jszip'
+import { useChatContext } from '../context/chatContext'
 
 const slideDown = keyframes`
   from {
@@ -106,23 +107,20 @@ const CustomDropdownMenu = styled(DropdownMenu)`
 		}
 	}
 `
-
-const ChatHeader = ({
-	isGroupChat,
-	openGroupInfoModal,
-	chatBoxUsername,
-	chatBoxUserStatus,
-	chatBoxUserImage,
-	singleButton2,
-	setSingleButton2,
-	messages,
-	setFilteredMessages,
-}) => {
+const ChatHeader = ({ messages, setFilteredMessages }) => {
+	const {
+		chatBoxUsername,
+		chatBoxUserStatus,
+		chatBoxUserImage,
+		isGroupChat,
+		openGroupInfoModal,
+	} = useChatContext()
+	const [singleButton2, setSingleButton2] = useState<boolean>(false)
 	const [showSearch, setShowSearch] = useState(false)
 	const [searchTerm, setSearchTerm] = useState('')
 	const searchInputRef = useRef(null)
 
-	const handleSearchChange = (e) => {
+	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchTerm(e.target.value)
 		const filtered = messages.filter((msg) =>
 			msg.message.toLowerCase().includes(e.target.value.toLowerCase())

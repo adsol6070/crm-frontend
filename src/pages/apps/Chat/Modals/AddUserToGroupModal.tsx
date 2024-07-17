@@ -1,37 +1,50 @@
-import React from 'react'
+import { useState } from 'react'
 import GenericModal from '../components/GenericModal'
 import { Button, ListGroup, ListGroupItem } from 'reactstrap'
+import { useChatContext } from '../context/chatContext'
+import SocketManager from '@/common/context/SocketManager'
 
-interface AddUserToGroupModalProps {
-	isOpen: boolean
-	toggle: () => void
-	filteredChats: any[]
-	members: any[]
-	currentUser: any
-	selectedUsers: Set<string>
-	handleUserSelect: (id: string) => void
-	addUserToGroup: (groupId: string, userId: string) => void
-	removeUserFromGroup: (groupId: string, userId: string) => void
-	currentRoomId: string
-	setShowAddUserModal: (isOpen: boolean) => void
-}
+const AddUserToGroupModal = () => {
+	const {
+		chats,
+		currentUser,
+		members,
+		currentRoomId,
+		showAddUserModal,
+		setShowAddUserModal,
+	} = useChatContext()
+	const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set())
 
-const AddUserToGroupModal: React.FC<AddUserToGroupModalProps> = ({
-	isOpen,
-	toggle,
-	filteredChats,
-	members,
-	currentUser,
-	selectedUsers,
-	handleUserSelect,
-	addUserToGroup,
-	removeUserFromGroup,
-	currentRoomId,
-	setShowAddUserModal,
-}) => {
+	const handleUserSelect = (userId: string) => {
+		setSelectedUsers((prevSelected) => {
+			const newSelected = new Set(prevSelected)
+			if (newSelected.has(userId)) {
+				newSelected.delete(userId)
+			} else {
+				newSelected.add(userId)
+			}
+			return newSelected
+		})
+	}
+
+	const closeAddRemoveUserModal = () => {
+		setShowAddUserModal(false)
+		setSelectedUsers(new Set())
+	}
+
+	const addUserToGroup = async (groupId: string, userId: string) => {
+		const socket = SocketManager.getSocket()
+		socket?.emit('addUserToGroup', { groupId, userId })
+	}
+
+	const removeUserFromGroup = async (groupId: string, userId: string) => {
+		const socket = SocketManager.getSocket()
+		socket?.emit('removeUserFromGroup', { groupId, userId })
+	}
+
 	const body = (
 		<ListGroup>
-			{filteredChats.map((chat) => {
+			{chats.map((chat) => {
 				const isMember = members.some((member) => member.id === chat.id)
 				if (chat.id === currentUser?.id) {
 					return null
@@ -85,7 +98,7 @@ const AddUserToGroupModal: React.FC<AddUserToGroupModalProps> = ({
 
 	const footer = (
 		<>
-			<Button color="secondary" onClick={toggle}>
+			<Button color="secondary" onClick={closeAddRemoveUserModal}>
 				Cancel
 			</Button>
 			<Button
@@ -105,8 +118,8 @@ const AddUserToGroupModal: React.FC<AddUserToGroupModalProps> = ({
 
 	return (
 		<GenericModal
-			isOpen={isOpen}
-			toggle={toggle}
+			isOpen={showAddUserModal}
+			toggle={closeAddRemoveUserModal}
 			title="Add/Remove User to Group"
 			body={body}
 			footer={footer}
