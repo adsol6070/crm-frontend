@@ -37,7 +37,7 @@ export default function useCreateLead() {
 		const getCategories = async () => {
 			setLoading(true)
 			try {
-				const categoriesData = await visaCategoryApi.getAllCategory()
+				const categoriesData = await visaCategoryApi.getAllVisaCategory()
 				const newCategories = categoriesData.map((category: any) => {
 					return {
 						value: category.category,
