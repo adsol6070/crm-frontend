@@ -37,7 +37,13 @@ export default function useCreateLead() {
 		const getCategories = async () => {
 			setLoading(true)
 			try {
-				const categoriesData = await visaCategoryApi.getAllCategory()
+				const formData = new FormData();
+				if (tenantID) {
+					formData.append('tenantID', tenantID);
+				} else {
+					throw new Error("tenantID is missing");
+				}
+				const categoriesData = await visaCategoryApi.getAllVisaCategory(formData)
 				const newCategories = categoriesData.map((category: any) => {
 					return {
 						value: category.category,

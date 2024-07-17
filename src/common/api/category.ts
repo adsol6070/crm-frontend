@@ -23,7 +23,7 @@ function CategoryService() {
 		createBlogCategory: (categoryData: any) => {
 			return HttpClient.post('/blog/blogCategory', categoryData, { headers: getAuthHeaders() })
 		},
-
+		
 		// Retrieve all blog posts
 		getAllCategory: () => {
 			return HttpClient.get('/blog/blogCategory', { headers: getAuthHeaders() })

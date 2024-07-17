@@ -981,7 +981,7 @@ const CreateLeadForm = () => {
                     )}
                     {step === 5 && (
                       <>
-                        <div ref={printRef}>
+                        <div ref={printRef} className={styles.customStepperStyle}>
                           <Table striped bordered hover>
                             <thead>
                               <tr>

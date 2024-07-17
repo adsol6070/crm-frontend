@@ -25,6 +25,11 @@ function VisaCategoryService() {
 		},
 
 		// Retrieve all blog posts
+		getAllVisaCategory: (tenantID: any) => {
+			return HttpClient.post('/lead/getVisaCategory', tenantID)
+		},
+
+		// Retrieve all blog posts
 		getAllCategory: () => {
 			return HttpClient.get('/lead/visaCategory', { headers: getAuthHeaders() })
 		},
