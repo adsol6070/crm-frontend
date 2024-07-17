@@ -11,7 +11,8 @@ export default defineConfig(({ mode }) => {
 			'process.env': {
 				...process.env,
 				VITE_API_URL: env.VITE_API_URL,
-        VITE_SOCKET_URL: env.VITE_SOCKET_URL
+				VITE_SOCKET_URL: env.VITE_SOCKET_URL,
+                VITE_FRONTEND_URL: env.VITE_FRONTEND_URL
 			},
 			global: 'window',
 		},

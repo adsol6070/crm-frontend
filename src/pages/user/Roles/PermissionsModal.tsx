@@ -36,6 +36,7 @@ const initialPermissions: Permissions = {
 	Users: { Create: false, Read: false, Update: false, Delete: false },
 	Scores: { Create: false, Read: false, Delete: false, DeleteAll: false },
 	Leads: {
+		ReadQR: false,
 		Create: false,
 		View: false,
 		Assign: false,

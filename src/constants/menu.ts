@@ -48,6 +48,16 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		icon: 'ri-user-add-line',
 		children: [
 			{
+				key: 'leads-Formqr',
+				label: 'Form QR',
+				url: '/leads/formqr',
+				parentKey: 'leads',
+				permissions: {
+					ReadQR: true,
+				},
+				permissionsKey: 'Leads',
+			},
+			{
 				key: 'leads-AddLead',
 				label: 'Add Lead',
 				url: '/leads/add-lead',

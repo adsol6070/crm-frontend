@@ -41,7 +41,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ show, onHide, historyData }
                 return styles.noStatus;
         }
     };
-
+    
     return (
         <Modal show={show} onHide={onHide} centered>
             <Modal.Header closeButton>

@@ -47,6 +47,8 @@ const EditLead = React.lazy(() => import('../pages/leads/Update'))
 const AddLeadDocument = React.lazy(() => import('../pages/leads/DocumentChecklist'))
 const AddVisaCategory = React.lazy(() => import('../pages/leads/AddVisaCategory'))
 const LeadNotes = React.lazy(() => import('../pages/leads/LeadNotes/'))
+const Formqr = React.lazy(() => import('../pages/leads/Formqr/'))
+const CreateLeadForm = React.lazy(() => import('../pages/PublicLeadCreate/Create/'))
 
 // // users
 const UserList = React.lazy(() => import('../pages/user/List'))
@@ -200,6 +202,12 @@ const leadRoutes = {
 	icon: 'pages',
 	header: 'Custom',
 	children: [
+		{
+			path: '/leads/formqr',
+			name: 'Form QR',
+			element: <Formqr />,
+			route: PrivateRoute,
+		},
 		{
 			path: '/leads/add-lead',
 			name: 'Add Lead',
@@ -390,6 +398,12 @@ const otherPublicRoutes = [
 		path: '/pages/maintenance',
 		name: 'Maintenance',
 		element: <MaintenancePages />,
+		route: Route,
+	},
+	{
+		path: '/pages/createLead',
+		name: 'Create Lead',
+		element: <CreateLeadForm />,
 		route: Route,
 	},
 ]

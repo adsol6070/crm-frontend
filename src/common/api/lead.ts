@@ -17,6 +17,9 @@ const getAuthHeaders = (isMultipart: boolean = false) => {
 
 function LeadService() {
 	return {
+		createLead: async (values: any) => {
+			return await HttpClient.post('/lead/createLead', values)
+		},
 		create: async (values: any) => {
 			return await HttpClient.post('/lead/', values, {
 				headers: getAuthHeaders(),
