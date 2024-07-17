@@ -4,7 +4,7 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Row, Col, Card, Button, Spinner } from 'react-bootstrap';
 import { useVisaCategory } from './useVisaCategory';
-import { BlogCategory } from '@/types';
+import { VisaCategory } from '@/types';
 import { ToastContainer } from 'react-toastify';
 import "react-toastify/ReactToastify.css";
 
@@ -63,13 +63,13 @@ const AddVisaCategory: React.FC = () => {
                         </Card.Header>
                         <Card.Body>
                             {dataLoading ? (
-                                <div className="text-center" style={{height: "500px"}}>
+                                <div className="text-center"  style={{height: "500px", display: "flex", alignItems: "center", justifyContent: "center"}}>
                                     <Spinner animation="border" role="status">
                                         <span className="visually-hidden">Loading...</span>
                                     </Spinner>
                                 </div>
                             ) : (
-                                <Table<BlogCategory>
+                                <Table<VisaCategory>
                                     columns={columns}
                                     data={visaCategories}
                                     pageSize={6}

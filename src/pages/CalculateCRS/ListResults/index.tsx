@@ -39,7 +39,7 @@ const ListResults: React.FC = () => {
                             </div>
                         </Card.Header>
                         <Card.Body>
-                            {loading ? (<div className="text-center">
+                            {loading ? (<div className="text-center" style={{height: "500px", display: "flex", alignItems: "center", justifyContent: "center"}}>
                                 <Spinner animation="border" role="status">
                                     <span className="visually-hidden">Loading...</span>
                                 </Spinner>

@@ -248,6 +248,7 @@ const EditLead: React.FC = () => {
       </Alert>
     );
   }
+  console.log(selectedCountry)
 
   return (
     <>
@@ -322,7 +323,7 @@ const EditLead: React.FC = () => {
                                     options={genderOptions}
                                     getOptionLabel={(e) => e.label ?? ''}
                                     getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedGender}
+                                    value={selectedGender?.label === "null" ? { value: '', label: 'Select' }: selectedGender}
                                     onChange={handleSelect2}
                                     isClearable={true}
                                   />
@@ -352,7 +353,7 @@ const EditLead: React.FC = () => {
                                     options={nationalityOptions}
                                     getOptionLabel={(e) => e.label ?? ''}
                                     getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedNationality}
+                                    value={selectedNationality?.label === "null" ? { value: '', label: 'Select' }: selectedNationality}
                                     onChange={handleSelect3}
                                     isClearable={true}
                                   />
@@ -428,7 +429,7 @@ const EditLead: React.FC = () => {
                                     options={countries}
                                     getOptionLabel={(e) => e.label ?? ''}
                                     getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedCountry}
+                                    value={selectedCountry?.label === "null" ? { value: '', label: 'Select' }: selectedCountry}
                                     onChange={handleSelect5}
                                     isClearable={true}
                                   />
@@ -442,7 +443,7 @@ const EditLead: React.FC = () => {
                                     options={states}
                                     getOptionLabel={(e) => e.label ?? ''}
                                     getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedState}
+                                    value={selectedState?.label === "null" ? { value: '', label: 'Select' }: selectedState}
                                     onChange={handleSelect6}
                                     isClearable={true}
                                   />
@@ -456,7 +457,7 @@ const EditLead: React.FC = () => {
                                     options={districts}
                                     getOptionLabel={(e) => e.label ?? ''}
                                     getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedDistrict}
+                                    value={selectedDistrict?.label === "null" ? { value: '', label: 'Select' }: selectedDistrict}
                                     onChange={handleSelect7}
                                     isClearable={true}
                                   />
@@ -469,7 +470,7 @@ const EditLead: React.FC = () => {
                         <tr>
                           <td>
                             <Row>
-                              <Col lg={4} md={6} sm={12}>
+                              <Col lg={6} md={6} sm={12}>
                                 <Form.Group>
                                   <Form.Label>City</Form.Label>
                                   <Select
@@ -477,13 +478,13 @@ const EditLead: React.FC = () => {
                                     options={cities}
                                     getOptionLabel={(e) => e.label ?? ''}
                                     getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedCity}
+                                    value={selectedCity?.label === "null" ? { value: '', label: 'Select' }: selectedCity}
                                     onChange={handleSelect8}
                                     isClearable={true}
                                   />
                                 </Form.Group>
                               </Col>
-                              <Col lg={4} md={6} sm={12}>
+                              <Col lg={6} md={6} sm={12}>
                                 <FormInput
                                   label="Pincode"
                                   name="pincode"
@@ -589,7 +590,7 @@ const EditLead: React.FC = () => {
                                     options={visaCategories as any[]}
                                     getOptionLabel={(e: any) => e.label}
                                     getOptionValue={(e: any) => e.value}
-                                    value={selectedVisaCategory}
+                                    value={selectedVisaCategory?.label === "null" ? { value: '', label: 'Select' }: selectedVisaCategory}
                                     onChange={handleSelect}
                                     isClearable={true}
                                   />
@@ -603,7 +604,7 @@ const EditLead: React.FC = () => {
                                     options={countryOptions}
                                     getOptionLabel={(e) => e.label ?? ''}
                                     getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedCountryOfInterest}
+                                    value={selectedCountryOfInterest?.label === "null" ? { value: '', label: 'Select' }: selectedCountryOfInterest}
                                     onChange={handleSelect4}
                                     isClearable={true}
                                   />
@@ -753,7 +754,7 @@ const EditLead: React.FC = () => {
                         <tr>
                           <td>
                             <Row>
-                              <Col lg={4} md={6} sm={12}>
+                              <Col lg={6} md={6} sm={12}>
                                 <FormInput
                                   label="Referral Name/Contact"
                                   name="referralContact"
@@ -763,17 +764,7 @@ const EditLead: React.FC = () => {
                                   errors={errors}
                                 />
                               </Col>
-                              <Col lg={4} md={6} sm={12}>
-                                <FormInput
-                                  label="Lead Status"
-                                  name="leadStatus"
-                                  type="text"
-                                  placeholder="Enter Lead Status"
-                                  register={register}
-                                  errors={errors}
-                                />
-                              </Col>
-                              <Col lg={4} md={6} sm={12}>
+                              <Col lg={6} md={6} sm={12}>
                                 <FormInput
                                   label="Lead Rating"
                                   name="leadRating"

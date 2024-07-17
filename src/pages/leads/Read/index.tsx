@@ -71,10 +71,10 @@ const ReadLead: React.FC = () => {
         pdf.text(`Status: ${data.leadStatus ? data.leadStatus.charAt(0).toUpperCase() + data.leadStatus.slice(1) : 'No Status'}`, 10, 35);
 
         const formatField = (key: string, value: any) => {
-            if (key === 'dob' || key === 'passportExpiry' || key === 'visaExpiryDate') {
+            if (key === 'dob' || key === 'passportExpiry' || key === 'visaExpiryDate' || key === 'followUpDates') {
                 return formatDate(value);
             }
-            if (value === "" || value === null || value === undefined) {
+            if (value === "" || value === null || value === undefined || value === "null") {
                 return "N/A";
             }
             return String(value);
@@ -82,7 +82,7 @@ const ReadLead: React.FC = () => {
 
         const sections = [
             { title: 'Personal Information', fields: ["firstname", "lastname", "email", "phone", "gender", "dob", "nationality", "maritalStatus", "currentAddress", "permanentAddress"] },
-            { title: 'Immigration Information', fields: ["visaCategory", "countryOfInterest", "passportExpiry", "visaExpiryDate", "courseOfInterest", "desiredFieldOfStudy", "preferredInstitutions", "intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails"] },
+            { title: 'Immigration Information', fields: ["followUpDates", "visaCategory", "countryOfInterest", "passportNumber", "passportExpiry", "visaExpiryDate", "courseOfInterest", "desiredFieldOfStudy", "preferredInstitutions", "intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails"] },
             { title: 'Academic Information', fields: ["highestQualification", "scholarships", "fieldOfStudy", "institutionName", "graduationYear", "grade", "testType", "testScore"] },
             { title: 'Address Information', fields: ["pincode", "country", "state", "district", "city"] }
         ];
@@ -125,10 +125,10 @@ const ReadLead: React.FC = () => {
     );
 
     const formatField = (key: string, value: any) => {
-        if (key === 'dob' || key === 'passportExpiry' || key === 'visaExpiryDate') {
+        if (key === 'dob' || key === 'passportExpiry' || key === 'visaExpiryDate' || key === 'followUpDates') {
             return formatDate(value);
         }
-        if (value === "" || value === null || value === undefined) {
+        if (value === "" || value === null || value === undefined || value === "null") {
             return "N/A";
         }
         return String(value);
@@ -136,7 +136,7 @@ const ReadLead: React.FC = () => {
 
     const sections = [
         { title: 'Personal Information', fields: ["firstname", "lastname", "email", "phone", "gender", "dob", "nationality", "maritalStatus", "currentAddress", "permanentAddress"] },
-        { title: 'Immigration Information', fields: ["visaCategory", "countryOfInterest", "passportExpiry", "visaExpiryDate", "courseOfInterest", "desiredFieldOfStudy", "preferredInstitutions", "intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails"] },
+        { title: 'Immigration Information', fields: ["followUpDates", "visaCategory", "countryOfInterest", "passportNumber", "passportExpiry", "visaExpiryDate", "courseOfInterest", "desiredFieldOfStudy", "preferredInstitutions", "intakeSession", "reasonForImmigration", "financialSupport", "sponsorDetails"] },
         { title: 'Academic Information', fields: ["highestQualification", "scholarships", "fieldOfStudy", "institutionName", "graduationYear", "grade", "testType", "testScore"] },
         { title: 'Address Information', fields: ["pincode", "country", "state", "district", "city"] }
     ];

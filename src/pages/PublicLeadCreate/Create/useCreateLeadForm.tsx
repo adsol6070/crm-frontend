@@ -1,10 +1,13 @@
 import { leadApi, visaCategoryApi } from '@/common/api'
 import { useAuthContext } from '@/common/context'
+import { useQuery } from '@/hooks'
 import { VisaCategory } from '@/types'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
 export default function useCreateLead() {
+	const query = useQuery();
+    const tenantID = query.get('tenantID');
 	const [loading, setLoading] = useState(false)
 	const { isAuthenticated, user } = useAuthContext()
 	const [visaCategories, setVisaCategories] = useState<VisaCategory[]>([])
@@ -12,9 +15,13 @@ export default function useCreateLead() {
 	const createLead = async (formData: FormData) => {
 		setLoading(true)
 		try {
-			formData.append('tenantID', user.tenantID)
-			formData.append('userID', user.sub)
-			const data = await leadApi.create(formData)
+			if (tenantID) {
+                formData.append('tenantID', tenantID);
+            } else {
+                throw new Error("tenantID is missing");
+            }
+			formData.append('userID', "By QR Code")
+			const data = await leadApi.createLead(formData)
 			toast.success(data.message)
 			return true
 		} catch (error: any) {

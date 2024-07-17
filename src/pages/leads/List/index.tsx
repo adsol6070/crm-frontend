@@ -135,7 +135,7 @@ const LeadList = () => {
 								)}
 							</div>
 							{loading ? (
-                                <div className="text-center" style={{height: "500px"}}>
+                                <div className="text-center" style={{height: "500px", display: "flex", alignItems: "center", justifyContent: "center"}}>
                                     <Spinner animation="border" role="status">
                                         <span className="visually-hidden">Loading...</span>
                                     </Spinner>

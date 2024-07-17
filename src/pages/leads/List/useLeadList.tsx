@@ -93,6 +93,8 @@ export const useLeadList = (): LeadListHookResult => {
 				action = `Created by ${entry.details.createdBy.firstname} ${entry.details.createdBy.lastname}`
 			} else if (entry.details.statusUpdatedBy) {
 				action = `Status Updated by ${entry.details.statusUpdatedBy.firstname} ${entry.details.statusUpdatedBy.lastname}`
+			} else if (entry.details) {
+				action = "Created by user"
 			} else {
 				action = entry.action
 			}
