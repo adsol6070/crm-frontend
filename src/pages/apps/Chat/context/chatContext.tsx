@@ -67,7 +67,7 @@ interface ChatContextType {
 	emojiPickerRef: RefObject<HTMLDivElement>
 	showEmojiPicker: boolean
 	setShowEmojiPicker: React.Dispatch<React.SetStateAction<boolean>>
-	copyMsg: (ele: HTMLElement) => void
+	copyMsg: (message: string) => void
 	copyMsgAlert: boolean
 	openForwardModal: (message: any) => void
 	openGroupInfoModal: () => void
@@ -176,37 +176,19 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 		}
 	}
 
-	const copyMsg = (ele: HTMLElement) => {
-		try {
-			const conversationList = ele.closest('.conversation-list')
-			if (!conversationList) {
-				throw new Error('Conversation list element not found')
-			}
+	const copyMsg = (message: string) => {
+		navigator.clipboard
+			.writeText(message)
+			.then(() => {
+				setCopyMsgAlert(true)
 
-			const messageElement = conversationList.querySelector('p')
-			if (!messageElement) {
-				throw new Error('Message element not found')
-			}
-
-			const copyText = messageElement.innerHTML
-			if (!copyText) {
-				throw new Error('No text to copy')
-			}
-			navigator.clipboard
-				.writeText(copyText)
-				.then(() => {
-					setCopyMsgAlert(true)
-
-					setTimeout(() => {
-						setCopyMsgAlert(false)
-					}, 1000)
-				})
-				.catch((err) => {
-					console.error('Failed to copy text: ', err)
-				})
-		} catch (err) {
-			console.error('Error in copyMsg function: ', err)
-		}
+				setTimeout(() => {
+					setCopyMsgAlert(false)
+				}, 1000)
+			})
+			.catch((err) => {
+				console.error('Failed to copy text: ', err)
+			})
 	}
 
 	useEffect(() => {

@@ -3,6 +3,29 @@ import GenericModal from '../components/GenericModal'
 import { Button, ListGroup, ListGroupItem } from 'reactstrap'
 import { useChatContext } from '../context/chatContext'
 import SocketManager from '@/common/context/SocketManager'
+import styled from 'styled-components'
+
+const CustomListGroup = styled(ListGroup)`
+	max-height: 180px;
+	overflow-y: auto;
+
+	&::-webkit-scrollbar {
+		width: 8px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: #f1f1f1;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: #888;
+		border-radius: 10px;
+	}
+
+	&::-webkit-scrollbar-thumb:hover {
+		background: #555;
+	}
+`
 
 const AddUserToGroupModal = () => {
 	const {
@@ -43,7 +66,7 @@ const AddUserToGroupModal = () => {
 	}
 
 	const body = (
-		<ListGroup>
+		<CustomListGroup>
 			{chats.map((chat) => {
 				const isMember = members.some((member) => member.id === chat.id)
 				if (chat.id === currentUser?.id) {
@@ -93,7 +116,7 @@ const AddUserToGroupModal = () => {
 					</ListGroupItem>
 				)
 			})}
-		</ListGroup>
+		</CustomListGroup>
 	)
 
 	const footer = (

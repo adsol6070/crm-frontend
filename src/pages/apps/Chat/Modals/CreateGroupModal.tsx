@@ -68,6 +68,15 @@ const CreateGroupModal = () => {
 	}
 
 	const handleCreateGroup = async () => {
+		if (!groupName.trim()) {
+			MySwal.fire({
+				text: 'Please enter a group name.',
+				icon: 'warning',
+				confirmButtonText: 'Ok',
+			})
+			return
+		}
+
 		if (selectedUsers.size < 1) {
 			MySwal.fire({
 				text: 'Please select at least one user to create a group.',
@@ -150,35 +159,33 @@ const CreateGroupModal = () => {
 					{chats
 						.filter((chat) => chat.id !== currentUser?.id)
 						.map((chat) => (
-							<>
-								<ListGroupItem
-									key={chat.id}
-									style={{ cursor: 'pointer', userSelect: 'none' }}
-									className={selectedUsers.has(chat.id) ? 'active' : ''}
-									onClick={() => handleUserSelect(chat.id)}>
+							<ListGroupItem
+								key={chat.id}
+								style={{ cursor: 'pointer', userSelect: 'none' }}
+								className={selectedUsers.has(chat.id) ? 'active' : ''}
+								onClick={() => handleUserSelect(chat.id)}>
+								<div className="d-flex align-items-center">
+									<input
+										type="checkbox"
+										checked={selectedUsers.has(chat.id)}
+										onClick={(e) => e.stopPropagation()}
+										onChange={(e) => handleUserSelect(chat.id)}
+										className="me-2"
+									/>
 									<div className="d-flex align-items-center">
-										<input
-											type="checkbox"
-											checked={selectedUsers.has(chat.id)}
-											onClick={(e) => e.stopPropagation()}
-											onChange={(e) => handleUserSelect(chat.id)}
-											className="me-2"
+										<img
+											src={chat.image}
+											className="rounded-circle me-3"
+											alt=""
+											style={{ height: '2.6rem', width: '2.6rem' }}
 										/>
-										<div className="d-flex align-items-center">
-											<img
-												src={chat.image}
-												className="rounded-circle me-3"
-												alt=""
-												style={{ height: '2.6rem', width: '2.6rem' }}
-											/>
-											<div>
-												<h5 className="mb-0">{chat.name}</h5>
-												<p className="text-muted mb-0">{chat.description}</p>
-											</div>
+										<div>
+											<h5 className="mb-0">{chat.name}</h5>
+											<p className="text-muted mb-0">{chat.description}</p>
 										</div>
 									</div>
-								</ListGroupItem>
-							</>
+								</div>
+							</ListGroupItem>
 						))}
 				</CustomListGroup>
 			</FormGroup>
