@@ -21,9 +21,9 @@ const SystemMessage = styled.li`
 	}
 `
 
-const MessageItem = styled.li`
+const MessageItem = styled.li<{ isRight: boolean }>`
 	display: flex;
-	justify-content: ${({ isRight }) => (isRight ? 'flex-end' : 'flex-start')};
+	justify-content: ${(props) => (props.isRight ? 'flex-end' : 'flex-start')};
 	clear: both;
 `
 
@@ -61,21 +61,27 @@ const CtextWrap = styled.div`
 	}
 `
 
-const CtextWrapContent = styled.div`
+const CtextWrapContent = styled.div<{ isRight: boolean }>`
 	max-width: 30vw;
 	word-wrap: break-word;
-	background-color: ${({ isRight }) => (isRight ? '#334e7b' : '#d5d8db')};
-	border-radius: ${({ isRight }) =>
-		isRight ? '15px 0px 15px 15px' : '0px 15px 15px 15px'};
-	color: ${({ isRight }) => (isRight ? '#ffffff' : '#000000')};
+	background-color: ${(props) => (props.isRight ? '#334e7b' : '#d5d8db')};
+	border-radius: ${(props) =>
+		props.isRight ? '15px 0px 15px 15px' : '0px 15px 15px 15px'};
+	color: ${(props) => (props.isRight ? '#ffffff' : '#000000')};
 	padding: 15px 20px;
 	position: relative;
 `
 
-const ConversationName = styled.h5`
+const ConversationNameWrapper = styled.div<{ isRight: boolean }>`
+	display: flex;
+	justify-content: ${(props) => (props.isRight ? 'flex-end' : 'flex-start')};
+	align-items: center;
+`
+
+const ConversationName = styled.h5<{ isRight: boolean }>`
 	font-size: 16px !important;
 	display: flex;
-	justify-content: ${({ isRight }) => (isRight ? 'flex-end' : 'flex-start')};
+	justify-content: ${(props) => (props.isRight ? 'flex-end' : 'flex-start')};
 	align-items: center;
 
 	.time {
@@ -83,14 +89,14 @@ const ConversationName = styled.h5`
 		color: #6c757d;
 		font-weight: 400;
 		position: absolute;
-		right: ${({ isRight }) => (isRight ? '-58px' : 'auto')};
-		left: ${({ isRight }) => (isRight ? 'auto' : 'initial')};
+		right: ${(props) => (props.isRight ? '-58px' : 'auto')};
+		left: ${(props) => (props.isRight ? 'auto' : 'initial')};
 	}
 
 	.user-name {
-		color: ${({ isRight }) =>
-			isRight ? '#1a2942' : 'rgba(255, 255, 255, 0.5)'};
-		order: ${({ isRight }) => (isRight ? '2' : 'initial')};
+		color: ${(props) =>
+			props.isRight ? '#1a2942' : 'rgba(255, 255, 255, 0.5)'};
+		order: ${(props) => (props.isRight ? '2' : 'initial')};
 	}
 `
 
@@ -102,6 +108,11 @@ const Avatar = styled.div`
 		border-radius: 50%;
 	}
 `
+
+const filterProps = (props: any) => {
+	const { isRight, ...filteredProps } = props
+	return filteredProps
+}
 
 const MessageList = ({ filteredMessages }) => {
 	const {
@@ -136,12 +147,15 @@ const MessageList = ({ filteredMessages }) => {
 							<ConversationList>
 								<div className="d-flex">
 									<div className="flex-1 ms-3">
-										<div className="d-flex justify-content-between">
+										<ConversationNameWrapper
+											isRight={msg.fromUserId === currentRoomId}>
 											<ConversationName
-												isRight={msg.fromUserId === currentRoomId}>
+												{...filterProps({
+													isRight: msg.fromUserId === currentRoomId,
+												})}>
 												Message deleted
 											</ConversationName>
-										</div>
+										</ConversationNameWrapper>
 									</div>
 								</div>
 							</ConversationList>
@@ -165,9 +179,12 @@ const MessageList = ({ filteredMessages }) => {
 									</Avatar>
 								)}
 								<div className="flex-1 ms-3">
-									<div className="d-flex justify-content-between">
+									<ConversationNameWrapper
+										isRight={isSentByCurrentUser || msg.isSentByCurrentUser}>
 										<ConversationName
-											isRight={isSentByCurrentUser || msg.isSentByCurrentUser}>
+											{...filterProps({
+												isRight: isSentByCurrentUser || msg.isSentByCurrentUser,
+											})}>
 											{msg.group_id
 												? isSentByCurrentUser || msg.isSentByCurrentUser
 													? 'You'
@@ -186,7 +203,7 @@ const MessageList = ({ filteredMessages }) => {
 												})}
 											</span>
 										)}
-									</div>
+									</ConversationNameWrapper>
 									<CtextWrap>
 										<CtextWrapContent
 											isRight={isSentByCurrentUser || msg.isSentByCurrentUser}>
@@ -201,8 +218,7 @@ const MessageList = ({ filteredMessages }) => {
 											</DropdownToggle>
 											<DropdownMenu>
 												{!msg.file_url && (
-													<DropdownItem
-														onClick={(e) => copyMsg(e.target as HTMLElement)}>
+													<DropdownItem onClick={() => copyMsg(msg.message)}>
 														Copy
 													</DropdownItem>
 												)}
