@@ -11,7 +11,14 @@ const useFormqr = () => {
         const generateQRCode = async () => {
             setLoading(true);
             try {
-                const url = await QRCode.toDataURL(`${process.env.VITE_FRONTEND_URL}/pages/createLead?tenantID=${user.tenantID}`, { width: 500 });
+                const url = await QRCode.toDataURL(
+                    `${process.env.VITE_FRONTEND_URL}/pages/createLead?tenantID=${user.tenantID}`,
+                    {
+                        width: 500,
+                        margin: 2,
+                        errorCorrectionLevel: 'H'
+                    }
+                );
                 setQrCodeUrl(url);
             } catch (error) {
                 console.error('Error generating QR code', error);
@@ -21,7 +28,7 @@ const useFormqr = () => {
         };
 
         generateQRCode();
-    }, []);
+    }, [user]);
 
     const downloadQRCode = () => {
         if (qrCodeUrl) {
