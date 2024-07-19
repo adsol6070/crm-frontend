@@ -4,7 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import styles from './getLeadReportOnTime.module.css';
 import useGetLeadReportsOnTime from './getLeadReportOnTime';
 import ReactApexChart from 'react-apexcharts';
-import { format } from 'date-fns';
+import { format, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, eachQuarterOfInterval, eachYearOfInterval } from 'date-fns';
 
 interface GetLeadReportOnTimeProps {
   start: Date;
@@ -29,7 +29,22 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
     }
   };
 
-  const categories = report.map((item: any) => format(new Date(item.date), 'yyyy-MM-dd'));
+  // Function to determine the interval type (weekly, monthly, etc.)
+  const getDateIntervals = (start: Date, end: Date) => {
+    const diffDays = (end.getTime() - start.getTime()) / (1000 * 3600 * 24);
+
+    if (diffDays <= 7) {
+      return eachDayOfInterval({ start, end }).map(date => format(date, 'EEEE')); // Weekdays
+    } else if (diffDays <= 30) {
+      return eachWeekOfInterval({ start, end }).map(date => format(date, 'wo')); // Weeks
+    } else if (diffDays <= 365) {
+      return eachMonthOfInterval({ start, end }).map(date => format(date, 'MMM yyyy')); // Months
+    } else {
+      return eachYearOfInterval({ start, end }).map(date => format(date, 'yyyy')); // Years
+    }
+  };
+
+  const categories = startDate && endDate ? getDateIntervals(startDate, endDate) : [];
   const data = report.map((item: any) => parseInt(item.lead_count, 10));
 
   const flatColors = ['#3498db', '#2ecc71', '#e74c3c', '#e67e22', '#1abc9c', '#9b59b6', '#f1c40f', '#34495e', '#16a085', '#f39c12'];

@@ -343,6 +343,7 @@ const CreateLeadForm = () => {
     formData.append('nationality', nationality);
     formData.append('countryOfInterest', countryOfInterest);
     formData.append('maritalStatus', maritalStatus);
+    formData.append('leadSource', "By QR Code");
 
     Object.keys(finalData).forEach(key => {
       if (finalData[key] instanceof FileList && finalData[key].length > 0) {

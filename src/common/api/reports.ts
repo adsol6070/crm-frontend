@@ -27,6 +27,11 @@ function ReportService() {
 				headers: getAuthHeaders(),
 			})
 		},
+		getLeadReportBasedOnSource: async () => {
+			return await HttpClient.get('/reports/getCreatedLeadsBasedOnSource', {
+				headers: getAuthHeaders(),
+			})
+		},
 	}
 }
 

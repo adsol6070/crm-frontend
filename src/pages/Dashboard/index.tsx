@@ -3,6 +3,7 @@ import Statistics from './getCardsData/Statistics';
 import { PageBreadcrumb } from '@/components';
 import useGetCardsData from './getCardsData/useGetcardsData';
 import LeadStatusReport from './getLeadStatusReport/index';
+import LeadSourceReport from './getLeadSourceReport/index';
 import GetLeadReportOnTime from './getLeadReportOnTime/index';
 import { startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, startOfWeek, endOfWeek } from 'date-fns';
 
@@ -30,29 +31,27 @@ const Dashboard = () => {
 					</Col>
 				))}
 			</Row>
+
 			<Row className='my-1'>
 				<LeadStatusReport />
+				<LeadSourceReport />
 				<Col md={4}>
 					<h5>Weekly Report</h5>
 					<GetLeadReportOnTime start={startWeek} end={endWeek} barColor={"#3b4158"} chartType="bar" />
 				</Col>
+			</Row>
+			<Row className='my-2'>
 				<Col md={4}>
 					<h5>Monthly Report</h5>
 					<GetLeadReportOnTime start={startOfMonth(new Date())} end={endOfMonth(new Date())} barColor={"#546E7A"} chartType="bar" />
 				</Col>
-			</Row>
-			<Row className='my-2'>
-				<Col md={4}>
-					<h5>Quarterly Report</h5>
-					<GetLeadReportOnTime start={startQuarter} end={endQuarter} barColor={"#3b4158"} chartType="pie" />
-				</Col>
 				<Col md={4}>
 					<h5>Half Yearly Report</h5>
-					<GetLeadReportOnTime start={startHalf} end={endHalf} barColor={"#54557a"} chartType="donut"/>
+					<GetLeadReportOnTime start={startHalf} end={endHalf} barColor={"#54557a"} chartType="donut" />
 				</Col>
 				<Col md={4}>
 					<h5>Yearly Report</h5>
-					<GetLeadReportOnTime start={startOfYear(new Date())} end={endOfYear(new Date())} barColor={"#547a68"} chartType="area"  />
+					<GetLeadReportOnTime start={startOfYear(new Date())} end={endOfYear(new Date())} barColor={"#547a68"} chartType="area" />
 				</Col>
 			</Row>
 		</>
