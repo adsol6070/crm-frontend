@@ -9,8 +9,6 @@ const useGetLeadReportsOnTime = (startDate: any, endDate: any) => {
     
 	useEffect(() => {
 		const fetchLeadReportBasedOnStatus = async () => {
-			console.log("start date", startDate)
-			console.log("end date", endDate)
 			try {
 				const response = await reportsApi.getLeadReportBasedOnTime(startDate, endDate);
 				setReport(response)

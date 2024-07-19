@@ -12,7 +12,6 @@ const useGetLeadSourceReports = () => {
 			
 			try {
 				const response = await reportsApi.getLeadReportBasedOnSource();
-				console.log("Source Response ", response)
 				setReport(response)
 			} catch (err) {
 				console.error('Failed to fetch Report', err)

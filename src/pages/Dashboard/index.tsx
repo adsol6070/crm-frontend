@@ -11,10 +11,8 @@ const Dashboard = () => {
 	const { data: cardData } = useGetCardsData();
 	const startHalf = subMonths(new Date(), 6);
 	const endHalf = new Date();
-	const startWeek = startOfWeek(new Date(), { weekStartsOn: 1 }); // Start of the current week (Monday)
+	const startWeek = startOfWeek(new Date(), { weekStartsOn: 1 }); 
 	const endWeek = endOfWeek(new Date(), { weekStartsOn: 1 });
-	const startQuarter = subMonths(new Date(), 3);
-	const endQuarter = new Date();
 
 	return (
 		<>

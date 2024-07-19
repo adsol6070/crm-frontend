@@ -4,7 +4,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import styles from './getLeadReportOnTime.module.css';
 import useGetLeadReportsOnTime from './getLeadReportOnTime';
 import ReactApexChart from 'react-apexcharts';
-import { format, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, eachQuarterOfInterval, eachYearOfInterval } from 'date-fns';
+import { format, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, eachYearOfInterval } from 'date-fns';
 
 interface GetLeadReportOnTimeProps {
   start: Date;
@@ -29,23 +29,33 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
     }
   };
 
-  // Function to determine the interval type (weekly, monthly, etc.)
   const getDateIntervals = (start: Date, end: Date) => {
     const diffDays = (end.getTime() - start.getTime()) / (1000 * 3600 * 24);
 
     if (diffDays <= 7) {
-      return eachDayOfInterval({ start, end }).map(date => format(date, 'EEEE')); // Weekdays
+      return eachDayOfInterval({ start, end }).map(date => format(date, 'EEEE'));
     } else if (diffDays <= 30) {
-      return eachWeekOfInterval({ start, end }).map(date => format(date, 'wo')); // Weeks
+      return eachWeekOfInterval({ start, end }).map(date => format(date, 'wo'));
     } else if (diffDays <= 365) {
-      return eachMonthOfInterval({ start, end }).map(date => format(date, 'MMM yyyy')); // Months
+      return eachMonthOfInterval({ start, end }).map(date => format(date, 'MMM yyyy'));
     } else {
-      return eachYearOfInterval({ start, end }).map(date => format(date, 'yyyy')); // Years
+      return eachYearOfInterval({ start, end }).map(date => format(date, 'yyyy'));
     }
   };
 
   const categories = startDate && endDate ? getDateIntervals(startDate, endDate) : [];
   const data = report.map((item: any) => parseInt(item.lead_count, 10));
+
+  // Calculate percentages and round them off, ensuring total is 100%
+  const totalLeads = data.reduce((acc, count) => acc + count, 0);
+  const percentages = data.map(count => Math.round((count / totalLeads) * 100));
+
+  // Adjust the last percentage to ensure the total is 100%
+  const totalPercent = percentages.reduce((acc, percent) => acc + percent, 0);
+  if (totalPercent !== 100) {
+    const difference = 100 - totalPercent;
+    percentages[percentages.length - 1] += difference;
+  }
 
   const flatColors = ['#3498db', '#2ecc71', '#e74c3c', '#e67e22', '#1abc9c', '#9b59b6', '#f1c40f', '#34495e', '#16a085', '#f39c12'];
 
@@ -55,7 +65,7 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
           name: 'Leads Count',
           data
         }]
-      : data,
+      : percentages,
     options: {
       chart: {
         type: chartType as const,
@@ -82,7 +92,10 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
           }
         : {},
       dataLabels: {
-        enabled: false,
+        enabled: chartType === 'pie' || chartType === 'donut',
+        formatter: function (val: number, opts: any) {
+          return `${opts.w.globals.labels[opts.seriesIndex]}: ${val}%`;
+        }
       },
       stroke: chartType === 'line' || chartType === 'area'
         ? {
@@ -169,7 +182,7 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
           />
         </div>
       </div>
-      <div style={{ backgroundColor: "white", padding: "10px" }}>
+      <div style={{ backgroundColor: "white", padding: "10px 10px 0px 10px", borderRadius: "10px" }}>
         <ReactApexChart 
           options={chartData.options} 
           series={chartData.series} 
