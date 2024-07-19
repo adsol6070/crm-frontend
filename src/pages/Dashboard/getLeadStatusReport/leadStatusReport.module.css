@@ -1,0 +1,23 @@
+.chartContainer {
+    position: relative;
+    width: 80%;
+  }
+  
+  .button {
+    transition: background-color 0.3s ease;
+    border: none;
+  }
+  
+  .button:hover {
+    background-color: #0056b3 !important;
+    color: white !important;
+  }
+  
+  .buttonMx2 {
+    border-radius: 30px;
+    font-size: 12px;
+  }
+  
+  .customDesign{
+    background-color: white;
+  }

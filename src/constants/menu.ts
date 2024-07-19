@@ -29,10 +29,6 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		isTitle: false,
 		url: '/',
 		icon: 'ri-dashboard-3-line',
-		badge: {
-			variant: 'success',
-			text: '9+',
-		},
 	},
 	{
 		key: 'chat',

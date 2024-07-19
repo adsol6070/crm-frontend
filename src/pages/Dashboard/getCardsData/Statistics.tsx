@@ -2,17 +2,15 @@ import { Card } from 'react-bootstrap'
 
 interface StatisticWidget {
 	title: string
-	stats: string
-	change: string
+	count: number
 	icon: string
 	variant: string
 }
 const Statistics = ({
 	title,
 	icon,
-	stats,
+	count,
 	variant,
-	change,
 }: StatisticWidget) => {
 	return (
 		<Card className={`widget-flat ${variant}`}>
@@ -23,12 +21,12 @@ const Statistics = ({
 				<h6 className="text-uppercase mt-0" title="Customers">
 					{title}
 				</h6>
-				<h2 className="my-2">{stats}</h2>
-				<p className="mb-0">
-					<span className="badge bg-white bg-opacity-10 me-1">{change}</span>
+				<h2 className="my-2">{count}</h2>
+				{/* <p className="mb-0">
+					<span className="badge bg-white bg-opacity-10 me-1">test</span>
 					&nbsp;
 					<span className="text-nowrap">Since last month</span>
-				</p>
+				</p> */}
 			</Card.Body>
 		</Card>
 	)

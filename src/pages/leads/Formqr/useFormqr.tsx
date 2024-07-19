@@ -16,7 +16,8 @@ const useFormqr = () => {
                     {
                         width: 500,
                         margin: 2,
-                        errorCorrectionLevel: 'H'
+                        errorCorrectionLevel: 'H',
+                        scale: 10, 
                     }
                 );
                 setQrCodeUrl(url);
