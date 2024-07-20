@@ -46,11 +46,9 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
   const categories = startDate && endDate ? getDateIntervals(startDate, endDate) : [];
   const data = report.map((item: any) => parseInt(item.lead_count, 10));
 
-  // Calculate percentages and round them off, ensuring total is 100%
   const totalLeads = data.reduce((acc, count) => acc + count, 0);
   const percentages = data.map(count => Math.round((count / totalLeads) * 100));
 
-  // Adjust the last percentage to ensure the total is 100%
   const totalPercent = percentages.reduce((acc, percent) => acc + percent, 0);
   if (totalPercent !== 100) {
     const difference = 100 - totalPercent;
@@ -68,7 +66,7 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
       : percentages,
     options: {
       chart: {
-        type: chartType as const,
+        type: chartType,
         height: 350,
         toolbar: {
           show: true,
