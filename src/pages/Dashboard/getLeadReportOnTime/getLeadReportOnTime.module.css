@@ -1,0 +1,86 @@
+/* getLeadReportOnTime.module.css */
+
+.customDatepickerWrapper {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.customDatepickerIcon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.customDatepickerInput {
+  width: 200px;
+  padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+  border: 2px solid #ced4da;
+  border-radius: 30px;
+  background-color: white; /* Ensure background is white */
+  color: var(--text-color);
+  font-size: 1rem;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.customDatepickerInput:focus {
+  border-color: #80bdff;
+  outline: none;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+.customDatepickerIcon svg {
+  position: absolute;
+  right: 0.75rem;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  color: var(--text-color);
+}
+
+.dark .customDatepickerInput {
+  background-color: white; /* Keep background white */
+  color: #fff;
+  border: 2px solid #444;
+}
+
+.dark .customDatepickerInput:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 10px rgba(128, 189, 255, 0.5);
+}
+
+.dark .customDatepickerInput::placeholder {
+  color: #ccc;
+}
+
+.dark .react-datepicker__input-container input {
+  background-color: white; /* Keep background white */
+  color: #fff;
+  border: 2px solid #444;
+}
+
+.dark .react-datepicker__input-container input::placeholder {
+  color: #ccc;
+}
+
+.dark .react-datepicker {
+  background-color: #333;
+  color: #fff;
+}
+
+.dark .react-datepicker__header {
+  background-color: #444;
+}
+
+.dark .react-datepicker__day-name,
+.dark .react-datepicker__day,
+.dark .react-datepicker__time-name {
+  color: #fff;
+}
+
+.dark .react-datepicker__current-month,
+.dark .react-datepicker-time__header {
+  color: #fff;
+}

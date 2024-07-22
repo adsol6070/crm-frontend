@@ -1,56 +1,59 @@
-import { Col, Row } from 'react-bootstrap'
-import Statistics from './Statistics'
-import WeeklySelesChart from './WeeklySelesChart'
-import YearlySelesChart from './YearlySelesChart'
-import ChatList from './ChatList'
-import Projects from './Projects'
-
-// componets
-import { PageBreadcrumb } from '@/components'
-
-// data
-import { chatMessages, statistics } from './data'
+import { Col, Row } from 'react-bootstrap';
+import Statistics from './getCardsData/Statistics';
+import { PageBreadcrumb } from '@/components';
+import useGetCardsData from './getCardsData/useGetcardsData';
+import LeadStatusReport from './getLeadStatusReport/index';
+import LeadSourceReport from './getLeadSourceReport/index';
+import GetLeadReportOnTime from './getLeadReportOnTime/index';
+import { startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, startOfWeek, endOfWeek } from 'date-fns';
 
 const Dashboard = () => {
+	const { data: cardData } = useGetCardsData();
+	const startHalf = subMonths(new Date(), 6);
+	const endHalf = new Date();
+	const startWeek = startOfWeek(new Date(), { weekStartsOn: 1 }); 
+	const endWeek = endOfWeek(new Date(), { weekStartsOn: 1 });
+
 	return (
 		<>
 			<PageBreadcrumb title="Welcome!" subName="Dashboards" />
 			<Row>
-				{(statistics || []).map((item, idx) => {
-					return (
-						<Col xxl={3} sm={6} key={idx}>
-							<Statistics
-								title={item.title}
-								stats={item.stats}
-								change={item.change}
-								icon={item.icon}
-								variant={item.variant}
-							/>
-						</Col>
-					)
-				})}
+				{(cardData || []).map((item, idx) => (
+					<Col xxl={3} sm={6} key={idx}>
+						<Statistics
+							title={item.title}
+							count={item.count}
+							icon={item.icon}
+							variant={item.variant}
+						/>
+					</Col>
+				))}
 			</Row>
 
-			<Row>
-				<Col lg={8}>
-					<WeeklySelesChart />
-				</Col>
-				<Col lg={4}>
-					<YearlySelesChart />
+			<Row className='my-1'>
+				<LeadStatusReport />
+				<LeadSourceReport />
+				<Col md={4}>
+					<h5>Weekly Report</h5>
+					<GetLeadReportOnTime start={startWeek} end={endWeek} barColor={"#3b4158"} chartType="bar" />
 				</Col>
 			</Row>
-
-			<Row>
-				<Col xl={4}>
-					<ChatList messages={chatMessages} />
+			<Row className='my-2'>
+				<Col md={4}>
+					<h5>Monthly Report</h5>
+					<GetLeadReportOnTime start={startOfMonth(new Date())} end={endOfMonth(new Date())} barColor={"#546E7A"} chartType="bar" />
 				</Col>
-
-				<Col xl={8}>
-					<Projects />
+				<Col md={4}>
+					<h5>Half Yearly Report</h5>
+					<GetLeadReportOnTime start={startHalf} end={endHalf} barColor={"#54557a"} chartType="donut" />
+				</Col>
+				<Col md={4}>
+					<h5>Yearly Report</h5>
+					<GetLeadReportOnTime start={startOfYear(new Date())} end={endOfYear(new Date())} barColor={"#547a68"} chartType="area" />
 				</Col>
 			</Row>
 		</>
-	)
-}
+	);
+};
 
-export default Dashboard
+export default Dashboard;

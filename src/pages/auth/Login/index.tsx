@@ -57,8 +57,7 @@ const Login = () => {
 			<AuthLayout
 				authTitle="Sign In"
 				helpText="Enter your email address and password to access account."
-				bottomLinks={<BottomLinks />}
-				hasThirdPartyLogin>
+				bottomLinks={<BottomLinks />}>
 				<VerticalForm<UserData>
 					onSubmit={onSubmit}
 					resolver={yupResolver(schema)}>

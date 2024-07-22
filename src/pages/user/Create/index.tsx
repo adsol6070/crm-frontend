@@ -7,7 +7,8 @@ import Select from 'react-select'
 import useCreateUser from './useCreateUser'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
-import { permissionService } from '@/common'
+import { permissionService, useThemeContext } from '@/common'
+import { customStyles } from '@/utils'
 
 interface RoleOptions {
 	value: string
@@ -19,6 +20,7 @@ const toTitleCase = (str: string) => {
 }
 
 const CreateUser = () => {
+	const { settings } = useThemeContext();
 	const [profileImage, setProfileImage] = useState<File | null>(null)
 	const [selectedRole, setSelectedRole] = useState<RoleOptions | null>(null)
 	const [roleOptions, setRoleOptions] = useState([])
@@ -147,6 +149,7 @@ const CreateUser = () => {
 										<Form.Group className="mb-3">
 											<Form.Label>Role</Form.Label>
 											<Select
+											styles={customStyles(settings.theme === "dark")} 
 												className="select2 z-3"
 												options={roleOptions as any[]}
 												getOptionLabel={(e: any) => e.label}

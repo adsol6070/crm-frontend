@@ -13,6 +13,8 @@ import { convertToRaw } from 'draft-js'
 import draftToHtml from 'draftjs-to-html'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { customStyles, editorStyle, toolbarStyle } from '@/utils'
+import { useThemeContext } from '@/common'
 
 interface BlogCategory {
 	value: string
@@ -20,6 +22,7 @@ interface BlogCategory {
 }
 
 const AddBlog: React.FC = () => {
+	const { settings } = useThemeContext();
 	const { createBlog, loading, blogCategories } = useCreateBlog()
 	const [selectedCategory, setSelectedCategory] = useState<BlogCategory | null>(null)
 	const [blogImage, setBlogImage] = useState<File | null>(null)
@@ -104,16 +107,14 @@ const AddBlog: React.FC = () => {
 										wrapperClassName="wrapperClassName"
 										editorClassName="editorClassName"
 										onEditorStateChange={handleEditorChange}
-										editorStyle={{
-											minHeight: '250px',
-											border: '1px solid #dee2e6',
-											padding: '10px 20px',
-										}}
+										editorStyle={editorStyle(settings.theme === "dark")}
+										toolbarStyle={toolbarStyle(settings.theme === "dark")}
 									/>
 								</Form.Group>
 								<Form.Group className="mb-3">
 									<Form.Label>Categories</Form.Label>
 									<Select
+										styles={customStyles(settings.theme === "dark")}
 										className="select2 z-3"
 										options={blogCategories as any[]}
 										getOptionLabel={(e: any) => e.label}

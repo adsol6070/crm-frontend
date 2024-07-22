@@ -71,10 +71,9 @@ const Register = () => {
 		<>
 			<PageBreadcrumb title="Register" />
 			<AuthLayout
-				authTitle="Free Sign Up"
+				authTitle="Sign Up"
 				helpText="Enter your email address and password to access account."
-				bottomLinks={<BottomLink />}
-				hasThirdPartyLogin>
+				bottomLinks={<BottomLink />}>
 				<VerticalForm<UserData> onSubmit={onSubmit} resolver={schemaResolver}>
 					<FormInput
 						label="Tenant ID"
@@ -131,13 +130,6 @@ const Register = () => {
 						name="profileImage"
 						onChange={handleImageChange}
 						containerClass="mb-3"
-					/>
-
-					<FormInput
-						isTerms={true}
-						type="checkbox"
-						name="checkbox"
-						containerClass={'mb-3'}
 					/>
 
 					<div className="mb-0 d-grid text-center">

@@ -1,6 +1,6 @@
 // hooks/useReadBlog.js
 import { useEffect, useState } from 'react'
-import { blogApi } from '@/common' // Ensure this path is correct
+import { blogApi } from '@/common'
 
 interface BlogData {
 	id: string

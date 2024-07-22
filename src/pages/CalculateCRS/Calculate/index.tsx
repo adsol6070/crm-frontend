@@ -7,6 +7,7 @@ import Swal from 'sweetalert2';
 import { PageBreadcrumb } from '@/components';
 import styles from './CRScalculator.module.css';
 import { scoreApi, useAuthContext } from '@/common';
+import FormInput from '@/components/FormInput';
 
 interface OptionType {
     value: string;
@@ -117,7 +118,7 @@ const CRScalculator: React.FC = () => {
     const { user } = useAuthContext();
 
     useEffect(() => {
-        const savedValues = localStorage.getItem('crsCalculatorValues');
+        const savedValues = sessionStorage.getItem('crsCalculatorValues');
         if (savedValues) {
             const parsedValues = JSON.parse(savedValues);
             Object.keys(parsedValues).forEach(key => {
@@ -127,7 +128,7 @@ const CRScalculator: React.FC = () => {
     }, [setValue]);
 
     useEffect(() => {
-        localStorage.setItem('crsCalculatorValues', JSON.stringify(watchedValues));
+        sessionStorage.setItem('crsCalculatorValues', JSON.stringify(watchedValues));
     }, [watchedValues]);
 
     const calculateCRS: SubmitHandler<FormValues> = (data) => {
@@ -210,7 +211,7 @@ const CRScalculator: React.FC = () => {
     const handleClose = () => {
         setShowModal(false);
         reset();
-        localStorage.removeItem('crsCalculatorValues');
+        sessionStorage.removeItem('crsCalculatorValues');
     };
 
     return (
@@ -228,225 +229,236 @@ const CRScalculator: React.FC = () => {
                                 <Form onSubmit={handleSubmit(calculateCRS)}>
                                     <Row>
                                         <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.formLabel}>Name</Form.Label>
-                                                <Form.Control
-                                                    type="text"
-                                                    placeholder="Enter your name"
-                                                    {...methods.register('name')}
-                                                    className={styles.formControl}
-                                                />
-                                                {errors.name && <p className={styles.textDanger}>{errors.name.message}</p>}
-                                            </Form.Group>
+                                            <FormInput
+                                                label="Name"
+                                                name="name"
+                                                type="text"
+                                                placeholder="Enter your name"
+                                                register={methods.register}
+                                                errors={errors}
+                                            />
                                         </Col>
                                         <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.formLabel}>Phone</Form.Label>
-                                                <Form.Control
-                                                    type="text"
-                                                    placeholder="Enter your phone number"
-                                                    {...methods.register('phone')}
-                                                    className={styles.formControl}
-                                                />
-                                                {errors.phone && <p className={styles.textDanger}>{errors.phone.message}</p>}
-                                            </Form.Group>
+                                            <FormInput
+                                                label="Phone"
+                                                name="phone"
+                                                type="tel"
+                                                placeholder="Enter your phone number"
+                                                register={methods.register}
+                                                errors={errors}
+                                            />
                                         </Col>
                                     </Row>
                                     <Row>
                                         <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.formLabel}>Email</Form.Label>
-                                                <Form.Control
-                                                    type="email"
-                                                    placeholder="Enter your email"
-                                                    {...methods.register('email')}
-                                                    className={styles.formControl}
-                                                />
-                                                {errors.email && <p className={styles.textDanger}>{errors.email.message}</p>}
-                                            </Form.Group>
+                                            <FormInput
+                                                label="Email"
+                                                name="email"
+                                                type="email"
+                                                placeholder="Enter your email"
+                                                register={methods.register}
+                                                errors={errors}
+                                            />
                                         </Col>
                                         <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.formLabel}>Age</Form.Label>
-                                                <Form.Control
-                                                    type="number"
-                                                    placeholder="Enter your age"
-                                                    {...methods.register('age')}
-                                                    className={styles.formControl}
-                                                />
-                                                {errors.age && <p className={styles.textDanger}>{errors.age.message}</p>}
-                                            </Form.Group>
+                                            <FormInput
+                                                label="Age"
+                                                name="age"
+                                                type="number"
+                                                placeholder="Enter your age"
+                                                register={methods.register}
+                                                errors={errors}
+                                            />
                                         </Col>
                                     </Row>
                                     <Row>
                                         <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.formLabel}>Education Level</Form.Label>
-                                                <Form.Control
-                                                    as="select"
-                                                    {...methods.register('education')}
-                                                    className={styles.formControl}
-                                                >
-                                                    <option value="">Select...</option>
-                                                    {educationOptions.map((option) => (
-                                                        <option key={option.value} value={option.value}>
-                                                            {option.label}
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                                {errors.education && <p className={styles.textDanger}>{errors.education?.message}</p>}
-                                            </Form.Group>
+                                            <FormInput
+                                                name="education"
+                                                label="Education Level"
+                                                type="select"
+                                                containerClass="mb-3"
+                                                className="form-select"
+                                                register={methods.register}
+                                                key="education"
+                                                errors={errors}
+                                                control={methods.control}
+                                            >
+                                                <option value="">Select...</option>
+                                                {educationOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </FormInput>
                                         </Col>
                                         <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.formLabel}>Foreign Work Experience</Form.Label>
-                                                <Form.Control
-                                                    as="select"
-                                                    {...methods.register('foreign_experience')}
-                                                    className={styles.formControl}
-                                                >
-                                                    <option value="">Select...</option>
-                                                    {workExperienceOptions.map((option) => (
-                                                        <option key={option.value} value={option.value}>
-                                                            {option.label}
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                                {errors.foreign_experience && <p className={styles.textDanger}>{errors.foreign_experience?.message}</p>}
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-                                    <Row>
-                                        <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.formLabel}>Canadian Work Experience</Form.Label>
-                                                <Form.Control
-                                                    as="select"
-                                                    {...methods.register('canadian_experience')}
-                                                    className={styles.formControl}
-                                                >
-                                                    <option value="">Select...</option>
-                                                    {workExperienceOptions.map((option) => (
-                                                        <option key={option.value} value={option.value}>
-                                                            {option.label}
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                                {errors.canadian_experience && <p className={styles.textDanger}>{errors.canadian_experience?.message}</p>}
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.formLabel}>First Language Proficiency</Form.Label>
-                                                <Form.Control
-                                                    as="select"
-                                                    {...methods.register('first_language')}
-                                                    className={styles.formControl}
-                                                >
-                                                    <option value="">Select...</option>
-                                                    {languageOptions.map((option) => (
-                                                        <option key={option.value} value={option.value}>
-                                                            {option.label}
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                                {errors.first_language && <p className={styles.textDanger}>{errors.first_language?.message}</p>}
-                                            </Form.Group>
+                                            <FormInput
+                                                name="foreign_experience"
+                                                label="Foreign Work Experience"
+                                                type="select"
+                                                containerClass="mb-3"
+                                                className="form-select"
+                                                register={methods.register}
+                                                key="foreign_experience"
+                                                errors={errors}
+                                                control={methods.control}
+                                            >
+                                                <option value="">Select...</option>
+                                                {workExperienceOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </FormInput>
                                         </Col>
                                     </Row>
                                     <Row>
                                         <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.formLabel}>Do you have a spouse or common-law partner?</Form.Label>
-                                                <Form.Control
-                                                    as="select"
-                                                    {...methods.register('spouse')}
-                                                    className={styles.formControl}
-                                                >
-                                                    <option value="">Select...</option>
-                                                    {spouseOptions.map((option) => (
-                                                        <option key={option.value} value={option.value}>
-                                                            {option.label}
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                                {errors.spouse && <p className={styles.textDanger}>{errors.spouse?.message}</p>}
-                                            </Form.Group>
+                                            <FormInput
+                                                name="canadian_experience"
+                                                label="Canadian Work Experience"
+                                                type="select"
+                                                containerClass="mb-3"
+                                                className="form-select"
+                                                register={methods.register}
+                                                key="canadian_experience"
+                                                errors={errors}
+                                                control={methods.control}
+                                            >
+                                                <option value="">Select...</option>
+                                                {workExperienceOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </FormInput>
                                         </Col>
                                         <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.formLabel}>Do you have a sibling in Canada?</Form.Label>
-                                                <Form.Control
-                                                    as="select"
-                                                    {...methods.register('sibling_in_canada')}
-                                                    className={styles.formControl}
-                                                >
-                                                    <option value="">Select...</option>
-                                                    {siblingOptions.map((option) => (
-                                                        <option key={option.value} value={option.value}>
-                                                            {option.label}
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                                {errors.sibling_in_canada && <p className={styles.textDanger}>{errors.sibling_in_canada?.message}</p>}
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-                                    <Row>
-                                        <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.formLabel}>Do you have a valid job offer?</Form.Label>
-                                                <Form.Control
-                                                    as="select"
-                                                    {...methods.register('job_offer')}
-                                                    className={styles.formControl}
-                                                >
-                                                    <option value="">Select...</option>
-                                                    {jobOfferOptions.map((option) => (
-                                                        <option key={option.value} value={option.value}>
-                                                            {option.label}
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                                {errors.job_offer && <p className={styles.textDanger}>{errors.job_offer?.message}</p>}
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.formLabel}>Do you have a provincial nomination?</Form.Label>
-                                                <Form.Control
-                                                    as="select"
-                                                    {...methods.register('provincial_nomination')}
-                                                    className={styles.formControl}
-                                                >
-                                                    <option value="">Select...</option>
-                                                    {nominationOptions.map((option) => (
-                                                        <option key={option.value} value={option.value}>
-                                                            {option.label}
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                                {errors.provincial_nomination && <p className={styles.textDanger}>{errors.provincial_nomination?.message}</p>}
-                                            </Form.Group>
+                                            <FormInput
+                                                name="first_language"
+                                                label="First Language Proficiency"
+                                                type="select"
+                                                containerClass="mb-3"
+                                                className="form-select"
+                                                register={methods.register}
+                                                key="first_language"
+                                                errors={errors}
+                                                control={methods.control}
+                                            >
+                                                <option value="">Select...</option>
+                                                {languageOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </FormInput>
                                         </Col>
                                     </Row>
                                     <Row>
                                         <Col md={6}>
-                                            <Form.Group className={styles.formGroup}>
-                                                <Form.Label className={styles.formLabel}>Second Language Proficiency (if any)</Form.Label>
-                                                <Form.Control
-                                                    as="select"
-                                                    {...methods.register('second_language')}
-                                                    className={styles.formControl}
-                                                >
-                                                    <option value="">Select...</option>
-                                                    {languageOptions.map((option) => (
-                                                        <option key={option.value} value={option.value}>
-                                                            {option.label}
-                                                        </option>
-                                                    ))}
-                                                </Form.Control>
-                                            </Form.Group>
+                                            <FormInput
+                                                name="spouse"
+                                                label="Do you have a spouse or common-law partner?"
+                                                type="select"
+                                                containerClass="mb-3"
+                                                className="form-select"
+                                                register={methods.register}
+                                                key="spouse"
+                                                errors={errors}
+                                                control={methods.control}
+                                            >
+                                                <option value="">Select...</option>
+                                                {spouseOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </FormInput>
+                                        </Col>
+                                        <Col md={6}>
+                                            <FormInput
+                                                name="sibling_in_canada"
+                                                label="Do you have a sibling in Canada?"
+                                                type="select"
+                                                containerClass="mb-3"
+                                                className="form-select"
+                                                register={methods.register}
+                                                key="sibling_in_canada"
+                                                errors={errors}
+                                                control={methods.control}
+                                            >
+                                                <option value="">Select...</option>
+                                                {siblingOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </FormInput>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col md={6}>
+                                            <FormInput
+                                                name="job_offer"
+                                                label="Do you have a valid job offer?"
+                                                type="select"
+                                                containerClass="mb-3"
+                                                className="form-select"
+                                                register={methods.register}
+                                                key="job_offer"
+                                                errors={errors}
+                                                control={methods.control}
+                                            >
+                                                <option value="">Select...</option>
+                                                {jobOfferOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </FormInput>
+                                        </Col>
+                                        <Col md={6}>
+                                            <FormInput
+                                                name="provincial_nomination"
+                                                label="Do you have a provincial nomination?"
+                                                type="select"
+                                                containerClass="mb-3"
+                                                className="form-select"
+                                                register={methods.register}
+                                                key="provincial_nomination"
+                                                errors={errors}
+                                                control={methods.control}
+                                            >
+                                                <option value="">Select...</option>
+                                                {nominationOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </FormInput>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col md={6}>
+                                            <FormInput
+                                                name="second_language"
+                                                label="Second Language Proficiency (if any)"
+                                                type="select"
+                                                containerClass="mb-3"
+                                                className="form-select"
+                                                register={methods.register}
+                                                key="second_language"
+                                                errors={errors}
+                                                control={methods.control}
+                                            >
+                                                <option value="">Select...</option>
+                                                {languageOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </FormInput>
                                         </Col>
                                     </Row>
                                     <Button className={styles.button} type="submit">Calculate CRS Score</Button>

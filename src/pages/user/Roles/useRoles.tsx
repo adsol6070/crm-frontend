@@ -38,6 +38,7 @@ export const useRoles = () => {
 	const [permissionsData, setPermissionsData] = useState<
 		TransformedUserPermissions[]
 	>([])
+	const [loading, setLoading] = useState(true)
 	const columns = [
 		{ Header: 'Role Title', accessor: 'role', defaultCanSort: true },
 		{ Header: 'Users', accessor: 'users' },
@@ -46,18 +47,25 @@ export const useRoles = () => {
 	]
 
 	const fetchPermissions = async () => {
-		const permissions = await permissionService.get()
-		const updatedPermissions = permissions.map(
-			({ created_at, updated_at, ...rest }: UserPermissions) => {
-				return {
-					...rest,
-					role: toTitleCase(rest.role),
-					createdOn: created_at.split('T')[0],
-					updatedOn: updated_at.split('T')[0],
+		setLoading(true)
+		try {
+			const permissions = await permissionService.get()
+			const updatedPermissions = permissions.map(
+				({ created_at, updated_at, ...rest }: UserPermissions) => {
+					return {
+						...rest,
+						role: toTitleCase(rest.role),
+						createdOn: created_at.split('T')[0],
+						updatedOn: updated_at.split('T')[0],
+					}
 				}
-			}
-		)
-		setPermissionsData(updatedPermissions)
+			)
+			setPermissionsData(updatedPermissions)
+		} catch (error) {
+			console.log(error)
+		} finally {
+			setLoading(false)
+		}
 	}
 
 	const deletePermission = async (permissionId: string) => {
@@ -75,5 +83,5 @@ export const useRoles = () => {
 		fetchPermissions()
 	}, [])
 
-	return { columns, permissionsData, fetchPermissions, deletePermission }
+	return { columns, permissionsData, fetchPermissions, deletePermission, loading }
 }

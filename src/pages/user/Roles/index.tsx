@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button, Card, Col, Row } from 'react-bootstrap'
+import { Button, Card, Col, Row, Spinner } from 'react-bootstrap'
 import { BsPencil, BsPlus, BsTrash } from 'react-icons/bs'
 import { PageBreadcrumb, Table } from '@/components'
 import { useRoles } from './useRoles'
@@ -8,7 +8,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
 
 const Roles = () => {
-	const { columns, permissionsData, fetchPermissions, deletePermission } =
+	const { columns, permissionsData, fetchPermissions, deletePermission, loading } =
 		useRoles()
 	const [showModal, setShowModal] = useState(false)
 	const [modalMode, setModalMode] = useState('create')
@@ -24,7 +24,7 @@ const Roles = () => {
 		...columns,
 		{
 			Header: 'Action',
-			Cell: ({ row }) => (
+			Cell: ({ row }: any) => (
 				<div>
 					<span className="me-2">
 						<BsPencil
@@ -73,6 +73,13 @@ const Roles = () => {
 							</div>
 						</Card.Header>
 						<Card.Body>
+						{loading ? (
+                                <div className="text-center"  style={{height: "500px", display: "flex", alignItems: "center", justifyContent: "center"}}>
+                                    <Spinner animation="border" role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </Spinner>
+                                </div>
+                            ) : (
 							<Table
 								columns={enhancedColumns}
 								data={permissionsData}
@@ -83,7 +90,7 @@ const Roles = () => {
 								searchBoxClass="mt-3"
 								tableClass="mt-3"
 								theadClass="thead-light"
-							/>
+							/>)}
 						</Card.Body>
 					</Card>
 				</Col>
