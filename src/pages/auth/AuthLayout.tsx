@@ -58,17 +58,17 @@ const AuthLayout = ({
 										/>
 									</Col>
 									<Col lg={6}>
-										<div className="d-flex flex-column h-100">
-											<div className="auth-brand p-4">
+										<div className="d-flex flex-column justify-content-center align-items-center h-100">
+											<div className="auth-brand pt-4">
 												<a href="index.html" className="logo-light">
-													<Image src={logo} alt="logo" height="22" />
+													<Image src={logo} alt="logo" height="40" />
 												</a>
 												<a href="index.html" className="logo-dark">
-													<Image src={logoDark} alt="dark logo" height="22" />
+													<Image src={logoDark} alt="dark logo" height="40" />
 												</a>
 											</div>
 											<div
-												className={`p-4 my-auto ${starterClass ? 'text-center' : ''
+												className={`p-4 ${starterClass ? 'text-center' : ''
 													}`}
 											>
 												{userImage ? (

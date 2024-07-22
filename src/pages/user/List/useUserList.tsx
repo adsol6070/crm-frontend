@@ -20,7 +20,7 @@ export const useUserList = (): UserListHookResult => {
 	const navigate = useNavigate()
 	const fetchUserImage = useUserImage()
 	const { permissions } = usePermissions()
-	const [loading, setLoading] = useState(false)
+	const [loading, setLoading] = useState(true)
 	const [userRecords, setUserRecords] = useState<User[]>([])
 
 	const columns = [
