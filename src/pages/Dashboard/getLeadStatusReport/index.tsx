@@ -3,8 +3,11 @@ import { Col, Row, Button } from 'react-bootstrap';
 import ReactApexChart from 'react-apexcharts';
 import useGetLeadReports from './useGetLeadReports';
 import styles from './leadStatusReport.module.css'; // Create a new CSS module if needed
+import { chartStyle } from '@/utils';
+import { useThemeContext } from '@/common';
 
 const LeadStatusReport = () => {
+  const { settings } = useThemeContext();
   const { report: reportData } = useGetLeadReports();
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
@@ -76,7 +79,7 @@ const LeadStatusReport = () => {
   return (
       <Col md={4}>
         <h5>Status Report</h5>
-        <Row className={`mx-2 my-2 pt-2 ${styles.customDesign}`}>
+        <Row className={`mx-2 my-2 pt-2 ${styles.customDesign}`} style={chartStyle(settings.theme === "dark")}>
           <Col md={12} className="d-flex justify-content-center align-items-center flex-wrap">
             <Button style={{ backgroundColor: "#6c757d" }} className={`m-1 ${styles.button} ${styles.buttonMx2}`} onClick={() => handleStatusChange(null)}>All</Button>
             <Button style={{ backgroundColor: "#ffc107" }} className={`m-1 ${styles.button} ${styles.buttonMx2}`} onClick={() => handleStatusChange('pending')}>Pending</Button>

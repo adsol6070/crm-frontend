@@ -3,8 +3,11 @@ import { Col, Row } from 'react-bootstrap';
 import ReactApexChart from 'react-apexcharts';
 import useGetLeadSourceReports from './useGetLeadSourceReports';
 import styles from './leadSourceReport.module.css';
+import { chartStyle } from '@/utils';
+import { useThemeContext } from '@/common';
 
 const LeadSourceReport = () => {
+  const { settings } = useThemeContext();
   const { report: reportData } = useGetLeadSourceReports();
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
 
@@ -64,7 +67,7 @@ const LeadSourceReport = () => {
   return (
     <Col md={4}>
       <h5>Lead Source Report</h5>
-      <Row className={`mx-2 my-2 pt-2 ${styles.customDesign}`}>
+      <Row className={`mx-2 my-2 pt-2 ${styles.customDesign}`}  style={chartStyle(settings.theme === "dark")}>
         <Col md={12} className={`d-flex justify-content-center`}>
           <div className={styles.chartContainer}>
             <ReactApexChart options={chartData.options} series={chartData.series} type="pie" height={350} />

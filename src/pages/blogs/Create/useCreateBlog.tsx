@@ -3,35 +3,32 @@ import { BlogCategory } from '@/types'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
+interface BlogDetails {
+	title: string
+	description: string
+	content: string
+	category: string
+	blogImage: File
+}
+
 export default function useCreateBlog() {
 	const [loading, setLoading] = useState(false)
 	const { user } = useAuthContext()
 	const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([])
-	const createBlog = async ({
-		title,
-		description,
-		content,
-		category,
-		blogImage,
-	}: {
-		title: string
-		description: string
-		content: string
-		category: string
-		blogImage: File
-	}) => {
+
+	const createBlog = async (blog: BlogDetails) => {
 		setLoading(true)
 		try {
 			const formData = new FormData()
 			formData.append('tenantID', user.tenantID)
-			formData.append('title', title)
-			formData.append('description', description)
-			formData.append('content', content)
-			formData.append('category', category)
+			formData.append('title', blog.title)
+			formData.append('description', blog.description)
+			formData.append('content', blog.content)
+			formData.append('category', blog.category)
 			formData.append('uploadType', 'Blog')
 
-			if (blogImage) {
-				formData.append('blogImage', blogImage, blogImage.name)
+			if (blog.blogImage) {
+				formData.append('blogImage', blog.blogImage, blog.blogImage.name)
 			}
 			const data = await blogApi.createPost(formData)
 			toast.success(data.message)

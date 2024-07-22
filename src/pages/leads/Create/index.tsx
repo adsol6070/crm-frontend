@@ -13,7 +13,8 @@ import useCreateLead from './useCreateLeadForm';
 import CountryList from 'react-select-country-list';
 import ReactToPrint from 'react-to-print';
 import { Country, State, City } from 'country-state-city';
-import { capitalizeFirstLetter, nationalityOptions, genderOptions, maritalStatusOptions } from '@/utils';
+import { capitalizeFirstLetter, nationalityOptions, genderOptions, maritalStatusOptions, customStyles } from '@/utils';
+import { useThemeContext } from '@/common';
 
 interface CollectedData {
   [key: string]: any;
@@ -104,6 +105,8 @@ const stepSchemas = [
 ];
 
 const AddLead = () => {
+  const { settings } = useThemeContext();
+  console.log("theme settings ", settings.theme)
   const [countryOptions, setCountryOptions] = useState(() => CountryList().getData());
   const { createLead, visaCategories } = useCreateLead();
   const [step, setStep] = useState(1);
@@ -481,6 +484,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Gender</Form.Label>
                             <Select
+                              styles={customStyles(settings.theme === "dark")} 
                               className="select2"
                               options={genderOptions}
                               getOptionLabel={(e) => e.label}
@@ -495,6 +499,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Nationality</Form.Label>
                             <Select
+                            styles={customStyles(settings.theme === "dark")} 
                               className="select2"
                               options={nationalityOptions}
                               getOptionLabel={(e) => e.label}
@@ -509,6 +514,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Marital Status</Form.Label>
                             <Select
+                            styles={customStyles(settings.theme === "dark")} 
                               className="select2"
                               options={maritalStatusOptions}
                               getOptionLabel={(e) => e.label}
@@ -525,6 +531,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Country</Form.Label>
                             <Select
+                            styles={customStyles(settings.theme === "dark")} 
                               className="select2"
                               options={countries}
                               getOptionLabel={(e) => e.label}
@@ -539,6 +546,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>State</Form.Label>
                             <Select
+                            styles={customStyles(settings.theme === "dark")} 
                               className="select2"
                               options={states}
                               getOptionLabel={(e) => e.label}
@@ -554,6 +562,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>District</Form.Label>
                             <Select
+                            styles={customStyles(settings.theme === "dark")} 
                               className="select2"
                               options={districts}
                               getOptionLabel={(e) => e.label}
@@ -569,6 +578,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>City</Form.Label>
                             <Select
+                            styles={customStyles(settings.theme === "dark")} 
                               className="select2"
                               options={cities}
                               getOptionLabel={(e) => e.label}
@@ -761,6 +771,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Choose Visa Category</Form.Label>
                             <Select
+                            styles={customStyles(settings.theme === "dark")} 
                               className="select2 z-3"
                               options={visaCategories as any[]}
                               getOptionLabel={(e: any) => e.label}
@@ -775,6 +786,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Country of Interest</Form.Label>
                             <Select
+                            styles={customStyles(settings.theme === "dark")} 
                               className="select2"
                               options={countryOptions}
                               getOptionLabel={(e) => e.label}

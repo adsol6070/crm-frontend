@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { FaCalendarAlt } from 'react-icons/fa';
 import styles from './getLeadReportOnTime.module.css';
 import useGetLeadReportsOnTime from './getLeadReportOnTime';
 import ReactApexChart from 'react-apexcharts';
 import { format, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, eachYearOfInterval } from 'date-fns';
+import { chartStyle } from '@/utils';
+import { useThemeContext } from '@/common';
 
 interface GetLeadReportOnTimeProps {
   start: Date;
@@ -14,12 +17,27 @@ interface GetLeadReportOnTimeProps {
 }
 
 const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, barColor, chartType }) => {
+  const { settings } = useThemeContext();
   const [startDate, setStartDate] = useState<Date | undefined>(start);
   const [endDate, setEndDate] = useState<Date | undefined>(end);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+
   const { report } = useGetLeadReportsOnTime(
     startDate ? startDate.toISOString() : null,
     endDate ? endDate.toISOString() : null
   );
+
+  useEffect(() => {
+    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setIsDarkMode(darkModeMediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setIsDarkMode(e.matches);
+    };
+
+    darkModeMediaQuery.addEventListener('change', handleChange);
+    return () => darkModeMediaQuery.removeEventListener('change', handleChange);
+  }, []);
 
   const handleDateChange = (date: Date | null, isStart: boolean) => {
     if (isStart) {
@@ -146,7 +164,7 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
       legend: {
         position: 'bottom',
         labels: {
-          colors: '#333',
+          colors: isDarkMode ? '#fff' : '#333',
           useSeriesColors: false
         }
       },
@@ -155,7 +173,7 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
 
   return (
     <div>
-      <div className={styles.customDatepickerWrapper}>
+      <div className={`${styles.customDatepickerWrapper} ${isDarkMode ? 'dark' : ''}`}>
         <div className={styles.customDatepickerIcon}>
           <DatePicker
             selected={startDate}
@@ -166,6 +184,7 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
             placeholderText="Select Start Date"
             className={styles.customDatepickerInput}
           />
+          <FaCalendarAlt />
         </div>
         <div className={styles.customDatepickerIcon}>
           <DatePicker
@@ -178,9 +197,10 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
             placeholderText="Select End Date"
             className={styles.customDatepickerInput}
           />
+          <FaCalendarAlt />
         </div>
       </div>
-      <div style={{ backgroundColor: "white", padding: "10px 10px 0px 10px", borderRadius: "10px" }}>
+      <div style={chartStyle(settings.theme === "dark")}>
         <ReactApexChart 
           options={chartData.options} 
           series={chartData.series} 

@@ -241,7 +241,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 							</div>
 						</button>
 						{/* Topbar Search Form */}
-						<div className="app-search d-none d-lg-block">
+						{/* <div className="app-search d-none d-lg-block">
 							<form>
 								<div className="input-group">
 									<input
@@ -252,7 +252,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 									<span className="ri-search-line search-icon text-muted" />
 								</div>
 							</form>
-						</div>
+						</div> */}
 					</div>
 					<ul className="topbar-menu d-flex align-items-center gap-3">
 						<li className="dropdown d-lg-none">
@@ -270,11 +270,11 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 								notifications={notifications}
 							/>
 						</li>
-						<li className="d-none d-sm-inline-block">
+						{/* <li className="d-none d-sm-inline-block">
 							<button className="nav-link" onClick={handleRightSideBar}>
 								<i className="ri-settings-3-line fs-22" />
 							</button>
-						</li>
+						</li> */}
 						<li className="d-none d-sm-inline-block">
 							<div
 								className="nav-link"
