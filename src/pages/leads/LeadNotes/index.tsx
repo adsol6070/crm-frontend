@@ -7,8 +7,8 @@ import useCreateLeadNote from './useLeadNotes';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Swal from 'sweetalert2';
-import { capitalizeFirstLetter, hasPermission } from '@/utils';
-import { usePermissions } from '@/common';
+import { capitalizeFirstLetter, hasPermission, notesStyle } from '@/utils';
+import { usePermissions, useThemeContext } from '@/common';
 
 interface User {
 	id: string;
@@ -37,6 +37,7 @@ interface Note {
 }
 
 const LeadNotes: React.FC = () => {
+	const { settings } = useThemeContext();
 	const { permissions } = usePermissions();
 	const { leadId } = useParams() as { leadId: string };
 	const [notes, setNotes] = useState<Note[]>([]);
@@ -151,7 +152,7 @@ const LeadNotes: React.FC = () => {
 							</Spinner>
 						</div>
 					) : notes.length === 0 ? (
-						<div className={styles.noNotesBox}>
+						<div className={styles.noNotesBox} style={notesStyle(settings.theme === "dark")}>
 							<p>No notes to display</p>
 						</div>
 					) : (
@@ -168,7 +169,8 @@ const LeadNotes: React.FC = () => {
 							)}
 							<div className={styles.notesContainer}>
 								{notes.map((note) => (
-									<div key={note.id} className={`${styles.noteCard} card`}>
+									<div key={note.id} className={`${styles.noteCard} card`}
+									style={notesStyle(settings.theme === "dark")}>
 										<div className={styles.cardTopBar}>
 											{editingNoteId === note.id ? (
 												<button
@@ -197,7 +199,7 @@ const LeadNotes: React.FC = () => {
 											)}
 										</div>
 										{editingNoteId === note.id ? (
-											<div className={styles.noteEdit}>
+											<div className={styles.noteEdit} style={notesStyle(settings.theme === "dark")}>
 												<textarea
 													value={editingNoteText}
 													onChange={(e) => setEditingNoteText(e.target.value)}
@@ -205,7 +207,7 @@ const LeadNotes: React.FC = () => {
 												/>
 											</div>
 										) : (
-											<div className="card-body">
+											<div className="card-body" style={notesStyle(settings.theme === "dark")}>
 												<p className="card-text">
 													<strong>Note: </strong>
 													{note.note}
