@@ -2,13 +2,13 @@ import { Column } from 'react-table'
 import { PageSize } from '@/components'
 import React, { useEffect, useState } from 'react'
 import { LeadData } from '@/types'
-import { leadApi, useAuthContext, usePermissions } from '@/common'
+import { leadApi, useAuthContext, usePermissions, useThemeContext } from '@/common'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { Dropdown } from 'react-bootstrap'
 import Swal from 'sweetalert2'
 import styles from './LeadList.module.css'
-import { capitalizeFirstLetter, hasPermission } from '@/utils'
+import { actionStyle, capitalizeFirstLetter, hasPermission } from '@/utils'
 
 interface HistoryItem {
 	action: string
@@ -48,6 +48,7 @@ export const useLeadList = (): LeadListHookResult => {
 	const { permissions } = usePermissions()
 	const navigate = useNavigate()
 	const { user } = useAuthContext()
+	const { settings } = useThemeContext();
 	const [loading, setLoading] = useState(true)
 	const [leadRecords, setLeadRecords] = useState<LeadData[]>([])
 	const [leadStatuses, setLeadStatuses] = useState<{ [key: string]: string }>(
@@ -224,7 +225,7 @@ export const useLeadList = (): LeadListHookResult => {
 				<Dropdown.Toggle as="button" className={styles.customActionButton}>
 					<i className={`bi bi-gear ${styles.biGear}`}></i>
 				</Dropdown.Toggle>
-				<Dropdown.Menu className={styles.customMenuStyle}>
+				<Dropdown.Menu className={styles.customMenuStyle} style={actionStyle(settings.theme === "dark")}>
 					{hasPermission(permissions, 'Leads', 'AddNotes') && (
 						<Dropdown.Item onClick={() => handleAddNotes(cell.row.original.id)}>
 							Add Notes

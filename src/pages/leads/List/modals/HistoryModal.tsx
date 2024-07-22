@@ -1,7 +1,8 @@
 import React from 'react';
 import { Modal } from 'react-bootstrap';
 import styles from '../LeadList.module.css';
-import { capitalizeFirstLetter, capitalizeFirstLetterOfEachWord } from '@/utils';
+import { capitalizeFirstLetter, capitalizeFirstLetterOfEachWord, historyStyle } from '@/utils';
+import { useThemeContext } from '@/common';
 
 interface Agent {
     id: string;
@@ -29,6 +30,7 @@ interface HistoryModalProps {
 }
 
 const HistoryModal: React.FC<HistoryModalProps> = ({ show, onHide, historyData }) => {
+    const { settings } = useThemeContext();
     const getStatusClass = (status: string | null) => {
         switch (status) {
             case 'pending':
@@ -50,7 +52,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ show, onHide, historyData }
             <Modal.Body className={styles.modalBody}>
                 <div className={styles.stepper}>
                     {historyData.map((item, index) => (
-                        <div key={index} className={styles.step}>
+                        <div key={index} className={styles.step} style={historyStyle(settings.theme === "dark")}>
                             <div className={styles.stepNumber}>{index + 1}</div>
                             <div className={styles.stepContent}>
                                 <h5 className={styles.action}>{capitalizeFirstLetterOfEachWord(item.action)}</h5>
