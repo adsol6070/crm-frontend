@@ -13,6 +13,7 @@ import Swal from 'sweetalert2'
 import { saveAs } from 'file-saver'
 import JSZip from 'jszip'
 import { useChatContext } from '../context/chatContext'
+import { useThemeContext } from '@/common'
 
 const slideDown = keyframes`
   from {
@@ -25,8 +26,9 @@ const slideDown = keyframes`
   }
 `
 
-const ChatHeaderWrapper = styled.div`
-	background-color: #f7f8fa;
+const ChatHeaderWrapper = styled.div<{ theme: string }>`
+	background-color: ${({ theme }) =>
+		theme === 'dark' ? 'transparent' : '#f7f8fa'};
 	border-bottom: 1px solid #e6e6e6;
 	padding: 1rem 1.5rem;
 	position: relative;
@@ -48,7 +50,7 @@ const ChatHeaderWrapper = styled.div`
 			font-weight: 600;
 			margin-bottom: 0.25rem;
 			font-size: 1rem;
-			color: #333;
+			color: ${({ theme }) => (theme === 'dark' ? 'white' : '#333')};
 		}
 
 		p {
@@ -61,7 +63,7 @@ const ChatHeaderWrapper = styled.div`
 	.nav-btn {
 		background: none;
 		border: none;
-		color: #333;
+		color: ${({ theme }) => (theme === 'dark' ? 'white' : '#333')};
 		font-size: 1.2rem;
 		cursor: pointer;
 
@@ -76,7 +78,7 @@ const ChatHeaderWrapper = styled.div`
 		right: 0;
 		width: 300px;
 		padding: 10px;
-		background: #fff;
+		background: ${({ theme }) => (theme === 'dark' ? '#313a46' : 'white')};
 		border: 1px solid #e6e6e6;
 		border-radius: 8px;
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -85,9 +87,9 @@ const ChatHeaderWrapper = styled.div`
 	}
 `
 
-const CustomDropdownMenu = styled(DropdownMenu)`
-	background-color: #ffffff;
-	border: 1px solid #e6e6e6;
+const CustomDropdownMenu = styled(DropdownMenu)<{ theme: string }>`
+	background-color: ${({ theme }) => theme === 'white' && '#ffffff'};
+	border: 1px thin #e6e6e6;
 	border-radius: 8px;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 	padding: 0;
@@ -95,7 +97,7 @@ const CustomDropdownMenu = styled(DropdownMenu)`
 
 	.dropdown-item {
 		padding: 10px 20px;
-		color: #333;
+		color: ${({ theme }) => (theme === 'dark' ? '#ffffff' : '#333')};
 		font-size: 0.875rem;
 		cursor: pointer;
 		transition:
@@ -103,7 +105,8 @@ const CustomDropdownMenu = styled(DropdownMenu)`
 			color 0.2s;
 
 		&:hover {
-			background-color: #f1f1f1;
+			background-color: ${({ theme }) =>
+				theme === 'dark' ? '#ffffff38' : '#f1f1f1'};
 		}
 	}
 `
@@ -115,6 +118,7 @@ const ChatHeader = ({ messages, setFilteredMessages }) => {
 		isGroupChat,
 		openGroupInfoModal,
 	} = useChatContext()
+	const { settings } = useThemeContext()
 	const [singleButton2, setSingleButton2] = useState<boolean>(false)
 	const [showSearch, setShowSearch] = useState(false)
 	const [searchTerm, setSearchTerm] = useState('')
@@ -179,7 +183,7 @@ const ChatHeader = ({ messages, setFilteredMessages }) => {
 	}, [showSearch])
 
 	return (
-		<ChatHeaderWrapper>
+		<ChatHeaderWrapper theme={settings.theme}>
 			<Row className="align-items-center">
 				<Col xl={4} className="col-7">
 					<div className="d-flex align-items-center">
@@ -238,7 +242,9 @@ const ChatHeader = ({ messages, setFilteredMessages }) => {
 								<DropdownToggle className="btn nav-btn" tag="a">
 									<i className="ri-more-2-fill"></i>
 								</DropdownToggle>
-								<CustomDropdownMenu className="dropdown-menu-end">
+								<CustomDropdownMenu
+									className="dropdown-menu-end"
+									theme={settings.theme}>
 									<DropdownItem
 										className="dropdown-item"
 										onClick={exportChatOptions}>

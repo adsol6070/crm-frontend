@@ -123,6 +123,9 @@ const CreateGroupModal = () => {
 		setSelectedUsers(new Set())
 	}
 
+	// Filter out the currentUser from the chats array
+	const filteredChats = chats.filter((chat) => chat.id !== currentUser?.id)
+
 	const body = (
 		<Form>
 			<FormGroup>
@@ -156,9 +159,8 @@ const CreateGroupModal = () => {
 			<FormGroup>
 				<Label style={{ userSelect: 'none' }}>Select Members</Label>
 				<CustomListGroup className="mt-3 chat-list modalStyle">
-					{chats
-						.filter((chat) => chat.id !== currentUser?.id)
-						.map((chat) => (
+					{filteredChats.length > 0 ? (
+						filteredChats.map((chat) => (
 							<ListGroupItem
 								key={chat.id}
 								style={{ cursor: 'pointer', userSelect: 'none' }}
@@ -186,7 +188,10 @@ const CreateGroupModal = () => {
 									</div>
 								</div>
 							</ListGroupItem>
-						))}
+						))
+					) : (
+						<p className="text-center">No members except you.</p>
+					)}
 				</CustomListGroup>
 			</FormGroup>
 		</Form>

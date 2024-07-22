@@ -49,15 +49,17 @@ const MenuItemWithChildren = ({
 		if (menuItem.key === 'user-ManageRoles' && !isSuperAdmin) {
 			return null
 		}
-		
+
 		if (menuItem.permissions) {
 			return Object.keys(menuItem.permissions).some((action) =>
 				hasPermission(permissions, menuItem.permissionsKey as string, action)
 			)
 		}
-		
+
 		if (menuItem.children) {
-			return menuItem.children.some((child) => canViewMenuItem(child, permissions))
+			return menuItem.children.some((child) =>
+				canViewMenuItem(child, permissions)
+			)
 		}
 
 		return true
