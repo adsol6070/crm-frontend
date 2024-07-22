@@ -21,8 +21,10 @@ import { CHAT_TAB, GROUP_TAB } from '@/constants/chat'
 import styled from 'styled-components'
 import { filterByName } from '@/utils'
 import { useChatContext } from '../context/chatContext'
+import { useThemeContext } from '@/common'
 
 const Sidebar = () => {
+	const navigate = useNavigate()
 	const {
 		chats,
 		groups,
@@ -35,12 +37,13 @@ const Sidebar = () => {
 		handleGroupContextMenu,
 		setShowCreateGroupModal,
 	} = useChatContext()
+	const { settings } = useThemeContext()
+	console.log('Settings:', settings.theme)
 	const [singleButton, setSingleButton] = useState<boolean>(false)
 	const [activeTab, setActiveTab] = useState<string>(CHAT_TAB)
 	const [searchTerm, setSearchTerm] = useState<string>('')
 	const [filteredChats, setFilteredChats] = useState(chats)
 	const [filteredGroups, setFilteredGroups] = useState(groups)
-	const navigate = useNavigate()
 
 	useEffect(() => {
 		setFilteredChats(filterByName(chats, searchTerm))
@@ -146,8 +149,10 @@ const Sidebar = () => {
 									<h5 className="font-size-14">Recent</h5>
 									{filteredChats.length === 0 ? (
 										<NoResultsMessage>No Chats Found</NoResultsMessage>
-									) : (
-										<ChatList className="list-unstyled chat-list px-1">
+									) : (	
+										<ChatList
+											className="list-unstyled chat-list px-1"
+											theme={settings.theme}>
 											{filteredChats.map((chat: any) => (
 												<li
 													key={chat.id + chat.status}
@@ -364,20 +369,21 @@ const NavContainer = styled.div`
 	}
 `
 
-const ChatList = styled.ul`
+const ChatList = styled.ul<{ theme: string }>`
 	margin: 0;
 
 	.active {
-		background: #f8f9fa;
+		background: ${({ theme }) => (theme === 'dark' ? '#f8f9fa24' : '#f8f9fa')};
 		border-radius: 0.5rem !important;
 		border: 1px solid rgba(128, 128, 128, 0.236);
 
 		h5 {
-			color: black;
+			color: ${({ theme }) => (theme === 'dark' ? 'white' : 'black')};
 		}
 
 		p {
-			color: black !important;
+			color: ${({ theme }) =>
+				theme === 'dark' ? '#ffffffb5' : 'black'} !important;
 		}
 	}
 
@@ -385,7 +391,7 @@ const ChatList = styled.ul`
 		position: relative;
 		display: block;
 		padding: 12px 12px;
-		color: #1a2942;
+		color: ${({ theme }) => (theme === 'dark' ? 'white' : '#1a2942')};
 		transition: all 0.4s;
 		overflow: hidden;
 		text-overflow: ellipsis;

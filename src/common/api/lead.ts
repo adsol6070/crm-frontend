@@ -67,21 +67,35 @@ function LeadService() {
 			})
 		},
 		getSingleDocument: async (leadId?: string, filename?: string) => {
-			return await HttpClient.get(`/lead/getSingleDocument/${leadId}/${filename}`, {
-				responseType: 'blob',
-				headers: getAuthHeaders()
-			})
+			return await HttpClient.get(
+				`/lead/getSingleDocument/${leadId}/${filename}`,
+				{
+					responseType: 'blob',
+					headers: getAuthHeaders(),
+				}
+			)
 		},
-		updateSingleDocument: async (values?: any, leadId?: string, filename?: string) => {
-			const data = await HttpClient.patch(`/lead/getSingleDocument/${leadId}/${filename}`, values, {
-				headers: getAuthHeaders(true)
-			})
+		updateSingleDocument: async (
+			values?: any,
+			leadId?: string,
+			filename?: string
+		) => {
+			const data = await HttpClient.patch(
+				`/lead/getSingleDocument/${leadId}/${filename}`,
+				values,
+				{
+					headers: getAuthHeaders(true),
+				}
+			)
 			return data
 		},
 		deleteSingleDocument: async (leadId?: string, filename?: string) => {
-			return await HttpClient.delete(`/lead/getSingleDocument/${leadId}/${filename}`, {
-				headers: getAuthHeaders()
-			})
+			return await HttpClient.delete(
+				`/lead/getSingleDocument/${leadId}/${filename}`,
+				{
+					headers: getAuthHeaders(),
+				}
+			)
 		},
 		deleteDocuments: async (leadId?: string) => {
 			return await HttpClient.delete(`/lead/getDocument/${leadId}`, {
@@ -89,9 +103,13 @@ function LeadService() {
 			})
 		},
 		uploadChecklist: async (values: any, leadId?: string) => {
-			const data = await HttpClient.post(`/lead/documentChecklist/${leadId}`, values, {
-				headers: getAuthHeaders(true),
-			})
+			const data = await HttpClient.post(
+				`/lead/documentChecklist/${leadId}`,
+				values,
+				{
+					headers: getAuthHeaders(true),
+				}
+			)
 			return data
 		},
 		getUploadChecklistbyId: async (leadId?: string) => {
@@ -122,10 +140,14 @@ function LeadService() {
 			})
 		},
 		createLeadNote: (leadId: string, leadNoteData: any) => {
-			return HttpClient.post(`/lead/leadNotes/${leadId}`, leadNoteData, { headers: getAuthHeaders() })
+			return HttpClient.post(`/lead/leadNotes/${leadId}`, leadNoteData, {
+				headers: getAuthHeaders(),
+			})
 		},
 		getLeadNotes: (leadId: string) => {
-			return HttpClient.get(`/lead/leadNotes/${leadId}`, { headers: getAuthHeaders() })
+			return HttpClient.get(`/lead/leadNotes/${leadId}`, {
+				headers: getAuthHeaders(),
+			})
 		},
 		updateLeadNote: (noteId: any, values: any) => {
 			return HttpClient.patch(`/lead/leadNote/${noteId}`, values, {
@@ -133,10 +155,14 @@ function LeadService() {
 			})
 		},
 		deleteLeadNoteById: (noteId: string) => {
-			return HttpClient.delete(`/lead/leadNote/${noteId}`, { headers: getAuthHeaders() })
+			return HttpClient.delete(`/lead/leadNote/${noteId}`, {
+				headers: getAuthHeaders(),
+			})
 		},
 		deleteLeadNotes: (leadId: string) => {
-			return HttpClient.delete(`/lead/leadNotes/${leadId}`, { headers: getAuthHeaders() })
+			return HttpClient.delete(`/lead/leadNotes/${leadId}`, {
+				headers: getAuthHeaders(),
+			})
 		},
 	}
 }
