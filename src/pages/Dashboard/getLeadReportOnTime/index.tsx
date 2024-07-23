@@ -143,7 +143,7 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
       },
       tooltip: {
         y: {
-          formatter: function (val: any, opts: any) {
+          formatter: function (val: number, opts: any) {
             return chartType === 'pie' || chartType === 'donut'
               ? `${opts.w.globals.labels[opts.seriesIndex]}: ${val} leads`
               : `${val} leads`;

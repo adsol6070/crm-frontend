@@ -31,6 +31,8 @@ interface PermissionsModalProps {
 }
 
 const initialPermissions: Permissions = {
+	Dashboard: { View: false },
+	Chat: { View: false },
 	Blogs: { Create: false, Read: false, Update: false, Delete: false },
 	BlogCategory: { Create: false },
 	Users: { Create: false, Read: false, Update: false, Delete: false },

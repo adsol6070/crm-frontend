@@ -17,9 +17,9 @@ import Swal from 'sweetalert2';
 import { visaDocuments, VisaType } from './visaDocuments';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
-const MAX_FILE_SIZE = 10000000; // 10MB in bytes 
+const MAX_FILE_SIZE = 10000000; 
 
 const addSchema = yup.object().shape({
   documents: yup.array().of(

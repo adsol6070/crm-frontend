@@ -25,17 +25,25 @@ const MENU_ITEMS: MenuItemTypes[] = [
 	},
 	{
 		key: 'dashboard',
-		label: 'Dashboards',
+		label: 'Dashboard',
 		isTitle: false,
 		url: '/',
 		icon: 'ri-dashboard-3-line',
+		permissions: {
+            View: true,
+        },
+		permissionsKey: 'Dashboard'
 	},
 	{
 		key: 'chat',
-		label: 'Chats',
+		label: 'Chat',
 		isTitle: false,
 		icon: 'ri-chat-3-line',
 		url: '/chat',
+		permissions: {
+            View: true,
+        },
+		permissionsKey: 'Chat'
 	},
 	{
 		key: 'leads',

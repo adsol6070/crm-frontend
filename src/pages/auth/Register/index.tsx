@@ -63,7 +63,7 @@ const Register = () => {
 	)
 
 	const onSubmit = (data: UserData) => {
-		const formData = profileImage ? { ...data, profileImage } : data
+		const formData = profileImage ? { ...data, profileImage } : {...data, profileImage: null}
 		register(formData)
 	}
 
