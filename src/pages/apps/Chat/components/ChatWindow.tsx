@@ -35,6 +35,10 @@ const ChatWindow = () => {
 						<SimpleBarContainer ref={scrollRef} className="p-4">
 							{isLoadingMessages ? (
 								<Spinner />
+							) : filteredMessages.length === 0 ? (
+								<NoMessagesFound>
+									<h5>No chat found</h5>
+								</NoMessagesFound>
 							) : (
 								<>
 									<MessageList filteredMessages={filteredMessages} />
@@ -79,4 +83,11 @@ const NoChatSelected = styled.div`
 	justify-content: center;
 	align-items: center;
 	flex-grow: 1;
+`
+
+const NoMessagesFound = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
 `

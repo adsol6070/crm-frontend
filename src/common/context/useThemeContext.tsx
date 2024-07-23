@@ -3,6 +3,7 @@ import {
 	createContext,
 	useCallback,
 	useContext,
+	useEffect,
 	useState,
 } from 'react'
 
@@ -46,39 +47,49 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 	const urlSearchParams = new URLSearchParams(window.location.search)
 	const params = Object.fromEntries(urlSearchParams.entries())
 
-	const [settings, setSettings] = useState({
-		layout: {
-			type:
-				params['layout_type'] == 'horizontal'
-					? ThemeSettings.layout.type.horizontal
-					: ThemeSettings.layout.type.vertical,
-			mode:
-				params['layout_mode'] == 'boxed'
-					? ThemeSettings.layout.mode.boxed
-					: ThemeSettings.layout.mode.fluid,
-			menuPosition: ThemeSettings.layout.menuPosition.fixed,
-		},
-		theme:
-			params['layout_theme'] == 'dark'
-				? ThemeSettings.theme.dark
-				: ThemeSettings.theme.light,
-		topbar: {
-			theme:
-				params['topbar_theme'] == 'dark'
-					? ThemeSettings.topbar.theme.dark
-					: ThemeSettings.topbar.theme.light,
-			logo: ThemeSettings.topbar.logo.show,
-		},
-		sidebar: {
-			theme:
-				params['menu_theme'] == 'light'
-					? ThemeSettings.sidebar.theme.light
-					: ThemeSettings.sidebar.theme.dark,
-			size: ThemeSettings.sidebar.size.default,
-			user: ThemeSettings.sidebar.user.hidden,
-		},
-		rightSidebar: ThemeSettings.rightSidebar.hidden,
-	})
+	const getInitialSettings = () => {
+		const savedTheme = localStorage.getItem('theme')
+		return {
+			layout: {
+				type:
+					params['layout_type'] == 'horizontal'
+						? ThemeSettings.layout.type.horizontal
+						: ThemeSettings.layout.type.vertical,
+				mode:
+					params['layout_mode'] == 'boxed'
+						? ThemeSettings.layout.mode.boxed
+						: ThemeSettings.layout.mode.fluid,
+				menuPosition: ThemeSettings.layout.menuPosition.fixed,
+			},
+			theme: savedTheme
+				? savedTheme
+				: params['layout_theme'] === 'dark'
+					? ThemeSettings.theme.dark
+					: ThemeSettings.theme.light,
+			topbar: {
+				theme:
+					params['topbar_theme'] == 'dark'
+						? ThemeSettings.topbar.theme.dark
+						: ThemeSettings.topbar.theme.light,
+				logo: ThemeSettings.topbar.logo.show,
+			},
+			sidebar: {
+				theme:
+					params['menu_theme'] == 'light'
+						? ThemeSettings.sidebar.theme.light
+						: ThemeSettings.sidebar.theme.dark,
+				size: ThemeSettings.sidebar.size.default,
+				user: ThemeSettings.sidebar.user.hidden,
+			},
+			rightSidebar: ThemeSettings.rightSidebar.hidden,
+		}
+	}
+
+	const [settings, setSettings] = useState(getInitialSettings)
+
+	useEffect(() => {
+		localStorage.setItem('theme', settings.theme)
+	}, [settings.theme])
 
 	const updateSettings = useCallback(
 		(newSettings: any) => {

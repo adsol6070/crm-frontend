@@ -999,8 +999,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 	const renderFilePreview = (fileData: any, isRight: boolean) => {
 		if (!fileData) return null
 
-		console.log('FileData:', fileData)
-
 		const iconColor = isRight ? '#ebebeb' : 'black'
 
 		const formatFileSize = (size: number) => {

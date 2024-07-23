@@ -123,6 +123,7 @@ const ChatHeader = ({ messages, setFilteredMessages }) => {
 	const [showSearch, setShowSearch] = useState(false)
 	const [searchTerm, setSearchTerm] = useState('')
 	const searchInputRef = useRef(null)
+	const searchContainerRef = useRef(null)
 
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchTerm(e.target.value)
@@ -148,7 +149,16 @@ const ChatHeader = ({ messages, setFilteredMessages }) => {
 		if (includeFiles) {
 			for (const msg of messages) {
 				if (msg.file_url) {
-					zip.file(msg.file_name, msg.file_url)
+					try {
+						const response = await fetch(msg.file_url)
+						if (!response.ok) {
+							throw new Error(`Failed to fetch file from ${msg.file_url}`)
+						}
+						const blob = await response.blob()
+						zip.file(msg.file_name, blob)
+					} catch (error) {
+						console.error(`Error fetching file ${msg.file_name}:`, error)
+					}
 				}
 			}
 		}
@@ -179,6 +189,21 @@ const ChatHeader = ({ messages, setFilteredMessages }) => {
 	useEffect(() => {
 		if (showSearch && searchInputRef.current) {
 			searchInputRef.current?.focus()
+		}
+
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				searchContainerRef.current &&
+				!searchContainerRef.current.contains(event.target)
+			) {
+				setShowSearch(false)
+			}
+		}
+
+		document.addEventListener('mousedown', handleClickOutside)
+
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside)
 		}
 	}, [showSearch])
 
@@ -223,7 +248,7 @@ const ChatHeader = ({ messages, setFilteredMessages }) => {
 								<i className="ri-search-line"></i>
 							</button>
 							{showSearch && (
-								<div className="search-container">
+								<div className="search-container" ref={searchContainerRef}>
 									<input
 										type="text"
 										className="form-control border bg-light-subtle"
@@ -250,9 +275,6 @@ const ChatHeader = ({ messages, setFilteredMessages }) => {
 										onClick={exportChatOptions}>
 										Export Chat
 									</DropdownItem>
-									<DropdownItem className="dropdown-item">Archive</DropdownItem>
-									<DropdownItem className="dropdown-item">Muted</DropdownItem>
-									<DropdownItem className="dropdown-item">Delete</DropdownItem>
 								</CustomDropdownMenu>
 							</Dropdown>
 						</li>

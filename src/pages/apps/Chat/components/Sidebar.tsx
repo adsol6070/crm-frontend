@@ -38,7 +38,6 @@ const Sidebar = () => {
 		setShowCreateGroupModal,
 	} = useChatContext()
 	const { settings } = useThemeContext()
-	console.log('Settings:', settings.theme)
 	const [singleButton, setSingleButton] = useState<boolean>(false)
 	const [activeTab, setActiveTab] = useState<string>(CHAT_TAB)
 	const [searchTerm, setSearchTerm] = useState<string>('')
@@ -149,7 +148,7 @@ const Sidebar = () => {
 									<h5 className="font-size-14">Recent</h5>
 									{filteredChats.length === 0 ? (
 										<NoResultsMessage>No Chats Found</NoResultsMessage>
-									) : (	
+									) : (
 										<ChatList
 											className="list-unstyled chat-list px-1"
 											theme={settings.theme}>
@@ -218,7 +217,9 @@ const Sidebar = () => {
 									{filteredGroups.length === 0 ? (
 										<NoResultsMessage>No Groups Found</NoResultsMessage>
 									) : (
-										<ChatList className="list-unstyled chat-list px-1">
+										<ChatList
+											className="list-unstyled chat-list px-1"
+											theme={settings.theme}>
 											{filteredGroups.map((group: any) => (
 												<li
 													key={group.id}
