@@ -11,7 +11,8 @@ import useReadLead from '../Read/useReadLead';
 import CountryList from 'react-select-country-list';
 import { Country, State, City } from 'country-state-city';
 import { LeadData } from '@/types';
-import { capitalizeFirstLetter, nationalityOptions, genderOptions } from '@/utils'
+import { capitalizeFirstLetter, nationalityOptions, genderOptions, customStyles } from '@/utils'
+import { useThemeContext } from '@/common';
 
 interface DropdownOptions {
   value?: string
@@ -19,6 +20,7 @@ interface DropdownOptions {
 }
 
 const EditLead: React.FC = () => {
+  const { settings } = useThemeContext();
   const { leadId } = useParams<{ leadId: string }>();
   const [countryOptions, setCountryOptions] = useState(() => CountryList().getData());
   const { leadData, loading, error } = useReadLead(leadId as string);
@@ -319,6 +321,7 @@ const EditLead: React.FC = () => {
                                 <Form.Group>
                                   <Form.Label>Gender</Form.Label>
                                   <Select
+                                  styles={customStyles(settings.theme === "dark")}
                                     className="select2"
                                     options={genderOptions}
                                     getOptionLabel={(e) => e.label ?? ''}
@@ -349,6 +352,7 @@ const EditLead: React.FC = () => {
                                 <Form.Group>
                                   <Form.Label>Nationality</Form.Label>
                                   <Select
+                                  styles={customStyles(settings.theme === "dark")}
                                     className="select2"
                                     options={nationalityOptions}
                                     getOptionLabel={(e) => e.label ?? ''}
@@ -425,6 +429,7 @@ const EditLead: React.FC = () => {
                                 <Form.Group>
                                   <Form.Label>Country</Form.Label>
                                   <Select
+                                  styles={customStyles(settings.theme === "dark")}
                                     className="select2"
                                     options={countries}
                                     getOptionLabel={(e) => e.label ?? ''}
@@ -439,6 +444,7 @@ const EditLead: React.FC = () => {
                                 <Form.Group>
                                   <Form.Label>State</Form.Label>
                                   <Select
+                                  styles={customStyles(settings.theme === "dark")}
                                     className="select2"
                                     options={states}
                                     getOptionLabel={(e) => e.label ?? ''}
@@ -453,6 +459,7 @@ const EditLead: React.FC = () => {
                                 <Form.Group>
                                   <Form.Label>District</Form.Label>
                                   <Select
+                                  styles={customStyles(settings.theme === "dark")}
                                     className="select2"
                                     options={districts}
                                     getOptionLabel={(e) => e.label ?? ''}
@@ -474,6 +481,7 @@ const EditLead: React.FC = () => {
                                 <Form.Group>
                                   <Form.Label>City</Form.Label>
                                   <Select
+                                  styles={customStyles(settings.theme === "dark")}
                                     className="select2"
                                     options={cities}
                                     getOptionLabel={(e) => e.label ?? ''}
@@ -586,6 +594,7 @@ const EditLead: React.FC = () => {
                                 <Form.Group className="mb-3">
                                   <Form.Label>Visa Category</Form.Label>
                                   <Select
+                                  styles={customStyles(settings.theme === "dark")}
                                     className="select2 z-3"
                                     options={visaCategories as any[]}
                                     getOptionLabel={(e: any) => e.label}
@@ -600,6 +609,7 @@ const EditLead: React.FC = () => {
                                 <Form.Group>
                                   <Form.Label>Country of Interest</Form.Label>
                                   <Select
+                                  styles={customStyles(settings.theme === "dark")}
                                     className="select2"
                                     options={countryOptions}
                                     getOptionLabel={(e) => e.label ?? ''}

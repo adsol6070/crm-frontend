@@ -7,8 +7,8 @@ import useEditUser from './useEditUser';
 import { useForm } from 'react-hook-form';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { permissionService } from '@/common';
-import { capitalizeFirstLetter } from '@/utils';
+import { permissionService, useThemeContext } from '@/common';
+import { capitalizeFirstLetter, customStyles } from '@/utils';
 
 interface User {
   id: string;
@@ -29,6 +29,7 @@ const toTitleCase = (str: string) => {
 };
 
 const EditUser: React.FC = () => {
+  const { settings } = useThemeContext();
   const { userId } = useParams<{ userId: string }>();
   const [newImage, setNewImage] = useState<File | null>(null);
   const [roleOptions, setRoleOptions] = useState([]);
@@ -197,6 +198,7 @@ const EditUser: React.FC = () => {
                     <Form.Group className="mb-3">
                       <Form.Label>Role</Form.Label>
                       <Select
+                      styles={customStyles(settings.theme === "dark")}
                         className="select2 z-3"
                         placeholder="Select Role"
                         options={roleOptions}

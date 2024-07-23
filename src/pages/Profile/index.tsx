@@ -40,7 +40,7 @@ const ProfilePages = () => {
 										{capitalizeFirstLetter(String(loggedInUser?.role))}
 									</p>
 									<p className="text-muted mb-0">
-										<small>{`${loggedInUser?.address}, ${loggedInUser?.city}`}</small>
+										<small>{`${loggedInUser?.address === null? "": loggedInUser?.address}, ${loggedInUser?.city === null? "": loggedInUser?.city}`}</small>
 									</p>
 								</div>
 							</Col>

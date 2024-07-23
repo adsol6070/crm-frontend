@@ -59,3 +59,25 @@ export const chartStyle = (isDarkMode: any) =>( {
     backgroundColor: isDarkMode ? '#313a46' : '#fff',
     color:  isDarkMode ? '#313a46' : '#fff'
 });
+
+export const historyStyle = (isDarkMode: any) =>( {
+    backgroundColor: isDarkMode ? '#374352' : '#f8f9fa',
+    color:  isDarkMode ? '#fff' : '#798389'
+});
+
+export const actionStyle = (isDarkMode: any) =>( {
+    backgroundColor: isDarkMode ? '#313a46' : '#fff',
+    color:  isDarkMode ? '#aab8c5' : '#000',
+    border: isDarkMode ? "none": "none"
+});
+
+export const notesStyle = (isDarkMode: any) =>( {
+    backgroundColor: isDarkMode ? '#313a46' : '#fff',
+    color:  isDarkMode ? '#aab8c5' : '#000',
+    border: isDarkMode ? "none": "1px solid #ddd"
+});
+
+
+export const textStyle = (isDarkMode: any) =>( {
+    color:  isDarkMode ? '#fff' : '#000',
+});

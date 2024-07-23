@@ -61,7 +61,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: auto;
 }
 
 .reactPdfDocument {
@@ -127,3 +126,4 @@
   transform: scale(0.9);
   transition: opacity 500ms, transform 500ms;
 }
+
