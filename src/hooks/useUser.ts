@@ -26,7 +26,6 @@ const useUser = () => {
 
 	useEffect(() => {
 		const fetchLoggedInUser = async () => {
-			setLoading(true)
 			try {
 				const userId = {
 					userId: authUser.sub,
