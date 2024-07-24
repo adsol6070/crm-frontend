@@ -1,30 +1,39 @@
-import { Dropdown, Image } from 'react-bootstrap'
-import { ProfileOption } from '@/Layouts/Topbar'
-import { Link, useNavigate } from 'react-router-dom'
-import { useToggle } from '@/hooks'
-import { useAuthContext, userApi } from '@/common'
+import React, { useState, useEffect } from 'react';
+import { Dropdown, Image } from 'react-bootstrap';
+import { ProfileOption } from '@/Layouts/Topbar';
+import { Link, useNavigate } from 'react-router-dom';
+import { useToggle } from '@/hooks';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 type ProfileDropdownProps = {
-	menuItems: Array<ProfileOption>
-	userImage: string
-	username: string
-}
+	menuItems: Array<ProfileOption>;
+	userImage?: string;
+	username?: string;
+};
 
 const ProfileDropdown = ({
 	menuItems,
 	userImage,
 	username,
 }: ProfileDropdownProps) => {
-	const [isOpen, toggleDropdown] = useToggle()
-	const navigate = useNavigate()
+	const [isOpen, toggleDropdown] = useToggle();
+	const navigate = useNavigate();
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		if (userImage != undefined && username != undefined) {
+			setIsLoading(false);
+		}
+	}, [userImage, username]);
 
 	const handleLogout = async () => {
 		try {
-			navigate('/auth/logout', { replace: true })
+			navigate('/auth/logout', { replace: true });
 		} catch (error) {
-			console.error('Failed to logout:', error)
+			console.error('Failed to logout:', error);
 		}
-	}
+	};
 
 	return (
 		<Dropdown show={isOpen} onToggle={toggleDropdown}>
@@ -35,18 +44,24 @@ const ProfileDropdown = ({
 				as={Link}
 				onClick={toggleDropdown}>
 				<span className="account-user-avatar">
-					<Image
-						src={userImage}
-						alt="user-image"
-						height={32}
-						width={32}
-						className="rounded-circle"
-					/>
+					{isLoading ? (
+						<Skeleton circle={true} height={32} width={32} />
+					) : (
+						<Image
+							src={userImage || ''}
+							alt="user-image"
+							height={32}
+							width={32}
+							className="rounded-circle"
+						/>
+					)}
 				</span>
 				<span className="d-lg-block d-none">
 					<h5 className="my-0 fw-normal">
-						{username}{' '}
-						<i className="ri-arrow-down-s-line d-none d-sm-inline-block align-middle" />
+						{isLoading ? <Skeleton width={80} /> : username || ''}
+						{!isLoading && (
+							<i className="ri-arrow-down-s-line d-none d-sm-inline-block align-middle" />
+						)}
 					</h5>
 				</span>
 			</Dropdown.Toggle>
@@ -54,12 +69,10 @@ const ProfileDropdown = ({
 				align="end"
 				className="dropdown-menu-animated profile-dropdown">
 				<div onClick={toggleDropdown}>
-					<div className=" dropdown-header noti-title">
-						<h6 className="text-overflow m-0">Welcome !</h6>
+					<div className="dropdown-header noti-title">
+						<h6 className="text-overflow m-0">Welcome!</h6>
 					</div>
-					{/* item*/}
-
-					{(menuItems || []).map((item, idx) => {
+					{menuItems.map((item, idx) => {
 						if (item.label === 'Logout') {
 							return (
 								<button
@@ -69,20 +82,20 @@ const ProfileDropdown = ({
 									<i className={`${item.icon} fs-18 align-middle me-1`} />
 									<span>{item.label}</span>
 								</button>
-							)
+							);
 						} else {
 							return (
 								<Link key={idx} to={item.redirectTo} className="dropdown-item">
 									<i className={`${item.icon} fs-18 align-middle me-1`} />
 									<span>{item.label}</span>
 								</Link>
-							)
+							);
 						}
 					})}
 				</div>
 			</Dropdown.Menu>
 		</Dropdown>
-	)
-}
+	);
+};
 
-export default ProfileDropdown
+export default ProfileDropdown;

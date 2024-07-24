@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
 	Button,
 	Card,
@@ -14,19 +14,17 @@ import {
 	NavLink,
 	TabContent,
 	TabPane,
-} from 'reactstrap';
-import SimpleBar from 'simplebar-react';
-import classNames from 'classnames';
-import { CHAT_TAB, GROUP_TAB } from '@/constants/chat';
-import styled from 'styled-components';
-import { filterByName } from '@/utils';
-import { useChatContext } from '../context/chatContext';
-import { useThemeContext } from '@/common';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+} from 'reactstrap'
+import SimpleBar from 'simplebar-react'
+import classNames from 'classnames'
+import { CHAT_TAB, GROUP_TAB } from '@/constants/chat'
+import styled from 'styled-components'
+import { filterByName } from '@/utils'
+import { useChatContext } from '../context/chatContext'
+import { useThemeContext } from '@/common'
 
 const Sidebar = () => {
-	const navigate = useNavigate();
+	const navigate = useNavigate()
 	const {
 		chats,
 		groups,
@@ -38,24 +36,22 @@ const Sidebar = () => {
 		groupChatOpen,
 		handleGroupContextMenu,
 		setShowCreateGroupModal,
-	} = useChatContext();
-	const { settings } = useThemeContext();
-	const [singleButton, setSingleButton] = useState<boolean>(false);
-	const [activeTab, setActiveTab] = useState<string>(CHAT_TAB);
-	const [searchTerm, setSearchTerm] = useState<string>('');
-	const [filteredChats, setFilteredChats] = useState(chats);
-	const [filteredGroups, setFilteredGroups] = useState(groups);
-	const [loading, setLoading] = useState(true); 
+	} = useChatContext()
+	const { settings } = useThemeContext()
+	const [singleButton, setSingleButton] = useState<boolean>(false)
+	const [activeTab, setActiveTab] = useState<string>(CHAT_TAB)
+	const [searchTerm, setSearchTerm] = useState<string>('')
+	const [filteredChats, setFilteredChats] = useState(chats)
+	const [filteredGroups, setFilteredGroups] = useState(groups)
 
 	useEffect(() => {
-		setFilteredChats(filterByName(chats, searchTerm));
-		setFilteredGroups(filterByName(groups, searchTerm));
-		setLoading(false);
-	}, [searchTerm, chats, groups]);
+		setFilteredChats(filterByName(chats, searchTerm))
+		setFilteredGroups(filterByName(groups, searchTerm))
+	}, [searchTerm, chats, groups])
 
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setSearchTerm(e.target.value);
-	};
+		setSearchTerm(e.target.value)
+	}
 
 	return (
 		<StyledCard className="chat-leftsidebar">
@@ -76,7 +72,7 @@ const Sidebar = () => {
 							</DropdownMenu>
 						</StyledDropdown>
 					</div>
-					{currentUser ? (
+					{currentUser && (
 						<UserStatus className="chat-user-status">
 							<img
 								src={currentUser.imageUrl}
@@ -95,8 +91,6 @@ const Sidebar = () => {
 								{currentUser.online ? 'Available' : 'Offline'}
 							</p>
 						</UserStatus>
-					) : (
-						<Skeleton count={1} height={100} width={100} circle={true} />
 					)}
 				</div>
 			</StyledCardBody>
@@ -127,7 +121,7 @@ const Sidebar = () => {
 								active: activeTab === CHAT_TAB,
 							})}
 							onClick={() => {
-								setActiveTab(CHAT_TAB);
+								setActiveTab(CHAT_TAB)
 							}}>
 							<i className="bx bx-chat font-size-20 d-sm-none"></i>
 							<span className="d-sm-block">Chat</span>
@@ -139,7 +133,7 @@ const Sidebar = () => {
 								active: activeTab === GROUP_TAB,
 							})}
 							onClick={() => {
-								setActiveTab(GROUP_TAB);
+								setActiveTab(GROUP_TAB)
 							}}>
 							<i className="bx bx-group font-size-20 d-sm-none"></i>
 							<span className="d-sm-block">Groups</span>
@@ -147,24 +141,12 @@ const Sidebar = () => {
 					</NavItem>
 				</Nav>
 				<TabContent activeTab={activeTab}>
-					<TabPane tabId={CHAT_TAB}>
+					<TabPane tabId="1">
 						<SimpleBar className="chat-message-list">
 							<div>
 								<div className="px-3">
 									<h5 className="font-size-14">Recent</h5>
-									{loading ? (
-										<>
-											{[...Array(5)].map((_, index) => (
-												<div key={index} className="d-flex align-items-center mb-3">
-													<Skeleton circle={true} height={40} width={40} className="me-2" />
-													<div>
-														<Skeleton width={150} height={20} />
-														<Skeleton width={100} height={15} className="mt-1" />
-													</div>
-												</div>
-											))}
-										</>
-									) : filteredChats.length === 0 ? (
+									{filteredChats.length === 0 ? (
 										<NoResultsMessage>No Chats Found</NoResultsMessage>
 									) : (
 										<ChatList
@@ -179,7 +161,7 @@ const Sidebar = () => {
 													<Link
 														to="#"
 														onClick={() => {
-															userChatOpen(chat);
+															userChatOpen(chat)
 														}}>
 														<div className="d-flex align-items-center">
 															<div
@@ -227,24 +209,12 @@ const Sidebar = () => {
 						</SimpleBar>
 					</TabPane>
 
-					<TabPane tabId={GROUP_TAB}>
+					<TabPane tabId="2">
 						<SimpleBar className="chat-message-list">
 							<div>
 								<div className="px-3">
 									<h5 className="font-size-14">Groups</h5>
-									{loading ? (
-										<>
-											{[...Array(5)].map((_, index) => (
-												<div key={index} className="d-flex align-items-center mb-3">
-													<Skeleton circle={true} height={40} width={40} className="me-2" />
-													<div>
-														<Skeleton width={150} height={20} />
-														<Skeleton width={100} height={15} className="mt-1" />
-													</div>
-												</div>
-											))}
-										</>
-									) : filteredGroups.length === 0 ? (
+									{filteredGroups.length === 0 ? (
 										<NoResultsMessage>No Groups Found</NoResultsMessage>
 									) : (
 										<ChatList
@@ -260,7 +230,7 @@ const Sidebar = () => {
 													<Link
 														to="#"
 														onClick={() => {
-															groupChatOpen(group);
+															groupChatOpen(group)
 														}}>
 														<div className="d-flex align-items-center">
 															<div
@@ -307,10 +277,10 @@ const Sidebar = () => {
 				</TabContent>
 			</NavContainer>
 		</StyledCard>
-	);
-};
+	)
+}
 
-export default Sidebar;
+export default Sidebar
 
 const StyledCard = styled(Card)`
 	@media (min-width: 1200px) {
@@ -320,11 +290,11 @@ const StyledCard = styled(Card)`
 	@media (min-width: 992px) and (max-width: 1199.98px) {
 		min-width: 290px;
 	}
-`;
+`
 
 const StyledCardBody = styled(CardBody)`
 	padding: 10px;
-`;
+`
 
 const StyledDropdown = styled(Dropdown)`
 	position: relative;
@@ -339,7 +309,7 @@ const StyledDropdown = styled(Dropdown)`
 		border-radius: 50%;
 		right: 0;
 	}
-`;
+`
 
 const UserStatus = styled.div`
 	position: relative;
@@ -366,7 +336,7 @@ const UserStatus = styled.div`
 	h5 {
 		font-size: 16px !important;
 	}
-`;
+`
 
 const SearchContainer = styled.div`
 	.search-box .form-control {
@@ -382,7 +352,7 @@ const SearchContainer = styled.div`
 		color: #ffffff;
 		line-height: 34px;
 	}
-`;
+`
 
 const NavContainer = styled.div`
 	.nav-item-hover:hover {
@@ -398,7 +368,7 @@ const NavContainer = styled.div`
 			height: calc(100vh - 610px);
 		}
 	}
-`;
+`
 
 const ChatList = styled.ul<{ theme: string }>`
 	margin: 0;
@@ -471,7 +441,7 @@ const ChatList = styled.ul<{ theme: string }>`
 	.font-size-15 {
 		font-size: 15px !important;
 	}
-`;
+`
 
 const NoResultsMessage = styled.div`
 	display: flex;
@@ -480,4 +450,4 @@ const NoResultsMessage = styled.div`
 	height: 100%;
 	font-size: 16px;
 	color: #6c757d;
-`;
+`

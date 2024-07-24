@@ -1,8 +1,10 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { PageBreadcrumb } from '@/components';
-import { Row, Col, Card, Spinner, Alert, Container } from 'react-bootstrap';
+import { Row, Col, Card, Alert, Container } from 'react-bootstrap';
 import useReadBlog from './useReadBlog';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 interface DateTimeOptions {
 	year?: 'numeric' | '2-digit';
@@ -36,11 +38,24 @@ const ReadBlog: React.FC = () => {
 
 	if (loading) {
 		return (
-			<div className="text-center mt-5">
-				<Spinner animation="border" role="status">
-					<span className="visually-hidden">Loading...</span>
-				</Spinner>
-			</div>
+			<>
+				<PageBreadcrumb title="Read Blog" subName="Blogs" />
+				<Container className="my-4">
+					<Row className="justify-content-center">
+						<Col md={10} lg={8}>
+							<Card className="border-0 shadow-lg">
+								<Skeleton height={500} />
+								<Card.Body className="p-5">
+									<Skeleton width="60%" height={40} />
+									<Skeleton width="40%" height={20} className="my-2" />
+									<Skeleton width="100%" height={20} count={3} className="my-2" />
+									<Skeleton width="100%" height={300} className="mt-3" />
+								</Card.Body>
+							</Card>
+						</Col>
+					</Row>
+				</Container>
+			</>
 		);
 	}
 
@@ -67,7 +82,6 @@ const ReadBlog: React.FC = () => {
 	const formattedDateTime = formatDateTime(created_at);
 
 	return (
-		
 		<>
 			<PageBreadcrumb title="Read Blog" subName="Blogs" />
 			<Container className="my-4">

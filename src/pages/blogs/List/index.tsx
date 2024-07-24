@@ -1,5 +1,5 @@
 import { PageBreadcrumb } from '@/components'
-import { Row, Col, Card, Button } from 'react-bootstrap'
+import { Row, Col, Card, Button, Spinner } from 'react-bootstrap'
 import useGetBlogPosts from './useBlogList'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
@@ -35,9 +35,11 @@ const BlogList = () => {
 			<ToastContainer />
 			<PageBreadcrumb title="Blog List" subName="Blogs" />
 			{loading ? (
-				<div className="text-center mt-5">
-					<h3>Loading...</h3>
-				</div>
+				<div className="text-center" style={{ height: "500px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+				<Spinner animation="border" role="status">
+					<span className="visually-hidden">Loading...</span>
+				</Spinner>
+			</div>
 			) : blogPosts.length === 0 ? (
 				<div className="text-center mt-5">
 					<h3>No blogs found</h3>
