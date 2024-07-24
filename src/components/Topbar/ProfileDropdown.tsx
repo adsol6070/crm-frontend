@@ -22,9 +22,10 @@ const ProfileDropdown = ({
 	const [isLoading, setIsLoading] = useState(true);
 
 	useEffect(() => {
-		if (userImage != undefined && username != undefined) {
+		if (username !== undefined) {
 			setIsLoading(false);
 		}
+
 	}, [userImage, username]);
 
 	const handleLogout = async () => {
@@ -48,7 +49,7 @@ const ProfileDropdown = ({
 						<Skeleton circle={true} height={32} width={32} />
 					) : (
 						<Image
-							src={userImage || ''}
+							src={userImage}
 							alt="user-image"
 							height={32}
 							width={32}
@@ -58,7 +59,7 @@ const ProfileDropdown = ({
 				</span>
 				<span className="d-lg-block d-none">
 					<h5 className="my-0 fw-normal">
-						{isLoading ? <Skeleton width={80} /> : username || ''}
+						{isLoading ? <Skeleton width={80} /> : username}
 						{!isLoading && (
 							<i className="ri-arrow-down-s-line d-none d-sm-inline-block align-middle" />
 						)}

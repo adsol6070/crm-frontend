@@ -154,7 +154,7 @@ const Sidebar = () => {
 									<h5 className="font-size-14">Recent</h5>
 									{loading ? (
 										<>
-											{[...Array(5)].map((_, index) => (
+											{[...Array(4)].map((_, index) => (
 												<div key={index} className="d-flex align-items-center mb-3">
 													<Skeleton circle={true} height={40} width={40} className="me-2" />
 													<div>
@@ -164,8 +164,6 @@ const Sidebar = () => {
 												</div>
 											))}
 										</>
-									) : filteredChats.length === 0 ? (
-										<NoResultsMessage>No Chats Found</NoResultsMessage>
 									) : (
 										<ChatList
 											className="list-unstyled chat-list px-1"
@@ -244,8 +242,6 @@ const Sidebar = () => {
 												</div>
 											))}
 										</>
-									) : filteredGroups.length === 0 ? (
-										<NoResultsMessage>No Groups Found</NoResultsMessage>
 									) : (
 										<ChatList
 											className="list-unstyled chat-list px-1"
