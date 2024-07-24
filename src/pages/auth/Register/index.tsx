@@ -58,7 +58,12 @@ const Register = () => {
 				.email('Please enter valid Email'),
 			password: yup.string().required('Please enter Password'),
 			phone: yup.string().required('Please enter Phone'),
-			profileImage: yup.mixed(),
+			profileImage: yup
+				.mixed()
+				.test('fileSize', 'File size is too large. Maximum size is 2MB.', (value: any) => {
+					if (!value.length) return true;
+					return value[0].size <= 2 * 1024 * 1024; 
+				}),
 		})
 	)
 

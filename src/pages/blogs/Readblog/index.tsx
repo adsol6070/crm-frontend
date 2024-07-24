@@ -103,15 +103,15 @@ const ReadBlog: React.FC = () => {
 							/>
 							<Card.Body className="p-5">
 								<Card.Title as="h2" className="fw-bold mb-3" style={{ color: '#2c3e50' }}>
-									{title}
+									{title==null?"N/A":title}
 								</Card.Title>
 								<Card.Text className="text-muted mb-2">
 									<small>
-										Posted on {formattedDateTime} | Category: {category}
+										Posted on {formattedDateTime?"N/A":formattedDateTime} | Category: {category?"N/A":category}
 									</small>
 								</Card.Text>
 								<Card.Text className="text-muted mb-4" style={{ fontStyle: 'italic' }}>
-									{description}
+									{description?"N/A":description}
 								</Card.Text>
 								<div
 									className="blog-content"

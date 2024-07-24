@@ -25,7 +25,7 @@ const addSchema = yup.object().shape({
   documents: yup.array().of(
     yup.object().shape({
       name: yup.string().required('Document name is required'),
-      file: yup.mixed().required('File is required').test('fileSize', 'The file is too large', (value) => {
+      file: yup.mixed().required('File is required').test('fileSize', 'File size is too large. Maximum size is 10MB.', (value) => {
         return value && value.size <= MAX_FILE_SIZE;
       })
         .test('fileType', 'Unsupported File Format', (value) => {

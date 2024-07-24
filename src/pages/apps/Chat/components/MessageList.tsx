@@ -114,7 +114,7 @@ const filterProps = (props: any) => {
 	return filteredProps
 }
 
-const MessageList = ({ filteredMessages }) => {
+const MessageList = ({ filteredMessages }: any) => {
 	const {
 		currentRoomId,
 		currentUser,
@@ -132,7 +132,7 @@ const MessageList = ({ filteredMessages }) => {
 
 	return (
 		<List>
-			{filteredMessages.map((msg, index) => {
+			{filteredMessages.map((msg: any, index: any) => {
 				if (msg.system) {
 					return (
 						<SystemMessage key={index}>

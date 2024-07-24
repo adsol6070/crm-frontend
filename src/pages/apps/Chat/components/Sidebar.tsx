@@ -45,7 +45,7 @@ const Sidebar = () => {
 	const [searchTerm, setSearchTerm] = useState<string>('');
 	const [filteredChats, setFilteredChats] = useState(chats);
 	const [filteredGroups, setFilteredGroups] = useState(groups);
-	const [loading, setLoading] = useState(true); 
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		setFilteredChats(filterByName(chats, searchTerm));
@@ -164,6 +164,8 @@ const Sidebar = () => {
 												</div>
 											))}
 										</>
+									) : filteredChats.length === 0 ? (
+										<NoResultsMessage>No Chats Found</NoResultsMessage>
 									) : (
 										<ChatList
 											className="list-unstyled chat-list px-1"
@@ -242,6 +244,8 @@ const Sidebar = () => {
 												</div>
 											))}
 										</>
+									) : filteredGroups.length === 0 ? (
+										<NoResultsMessage>No Groups Found</NoResultsMessage>
 									) : (
 										<ChatList
 											className="list-unstyled chat-list px-1"

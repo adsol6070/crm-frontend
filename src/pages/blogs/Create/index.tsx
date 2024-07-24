@@ -11,8 +11,7 @@ import Select from 'react-select'
 import useCreateBlog from './useCreateBlog'
 import { convertToRaw } from 'draft-js'
 import draftToHtml from 'draftjs-to-html'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import Swal from 'sweetalert2'
 import { customStyles, editorStyle, toolbarStyle } from '@/utils'
 import { useThemeContext } from '@/common'
 
@@ -29,6 +28,8 @@ const AddBlog: React.FC = () => {
 	const [editorState, setEditorState] = useState(EditorState.createEmpty())
 	const [resetFileUploader, setResetFileUploader] = useState(0)
 
+	const MAX_FILE_SIZE = 10 * 1024 * 1024; // 4MB
+
 	const handleEditorChange = (state: EditorState) => {
 		setEditorState(state)
 	}
@@ -39,7 +40,17 @@ const AddBlog: React.FC = () => {
 
 	const handleFileUpload = (files: any) => {
 		if (files[0]) {
-			setBlogImage(files[0])
+			const file = files[0];
+			if (file.size > MAX_FILE_SIZE) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Oops...',
+					text: 'File size exceeds 10MB',
+				});
+				setResetFileUploader(resetFileUploader + 1); // Reset the file uploader
+				return;
+			}
+			setBlogImage(file)
 		}
 	}
 
@@ -71,7 +82,6 @@ const AddBlog: React.FC = () => {
 
 	return (
 		<>
-			<ToastContainer />
 			<PageBreadcrumb title="Add Blog" subName="Blogs" />
 			<Row>
 				<Col xs={12}>

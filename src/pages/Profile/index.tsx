@@ -55,7 +55,7 @@ const ProfilePages = () => {
                   <p className="text-muted mb-0">
                     {loading ? <Skeleton width={200} /> : (
                       <small>
-                        {`${loggedInUser?.address === null ? "" : loggedInUser?.address}, ${loggedInUser?.city === null ? "" : loggedInUser?.city}`}
+                        {`${loggedInUser?.address == null ? "" : loggedInUser?.address}, ${loggedInUser?.city == null ? "" : loggedInUser?.city}`}
                       </small>
                     )}
                   </p>
@@ -102,13 +102,13 @@ const ProfilePages = () => {
                             <tr>
                               <th scope="row">User ID</th>
                               <td className="ng-binding">
-                                {loading ? <Skeleton width={100} /> : loggedInUser?.id}
+                                {loading ? <Skeleton width={100} /> : loggedInUser?.id == null?"":loggedInUser?.id}
                               </td>
                             </tr>
                             <tr>
                               <th scope="row">Role</th>
                               <td className="ng-binding">
-                                {loading ? <Skeleton width={100} /> : capitalizeFirstLetter(String(loggedInUser?.role))}
+                                {loading ? <Skeleton width={100} /> : capitalizeFirstLetter(String(loggedInUser?.role == null?"":loggedInUser?.role))}
                               </td>
                             </tr>
                             <tr>
@@ -116,7 +116,7 @@ const ProfilePages = () => {
                               <td>
                                 {loading ? <Skeleton width={200} /> : (
                                   <Link to={`mailto:${loggedInUser?.email}`} className="ng-binding">
-                                    {loggedInUser?.email}
+                                    {loggedInUser?.email == null?"":loggedInUser?.email}
                                   </Link>
                                 )}
                               </td>
@@ -124,19 +124,19 @@ const ProfilePages = () => {
                             <tr>
                               <th scope="row">Phone</th>
                               <td className="ng-binding">
-                                {loading ? <Skeleton width={150} /> : loggedInUser?.phone}
+                                {loading ? <Skeleton width={150} /> : loggedInUser?.phone == null?"":loggedInUser?.phone}
                               </td>
                             </tr>
                             <tr>
                               <th scope="row">City</th>
                               <td className="ng-binding">
-                                {loading ? <Skeleton width={150} /> : loggedInUser?.city}
+                                {loading ? <Skeleton width={150} /> : loggedInUser?.city == null?"":loggedInUser?.city }
                               </td>
                             </tr>
                             <tr>
                               <th scope="row">Address</th>
                               <td className="ng-binding">
-                                {loading ? <Skeleton width={200} /> : loggedInUser?.address}
+                                {loading ? <Skeleton width={200} /> : loggedInUser?.address == null?"":loggedInUser?.address}
                               </td>
                             </tr>
                           </tbody>
