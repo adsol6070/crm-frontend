@@ -7,26 +7,20 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
 type ProfileDropdownProps = {
+	loading: boolean,
 	menuItems: Array<ProfileOption>;
 	userImage?: string;
 	username?: string;
 };
 
 const ProfileDropdown = ({
+	loading,
 	menuItems,
 	userImage,
 	username,
 }: ProfileDropdownProps) => {
 	const [isOpen, toggleDropdown] = useToggle();
 	const navigate = useNavigate();
-	const [isLoading, setIsLoading] = useState(true);
-
-	useEffect(() => {
-		if (username !== undefined) {
-			setIsLoading(false);
-		}
-
-	}, [userImage, username]);
 
 	const handleLogout = async () => {
 		try {
@@ -45,7 +39,7 @@ const ProfileDropdown = ({
 				as={Link}
 				onClick={toggleDropdown}>
 				<span className="account-user-avatar">
-					{isLoading ? (
+					{loading ? (
 						<Skeleton circle={true} height={32} width={32} />
 					) : (
 						<Image
@@ -59,8 +53,8 @@ const ProfileDropdown = ({
 				</span>
 				<span className="d-lg-block d-none">
 					<h5 className="my-0 fw-normal">
-						{isLoading ? <Skeleton width={80} /> : username}
-						{!isLoading && (
+						{loading ? <Skeleton width={80} /> : username}
+						{!loading && (
 							<i className="ri-arrow-down-s-line d-none d-sm-inline-block align-middle" />
 						)}
 					</h5>
