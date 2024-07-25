@@ -85,7 +85,6 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 	const { sideBarType } = useThemeCustomizer()
 	const { width } = useViewport()
 	const [getProfile, loading] = useUser()
-	console.log("get profile ", getProfile)
 	const socket = SocketManager.getSocket()
 	const [notifications, setNotifications] = useState<NotificationItem[]>([])
 

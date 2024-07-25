@@ -3,10 +3,10 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="/favicon.ico" type="image/svg+xml" href="/logo.svg" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Adsol CRM</title>
-  <style>               
+  <style>
     #splash-screen {
       position: fixed;
       top: 50%;
@@ -45,9 +45,20 @@
   </div>
   <script type="module" src="/src/main.tsx"></script>
   <script>
-    document.querySelector('#root')?.addEventListener('DOMNodeInserted', () => {
-      document.querySelector('#splash-screen')?.classList.add('remove');
-    })
+    const observer = new MutationObserver((mutationsList) => {
+      for (let mutation of mutationsList) {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+          document.querySelector('#splash-screen')?.classList.add('remove');
+          observer.disconnect(); 
+          break;
+        }
+      }
+    });
+
+    const targetNode = document.querySelector('#root');
+    if (targetNode) {
+      observer.observe(targetNode, { childList: true, subtree: true });
+    }
   </script>
 </body>
 
