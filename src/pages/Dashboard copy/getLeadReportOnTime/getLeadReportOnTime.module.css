@@ -84,28 +84,3 @@
 .dark .react-datepicker-time__header {
   color: #fff;
 }
-
-.chartTypeSelector {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.chartTypeLabel {
-  font-weight: bold;
-}
-
-.chartTypeDropdown {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff;
-  font-size: 1rem;
-  color: #333;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.chartTypeDropdown:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}

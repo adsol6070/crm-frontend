@@ -4,12 +4,7 @@ import { PageBreadcrumb } from '@/components';
 import useGetCardsData from './getCardsData/useGetcardsData';
 import LeadStatusReport from './getLeadStatusReport/index';
 import LeadSourceReport from './getLeadSourceReport/index';
-import GetLeadWeekReportOnTime from './getLeadReportOnTime/getWeekReport';
-import GetLeadMonthReportOnTime from './getLeadReportOnTime/getMonthReport';
-import GetLeadHalfYearReportOnTime from './getLeadReportOnTime/getHalfYearReport';
-import GetLeadFullYearReportOnTime from './getLeadReportOnTime/getFullYearReport';
-import GetLeadCustomRangeReportOnTime from './getLeadReportOnTime/getCustomRangeReport';
-
+import GetLeadReportOnTime from './getLeadReportOnTime/index';
 import { startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, startOfWeek, endOfWeek } from 'date-fns';
 
 const Dashboard = () => {
@@ -54,26 +49,22 @@ const Dashboard = () => {
                 <LeadSourceReport />
                 <Col md={4}>
                     <h5>Weekly Report</h5>
-                    <GetLeadWeekReportOnTime start={startWeek} end={endWeek} barColor={"#3b4158"}/>
+                    <GetLeadReportOnTime start={startWeek} end={endWeek} barColor={"#3b4158"} chartType="bar" />
                 </Col>
             </Row>
             <Row className='my-2'>
                 <Col md={4}>
                     <h5>Monthly Report</h5>
-                    <GetLeadMonthReportOnTime start={startMonth} end={endMonth} barColor={"#546E7A"}/>
+                    <GetLeadReportOnTime start={startMonth} end={endMonth} barColor={"#546E7A"} chartType="bar" />
                 </Col>
                 <Col md={4}>
                     <h5>Half Yearly Report</h5>
-                    <GetLeadHalfYearReportOnTime start={startHalf} end={endHalf} />
+                    <GetLeadReportOnTime start={startHalf} end={endHalf} barColor={"#54557a"} chartType="donut" />
                 </Col>
                 <Col md={4}>
                     <h5>Yearly Report</h5>
-                    <GetLeadFullYearReportOnTime start={startYear} end={endYear} barColor={"#547a68"} />
+                    <GetLeadReportOnTime start={startYear} end={endYear} barColor={"#547a68"} chartType="area" />
                 </Col>
-            </Row>
-			<Row className='my-2'>
-                    <h5>Custom Time Range Report</h5>
-                    <GetLeadCustomRangeReportOnTime barColor={"#546E7A"}/>
             </Row>
         </>
     );
