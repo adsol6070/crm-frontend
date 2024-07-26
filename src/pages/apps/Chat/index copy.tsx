@@ -555,7 +555,7 @@ const Chat: React.FC = () => {
 
 	const handleCreateGroup = async () => {
 		const socket = SocketManager.getSocket()
-		let imageUrl = ''
+		let imageUrl = ''	
 
 		if (groupImage) {
 			const formData = new FormData()

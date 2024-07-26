@@ -189,7 +189,6 @@ const CRScalculator: React.FC = () => {
 
     const handleSaveScores = async () => {
         if (userData) {
-            console.log("user data ", userData)
             const dataToSave = {
                 tenantID: user.tenantID,
                 name: userData.name,
@@ -218,8 +217,8 @@ const CRScalculator: React.FC = () => {
         <>
             <ToastContainer />
             <PageBreadcrumb title="Calculate CRS" subName="Calculate" />
-            <Row>
-                <Col md={12}>
+            <Row className="justify-content-center">
+                <Col md={8} lg={6}>
                     <Card className={styles.card}>
                         <Card.Header className={styles.cardHeader}>
                             <Card.Title className={styles.cardTitle}>Calculate Your CRS Score</Card.Title>
@@ -228,7 +227,7 @@ const CRScalculator: React.FC = () => {
                             <FormProvider {...methods}>
                                 <Form onSubmit={handleSubmit(calculateCRS)}>
                                     <Row>
-                                        <Col md={6}>
+                                        <Col md={12}>
                                             <FormInput
                                                 label="Name"
                                                 name="name"
@@ -238,6 +237,8 @@ const CRScalculator: React.FC = () => {
                                                 errors={errors}
                                             />
                                         </Col>
+                                    </Row>
+                                    <Row>
                                         <Col md={6}>
                                             <FormInput
                                                 label="Phone"
@@ -248,8 +249,6 @@ const CRScalculator: React.FC = () => {
                                                 errors={errors}
                                             />
                                         </Col>
-                                    </Row>
-                                    <Row>
                                         <Col md={6}>
                                             <FormInput
                                                 label="Email"
@@ -260,6 +259,8 @@ const CRScalculator: React.FC = () => {
                                                 errors={errors}
                                             />
                                         </Col>
+                                    </Row>
+                                    <Row>
                                         <Col md={6}>
                                             <FormInput
                                                 label="Age"
@@ -270,8 +271,6 @@ const CRScalculator: React.FC = () => {
                                                 errors={errors}
                                             />
                                         </Col>
-                                    </Row>
-                                    <Row>
                                         <Col md={6}>
                                             <FormInput
                                                 name="education"
@@ -292,6 +291,8 @@ const CRScalculator: React.FC = () => {
                                                 ))}
                                             </FormInput>
                                         </Col>
+                                    </Row>
+                                    <Row>
                                         <Col md={6}>
                                             <FormInput
                                                 name="foreign_experience"
@@ -312,8 +313,6 @@ const CRScalculator: React.FC = () => {
                                                 ))}
                                             </FormInput>
                                         </Col>
-                                    </Row>
-                                    <Row>
                                         <Col md={6}>
                                             <FormInput
                                                 name="canadian_experience"
@@ -334,6 +333,8 @@ const CRScalculator: React.FC = () => {
                                                 ))}
                                             </FormInput>
                                         </Col>
+                                    </Row>
+                                    <Row>
                                         <Col md={6}>
                                             <FormInput
                                                 name="first_language"
@@ -354,8 +355,6 @@ const CRScalculator: React.FC = () => {
                                                 ))}
                                             </FormInput>
                                         </Col>
-                                    </Row>
-                                    <Row>
                                         <Col md={6}>
                                             <FormInput
                                                 name="spouse"
@@ -376,6 +375,8 @@ const CRScalculator: React.FC = () => {
                                                 ))}
                                             </FormInput>
                                         </Col>
+                                    </Row>
+                                    <Row>
                                         <Col md={6}>
                                             <FormInput
                                                 name="sibling_in_canada"
@@ -396,8 +397,6 @@ const CRScalculator: React.FC = () => {
                                                 ))}
                                             </FormInput>
                                         </Col>
-                                    </Row>
-                                    <Row>
                                         <Col md={6}>
                                             <FormInput
                                                 name="job_offer"
@@ -418,6 +417,8 @@ const CRScalculator: React.FC = () => {
                                                 ))}
                                             </FormInput>
                                         </Col>
+                                    </Row>
+                                    <Row>
                                         <Col md={6}>
                                             <FormInput
                                                 name="provincial_nomination"
@@ -438,8 +439,6 @@ const CRScalculator: React.FC = () => {
                                                 ))}
                                             </FormInput>
                                         </Col>
-                                    </Row>
-                                    <Row>
                                         <Col md={6}>
                                             <FormInput
                                                 name="second_language"

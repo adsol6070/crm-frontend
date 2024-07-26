@@ -81,10 +81,10 @@ const LeadStatusReport = () => {
         <h5>Status Report</h5>
         <Row className={`mx-2 my-2 pt-2 ${styles.customDesign}`} style={chartStyle(settings.theme === "dark")}>
           <Col md={12} className="d-flex justify-content-center align-items-center flex-wrap">
-            <Button style={{ backgroundColor: "#6c757d" }} className={`m-1 ${styles.button} ${styles.buttonMx2}`} onClick={() => handleStatusChange(null)}>All</Button>
-            <Button style={{ backgroundColor: "#ffc107" }} className={`m-1 ${styles.button} ${styles.buttonMx2}`} onClick={() => handleStatusChange('pending')}>Pending</Button>
-            <Button style={{ backgroundColor: "#17a2b8" }} className={`m-1 ${styles.button} ${styles.buttonMx2}`} onClick={() => handleStatusChange('inprogress')}>In Progress</Button>
-            <Button style={{ backgroundColor: "#28a745" }} className={`m-1 ${styles.button} ${styles.buttonMx2}`} onClick={() => handleStatusChange('completed')}>Completed</Button>
+            <Button style={{ backgroundColor: "#6c757d" }} className={`m-1 btn-sm ${styles.button} ${styles.buttonMx2}`} onClick={() => handleStatusChange(null)}>All</Button>
+            <Button style={{ backgroundColor: "#ffc107" }} className={`m-1 btn-sm ${styles.button} ${styles.buttonMx2}`} onClick={() => handleStatusChange('pending')}>Pending</Button>
+            <Button style={{ backgroundColor: "#17a2b8" }} className={`m-1 btn-sm ${styles.button} ${styles.buttonMx2}`} onClick={() => handleStatusChange('inprogress')}>In Progress</Button>
+            <Button style={{ backgroundColor: "#28a745" }} className={`m-1 btn-sm ${styles.button} ${styles.buttonMx2}`} onClick={() => handleStatusChange('completed')}>Completed</Button>
           </Col>
           <Col md={12} className={`d-flex justify-content-center`}>
             <div className={styles.chartContainer}>

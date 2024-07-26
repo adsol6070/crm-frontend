@@ -40,10 +40,11 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
   }, []);
 
   const handleDateChange = (date: Date | null, isStart: boolean) => {
+    console.log("date ", startDate, endDate)
     if (isStart) {
-      setStartDate(date || undefined);
+      setStartDate(date ? new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0)) : undefined);
     } else {
-      setEndDate(date || undefined);
+      setEndDate(date ? new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59)) : undefined);
     }
   };
 
@@ -53,7 +54,7 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
     if (diffDays <= 7) {
       return eachDayOfInterval({ start, end }).map(date => format(date, 'EEEE'));
     } else if (diffDays <= 30) {
-      return eachWeekOfInterval({ start, end }).map(date => format(date, 'wo'));
+      return eachWeekOfInterval({ start, end }).map(date => `Week ${format(date, 'I')}`);
     } else if (diffDays <= 365) {
       return eachMonthOfInterval({ start, end }).map(date => format(date, 'MMM yyyy'));
     } else {

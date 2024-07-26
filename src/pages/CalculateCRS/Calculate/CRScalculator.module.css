@@ -1,31 +1,32 @@
 .body {
-    background-color: #f0f2f5;
-    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    font-family: 'Helvetica Neue', sans-serif;
 }
 
 .card {
     border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     margin-bottom: 30px;
+    overflow: hidden;
 }
 
 .cardHeader {
-    background-color: #0056b3;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
     color: white;
-    border-radius: 10px 10px 0 0;
     padding: 20px;
     text-align: center;
 }
 
 .cardTitle {
-    font-size: 26px;
+    font-size: 28px;
     font-weight: bold;
     margin: 0;
 }
 
 .cardBody {
-    padding: 40px;
+    padding: 30px;
+    background-color: #ffffff;
 }
 
 .formGroup {
@@ -35,62 +36,63 @@
 .formLabel {
     font-weight: bold;
     font-size: 16px;
+    margin-bottom: 8px;
 }
 
 .select2 {
     width: 100%;
-  }
-  
-  .formControl {
+}
+
+.formControl {
     width: 100%;
-    padding: 0.375rem 0.75rem;
+    padding: 0.5rem 0.75rem;
     font-size: 1rem;
-    font-weight: 400;
-    line-height: 1.5;
     color: #495057;
-    background-color: #fff;
-    background-clip: padding-box;
+    background-color: #f9f9f9;
     border: 1px solid #ced4da;
-    border-radius: 0.25rem;
+    border-radius: 6px;
     transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  }
-  
-  .formControl:focus {
+}
+
+.formControl:focus {
     color: #495057;
-    background-color: #fff;
+    background-color: #ffffff;
     border-color: #80bdff;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  }
-  
-  .formControl::-webkit-input-placeholder {
+}
+
+.formControl::-webkit-input-placeholder {
     color: #6c757d;
     opacity: 1;
-  }
-  
-  .formControl:-ms-input-placeholder {
+}
+
+.formControl:-ms-input-placeholder {
     color: #6c757d;
     opacity: 1;
-  }
-  
-  .formControl::placeholder {
+}
+
+.formControl::placeholder {
     color: #6c757d;
     opacity: 1;
-  }
+}
 
 .button {
-    background-color: #007bff;
+    background-color: #6a11cb;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 16px;
     font-weight: bold;
     transition: background-color 0.3s;
+    width: 100%; /* Make button full-width */
+    padding: 12px; /* Add padding for better touch target */
+    margin-top: 20px; /* Add margin-top for spacing */
 }
 
 .button:hover {
-    background-color: #0056b3;
+    background-color: #2575fc;
 }
 
 .textDanger {
@@ -102,6 +104,7 @@
     margin-top: 20px;
     font-size: 18px;
     font-weight: bold;
+    text-align: center;
 }
 
 .successMessage {
@@ -117,7 +120,7 @@
 }
 
 .modalHeader {
-    background-color: #0056b3;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
     color: white;
 }
 
@@ -128,10 +131,12 @@
 
 .modalBody {
     padding: 30px;
+    background-color: #ffffff;
 }
 
 .modalFooter {
     padding: 20px;
+    background-color: #f9f9f9;
 }
 
 @media (max-width: 768px) {
@@ -163,7 +168,6 @@
 .scoreAlert {
     font-size: 24px;
     font-weight: bold;
-    color: #0056b3;
+    color: #6a11cb;
     animation: fadeIn 0.5s ease-in-out;
 }
-

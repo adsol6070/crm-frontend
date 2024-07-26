@@ -9,10 +9,18 @@ import { startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, startOfWee
 
 const Dashboard = () => {
 	const { data: cardData } = useGetCardsData();
-	const startHalf = subMonths(new Date(), 6);
-	const endHalf = new Date();
-	const startWeek = startOfWeek(new Date(), { weekStartsOn: 1 }); 
-	const endWeek = endOfWeek(new Date(), { weekStartsOn: 1 });
+	const getUTCStartOfDay = (date: any) => new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+
+	const getUTCEndOfDay = (date: any) => new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59));
+
+	const startHalf = getUTCStartOfDay(subMonths(new Date(), 6));
+	const endHalf = getUTCEndOfDay(new Date());
+
+	const currentDate = new Date();
+	const utcDate = new Date(currentDate.toISOString().slice(0, -1));
+
+	const startWeek = getUTCStartOfDay(startOfWeek(utcDate, { weekStartsOn: 1 }));
+	const endWeek = getUTCEndOfDay(endOfWeek(utcDate, { weekStartsOn: 1 }));
 
 	return (
 		<>
