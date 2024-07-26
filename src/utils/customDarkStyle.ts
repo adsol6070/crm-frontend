@@ -57,7 +57,7 @@ export const toolbarStyle = (isDarkMode: any) =>( {
 export const chartStyle = (isDarkMode: any) =>( {
     padding: isDarkMode ? '10px' : '10px',
     backgroundColor: isDarkMode ? '#313a46' : '#fff',
-    color:  isDarkMode ? '#313a46' : '#fff'
+    color:  isDarkMode ? '#fff' : '#000'
 });
 
 export const historyStyle = (isDarkMode: any) =>( {
