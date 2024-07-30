@@ -16,6 +16,7 @@ import { leadApi, useAuthContext } from '@/common';
 import Swal from 'sweetalert2';
 import { visaDocuments, VisaType } from './visaDocuments';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { useVisaChecklist } from '../AddChecklist/useVisaChecklists';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
@@ -48,6 +49,7 @@ const updateSchema = yup.object().shape({
 
 const AddLeadChecklist: React.FC = () => {
   const { user } = useAuthContext();
+  const { getChecklistsByVisaType } = useVisaChecklist();
   const { leadId } = useParams() as { leadId: string };
   const [visaType, setVisaType] = useState<string>('');
   const [selectedPdf, setSelectedPdf] = useState<string | null>(null);
@@ -91,20 +93,23 @@ const AddLeadChecklist: React.FC = () => {
     const myLeadData = await leadApi.getLeadById(leadId);
 
     if (myLeadData) {
-      const visaCategory = myLeadData?.visaCategory?.trim()?.split(' ')[0];
+      // const visaCategory = myLeadData?.visaCategory?.trim()?.split(' ')[0];
+      const visaCategory = myLeadData?.visaCategory?.trim();
       if (visaCategory) {
         setVisaType(visaCategory);
-        const documentFields = visaDocuments[visaCategory as VisaType];
+        // const documentFields = visaDocuments[visaCategory as VisaType];
+        const response = await getChecklistsByVisaType(visaCategory);
+        const documentFields = response.checklists.checklist;
         if (!fields.length && uploadedDocuments.length !== 0) {
 
-          const filteredDocumentFields = documentFields.filter(({ name }) => !uploadedDocuments.includes(name));
+          const filteredDocumentFields = documentFields.filter(({ name }) => !uploadedDocuments.includes(name)); 
 
           if (filteredDocumentFields) {
-            filteredDocumentFields.forEach((doc) => append({ name: doc.name, file: null }));
+            filteredDocumentFields.forEach((doc: any) => append({ name: doc.name, file: null }));
           }
         } else {
           if (!fields.length) {
-            documentFields.forEach((doc) => append({ name: doc.name, file: null }));
+            documentFields.forEach((doc: any) => append({ name: doc.name, file: null }));
           }
         }
       } else {
@@ -350,6 +355,7 @@ const AddLeadChecklist: React.FC = () => {
                           placeholder="Enter document name"
                           {...register(`documents.${index}.name` as const)}
                           isInvalid={!!errors.documents?.[index]?.name}
+                          disabled
                         />
                         <Form.Control.Feedback type="invalid">
                           {errors.documents?.[index]?.name?.message}
@@ -382,9 +388,9 @@ const AddLeadChecklist: React.FC = () => {
                 ))}
                 <tr>
                   <td colSpan={5} className="text-center">
-                    <Button variant="primary" className="mx-1" onClick={() => append({ name: '', file: null })}>
+                    {/* <Button variant="primary" className="mx-1" onClick={() => append({ name: '', file: null })}>
                       <FaPlus /> Add Document
-                    </Button>
+                    </Button> */}
                     <Button variant="success" className="mx-1" onClick={handleSubmit(handleFormSubmit)} disabled={loading}>
                       <FaUpload /> Upload All
                     </Button>

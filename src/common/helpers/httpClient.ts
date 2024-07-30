@@ -49,7 +49,7 @@ const refreshToken = async (): Promise<string | null> => {
 		const response = await axios.post<{
 			accessToken: string
 			refreshToken: string
-		}>(`${process.env.VITE_API_URL}/auth/refresh-tokens`, {
+		}>(`${process.env.VITE_API_URL}/auth/refresh-tokens`, {    
 			tenantID: decodedRefreshToken.tenantID,
 			refresh_token,
 		})

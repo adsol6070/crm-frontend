@@ -78,6 +78,10 @@ export const notesStyle = (isDarkMode: any) =>( {
 });
 
 
+export const backgroundStyle = (isDarkMode: any) =>( {
+    backgroundColor: isDarkMode ? '#313a46' : '#fff',
+});
+
 export const textStyle = (isDarkMode: any) =>( {
     color:  isDarkMode ? '#fff' : '#000',
 });

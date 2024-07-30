@@ -49,6 +49,7 @@ const AddVisaCategory = React.lazy(() => import('../pages/leads/AddVisaCategory'
 const LeadNotes = React.lazy(() => import('../pages/leads/LeadNotes/'))
 const Formqr = React.lazy(() => import('../pages/leads/Formqr/'))
 const CreateLeadForm = React.lazy(() => import('../pages/PublicLeadCreate/Create/'))
+const AddVisaChecklist = React.lazy(() => import('../pages/leads/AddChecklist'))
 
 // // users
 const UserList = React.lazy(() => import('../pages/user/List'))
@@ -218,6 +219,12 @@ const leadRoutes = {
 			path: '/leads/list-leads',
 			name: 'List Lead',
 			element: <ListLead />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/leads/lead-addVisaChecklist',
+			name: 'Add Document Checklists',
+			element: <AddVisaChecklist />,
 			route: PrivateRoute,
 		},
 		{

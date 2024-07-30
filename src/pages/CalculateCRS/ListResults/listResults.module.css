@@ -1,5 +1,55 @@
-.topSection{
+.topSection {
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+.scorecard {
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+.scoreHighlight {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.pass {
+    color: #28a745;
+}
+
+.fail {
+    color: #dc3545;
+}
+
+.scoreTable .table {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.table th, .table td {
+    width: 50%;
+    text-align: left;
+    padding: 8px;
+}
+
+.table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    border: 1px solid #dee2e6;
+}
+
+.table td {
+    border: 1px solid #dee2e6;
+}
+
+.text-center {
+    text-align: center;
+}
+
+h3.text-center {
+    margin-bottom: 20px;
 }

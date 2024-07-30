@@ -6,8 +6,9 @@ import { Row, Col, Card, Form, Button, ToastContainer, Modal } from 'react-boots
 import Swal from 'sweetalert2';
 import { PageBreadcrumb } from '@/components';
 import styles from './CRScalculator.module.css';
-import { scoreApi, useAuthContext } from '@/common';
+import { scoreApi, useAuthContext, useThemeContext } from '@/common';
 import FormInput from '@/components/FormInput';
+import { backgroundStyle } from '@/utils';
 
 interface OptionType {
     value: string;
@@ -23,11 +24,15 @@ interface FormValues {
     foreign_experience: string;
     canadian_experience: string;
     first_language: string;
-    second_language: string;
+    second_language: string | null;
     spouse: string;
     sibling_in_canada: string;
     job_offer: string;
     provincial_nomination: string;
+    canadian_degree: string;
+    spouse_education: string;
+    spouse_language: string | null;
+    spouse_experience: string;
 }
 
 const languageOptions: OptionType[] = [
@@ -71,6 +76,11 @@ const nominationOptions: OptionType[] = [
     { value: 'no', label: 'No' },
 ];
 
+const canadianDegreeOptions: OptionType[] = [
+    { value: 'yes', label: 'Yes' },
+    { value: 'no', label: 'No' },
+];
+
 const schema = yup.object().shape({
     name: yup.string().required('Please enter your name').trim(),
     phone: yup.string().required('Please enter your phone number').matches(/^\d{10}$/, 'Phone number is not valid').trim(),
@@ -85,6 +95,10 @@ const schema = yup.object().shape({
     sibling_in_canada: yup.string().required('Please indicate if you have a sibling in Canada'),
     job_offer: yup.string().required('Please indicate if you have a job offer'),
     provincial_nomination: yup.string().required('Please indicate if you have a provincial nomination'),
+    canadian_degree: yup.string().required('Please indicate if you have a Canadian degree, diploma, or certificate'),
+    spouse_education: yup.string().nullable(),
+    spouse_language: yup.string().nullable(),
+    spouse_experience: yup.string().nullable(),
 });
 
 const CRScalculator: React.FC = () => {
@@ -100,11 +114,15 @@ const CRScalculator: React.FC = () => {
             foreign_experience: '',
             canadian_experience: '',
             first_language: '',
-            second_language: '',
+            second_language: null,
             spouse: '',
             sibling_in_canada: '',
             job_offer: '',
             provincial_nomination: '',
+            canadian_degree: '',
+            spouse_education: '',
+            spouse_language: null,
+            spouse_experience: '',
         },
     });
 
@@ -112,6 +130,7 @@ const CRScalculator: React.FC = () => {
     const watchedValues = watch();
 
     const [showModal, setShowModal] = useState(false);
+    const { settings } = useThemeContext();
     const [userData, setUserData] = useState<FormValues | null>(null);
     const [userScore, setUserScore] = useState(0);
     const maxScore = 1200;
@@ -177,10 +196,38 @@ const CRScalculator: React.FC = () => {
         else if (firstLanguage === 'CLB 8') score += 124;
         else if (firstLanguage === 'CLB 7') score += 112;
 
+        // Additional points for second language
+        const secondLanguage = data.second_language;
+        if (secondLanguage === 'CLB 9') score += 24;
+        else if (secondLanguage === 'CLB 8') score += 20;
+        else if (secondLanguage === 'CLB 7') score += 16;
+
         // Calculate additional points
         if (data.sibling_in_canada === 'yes') score += 15;
         if (data.job_offer === 'yes') score += 50;
         if (data.provincial_nomination === 'yes') score += 600;
+        if (data.canadian_degree === 'yes') score += 30;
+
+        // Calculate spouse points
+        if (data.spouse === 'yes') {
+            const spouseEducation = data.spouse_education;
+            if (spouseEducation === 'phd') score += 10;
+            else if (spouseEducation === 'masters') score += 9;
+            else if (spouseEducation === 'bachelors') score += 8;
+
+            const spouseLanguage = data.spouse_language;
+            if (spouseLanguage === 'CLB 9') score += 20;
+            else if (spouseLanguage === 'CLB 8') score += 18;
+            else if (spouseLanguage === 'CLB 7') score += 16;
+
+            const spouseExperience = data.spouse_experience;
+            if (spouseExperience === '5_or_more') score += 10;
+            else if (spouseExperience === '3_to_4') score += 8;
+            else if (spouseExperience === '1_to_2') score += 5;
+        }
+
+        // Ensure score does not exceed 1200
+        score = Math.min(score, maxScore);
 
         setUserData(data);
         setUserScore(score);
@@ -190,10 +237,8 @@ const CRScalculator: React.FC = () => {
     const handleSaveScores = async () => {
         if (userData) {
             const dataToSave = {
+                ...userData,
                 tenantID: user.tenantID,
-                name: userData.name,
-                phone: userData.phone,
-                email: userData.email,
                 score: userScore,
             };
 
@@ -223,7 +268,7 @@ const CRScalculator: React.FC = () => {
                         <Card.Header className={styles.cardHeader}>
                             <Card.Title className={styles.cardTitle}>Calculate Your CRS Score</Card.Title>
                         </Card.Header>
-                        <Card.Body className={styles.cardBody}>
+                        <Card.Body className={styles.cardBody} style={backgroundStyle(settings.theme === "dark")}>
                             <FormProvider {...methods}>
                                 <Form onSubmit={handleSubmit(calculateCRS)}>
                                     <Row>
@@ -357,6 +402,28 @@ const CRScalculator: React.FC = () => {
                                         </Col>
                                         <Col md={6}>
                                             <FormInput
+                                                name="second_language"
+                                                label="Second Language Proficiency (if any)"
+                                                type="select"
+                                                containerClass="mb-3"
+                                                className="form-select"
+                                                register={methods.register}
+                                                key="second_language"
+                                                errors={errors}
+                                                control={methods.control}
+                                            >
+                                                <option value="">Select...</option>
+                                                {languageOptions.map((option) => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </FormInput>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col md={6}>
+                                            <FormInput
                                                 name="spouse"
                                                 label="Do you have a spouse or common-law partner?"
                                                 type="select"
@@ -375,6 +442,70 @@ const CRScalculator: React.FC = () => {
                                                 ))}
                                             </FormInput>
                                         </Col>
+                                        {watchedValues.spouse === 'yes' && (
+                                            <>
+                                                <Col md={6}>
+                                                    <FormInput
+                                                        name="spouse_education"
+                                                        label="Spouse’s Education Level"
+                                                        type="select"
+                                                        containerClass="mb-3"
+                                                        className="form-select"
+                                                        register={methods.register}
+                                                        key="spouse_education"
+                                                        errors={errors}
+                                                        control={methods.control}
+                                                    >
+                                                        <option value="">Select...</option>
+                                                        {educationOptions.map((option) => (
+                                                            <option key={option.value} value={option.value}>
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </FormInput>
+                                                </Col>
+                                                <Col md={6}>
+                                                    <FormInput
+                                                        name="spouse_language"
+                                                        label="Spouse’s Language Proficiency (if any)"
+                                                        type="select"
+                                                        containerClass="mb-3"
+                                                        className="form-select"
+                                                        register={methods.register}
+                                                        key="spouse_language"
+                                                        errors={errors}
+                                                        control={methods.control}
+                                                    >
+                                                        <option value="">Select...</option>
+                                                        {languageOptions.map((option) => (
+                                                            <option key={option.value} value={option.value}>
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </FormInput>
+                                                </Col>
+                                                <Col md={6}>
+                                                    <FormInput
+                                                        name="spouse_experience"
+                                                        label="Spouse’s Canadian Work Experience"
+                                                        type="select"
+                                                        containerClass="mb-3"
+                                                        className="form-select"
+                                                        register={methods.register}
+                                                        key="spouse_experience"
+                                                        errors={errors}
+                                                        control={methods.control}
+                                                    >
+                                                        <option value="">Select...</option>
+                                                        {workExperienceOptions.map((option) => (
+                                                            <option key={option.value} value={option.value}>
+                                                                {option.label}
+                                                            </option>
+                                                        ))}
+                                                    </FormInput>
+                                                </Col>
+                                            </>
+                                        )}
                                     </Row>
                                     <Row>
                                         <Col md={6}>
@@ -441,18 +572,18 @@ const CRScalculator: React.FC = () => {
                                         </Col>
                                         <Col md={6}>
                                             <FormInput
-                                                name="second_language"
-                                                label="Second Language Proficiency (if any)"
+                                                name="canadian_degree"
+                                                label="Do you have a Canadian degree, diploma, or certificate?"
                                                 type="select"
                                                 containerClass="mb-3"
                                                 className="form-select"
                                                 register={methods.register}
-                                                key="second_language"
+                                                key="canadian_degree"
                                                 errors={errors}
                                                 control={methods.control}
                                             >
                                                 <option value="">Select...</option>
-                                                {languageOptions.map((option) => (
+                                                {canadianDegreeOptions.map((option) => (
                                                     <option key={option.value} value={option.value}>
                                                         {option.label}
                                                     </option>
@@ -488,6 +619,14 @@ const CRScalculator: React.FC = () => {
                             <p><strong>Sibling in Canada:</strong> {userData.sibling_in_canada}</p>
                             <p><strong>Job Offer:</strong> {userData.job_offer}</p>
                             <p><strong>Provincial Nomination:</strong> {userData.provincial_nomination}</p>
+                            <p><strong>Canadian Degree:</strong> {userData.canadian_degree}</p>
+                            {userData.spouse === 'yes' && (
+                                <>
+                                    <p><strong>Spouse Education:</strong> {userData.spouse_education}</p>
+                                    <p><strong>Spouse Language:</strong> {userData.spouse_language ? userData.spouse_language : 'N/A'}</p>
+                                    <p><strong>Spouse Experience:</strong> {userData.spouse_experience}</p>
+                                </>
+                            )}
                             <p className={styles.scoreAlert}><strong>CRS Score: {userScore} / {maxScore}</strong></p>
                             <div className={styles.passFailMessage}>
                                 {userScore >= 450 ? (

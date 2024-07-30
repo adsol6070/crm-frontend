@@ -1,0 +1,43 @@
+.text-danger {
+  font-size: 0.875rem;
+}
+
+.ms-2 {
+  margin-left: 0.5rem;
+}
+
+.table {
+  margin-top: 20px;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 5px;
+}
+
+.actionButton {
+  margin-right: 5px;
+}
+
+.addDocumentForm .form-label {
+  margin-bottom: 5px;
+}
+
+.addDocumentForm .form-control {
+  margin-bottom: 10px;
+}
+
+.addDocumentForm .btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.clockIcon {
+  color: #ffa500; 
+  font-size: 1.2rem; 
+}
+
+.tabs {
+  width: fit-content;
+}

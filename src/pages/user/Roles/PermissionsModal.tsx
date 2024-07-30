@@ -53,6 +53,7 @@ const initialPermissions: Permissions = {
 		DownloadCSV: false,
 		DownloadCSVFormat: false,
 	},
+	Checklists: { Create: false, Read: false, AddDocument: false, DeleteChecklist: false, EditDocument: false, DeleteDocument: false, Update: false },
 	VisaCategory: { Create: false },
 }
 

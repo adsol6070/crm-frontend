@@ -1,6 +1,7 @@
 import { categoryApi, useAuthContext } from '@/common';
 import { PageSize } from '@/components'
 import { BlogCategory } from '@/types'
+import { capitalizeFirstLetter } from '@/utils';
 import { ChangeEvent, useEffect, useState } from 'react';
 import { RiDeleteBinLine, RiEdit2Line, RiSaveLine } from 'react-icons/ri';
 import { Column } from 'react-table'
@@ -33,12 +34,12 @@ export function useCategory() {
                 return editCategoryId === cell.row.original.id ? (
                     <input
                         type='text'
-                        value={editCategoryValue}
+                        value={capitalizeFirstLetter(editCategoryValue)}
                         onChange={(e) => setEditCategoryValue(e.target.value)}
                         autoFocus
                     />
                 ) : (
-                    cell.value
+                    capitalizeFirstLetter(cell.value)
                 );
             },
         },
