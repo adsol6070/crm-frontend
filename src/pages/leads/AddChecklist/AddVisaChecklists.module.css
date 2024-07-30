@@ -10,15 +10,6 @@
   margin-top: 20px;
 }
 
-.actionButtons {
-  display: flex;
-  gap: 5px;
-}
-
-.actionButton {
-  margin-right: 5px;
-}
-
 .addDocumentForm .form-label {
   margin-bottom: 5px;
 }
@@ -40,4 +31,13 @@
 
 .tabs {
   width: fit-content;
+}
+
+.tabs li{
+  margin: 5px;
+}
+
+.tabs li button{
+  background-color: #dddddd;
+  color: black;
 }

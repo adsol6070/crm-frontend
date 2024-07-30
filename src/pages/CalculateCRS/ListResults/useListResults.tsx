@@ -51,7 +51,7 @@ export const useResultList = (): ResultListHookResult => {
             accessor: 'score',
             defaultCanSort: false,
             Cell: ({ value }: any) => (
-                <Badge pill bg={value >= 450 ? 'success' : 'danger'} style={{ fontSize: "1.2em" }}>
+                <Badge pill bg={value >= 450 ? 'success' : 'danger'} style={{ fontSize: "1em" }}>
                     {value}
                 </Badge>
             ),

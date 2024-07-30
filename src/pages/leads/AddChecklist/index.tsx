@@ -11,8 +11,8 @@ import styles from './AddVisaChecklists.module.css';
 import FormInput from '@/components/FormInput';
 import { useVisaCategory } from '../AddVisaCategory/useVisaCategory';
 import VisaChecklistDisplay from './visaChecklistDisplay';
-import { capitalizeFirstLetter, hasPermission } from '@/utils';
-import { usePermissions } from '@/common';
+import { capitalizeFirstLetter, checklistStyle, hasPermission } from '@/utils';
+import { usePermissions, useThemeContext } from '@/common';
 
 const schema = yup.object().shape({
   visaType: yup.string().required('Visa type is required'),
@@ -25,7 +25,8 @@ const schema = yup.object().shape({
 
 const AddVisaChecklists: React.FC = () => {
   const { permissions } = usePermissions();
-  const { createChecklists, visaChecklists } = useVisaChecklist();
+  const { settings } = useThemeContext();
+  const { createChecklists, visaChecklists, deleteChecklists } = useVisaChecklist();
   const { visaCategories } = useVisaCategory();
 
   const [activeKey, setActiveKey] = useState('');
@@ -58,6 +59,10 @@ const AddVisaChecklists: React.FC = () => {
     await createChecklists(payload);
     reset();
   };
+
+  const onDelete = async (id: any)=>{
+    await deleteChecklists(id);
+  }
 
   return (
     <>
@@ -119,8 +124,9 @@ const AddVisaChecklists: React.FC = () => {
       >
         {visaChecklists.map((checklist: any) => (
           <Tab eventKey={checklist.visaType} title={capitalizeFirstLetter(checklist.visaType)} key={checklist.id}>
-            <VisaChecklistDisplay 
+            <VisaChecklistDisplay
               id={checklist.id} 
+              deleteChecklist={onDelete} 
               visaType={checklist.visaType} 
               checklists={checklist.checklist}
             />

@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import { checklistsApi, useAuthContext } from "@/common";
 
 export function useVisaChecklist() {
-    const [visaChecklists, setVisaChecklists] = useState([]);
+    const [visaChecklists, setVisaChecklists] = useState<ChecklistsData[]>([]);
     const [loading, setLoading] = useState(false);
     const { user } = useAuthContext();
 
@@ -70,10 +70,7 @@ export function useVisaChecklist() {
         try {
             setLoading(true);
             await checklistsApi.deleteChecklist(checklistId);
-            const updatedVisaChecklists = visaChecklists.filter((checklist: any) => checklist.id !== checklistId);
-            console.log("Updated Checklists ", updatedVisaChecklists)
-            setVisaChecklists(updatedVisaChecklists);
-            console.log("Visa Checklists ", visaChecklists)
+            getChecklists();
             toast.success("Checklist Deleted successfully!");
         } catch (error) {
             console.error('Error deleting checklist', error);
@@ -88,7 +85,6 @@ export function useVisaChecklist() {
             setLoading(true);
             const formData = new FormData();
             formData.append('checklist', JSON.stringify(updatedChecklists));
-
             await checklistsApi.updateChecklist(checklistId, formData);
             await getChecklists();
             toast.success("Checklist updated successfully!");
