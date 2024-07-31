@@ -11,8 +11,8 @@ import styles from './AddVisaChecklists.module.css';
 import FormInput from '@/components/FormInput';
 import { useVisaCategory } from '../AddVisaCategory/useVisaCategory';
 import VisaChecklistDisplay from './visaChecklistDisplay';
-import { capitalizeFirstLetter, checklistStyle, hasPermission } from '@/utils';
-import { usePermissions, useThemeContext } from '@/common';
+import { capitalizeFirstLetter, hasPermission } from '@/utils';
+import { usePermissions } from '@/common';
 
 const schema = yup.object().shape({
   visaType: yup.string().required('Visa type is required'),
@@ -25,7 +25,6 @@ const schema = yup.object().shape({
 
 const AddVisaChecklists: React.FC = () => {
   const { permissions } = usePermissions();
-  const { settings } = useThemeContext();
   const { createChecklists, visaChecklists, deleteChecklists } = useVisaChecklist();
   const { visaCategories } = useVisaCategory();
 

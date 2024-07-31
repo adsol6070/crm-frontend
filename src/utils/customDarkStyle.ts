@@ -82,8 +82,3 @@ export const backgroundStyle = (isDarkMode: any) =>( {
 export const textStyle = (isDarkMode: any) =>( {
     color:  isDarkMode ? '#fff' : '#000',
 });
-
-export const checklistStyle = (isDarkMode: any) =>( {
-    backgroundColor: isDarkMode ? '#404954' : '#dddddd',
-    color:  isDarkMode ? '#fff' : '#000',
-});

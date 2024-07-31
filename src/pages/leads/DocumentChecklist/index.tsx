@@ -99,7 +99,9 @@ const AddLeadChecklist: React.FC = () => {
         setVisaType(visaCategory);
         // const documentFields = visaDocuments[visaCategory as VisaType];
         const response = await getChecklistsByVisaType(visaCategory);
+        console.log("response ", response)
         const documentFields = response.checklists.checklist;
+        console.log("response documents", documentFields)
         if (!fields.length && uploadedDocuments.length !== 0) {
 
           const filteredDocumentFields = documentFields.filter(({ name }) => !uploadedDocuments.includes(name));
@@ -282,7 +284,7 @@ const AddLeadChecklist: React.FC = () => {
     closeUpdateModal();
     updateReset();
   };
-
+console.log("fields ", fields)
   return (
     <>
       <ToastContainer />
@@ -390,14 +392,13 @@ const AddLeadChecklist: React.FC = () => {
                     </CSSTransition>
                   ))}
                   <tr>
-                    <td colSpan={5} className="text-center">
-                      {/* <Button variant="primary" className="mx-1" onClick={() => append({ name: '', file: null })}>
-                      <FaPlus /> Add Document
-                    </Button> */}
+                  {fields.length === 0 ? (<td colSpan={5} className="text-center"><p>No Checklist Created</p></td>) :
+                    (<td colSpan={5} className="text-center">
                       <Button variant="success" className="mx-1" onClick={handleSubmit(handleFormSubmit)} disabled={loading}>
                         <FaUpload /> Upload All
                       </Button>
-                    </td>
+                    </td>)
+}
                   </tr>
                 </TransitionGroup>
               </tbody>

@@ -55,7 +55,7 @@ const ProfilePages = () => {
                   <p className="text-muted mb-0">
                     {loading ? <Skeleton width={200} /> : (
                       <small>
-                        {`${loggedInUser?.address == null ? "" : loggedInUser?.address}, ${loggedInUser?.city == null ? "" : loggedInUser?.city}`}
+                        {`${loggedInUser?.address === "null" ? "" : loggedInUser?.address}, ${loggedInUser?.city === "null" ? "" : loggedInUser?.city}`}
                       </small>
                     )}
                   </p>
@@ -130,13 +130,13 @@ const ProfilePages = () => {
                             <tr>
                               <th scope="row">City</th>
                               <td className="ng-binding">
-                                {loading ? <Skeleton width={150} /> : loggedInUser?.city == null?"":loggedInUser?.city }
+                                {loading ? <Skeleton width={150} /> : loggedInUser?.city === "null"?"N/A":loggedInUser?.city }
                               </td>
                             </tr>
                             <tr>
                               <th scope="row">Address</th>
                               <td className="ng-binding">
-                                {loading ? <Skeleton width={200} /> : loggedInUser?.address == null?"":loggedInUser?.address}
+                                {loading ? <Skeleton width={200} /> : loggedInUser?.address === "null"?"N/A":loggedInUser?.address}
                               </td>
                             </tr>
                           </tbody>
