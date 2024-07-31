@@ -11,7 +11,6 @@ const useGetLeadReportsOnTime = (startDate: any, endDate: any) => {
 		const fetchLeadReportBasedOnStatus = async () => {
 			try {
 				const response = await reportsApi.getLeadReportBasedOnTime(startDate, endDate);
-				console.log("Response ", response)
 				setReport(response)
 			} catch (err) {
 				console.error('Failed to fetch Report', err)

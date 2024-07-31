@@ -20,7 +20,6 @@ const useGetLeadAssignee = (leadId: string) => {
 
       try {
         const data = (await leadApi.getAssigneeById(leadId)) as LeadAssignee;
-        console.log('assign data', data);
         if (data) {
           setLeadAssignee(data);
         }

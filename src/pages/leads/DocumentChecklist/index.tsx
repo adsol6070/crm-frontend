@@ -99,9 +99,7 @@ const AddLeadChecklist: React.FC = () => {
         setVisaType(visaCategory);
         // const documentFields = visaDocuments[visaCategory as VisaType];
         const response = await getChecklistsByVisaType(visaCategory);
-        console.log("response ", response)
         const documentFields = response.checklists.checklist;
-        console.log("response documents", documentFields)
         if (!fields.length && uploadedDocuments.length !== 0) {
 
           const filteredDocumentFields = documentFields.filter(({ name }) => !uploadedDocuments.includes(name));
@@ -284,7 +282,7 @@ const AddLeadChecklist: React.FC = () => {
     closeUpdateModal();
     updateReset();
   };
-console.log("fields ", fields)
+  
   return (
     <>
       <ToastContainer />

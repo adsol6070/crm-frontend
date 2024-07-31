@@ -40,7 +40,6 @@ const GetLeadReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, end, b
   }, []);
 
   const handleDateChange = (date: Date | null, isStart: boolean) => {
-    console.log("date ", startDate, endDate)
     if (isStart) {
       setStartDate(date ? new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0)) : undefined);
     } else {

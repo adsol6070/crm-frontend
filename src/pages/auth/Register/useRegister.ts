@@ -34,7 +34,6 @@ export default function useRegister() {
 			formData.append('uploadType', 'User')
 
 			if (userData.profileImage) {
-				console.log("Inward called hahahah:", userData.profileImage);
 				formData.append('profileImage', userData.profileImage, userData.profileImage.name)
 			}
 

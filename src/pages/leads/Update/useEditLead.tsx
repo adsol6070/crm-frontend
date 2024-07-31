@@ -13,7 +13,6 @@ const useEditLead = () => {
   const editLead = async (updatedData: LeadData, leadId?: string) => {
     setLoading(true);
     try {
-      console.log(updatedData);
       const updatedUserWithUserID = {
         ...updatedData, userID: user.sub
       };
