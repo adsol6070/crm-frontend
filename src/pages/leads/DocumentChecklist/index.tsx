@@ -14,7 +14,7 @@ import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import styles from './AddLeadChecklist.module.css';
 import { leadApi, useAuthContext } from '@/common';
 import Swal from 'sweetalert2';
-import { visaDocuments, VisaType } from './visaDocuments';
+// import { visaDocuments, VisaType } from './visaDocuments';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { useVisaChecklist } from '../AddChecklist/useVisaChecklists';
 
@@ -59,6 +59,7 @@ const AddLeadChecklist: React.FC = () => {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [currentFilename, setCurrentFilename] = useState<string | null>(null);
   const [currentDocName, setCurrentDocName] = useState<string | null>(null);
+  const [docLength, setDocLength] = useState<number | null>(null);
 
   const pdfWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -100,6 +101,7 @@ const AddLeadChecklist: React.FC = () => {
         // const documentFields = visaDocuments[visaCategory as VisaType];
         const response = await getChecklistsByVisaType(visaCategory);
         const documentFields = response.checklists.checklist;
+        setDocLength(documentFields.length)
         if (!fields.length && uploadedDocuments.length !== 0) {
 
           const filteredDocumentFields = documentFields.filter(({ name }) => !uploadedDocuments.includes(name));
@@ -146,6 +148,7 @@ const AddLeadChecklist: React.FC = () => {
       // const documentFields = visaDocuments[visaType as VisaType];
       const response = await getChecklistsByVisaType(visaType);
       const documentFields = response.checklists.checklist;
+      setDocLength(documentFields.length)
       const documents = await leadApi.getUploadedDocuments(leadId);
       const uploadedDocuments = documents.documents.map((document: any) => document.name);
       const documentField = documentFields.filter((doc: any) => uploadedDocuments.includes(doc.name));
@@ -192,6 +195,7 @@ const AddLeadChecklist: React.FC = () => {
     await deleteDocument(filename);
     const response = await getChecklistsByVisaType(visaType);
     const documentFields = response.checklists.checklist;
+    setDocLength(documentFields.length)
     // const documentFields = visaDocuments[visaType as VisaType];
     const documentField = documentFields.find((doc: any) => doc.name === docName);
 
@@ -282,7 +286,7 @@ const AddLeadChecklist: React.FC = () => {
     closeUpdateModal();
     updateReset();
   };
-  
+  console.log("state Length ", docLength)
   return (
     <>
       <ToastContainer />
@@ -390,12 +394,12 @@ const AddLeadChecklist: React.FC = () => {
                     </CSSTransition>
                   ))}
                   <tr>
-                  {fields.length === 0 ? (<td colSpan={5} className="text-center"><p>No Checklist Created</p></td>) :
-                    (<td colSpan={5} className="text-center">
+                  {docLength !== null ?  (<td colSpan={5} className="text-center">
                       <Button variant="success" className="mx-1" onClick={handleSubmit(handleFormSubmit)} disabled={loading}>
                         <FaUpload /> Upload All
                       </Button>
-                    </td>)
+                    </td>) :
+                    (<td colSpan={5} className="text-center"><p>No Checklist Created</p></td>)
 }
                   </tr>
                 </TransitionGroup>

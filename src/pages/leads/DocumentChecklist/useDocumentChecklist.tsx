@@ -18,8 +18,8 @@ const useAddDocumentChecklist = (leadId: string) => {
     const [uploadedDocs, setUploadedDocs] = useState<Document[]>([]);
 
     const fetchDocuments = async () => {
-        setLoading(true);
         try {
+            setLoading(true);
             const documents = await leadApi.getUploadedDocuments(leadId);
             setUploadedDocs(documents.documents);
         } catch (error) {
