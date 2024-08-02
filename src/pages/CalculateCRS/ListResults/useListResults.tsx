@@ -3,7 +3,7 @@ import { PageSize } from '@/components';
 import { useEffect, useState } from 'react';
 import { Result } from '@/types';
 import { scoreApi, usePermissions } from '@/common';
-import { RiDeleteBinLine } from 'react-icons/ri';
+import { RiDeleteBinLine, RiEyeLine } from 'react-icons/ri';
 import { toast } from 'react-toastify';
 import { capitalizeFirstLetter, hasPermission } from '@/utils';
 import { Badge } from 'react-bootstrap';
@@ -14,22 +14,20 @@ interface ResultListHookResult {
     resultRecords: Result[];
     loading: boolean;
     deleteAllResults: (userId: string) => void;
+    selectedResult: Result | null;
+    setSelectedResult: (result: Result | null) => void;
 }
 
 export const useResultList = (): ResultListHookResult => {
     const { permissions } = usePermissions();
     const [loading, setLoading] = useState(true);
     const [resultRecords, setResultRecords] = useState<Result[]>([]);
+    const [selectedResult, setSelectedResult] = useState<Result | null>(null);
 
     const columns = [
         {
             Header: 'S.No',
             accessor: 'sno',
-            defaultCanSort: true,
-        },
-        {
-            Header: 'ID',
-            accessor: 'id',
             defaultCanSort: true,
         },
         {
@@ -53,9 +51,19 @@ export const useResultList = (): ResultListHookResult => {
             accessor: 'score',
             defaultCanSort: false,
             Cell: ({ value }: any) => (
-                <Badge pill bg={value >= 450 ? 'success' : 'danger'} style={{ fontSize: "1.2em" }}>
+                <Badge pill bg={value >= 450 ? 'success' : 'danger'} style={{ fontSize: "1em" }}>
                     {value}
                 </Badge>
+            ),
+        },
+        {
+            Header: 'Details',
+            accessor: 'details',
+            disableSortBy: true,
+            Cell: ({ row }: any) => (
+                <button className="btn btn-light" onClick={() => setSelectedResult(row.original)}>
+                    <RiEyeLine size={20} /> Scorecard
+                </button>
             ),
         },
     ];
@@ -143,5 +151,5 @@ export const useResultList = (): ResultListHookResult => {
         getResults();
     }, []);
 
-    return { columns, sizePerPageList, resultRecords, deleteAllResults, loading };
+    return { columns, sizePerPageList, resultRecords, deleteAllResults, loading, selectedResult, setSelectedResult };
 };

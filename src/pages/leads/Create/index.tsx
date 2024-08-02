@@ -106,7 +106,6 @@ const stepSchemas = [
 
 const AddLead = () => {
   const { settings } = useThemeContext();
-  console.log("theme settings ", settings.theme)
   const [countryOptions, setCountryOptions] = useState(() => CountryList().getData());
   const { createLead, visaCategories } = useCreateLead();
   const [step, setStep] = useState(1);

@@ -250,7 +250,6 @@ const EditLead: React.FC = () => {
       </Alert>
     );
   }
-  console.log(selectedCountry)
 
   return (
     <>

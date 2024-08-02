@@ -5,11 +5,6 @@ import { Link } from 'react-router-dom'
 import logo from '@/assets/images/logo.png'
 import logoSm from '@/assets/images/logo-sm.png'
 import logoDark from '@/assets/images/logo-dark.png'
-import avatar1 from '@/assets/images/users/avatar-1.jpg'
-import avatar2 from '@/assets/images/users/avatar-2.jpg'
-import avatar3 from '@/assets/images/users/avatar-3.jpg'
-import avatar4 from '@/assets/images/users/avatar-4.jpg'
-import avatar5 from '@/assets/images/users/avatar-5.jpg'
 
 // components
 import {
@@ -89,7 +84,7 @@ type TopbarProps = {
 const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 	const { sideBarType } = useThemeCustomizer()
 	const { width } = useViewport()
-	const [getProfile] = useUser()
+	const [getProfile, loading] = useUser()
 	const socket = SocketManager.getSocket()
 	const [notifications, setNotifications] = useState<NotificationItem[]>([])
 
@@ -285,6 +280,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 						</li>
 						<li className="dropdown">
 							<ProfileDropdown
+							    loading={loading}
 								menuItems={profileMenus}
 								userImage={`${getProfile?.imageUrl}`}
 								username={`${getProfile?.firstname}`}

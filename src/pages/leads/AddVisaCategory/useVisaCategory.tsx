@@ -150,16 +150,14 @@ export function useVisaCategory() {
 
     useEffect(() => {
         const getCategories = async () => {
-            setLoading(true);
             setDataLoading(true);
             try {
                 const response = await visaCategory.getAllCategory();
                 setVisaCategories(response.map((category: any, index: any) => ({ ...category, sno: index + 1 })));
             } catch (error) {
                 console.error('Error fetching categories:', error);
-                toast.error("Failed to load visa categories");
+                // toast.error("Failed to load visa categories");
             } finally {
-                setLoading(false);
                 setDataLoading(false);
             }
         };

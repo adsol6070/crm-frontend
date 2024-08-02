@@ -31,8 +31,6 @@ interface PermissionsModalProps {
 }
 
 const initialPermissions: Permissions = {
-	Dashboard: { View: false },
-	Chat: { View: false },
 	Blogs: { Create: false, Read: false, Update: false, Delete: false },
 	BlogCategory: { Create: false },
 	Users: { Create: false, Read: false, Update: false, Delete: false },
@@ -55,6 +53,7 @@ const initialPermissions: Permissions = {
 		DownloadCSV: false,
 		DownloadCSVFormat: false,
 	},
+	Checklists: { Create: false, Read: false, AddDocument: false, DeleteChecklist: false, EditDocument: false, DeleteDocument: false, Update: false },
 	VisaCategory: { Create: false },
 }
 

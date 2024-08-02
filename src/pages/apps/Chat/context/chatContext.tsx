@@ -124,7 +124,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 	const [groups, setGroups] = useState<any[]>([])
 	const [typingUsers, setTypingUsers] = useState<any[]>([])
 	const [isTyping, setIsTyping] = useState<boolean>(false)
-	const scrollRef = useRef<any>(null)
+	const scrollRef = useRef<SimpleBar>(null)
 	const emojiPickerRef = useRef<HTMLDivElement>(null)
 	const [currentUser] = useUser()
 	const fetchUserImage = useUserImage()

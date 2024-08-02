@@ -2,6 +2,7 @@ import EmojiPicker from 'emoji-picker-react'
 import { Button } from 'reactstrap'
 import styled from 'styled-components'
 import { useChatContext } from '../context/chatContext'
+import Swal from 'sweetalert2'
 
 const MessageInput = () => {
 	const {
@@ -24,6 +25,27 @@ const MessageInput = () => {
 		emojiPickerRef,
 		currentRoomId,
 	} = useChatContext()
+
+	const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+	const handleFileUploadWithValidation = (event: any) => {
+		const files = event.target.files;
+		if (files.length > 0) {
+			const file = files[0];
+			if (file.size > MAX_FILE_SIZE) {
+				Swal.fire({
+					icon: 'error',
+					title: 'File Too Large',
+					text: 'File size exceeds 10MB. Please select a smaller file.',
+				});
+				if (fileInputRef.current) {
+					fileInputRef.current.value = '';
+				}
+				return;
+			}
+			handleFileUpload(event);
+		}
+	}
 
 	return (
 		<div className="p-3 border-top">
@@ -80,7 +102,7 @@ const MessageInput = () => {
 								id="fileInput"
 								ref={fileInputRef}
 								style={{ display: 'none' }}
-								onChange={handleFileUpload}
+								onChange={handleFileUploadWithValidation}
 							/>
 							<SendButton
 								type="button"

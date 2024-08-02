@@ -11,7 +11,8 @@ const useFormqr = () => {
         const generateQRCodeUrl = () => {
             setLoading(true);
             try {
-                const url = `${process.env.VITE_FRONTEND_URL}/pages/createLead?tenantID=${user.tenantID}`;
+                const qrUrl = `${process.env.VITE_FRONTEND_URL}/pages/createLead?tenantID=${user.tenantID}`;
+                const url = encodeURI(qrUrl);
                 setQrCodeUrl(url);
             } catch (error) {
                 console.error('Error generating QR code URL', error);

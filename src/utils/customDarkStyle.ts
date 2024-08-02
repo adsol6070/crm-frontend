@@ -1,5 +1,3 @@
-import { color } from "html2canvas/dist/types/css/types/color";
-
 export const customStyles = (isDarkMode: any) => ({
     control: (provided: any) => ({
         ...provided,
@@ -57,7 +55,7 @@ export const toolbarStyle = (isDarkMode: any) =>( {
 export const chartStyle = (isDarkMode: any) =>( {
     padding: isDarkMode ? '10px' : '10px',
     backgroundColor: isDarkMode ? '#313a46' : '#fff',
-    color:  isDarkMode ? '#313a46' : '#fff'
+    color:  isDarkMode ? '#fff' : '#000'
 });
 
 export const historyStyle = (isDarkMode: any) =>( {
@@ -77,6 +75,9 @@ export const notesStyle = (isDarkMode: any) =>( {
     border: isDarkMode ? "none": "1px solid #ddd"
 });
 
+export const backgroundStyle = (isDarkMode: any) =>( {
+    backgroundColor: isDarkMode ? '#313a46' : '#fff',
+});
 
 export const textStyle = (isDarkMode: any) =>( {
     color:  isDarkMode ? '#fff' : '#000',

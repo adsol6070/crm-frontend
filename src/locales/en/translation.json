@@ -1,10 +1,11 @@
 {
-    "Dashboards": "Dashboards",
-    "Chats": "Chats",
+    "Dashboard": "Dashboard",
+    "Chat": "Chat",
     "Leads": "Leads",
     "Form QR": "Form QR",
     "Add Lead": "Add Lead",
     "Add Visa Category": "Add Visa Category",
+    "Add Document Checklists": "Add Document Checklists",
     "Lead List": "Lead List",
     "Calculate CRS": "Calculate CRS",
     "Calculate": "Calculate",

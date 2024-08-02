@@ -56,7 +56,6 @@ const useEditUser = (userId?: string) => {
   const editUser = async (updatedData: FormData) => {
     setLoading(true);
     try {
-      console.log(updatedData)
       const data = await userApi.update(updatedData, userId);
       toast.success(data.message);
       setUserData((prev) => (prev ? { ...prev, ...data.user } : null));

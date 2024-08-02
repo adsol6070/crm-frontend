@@ -29,10 +29,6 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		isTitle: false,
 		url: '/',
 		icon: 'ri-dashboard-3-line',
-		permissions: {
-            View: true,
-        },
-		permissionsKey: 'Dashboard'
 	},
 	{
 		key: 'chat',
@@ -40,10 +36,6 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		isTitle: false,
 		icon: 'ri-chat-3-line',
 		url: '/chat',
-		permissions: {
-            View: true,
-        },
-		permissionsKey: 'Chat'
 	},
 	{
 		key: 'leads',
@@ -51,6 +43,26 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		isTitle: false,
 		icon: 'ri-user-add-line',
 		children: [
+			{
+				key: 'leads-visaCategory',
+				label: 'Add Visa Category',
+				url: '/leads/lead-visaCategory',
+				parentKey: 'leads',
+				permissions: {
+					Create: true,
+				},
+				permissionsKey: 'VisaCategory',
+			},
+			{
+				key: 'lead-addVisaChecklist',
+				label: 'Add Document Checklists',
+				url: '/leads/lead-addVisaChecklist',
+				parentKey: 'leads',
+				permissions: {
+					Create: true,
+				},
+				permissionsKey: 'Checklists',
+			},
 			{
 				key: 'leads-Formqr',
 				label: 'Form QR',
@@ -70,16 +82,6 @@ const MENU_ITEMS: MenuItemTypes[] = [
 					Create: true,
 				},
 				permissionsKey: 'Leads',
-			},
-			{
-				key: 'leads-visaCategory',
-				label: 'Add Visa Category',
-				url: '/leads/lead-visaCategory',
-				parentKey: 'leads',
-				permissions: {
-					Create: true,
-				},
-				permissionsKey: 'VisaCategory',
 			},
 			{
 				key: 'leads-LeadList',

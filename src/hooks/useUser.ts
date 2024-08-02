@@ -18,8 +18,9 @@ interface User {
 	imageUrl: string
 }
 
-const useUser = () => {
+const useUser = (): [User | null, boolean] => {
 	const [user, setUser] = useState<User | null>(null)
+	const [loading, setLoading] = useState(true)
 	const { user: authUser } = useAuthContext()
 	const fetchUserImage = useUserImage()
 
@@ -34,6 +35,8 @@ const useUser = () => {
 				setUser({ ...currentLoggedInUser, imageUrl })
 			} catch (error) {
 				console.error('Error fetching logged in user:', error)
+			} finally{
+				setLoading(false)
 			}
 		}
 
@@ -42,7 +45,7 @@ const useUser = () => {
 		}
 	}, [authUser])
 
-	return [user]
+	return [user, loading]
 }
 
 export default useUser
