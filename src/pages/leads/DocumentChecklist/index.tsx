@@ -89,34 +89,40 @@ const AddLeadChecklist: React.FC = () => {
   });
 
   const fetchVisaType = async (leadId: string) => {
-    const documents = await leadApi.getUploadedDocuments(leadId);
-    const uploadedDocuments = documents.documents.map((document: any) => document.name);
-    const myLeadData = await leadApi.getLeadById(leadId);
-
-    if (myLeadData) {
-      // const visaCategory = myLeadData?.visaCategory?.trim()?.split(' ')[0];
-      const visaCategory = myLeadData?.visaCategory?.trim();
-      if (visaCategory) {
-        setVisaType(visaCategory);
-        // const documentFields = visaDocuments[visaCategory as VisaType];
-        const response = await getChecklistsByVisaType(visaCategory);
-        const documentFields = response.checklists.checklist;
-        setDocLength(documentFields.length)
-        if (!fields.length && uploadedDocuments.length !== 0) {
-
-          const filteredDocumentFields = documentFields.filter(({ name }) => !uploadedDocuments.includes(name));
-
-          if (filteredDocumentFields) {
-            filteredDocumentFields.forEach((doc: any) => append({ name: doc.name, file: null }));
-          }
+    try {
+      const documents = await leadApi.getUploadedDocuments(leadId);
+      const uploadedDocuments = documents.documents.map((document: any) => document.name);
+      const myLeadData = await leadApi.getLeadById(leadId);
+  
+      if (myLeadData) {
+        const visaCategory = myLeadData?.visaCategory?.trim();
+        if (visaCategory) {
+          setVisaType(visaCategory);
+          
+          const response = await getChecklistsByVisaType(visaCategory);
+  
+          if (response && response.checklists && response.checklists.checklist) {
+            const documentFields = response.checklists.checklist;
+            setDocLength(documentFields.length);
+  
+            if (!fields.length && uploadedDocuments.length !== 0) {
+              const filteredDocumentFields = documentFields.filter(({ name }: any) => !uploadedDocuments.includes(name));
+  
+              if (filteredDocumentFields) {
+                filteredDocumentFields.forEach((doc: any) => append({ name: doc.name, file: null }));
+              }
+            } else {
+              if (!fields.length) {
+                documentFields.forEach((doc: any) => append({ name: doc.name, file: null }));
+              }
+            }
+          } 
         } else {
-          if (!fields.length) {
-            documentFields.forEach((doc: any) => append({ name: doc.name, file: null }));
-          }
+          console.log("Visa category is undefined.");
         }
-      } else {
-        console.log("Visa category is undefined.");
       }
+    } catch (error) {
+      console.error("Error fetching visa type:", error);
     }
   };
 
@@ -286,7 +292,7 @@ const AddLeadChecklist: React.FC = () => {
     closeUpdateModal();
     updateReset();
   };
-  console.log("state Length ", docLength)
+  
   return (
     <>
       <ToastContainer />

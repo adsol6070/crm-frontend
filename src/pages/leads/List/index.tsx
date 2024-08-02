@@ -64,10 +64,6 @@ const LeadList = () => {
             : leadRecords.filter((lead) => lead.visaCategory === selectedCategory);
     }, [selectedCategory, leadRecords]);
 
-    const handlePageChange = (page: number) => {
-        setCurrentPage(page);
-    };
-
     return (
         <>
             <ToastContainer />
