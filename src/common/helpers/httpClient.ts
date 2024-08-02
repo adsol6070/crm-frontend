@@ -8,15 +8,14 @@ import axios, {
 import { jwtDecode } from 'jwt-decode'
 import { DecodedToken } from '@/types'
 import SocketManager from '../context/SocketManager'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
 	_skipRefresh?: boolean
 	headers: AxiosRequestHeaders
-}
-
-interface QueueItem {
-	resolve: (token: string) => void
-	reject: (reason: any) => void
 }
 
 const ErrorCodeMessages: { [key: number]: string } = {
@@ -26,39 +25,24 @@ const ErrorCodeMessages: { [key: number]: string } = {
 }
 
 let isRefreshing = false
-let failedQueue: QueueItem[] = []
-
-const processQueue = (error: any, token: string = ''): void => {
-	failedQueue.forEach((prom) => {
-		if (error) {
-			prom.reject(error)
-		} else {
-			prom.resolve(token)
-		}
-	})
-	failedQueue = []
-}
 
 const refreshToken = async (): Promise<string | null> => {
 	try {
-		localStorage.getItem('access_token')
-		const refresh_token = localStorage.getItem('refresh_token')
+		const access_token = localStorage.getItem('access_token')
 
-		if (!refresh_token) throw new Error('No refresh token available')
-		const decodedRefreshToken = jwtDecode<DecodedToken>(refresh_token)
+		if (!access_token) throw new Error('No Access token available')
+		const decodedAccessToken = jwtDecode<DecodedToken>(access_token)
 		const response = await axios.post<{
 			accessToken: string
 			refreshToken: string
 		}>(`${process.env.VITE_API_URL}/auth/refresh-tokens`, {
-			tenantID: decodedRefreshToken.tenantID,
-			refresh_token,
+			tenantID: decodedAccessToken.tenantID,
+			userID: decodedAccessToken.sub,
 		})
 
 		localStorage.setItem('access_token', response.data.accessToken)
-		localStorage.setItem('refresh_token', response.data.refreshToken)
 
 		const newAccesstoken = localStorage.getItem('access_token')
-		localStorage.getItem('refresh_token')
 
 		if (newAccesstoken) {
 			SocketManager.updateToken(response.data.accessToken)
@@ -67,7 +51,32 @@ const refreshToken = async (): Promise<string | null> => {
 		return response.data.accessToken
 	} catch (error) {
 		console.error('Error refreshing token:', error)
-		processQueue(error)
+		if (error?.response && error?.response.status === 401) {
+			if (
+				error?.response.data.message === 'Refresh Token expired' ||
+				error?.response.data.message === 'Refresh token not found'
+			) {
+				const removeSession = () => {
+					const accessToken = localStorage.getItem('access_token')
+					if (accessToken) {
+						localStorage.removeItem('access_token')
+					}
+				}
+				MySwal.fire({
+					title: 'Session Expired',
+					text: 'Your session has expired, please log in again.',
+					icon: 'warning',
+					confirmButtonText: 'Login In',
+					allowOutsideClick: false,
+					allowEscapeKey: false,
+				}).then((result) => {
+					if (result.isConfirmed) {
+						removeSession()
+						window.location.href = '/auth/login'
+					}
+				})
+			}
+		}
 		return null
 	}
 }
@@ -98,21 +107,13 @@ function HttpClient(): { [key: string]: Function } {
 								`Bearer ${newToken}`
 							config.headers = config.headers || {}
 							config.headers['Authorization'] = `Bearer ${newToken}`
-							processQueue(null, newToken)
 						}
 					} else {
-						return new Promise((resolve, reject) => {
-							failedQueue.push({
-								resolve: (token: string) => {
-									config.headers = config.headers || {}
-									config.headers['Authorization'] = `Bearer ${token}`
-									resolve(config)
-								},
-								reject: (error: any) => {
-									reject(error)
-								},
-							})
-						})
+						await new Promise((resolve) => setTimeout(resolve, 1000))
+						const updatedAccessToken = localStorage.getItem('access_token')
+						if (updatedAccessToken) {
+							config.headers.Authorization = `Bearer ${updatedAccessToken}`
+						}
 					}
 				} else {
 					config.headers = config.headers || {}

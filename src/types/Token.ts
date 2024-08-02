@@ -1,6 +1,6 @@
 export type Token = {
 	accessToken: string
-	refreshToken: string
+	// refreshToken: string
 }
 
 interface Permissions {

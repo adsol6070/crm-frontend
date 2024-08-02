@@ -25,9 +25,10 @@ export default function useLogin() {
 		setLoading(true)
 		try {
 			const res = await authApi.login({ email, password })
+			console.log('Response:', res)
 			if (res.tokens) {
 				saveSession(res.tokens)
-				
+
 				Swal.fire({
 					icon: 'success',
 					title: 'Login Successful',

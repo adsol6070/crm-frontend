@@ -22,6 +22,7 @@ import styled from 'styled-components'
 import { filterByName } from '@/utils'
 import { useChatContext } from '../context/chatContext'
 import { useThemeContext } from '@/common'
+import { Spinner } from '@/components'
 
 const Sidebar = () => {
 	const navigate = useNavigate()
@@ -35,7 +36,7 @@ const Sidebar = () => {
 		userChatOpen,
 		groupChatOpen,
 		handleGroupContextMenu,
-		setShowCreateGroupModal,
+		setShowCreateGroupModal, 
 	} = useChatContext()
 	const { settings } = useThemeContext()
 	const [singleButton, setSingleButton] = useState<boolean>(false)
@@ -43,14 +44,17 @@ const Sidebar = () => {
 	const [searchTerm, setSearchTerm] = useState<string>('')
 	const [filteredChats, setFilteredChats] = useState(chats)
 	const [filteredGroups, setFilteredGroups] = useState(groups)
+	const [loading, setLoading] = useState<boolean>(true)
 
 	useEffect(() => {
 		setFilteredChats(filterByName(chats, searchTerm))
 		setFilteredGroups(filterByName(groups, searchTerm))
+		setLoading(false)
 	}, [searchTerm, chats, groups])
 
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchTerm(e.target.value)
+		setLoading(true)
 	}
 
 	return (
@@ -146,7 +150,11 @@ const Sidebar = () => {
 							<div>
 								<div className="px-3">
 									<h5 className="font-size-14">Recent</h5>
-									{filteredChats.length === 0 ? (
+									{loading ? (
+										<LoaderWrapper>
+											<Spinner />
+										</LoaderWrapper>
+									) : filteredChats.length === 0 ? (
 										<NoResultsMessage>No Chats Found</NoResultsMessage>
 									) : (
 										<ChatList
@@ -214,7 +222,11 @@ const Sidebar = () => {
 							<div>
 								<div className="px-3">
 									<h5 className="font-size-14">Groups</h5>
-									{filteredGroups.length === 0 ? (
+									{loading ? (
+										<LoaderWrapper>
+											<Spinner />
+										</LoaderWrapper>
+									) : filteredGroups.length === 0 ? (
 										<NoResultsMessage>No Groups Found</NoResultsMessage>
 									) : (
 										<ChatList
@@ -450,4 +462,18 @@ const NoResultsMessage = styled.div`
 	height: 100%;
 	font-size: 16px;
 	color: #6c757d;
+`
+
+const LoaderWrapper = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+
+	@media (min-width: 992px) {
+        height: calc(100vh - 636px);
+    }
+
+	height: calc(100vh - 374px);
+}
 `
