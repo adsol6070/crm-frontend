@@ -85,7 +85,8 @@ const Login = () => {
 						<Button
 							variant="soft-primary"
 							className="w-100"
-							type="submit">
+							type="submit"
+							disabled={loading}>
 								{loading ? (
 								<Spinner animation="border" size="sm" />
 							) : (
