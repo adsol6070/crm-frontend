@@ -91,11 +91,12 @@ export const useLeadList = (): LeadListHookResult => {
 			if (entry.details.updatedBy) {
 				action = `Updated by ${entry.details.updatedBy.firstname} ${entry.details.updatedBy.lastname}`
 			} else if (entry.details.createdBy) {
+				if (entry.details == "") {
+					action = "Created By User"
+				}
 				action = `Created by ${entry.details.createdBy.firstname} ${entry.details.createdBy.lastname}`
 			} else if (entry.details.statusUpdatedBy) {
 				action = `Status Updated by ${entry.details.statusUpdatedBy.firstname} ${entry.details.statusUpdatedBy.lastname}`
-			} else if (entry.details) {
-				action = "Created by user"
 			} else {
 				action = entry.action
 			}
@@ -112,7 +113,9 @@ export const useLeadList = (): LeadListHookResult => {
 		try {
 			const response = await leadApi.getLeadHistory(leadId)
 			const transformedHistory = transformLeadHistory(response.fullLeadHistory)
+			console.log("Without transformatted Lead History ", response)
 			setHistoryData(transformedHistory)
+			console.log("Lead History ", transformedHistory)
 			setShowHistoryModal(true)
 		} catch (error) {
 			toast.error('Failed to fetch history')
@@ -122,6 +125,8 @@ export const useLeadList = (): LeadListHookResult => {
 
 	const handleAssign = async (leadId: string, assignees: string[]) => {
 		try {
+			console.log(leadId)
+			console.log(assignees)
 			const response = await leadApi.assignLead({
 				lead_id: leadId,
 				user_id: assignees,
@@ -190,10 +195,11 @@ export const useLeadList = (): LeadListHookResult => {
 								<span>
 									{leadStatuses[cell.row.original.id]
 										? capitalizeFirstLetter(leadStatuses[cell.row.original.id])
-										: 'No Status'}
+										: 'New'}
 								</span>
 							</Dropdown.Toggle>
 							<Dropdown.Menu>
+								<Dropdown.Item eventKey="new">New</Dropdown.Item>
 								<Dropdown.Item eventKey="pending">Pending</Dropdown.Item>
 								<Dropdown.Item eventKey="inprogress">Inprogress</Dropdown.Item>
 								<Dropdown.Item eventKey="completed">Completed</Dropdown.Item>
@@ -207,7 +213,7 @@ export const useLeadList = (): LeadListHookResult => {
 							<span>
 								{leadStatuses[cell.row.original.id]
 									? capitalizeFirstLetter(leadStatuses[cell.row.original.id])
-									: 'No Status'}
+									: 'New'}
 							</span>
 						</div>
 					)
@@ -241,9 +247,11 @@ export const useLeadList = (): LeadListHookResult => {
 							Edit
 						</Dropdown.Item>
 					)}
-					<Dropdown.Item onClick={() => handleChecklist(cell.row.original.id)}>
-						Checklist
-					</Dropdown.Item>
+					{hasPermission(permissions, 'Leads', 'Checklist') && (
+						<Dropdown.Item onClick={() => handleChecklist(cell.row.original.id)}>
+							Checklist
+						</Dropdown.Item>
+					)}
 					{hasPermission(permissions, 'Leads', 'Delete') && (
 						<Dropdown.Item onClick={() => handleDelete(cell.row.original.id)}>
 							Delete

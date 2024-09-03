@@ -1,6 +1,6 @@
 import { Button, Col, Row, Spinner } from 'react-bootstrap'
 import AuthLayout from '../AuthLayout'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import useRegister from './useRegister'
@@ -24,7 +24,7 @@ const BottomLink = () => {
 	return (
 		<Row>
 			<Col xs={12} className="text-center">
-				<p className="text-dark-emphasis" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+				<p className="text-dark-emphasis" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
 					Already have account?
 					<Button
 						variant="link"
@@ -62,13 +62,13 @@ const Register = () => {
 				.mixed()
 				.test('fileSize', 'File size is too large. Maximum size is 2MB.', (value: any) => {
 					if (!value.length) return true;
-					return value[0].size <= 2 * 1024 * 1024; 
+					return value[0].size <= 2 * 1024 * 1024;
 				}),
 		})
 	)
 
 	const onSubmit = (data: UserData) => {
-		const formData = profileImage ? { ...data, profileImage } : {...data, profileImage: null}
+		const formData = profileImage ? { ...data, profileImage } : { ...data, profileImage: null }
 		register(formData)
 	}
 
@@ -143,7 +143,7 @@ const Register = () => {
 							disabled={loading}
 							className="fw-semibold"
 							type="submit">
-								{loading ? (
+							{loading ? (
 								<Spinner animation="border" size="sm" />
 							) : (
 								<>

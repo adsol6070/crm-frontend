@@ -288,7 +288,7 @@ const AddLeadChecklist: React.FC = () => {
     formData.append('name', data.updateDocumentName);
     formData.append('uploadType', `leadDocuments-${leadId}`);
     formData.append('documents', data.updateDocumentFile);
-    
+
     await updateDocument(formData, currentFilename);
     closeUpdateModal();
     updateReset();

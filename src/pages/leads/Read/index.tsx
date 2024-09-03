@@ -68,7 +68,7 @@ const ReadLead: React.FC = () => {
         pdf.setFontSize(12);
         pdf.text(`Lead ID: ${data.id}`, 10, 17);
         pdf.text(`Created At: ${data.created_at}`, 10, 25);
-        pdf.text(`Status: ${data.leadStatus ? data.leadStatus.charAt(0).toUpperCase() + data.leadStatus.slice(1) : 'No Status'}`, 10, 35);
+        pdf.text(`Status: ${data.leadStatus ? data.leadStatus.charAt(0).toUpperCase() + data.leadStatus.slice(1) : 'New'}`, 10, 35);
 
         const formatField = (key: string, value: any) => {
             if (key === 'dob' || key === 'passportExpiry' || key === 'visaExpiryDate' || key === 'followUpDates') {
@@ -152,7 +152,7 @@ const ReadLead: React.FC = () => {
                                 <h5 className={`text-muted ${styles.textMuted}`}>Lead ID: {data.id}</h5>
                                 <div><p>Created At - {formatDate(data.created_at)}</p></div>
                                 <Badge className={styles.styleStatus} bg={getStatusBadgeClass(data.leadStatus)}>
-                                    {data.leadStatus ? data.leadStatus.charAt(0).toUpperCase() + data.leadStatus.slice(1) : 'No Status'}
+                                    {data.leadStatus ? data.leadStatus.charAt(0).toUpperCase() + data.leadStatus.slice(1) : 'New'}
                                 </Badge>
                             </Col>
                         </Row>

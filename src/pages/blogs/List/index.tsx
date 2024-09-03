@@ -3,8 +3,10 @@ import { Row, Col, Card, Button, Spinner } from 'react-bootstrap'
 import useGetBlogPosts from './useBlogList'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
-import { useAuthContext } from '@/common/context'
-import { capitalizeFirstLetter } from '@/utils'
+import { useAuthContext, usePermissions } from '@/common/context'
+import { capitalizeFirstLetter, hasPermission } from '@/utils'
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const BlogList = () => {
 	const {
@@ -15,6 +17,7 @@ const BlogList = () => {
 		handleEditBlog,
 	} = useGetBlogPosts()
 	const { user } = useAuthContext()
+	const { permissions } = usePermissions();
 	const renderHTML = (htmlString: string) => ({ __html: htmlString })
 
 	const getImageUrl = (image: any) => {
@@ -29,17 +32,25 @@ const BlogList = () => {
 		}
 		return text
 	}
-	
+
 	return (
 		<>
 			<ToastContainer />
 			<PageBreadcrumb title="Blog List" subName="Blogs" />
-			{loading ? (
-				<div className="text-center" style={{ height: "500px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-				<Spinner animation="border" role="status">
-					<span className="visually-hidden">Loading...</span>
-				</Spinner>
-			</div>
+			{loading ?  (
+				<Row className="mt-4">
+					{Array.from({ length: 6 }).map((_, index) => (
+						<Col key={index} md={4} className="mb-4">
+							<Card>
+								<Skeleton height={300} width="100%" />
+								<Card.Body>
+									<Skeleton count={1} height={20} style={{ marginBottom: '10px' }} />
+									<Skeleton count={3} height={10} />
+								</Card.Body>
+							</Card>
+						</Col>
+					))}
+				</Row>
 			) : blogPosts.length === 0 ? (
 				<div className="text-center mt-5">
 					<h3>No blogs found</h3>
@@ -63,28 +74,31 @@ const BlogList = () => {
 										)}
 									/>
 									<div className="my-2 d-flex justify-content-between align-items-center">
-										<div
-											className="text-primary"
-											style={{ textDecoration: 'none', cursor: 'pointer' }}
-											onClick={() => handleReadBlog(blog.id)}>
-											Read More
-										</div>
-										{user.role === ('superAdmin' || 'admin') && (
-											<div>
+										{hasPermission(permissions, 'Blogs', 'Read') && (
+											<div
+												className="text-primary"
+												style={{ textDecoration: 'none', cursor: 'pointer' }}
+												onClick={() => handleReadBlog(blog.id)}>
+												Read More
+											</div>)}
+										<div>
+											{hasPermission(permissions, 'Blogs', 'Delete') && (
 												<Button
 													variant="danger"
 													className="btn-sm m-1"
 													onClick={() => handleDeleteBlog(blog.id)}>
 													Delete
 												</Button>
+											)}
+											{hasPermission(permissions, 'Blogs', 'Update') && (
 												<Button
 													variant="primary"
 													className="btn-sm m-1"
 													onClick={() => handleEditBlog(blog.id)}>
 													Edit
 												</Button>
-											</div>
-										)}
+											)}
+										</div>
 									</div>
 								</Card.Body>
 							</Card>

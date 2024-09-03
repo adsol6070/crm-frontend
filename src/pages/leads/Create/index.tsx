@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FormInput, PageBreadcrumb } from '@/components';
 import { Stepper, Step } from 'react-form-stepper';
 import Select from 'react-select';
-import styles from './AddLead.module.css'; // Import CSS module
+import styles from './AddLead.module.css';
 import useCreateLead from './useCreateLeadForm';
 import CountryList from 'react-select-country-list';
 import ReactToPrint from 'react-to-print';
@@ -483,7 +483,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Gender</Form.Label>
                             <Select
-                              styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={genderOptions}
                               getOptionLabel={(e) => e.label}
@@ -498,7 +498,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Nationality</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={nationalityOptions}
                               getOptionLabel={(e) => e.label}
@@ -513,7 +513,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Marital Status</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={maritalStatusOptions}
                               getOptionLabel={(e) => e.label}
@@ -530,7 +530,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Country</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={countries}
                               getOptionLabel={(e) => e.label}
@@ -545,7 +545,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>State</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={states}
                               getOptionLabel={(e) => e.label}
@@ -561,7 +561,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>District</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={districts}
                               getOptionLabel={(e) => e.label}
@@ -577,7 +577,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>City</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={cities}
                               getOptionLabel={(e) => e.label}
@@ -770,7 +770,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Choose Visa Category</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2 z-3"
                               options={visaCategories as any[]}
                               getOptionLabel={(e: any) => e.label}
@@ -785,7 +785,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Country of Interest</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={countryOptions}
                               getOptionLabel={(e) => e.label}
@@ -1020,27 +1020,27 @@ const AddLead = () => {
                             </tr>
                             <tr>
                               <td>Country</td>
-                              <td>{selectedCountry?.label === undefined?"" :capitalizeFirstLetter(String(selectedCountry?.label))}</td>
+                              <td>{selectedCountry?.label === undefined ? "" : capitalizeFirstLetter(String(selectedCountry?.label))}</td>
                             </tr>
                             <tr>
                               <td>State</td>
-                              <td>{selectedState?.label === undefined?"" :capitalizeFirstLetter(String(selectedState?.label))}</td>
+                              <td>{selectedState?.label === undefined ? "" : capitalizeFirstLetter(String(selectedState?.label))}</td>
                             </tr>
                             <tr>
                               <td>District</td>
-                              <td>{selectedDistrict?.value === undefined?"" :capitalizeFirstLetter(String(selectedDistrict?.value))}</td>
+                              <td>{selectedDistrict?.value === undefined ? "" : capitalizeFirstLetter(String(selectedDistrict?.value))}</td>
                             </tr>
                             <tr>
                               <td>City</td>
-                              <td>{selectedCity?.value === undefined?"" :capitalizeFirstLetter(String(selectedCity?.value))}</td>
+                              <td>{selectedCity?.value === undefined ? "" : capitalizeFirstLetter(String(selectedCity?.value))}</td>
                             </tr>
                             <tr>
                               <td>Country of Interest</td>
-                              <td>{selectedCountryOfInterest?.label === undefined?"" :capitalizeFirstLetter(String(selectedCountryOfInterest?.label))}</td>
+                              <td>{selectedCountryOfInterest?.label === undefined ? "" : capitalizeFirstLetter(String(selectedCountryOfInterest?.label))}</td>
                             </tr>
                             <tr>
                               <td>Visa Category</td>
-                              <td>{selectedVisaCategory?.value === undefined?"" :capitalizeFirstLetter(String(selectedVisaCategory?.value))}</td>
+                              <td>{selectedVisaCategory?.value === undefined ? "" : capitalizeFirstLetter(String(selectedVisaCategory?.value))}</td>
                             </tr>
                           </tbody>
                         </Table>

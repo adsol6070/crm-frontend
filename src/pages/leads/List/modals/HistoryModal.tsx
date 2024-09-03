@@ -61,7 +61,7 @@ const HistoryModal: React.FC<HistoryModalProps> = ({ show, onHide, historyData }
                                         <div className={styles.statusProgress}>
                                             <div className={styles.statusCircleWrapper}>
                                                 <div className={`${styles.statusCircle} ${getStatusClass(String(item.details.previousStatus))}`}>
-                                                    {capitalizeFirstLetter(item.details.previousStatus === null ? "No Status" : String(item.details.previousStatus))}
+                                                    {capitalizeFirstLetter(item.details.previousStatus === null ? "New" : String(item.details.previousStatus))}
                                                 </div>
                                                 <div className={styles.statusLine}></div>
                                                 <div className={`${styles.statusCircle} ${getStatusClass(String(item.details.upcomingStatus))}`}>

@@ -45,6 +45,7 @@ const useAddDocumentChecklist = (leadId: string) => {
     const getSingleDocumentUrl = async (filename: string) => {
         try {
             const response = await leadApi.getSingleDocument(leadId, filename);
+            console.log("Response ", response)
             const blob = new Blob([response], { type: 'application/pdf' });
             return URL.createObjectURL(blob);
         } catch (error) {

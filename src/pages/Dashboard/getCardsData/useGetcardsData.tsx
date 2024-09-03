@@ -1,40 +1,51 @@
-import useGetBlogPosts from "@/pages/blogs/List/useBlogList";
-import { useLeadList } from "@/pages/leads/List/useLeadList";
-import { useUserList } from "../../user/List/useUserList";
-import { useResultList } from "../../CalculateCRS/ListResults/useListResults";
+import { useEffect, useState } from "react";
+import { reportsApi } from "@/common";
 
 const useGetCardsData = () => {
-    const { blogPosts } = useGetBlogPosts();
-    const { leadRecords } = useLeadList();
-	const { userRecords } = useUserList();
-	const { resultRecords } = useResultList()
+	const [cardsData, setCardsData] = useState<any>({})
+	const [loading, setLoading] = useState<boolean>(true)
 
-    const data = [{
+	const getCardsData = async () => {
+		try {
+			const response = await reportsApi.getCardsData();
+			setCardsData(response)
+		} catch (error) {
+			console.error('Error fetching cards data', error)
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	useEffect(() => {
+		getCardsData();
+	}, [])
+
+	const data = [{
 		title: 'Total Lead',
-		count: leadRecords.length,
+		count: cardsData.leadsCount,
 		icon: 'ri-team-line',
 		variant: 'text-bg-pink',
 	},
 	{
 		title: 'Total Blogs',
-		count: blogPosts.length,
+		count: cardsData.blogsCount,
 		icon: 'ri-file-list-line',
 		variant: 'text-bg-purple',
 	},
 	{
 		title: 'Total Users',
-		count: userRecords.length,
+		count: cardsData.usersCount,
 		icon: 'ri-user-line',
 		variant: 'text-bg-info',
 	},
 	{
 		title: 'CRS Saved Scores',
-		count: resultRecords.length,
+		count: cardsData.scoresCount,
 		icon: 'ri-calculator-line',
 		variant: 'text-bg-primary',
 	}]
 
-    return { data }
+	return { data, loading }
 };
 
 export default useGetCardsData;

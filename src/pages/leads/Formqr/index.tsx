@@ -23,7 +23,7 @@ const Formqr: React.FC = () => {
                     qrCodeUrl && (
                         <div className={`qr-container ${styles.qrcontainerDesign}`}>
                             <div ref={qrRef} >
-                            <QRCode className="my-2" value={qrCodeUrl} size={256}  level="H" />
+                            <QRCode className="my-2" value={qrCodeUrl} size={256} level="H" />
                             </div>
                             <Button onClick={() => downloadQRCode(qrRef)}>Download QR Code</Button>
                         </div>

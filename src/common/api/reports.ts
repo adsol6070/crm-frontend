@@ -32,6 +32,11 @@ function ReportService() {
 				headers: getAuthHeaders(),
 			})
 		},
+		getCardsData: async () => {
+			return await HttpClient.get('/reports/getCardsData', {
+				headers: getAuthHeaders(),
+			})
+		},
 	}
 }
 
