@@ -24,7 +24,13 @@ const BottomLink = () => {
 	return (
 		<Row>
 			<Col xs={12} className="text-center">
-				<p className="text-dark-emphasis" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+				<p
+					className="text-dark-emphasis"
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+					}}>
 					Already have account?
 					<Button
 						variant="link"
@@ -60,15 +66,21 @@ const Register = () => {
 			phone: yup.string().required('Please enter Phone'),
 			profileImage: yup
 				.mixed()
-				.test('fileSize', 'File size is too large. Maximum size is 2MB.', (value: any) => {
-					if (!value.length) return true;
-					return value[0].size <= 2 * 1024 * 1024; 
-				}),
+				.test(
+					'fileSize',
+					'File size is too large. Maximum size is 2MB.',
+					(value: any) => {
+						if (!value.length) return true
+						return value[0].size <= 2 * 1024 * 1024
+					}
+				),
 		})
 	)
 
 	const onSubmit = (data: UserData) => {
-		const formData = profileImage ? { ...data, profileImage } : {...data, profileImage: null}
+		const formData = profileImage
+			? { ...data, profileImage }
+			: { ...data, profileImage: null }
 		register(formData)
 	}
 

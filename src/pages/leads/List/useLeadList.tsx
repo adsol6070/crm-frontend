@@ -1,8 +1,13 @@
 import { Column } from 'react-table'
 import { PageSize } from '@/components'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { LeadData } from '@/types'
-import { leadApi, useAuthContext, usePermissions, useThemeContext } from '@/common'
+import {
+	leadApi,
+	useAuthContext,
+	usePermissions,
+	useThemeContext,
+} from '@/common'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { Dropdown } from 'react-bootstrap'
@@ -48,7 +53,7 @@ export const useLeadList = (): LeadListHookResult => {
 	const { permissions } = usePermissions()
 	const navigate = useNavigate()
 	const { user } = useAuthContext()
-	const { settings } = useThemeContext();
+	const { settings } = useThemeContext()
 	const [loading, setLoading] = useState(true)
 	const [leadRecords, setLeadRecords] = useState<LeadData[]>([])
 	const [leadStatuses, setLeadStatuses] = useState<{ [key: string]: string }>(
@@ -95,7 +100,7 @@ export const useLeadList = (): LeadListHookResult => {
 			} else if (entry.details.statusUpdatedBy) {
 				action = `Status Updated by ${entry.details.statusUpdatedBy.firstname} ${entry.details.statusUpdatedBy.lastname}`
 			} else if (entry.details) {
-				action = "Created by user"
+				action = 'Created by user'
 			} else {
 				action = entry.action
 			}
@@ -133,88 +138,95 @@ export const useLeadList = (): LeadListHookResult => {
 		}
 	}
 
-	const columns = [
-		{
-			Header: 'S.No',
-			accessor: 'sno',
-			defaultCanSort: true,
-		},
-		{
-			Header: 'ID',
-			accessor: 'id',
-			defaultCanSort: true,
-		},
-		{
-			Header: 'Firstname',
-			accessor: 'firstname',
-			defaultCanSort: true,
-			Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value)
-		},
-		{
-			Header: 'Lastname',
-			accessor: 'lastname',
-			defaultCanSort: false,
-			Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value)
-		},
-		{
-			Header: 'Email',
-			accessor: 'email',
-			defaultCanSort: true,
-		},
-		{
-			Header: 'Phone',
-			accessor: 'phone',
-			defaultCanSort: false,
-		},
-		{
-			Header: 'Visa Category',
-			accessor: 'visaCategory',
-			defaultCanSort: true,
-			Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
-		},
-		{
-			Header: 'Status',
-			accessor: 'status',
-			disableSortBy: true,
-			Cell: ({ cell }: any) => {
-				if (hasPermission(permissions, 'Leads', 'Status')) {
-					return (
-						<Dropdown
-							onSelect={(status: any) =>
-								handleStatus(cell.row.original.id, status)
-							}>
-							<Dropdown.Toggle
-								as="div"
-								className={`badge btn btn-${getStatusBadgeClass(leadStatuses[cell.row.original.id])} ${styles.statusStyling}`}
-								id="dropdown-basic">
+	const columns = useMemo(
+		() => [
+			{
+				Header: 'S.No',
+				accessor: 'sno',
+				defaultCanSort: true,
+			},
+			{
+				Header: 'ID',
+				accessor: 'id',
+				defaultCanSort: true,
+			},
+			{
+				Header: 'Firstname',
+				accessor: 'firstname',
+				defaultCanSort: true,
+				Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
+			},
+			{
+				Header: 'Lastname',
+				accessor: 'lastname',
+				defaultCanSort: false,
+				Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
+			},
+			{
+				Header: 'Email',
+				accessor: 'email',
+				defaultCanSort: true,
+			},
+			{
+				Header: 'Phone',
+				accessor: 'phone',
+				defaultCanSort: false,
+			},
+			{
+				Header: 'Visa Category',
+				accessor: 'visaCategory',
+				defaultCanSort: true,
+				Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
+			},
+			{
+				Header: 'Status',
+				accessor: 'status',
+				disableSortBy: true,
+				Cell: ({ cell }: any) => {
+					if (hasPermission(permissions, 'Leads', 'Status')) {
+						return (
+							<Dropdown
+								onSelect={(status: any) =>
+									handleStatus(cell.row.original.id, status)
+								}>
+								<Dropdown.Toggle
+									as="div"
+									className={`badge btn btn-${getStatusBadgeClass(leadStatuses[cell.row.original.id])} ${styles.statusStyling}`}
+									id="dropdown-basic">
+									<span>
+										{leadStatuses[cell.row.original.id]
+											? capitalizeFirstLetter(
+													leadStatuses[cell.row.original.id]
+												)
+											: 'No Status'}
+									</span>
+								</Dropdown.Toggle>
+								<Dropdown.Menu>
+									<Dropdown.Item eventKey="pending">Pending</Dropdown.Item>
+									<Dropdown.Item eventKey="inprogress">
+										Inprogress
+									</Dropdown.Item>
+									<Dropdown.Item eventKey="completed">Completed</Dropdown.Item>
+								</Dropdown.Menu>
+							</Dropdown>
+						)
+					} else {
+						return (
+							<div
+								className={`badge btn btn-${getStatusBadgeClass(leadStatuses[cell.row.original.id])} ${styles.statusStyling}`}>
 								<span>
 									{leadStatuses[cell.row.original.id]
 										? capitalizeFirstLetter(leadStatuses[cell.row.original.id])
 										: 'No Status'}
 								</span>
-							</Dropdown.Toggle>
-							<Dropdown.Menu>
-								<Dropdown.Item eventKey="pending">Pending</Dropdown.Item>
-								<Dropdown.Item eventKey="inprogress">Inprogress</Dropdown.Item>
-								<Dropdown.Item eventKey="completed">Completed</Dropdown.Item>
-							</Dropdown.Menu>
-						</Dropdown>
-					)
-				} else {
-					return (
-						<div
-							className={`badge btn btn-${getStatusBadgeClass(leadStatuses[cell.row.original.id])} ${styles.statusStyling}`}>
-							<span>
-								{leadStatuses[cell.row.original.id]
-									? capitalizeFirstLetter(leadStatuses[cell.row.original.id])
-									: 'No Status'}
-							</span>
-						</div>
-					)
-				}
+							</div>
+						)
+					}
+				},
 			},
-		},
-	]
+		],
+		[]
+	)
 
 	const actionsColumn = {
 		Header: 'Actions',
@@ -225,7 +237,9 @@ export const useLeadList = (): LeadListHookResult => {
 				<Dropdown.Toggle as="button" className={styles.customActionButton}>
 					<i className={`bi bi-gear ${styles.biGear}`}></i>
 				</Dropdown.Toggle>
-				<Dropdown.Menu className={styles.customMenuStyle} style={actionStyle(settings.theme === "dark")}>
+				<Dropdown.Menu
+					className={styles.customMenuStyle}
+					style={actionStyle(settings.theme === 'dark')}>
 					{hasPermission(permissions, 'Leads', 'AddNotes') && (
 						<Dropdown.Item onClick={() => handleAddNotes(cell.row.original.id)}>
 							Add Notes
@@ -254,11 +268,53 @@ export const useLeadList = (): LeadListHookResult => {
 		),
 	}
 
+	// const insertColumnsBeforeActions = () => {
+	// 	const index = columns.findIndex((column) => column.accessor === 'actions')
+
+	// 	if (index > -1) {
+	// 		if (hasPermission(permissions, 'Leads', 'Assign')) {
+	// 			columns.splice(index, 0, {
+	// 				Header: 'Assign',
+	// 				accessor: 'assign',
+	// 				disableSortBy: true,
+	// 				Cell: ({ cell }: any) => (
+	// 					<button
+	// 						className={`btn btn-sm btn-danger ${styles.assignButton}`}
+	// 						onClick={() => handleAssignButtonClick(cell.row.original.id)}>
+	// 						<i className={`ri-user-add-line ${styles.riUserAddLine}`}></i>{' '}
+	// 						Assign
+	// 					</button>
+	// 				),
+	// 			})
+	// 		}
+
+	// 		if (hasPermission(permissions, 'Leads', 'History')) {
+	// 			columns.splice(index, 0, {
+	// 				Header: 'History',
+	// 				accessor: 'history',
+	// 				disableSortBy: true,
+	// 				Cell: ({ cell }: any) => (
+	// 					<button
+	// 						className={`btn btn-sm btn-info ${styles.historyButton}`}
+	// 						onClick={() => handleHistoryClick(cell.row.original.id)}>
+	// 						<i className={`ri-history-line ${styles.riHistoryLine}`}></i>{' '}
+	// 						History
+	// 					</button>
+	// 				),
+	// 			})
+	// 		}
+	// 	}
+	// }
+
 	const insertColumnsBeforeActions = () => {
 		const index = columns.findIndex((column) => column.accessor === 'actions')
 
 		if (index > -1) {
-			if (hasPermission(permissions, 'Leads', 'Assign')) {
+			// Insert 'assign' column if it doesn't already exist
+			if (
+				hasPermission(permissions, 'Leads', 'Assign') &&
+				!columns.some((col) => col.accessor === 'assign')
+			) {
 				columns.splice(index, 0, {
 					Header: 'Assign',
 					accessor: 'assign',
@@ -274,7 +330,11 @@ export const useLeadList = (): LeadListHookResult => {
 				})
 			}
 
-			if (hasPermission(permissions, 'Leads', 'History')) {
+			// Insert 'history' column if it doesn't already exist
+			if (
+				hasPermission(permissions, 'Leads', 'History') &&
+				!columns.some((col) => col.accessor === 'history')
+			) {
 				columns.splice(index, 0, {
 					Header: 'History',
 					accessor: 'history',
@@ -292,7 +352,10 @@ export const useLeadList = (): LeadListHookResult => {
 		}
 	}
 
-	columns.push(actionsColumn)
+	// columns.push(actionsColumn)
+	if (!columns.some((col) => col.accessor === 'actions')) {
+		columns.push(actionsColumn)
+	}		
 
 	insertColumnsBeforeActions()
 
@@ -360,7 +423,9 @@ export const useLeadList = (): LeadListHookResult => {
 	const handleDelete = async (leadId: string) => {
 		try {
 			await leadApi.delete(leadId)
-			const updatedLeadRecords = leadRecords.filter((lead) => lead.id !== leadId)
+			const updatedLeadRecords = leadRecords.filter(
+				(lead) => lead.id !== leadId
+			)
 			setLeadRecords(updatedLeadRecords)
 			toast.success('Lead deleted successfully.')
 		} catch (error) {
