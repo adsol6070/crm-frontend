@@ -1,4 +1,4 @@
-import { Button, Col, Row } from 'react-bootstrap'
+import { Button, Col, Row, Spinner } from 'react-bootstrap'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
@@ -93,8 +93,14 @@ const Login = () => {
 							className="w-100"
 							type="submit"
 							disabled={loading}>
-							<i className="ri-login-circle-fill me-1" />
-							<span className="fw-bold">Log In</span>
+								{loading ? (
+								<Spinner animation="border" size="sm" />
+							) : (
+								<>
+									<i className="ri-login-circle-fill me-1" />
+									<span className="fw-bold">Log In</span>
+								</>
+							)}
 						</Button>
 					</div>
 				</VerticalForm>

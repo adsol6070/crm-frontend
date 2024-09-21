@@ -2,12 +2,7 @@ import { Column } from 'react-table'
 import { PageSize } from '@/components'
 import React, { useEffect, useMemo, useState } from 'react'
 import { LeadData } from '@/types'
-import {
-	leadApi,
-	useAuthContext,
-	usePermissions,
-	useThemeContext,
-} from '@/common'
+import { leadApi, useAuthContext, usePermissions, useThemeContext } from '@/common'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { Dropdown } from 'react-bootstrap'
@@ -27,7 +22,7 @@ interface HistoryItem {
 }
 
 interface LeadListHookResult {
-	columns: ReadonlyArray<Column<any>>
+	columns: ReadonlyArray<Column>
 	sizePerPageList: PageSize[]
 	leadRecords: LeadData[]
 	loading: boolean
@@ -47,24 +42,29 @@ interface LeadListHookResult {
 	handleCloseAssignModal: () => void
 	selectedAssignees: string[]
 	setSelectedAssignees: React.Dispatch<React.SetStateAction<string[]>>
+	handleDeleteSelected: (formattedData: any[]) => void
+	handleUpdateSelected: (data: any) => void
 }
 
 export const useLeadList = (): LeadListHookResult => {
 	const { permissions } = usePermissions()
 	const navigate = useNavigate()
 	const { user } = useAuthContext()
-	const { settings } = useThemeContext()
+	const { settings } = useThemeContext();
 	const [loading, setLoading] = useState(true)
 	const [leadRecords, setLeadRecords] = useState<LeadData[]>([])
 	const [leadStatuses, setLeadStatuses] = useState<{ [key: string]: string }>(
 		{}
 	)
+
+	console.log("LeadStatuses:", leadStatuses);
 	const [visaCategories, setVisaCategories] = useState<string[]>([])
 	const [showAssignModal, setShowAssignModal] = useState(false)
 	const [selectedLeadId, setSelectedLeadId] = useState<string>('')
 	const [showHistoryModal, setShowHistoryModal] = useState(false)
 	const [historyData, setHistoryData] = useState<HistoryItem[]>([])
 	const [selectedAssignees, setSelectedAssignees] = useState<string[]>([])
+	// console.log("Lead Ids ", lead)
 
 	const handleAssignButtonClick = async (leadId: string) => {
 		setSelectedLeadId(leadId)
@@ -96,8 +96,8 @@ export const useLeadList = (): LeadListHookResult => {
 			if (entry.details.updatedBy) {
 				action = `Updated by ${entry.details.updatedBy.firstname} ${entry.details.updatedBy.lastname}`
 			} else if (entry.details.createdBy) {
-				if (entry.details == '') {
-					action = 'Created By User'
+				if (entry.details == "") {
+					action = "Created By User"
 				}
 				action = `Created by ${entry.details.createdBy.firstname} ${entry.details.createdBy.lastname}`
 			} else if (entry.details.statusUpdatedBy) {
@@ -128,6 +128,8 @@ export const useLeadList = (): LeadListHookResult => {
 
 	const handleAssign = async (leadId: string, assignees: string[]) => {
 		try {
+			console.log(leadId)
+			console.log(assignees)
 			const response = await leadApi.assignLead({
 				lead_id: leadId,
 				user_id: assignees,
@@ -139,96 +141,90 @@ export const useLeadList = (): LeadListHookResult => {
 		}
 	}
 
-	const columns = useMemo(
-		() => [
-			{
-				Header: 'S.No',
-				accessor: 'sno',
-				defaultCanSort: true,
-			},
-			{
-				Header: 'ID',
-				accessor: 'id',
-				defaultCanSort: true,
-			},
-			{
-				Header: 'Firstname',
-				accessor: 'firstname',
-				defaultCanSort: true,
-				Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
-			},
-			{
-				Header: 'Lastname',
-				accessor: 'lastname',
-				defaultCanSort: false,
-				Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
-			},
-			{
-				Header: 'Email',
-				accessor: 'email',
-				defaultCanSort: true,
-			},
-			{
-				Header: 'Phone',
-				accessor: 'phone',
-				defaultCanSort: false,
-			},
-			{
-				Header: 'Visa Category',
-				accessor: 'visaCategory',
-				defaultCanSort: true,
-				Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
-			},
-			{
-				Header: 'Status',
-				accessor: 'status',
-				disableSortBy: true,
-				Cell: ({ cell }: any) => {
-					if (hasPermission(permissions, 'Leads', 'Status')) {
-						return (
-							<Dropdown
-								onSelect={(status: any) =>
-									handleStatus(cell.row.original.id, status)
-								}>
-								<Dropdown.Toggle
-									as="div"
-									className={`badge btn btn-${getStatusBadgeClass(leadStatuses[cell.row.original.id])} ${styles.statusStyling}`}
-									id="dropdown-basic">
-									<span>
-										{leadStatuses[cell.row.original.id]
-											? capitalizeFirstLetter(
-													leadStatuses[cell.row.original.id]
-												)
-											: 'New'}
-									</span>
-								</Dropdown.Toggle>
-								<Dropdown.Menu>
-									<Dropdown.Item eventKey="new">New</Dropdown.Item>
-									<Dropdown.Item eventKey="pending">Pending</Dropdown.Item>
-									<Dropdown.Item eventKey="inprogress">
-										Inprogress
-									</Dropdown.Item>
-									<Dropdown.Item eventKey="completed">Completed</Dropdown.Item>
-								</Dropdown.Menu>
-							</Dropdown>
-						)
-					} else {
-						return (
-							<div
-								className={`badge btn btn-${getStatusBadgeClass(leadStatuses[cell.row.original.id])} ${styles.statusStyling}`}>
+	const columns = useMemo(() => [
+		{
+			Header: 'S.No',
+			accessor: 'sno',
+			defaultCanSort: true,
+		},
+		{
+			Header: 'ID',
+			accessor: 'id',
+			defaultCanSort: true,
+		},
+		{
+			Header: 'Firstname',
+			accessor: 'firstname',
+			defaultCanSort: true,
+			Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value)
+		},
+		{
+			Header: 'Lastname',
+			accessor: 'lastname',
+			defaultCanSort: false,
+			Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value)
+		},
+		{
+			Header: 'Email',
+			accessor: 'email',
+			defaultCanSort: true,
+		},
+		{
+			Header: 'Phone',
+			accessor: 'phone',
+			defaultCanSort: false,
+		},
+		{
+			Header: 'Visa Category',
+			accessor: 'visaCategory',
+			defaultCanSort: true,
+			Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
+		},
+		{
+			Header: 'Status',
+			accessor: 'status',
+			disableSortBy: true,
+			Cell: ({ cell }: any) => {
+				console.log("Cell:", cell.row.original.id);
+				if (hasPermission(permissions, 'Leads', 'Status')) {
+					return (
+						<Dropdown
+							onSelect={(status: any) =>
+								handleStatus(cell.row.original.id, status)
+							}>
+							<Dropdown.Toggle
+								as="div"
+								className={`badge btn btn-${getStatusBadgeClass(leadStatuses[cell.row.original.id])} ${styles.statusStyling}`}
+								id="dropdown-basic">
 								<span>
 									{leadStatuses[cell.row.original.id]
 										? capitalizeFirstLetter(leadStatuses[cell.row.original.id])
 										: 'New'}
 								</span>
-							</div>
-						)
-					}
-				},
+							</Dropdown.Toggle>
+							<Dropdown.Menu>
+								<Dropdown.Item eventKey="new">New</Dropdown.Item>
+								<Dropdown.Item eventKey="pending">Pending</Dropdown.Item>
+								<Dropdown.Item eventKey="inprogress">Inprogress</Dropdown.Item>
+								<Dropdown.Item eventKey="completed">Completed</Dropdown.Item>
+							</Dropdown.Menu>
+						</Dropdown>
+					)
+				} else {
+					return (
+						<div
+							className={`badge btn btn-${getStatusBadgeClass(leadStatuses[cell.row.original.id])} ${styles.statusStyling}`}>
+							<span>
+								{leadStatuses[cell.row.original.id]
+									? capitalizeFirstLetter(leadStatuses[cell.row.original.id])
+									: 'New'}
+							</span>
+						</div>
+					)
+				}
 			},
-		],
-		[leadStatuses]
-	)
+		},
+	], [leadStatuses])
 
 	const actionsColumn = {
 		Header: 'Actions',
@@ -239,9 +235,7 @@ export const useLeadList = (): LeadListHookResult => {
 				<Dropdown.Toggle as="button" className={styles.customActionButton}>
 					<i className={`bi bi-gear ${styles.biGear}`}></i>
 				</Dropdown.Toggle>
-				<Dropdown.Menu
-					className={styles.customMenuStyle}
-					style={actionStyle(settings.theme === 'dark')}>
+				<Dropdown.Menu className={styles.customMenuStyle} style={actionStyle(settings.theme === "dark")}>
 					{hasPermission(permissions, 'Leads', 'AddNotes') && (
 						<Dropdown.Item onClick={() => handleAddNotes(cell.row.original.id)}>
 							Add Notes
@@ -258,8 +252,7 @@ export const useLeadList = (): LeadListHookResult => {
 						</Dropdown.Item>
 					)}
 					{hasPermission(permissions, 'Leads', 'Checklist') && (
-						<Dropdown.Item
-							onClick={() => handleChecklist(cell.row.original.id)}>
+						<Dropdown.Item onClick={() => handleChecklist(cell.row.original.id)}>
 							Checklist
 						</Dropdown.Item>
 					)}
@@ -356,7 +349,7 @@ export const useLeadList = (): LeadListHookResult => {
 			}
 		}
 	}
-
+	
 	// columns.push(actionsColumn)
 	if (!columns.some((col) => col.accessor === 'actions')) {
 		columns.push(actionsColumn)
@@ -364,7 +357,7 @@ export const useLeadList = (): LeadListHookResult => {
 
 	insertColumnsBeforeActions()
 
-	const handleStatusChange = (leadId: string, status: string) => {
+	const handleStatusChange = (leadId: string, status: string)=>{
 		setLeadStatuses((prevStatuses) => ({
 			...prevStatuses,
 			[leadId]: status,
@@ -432,13 +425,39 @@ export const useLeadList = (): LeadListHookResult => {
 	const handleDelete = async (leadId: string) => {
 		try {
 			await leadApi.delete(leadId)
-			const updatedLeadRecords = leadRecords.filter(
-				(lead) => lead.id !== leadId
-			)
+			const updatedLeadRecords = leadRecords.filter((lead) => lead.id !== leadId)
 			setLeadRecords(updatedLeadRecords)
 			toast.success('Lead deleted successfully.')
 		} catch (error) {
 			toast.error('Failed to delete lead.')
+			console.error(error)
+		}
+	}
+
+	const handleDeleteSelected = async (formattedData: any[]) => {
+		try {
+			const data: any = formattedData;
+			await leadApi.deleteSelectedLeads(data)
+			const updatedLeadRecords = leadRecords.filter(lead => !data.leadIds.includes(lead.id));
+			setLeadRecords(updatedLeadRecords);
+			toast.success('Leads deleted successfully.')
+		} catch (error) {
+			toast.error('Failed to delete leads.')
+			console.error(error)
+		}
+	}
+
+	const handleUpdateSelected = async (data: any) => {
+		console.log("Data:", data);
+		try {
+			const updatedData: any = data;
+			await leadApi.updateSelectedLeads(updatedData)
+		
+			window.location.reload();
+	
+			toast.success('Leads Updated Successfully.')
+		} catch (error) {
+			toast.error('Failed to update leads.')
 			console.error(error)
 		}
 	}
@@ -636,5 +655,7 @@ export const useLeadList = (): LeadListHookResult => {
 		handleCloseAssignModal,
 		selectedAssignees,
 		setSelectedAssignees,
+		handleDeleteSelected,
+		handleUpdateSelected,
 	}
 }

@@ -1,15 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PageBreadcrumb, Table, FormInput, VerticalForm } from '@/components';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Row, Col, Card, Button, Spinner } from 'react-bootstrap';
 import { useVisaCategory } from './useVisaCategory';
-import { VisaCategory } from '@/types';
 import { ToastContainer } from 'react-toastify';
 import "react-toastify/ReactToastify.css";
 
 const AddVisaCategory: React.FC = () => {
-    const { columns, loading, visaCategories, sizePerPageList, createCategory, category, handleCategoryChange, dataLoading } = useVisaCategory();
+    const { columns, loading, visaCategories, createCategory, category, handleCategoryChange, dataLoading, handleDeleteSelected } = useVisaCategory();
+
+    const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([])
+    console.log("SelectedIds ", selectedCategoryIds)
+
+    let toggleAllRowsSelected: ((selected: boolean) => void) | undefined;
+
+    const showDeleteSelectedButton = selectedCategoryIds?.length > 0
+
+    const handleDeleteSelectedCategories = () => {
+        handleDeleteSelected(selectedCategoryIds)
+        setSelectedCategoryIds([])
+        toggleAllRowsSelected && toggleAllRowsSelected(false)
+    }
 
     const onSubmit = (data: { category: string }, { reset }: { reset: () => void }) => {
         createCategory(data);
@@ -59,24 +71,40 @@ const AddVisaCategory: React.FC = () => {
                 <Col xs={12}>
                     <Card>
                         <Card.Header>
-                            <h4 className="header-title">Categories List</h4>
+                            <div className="d-flex justify-content-between">
+                                <div className="my-1">
+                                    <h4 className="header-title">Categories List</h4>
+                                </div>
+                                <div>
+                                    {showDeleteSelectedButton && (
+                                        <Button
+                                            variant="danger"
+                                            onClick={handleDeleteSelectedCategories}
+                                            className="mx-2">
+                                            {`Delete ${selectedCategoryIds.length} Selected`}
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
                         </Card.Header>
                         <Card.Body>
                             {dataLoading ? (
-                                <div className="text-center"  style={{height: "500px", display: "flex", alignItems: "center", justifyContent: "center"}}>
+                                <div className="text-center" style={{ height: "500px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                     <Spinner animation="border" role="status">
                                         <span className="visually-hidden">Loading...</span>
                                     </Spinner>
                                 </div>
                             ) : (
-                                <Table<VisaCategory>
+                                <Table
                                     columns={columns}
                                     data={visaCategories}
-                                    pageSize={6}
-                                    sizePerPageList={sizePerPageList}
+                                    pageSize={5}
                                     isSortable={true}
                                     pagination={true}
+                                    isSelectable={true}
                                     isSearchable={true}
+                                    setSelectedUserIds={setSelectedCategoryIds}
+                                    toggleAllRowsSelected={(val) => (toggleAllRowsSelected = val)}
                                 />
                             )}
                         </Card.Body>

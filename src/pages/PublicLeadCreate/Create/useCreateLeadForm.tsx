@@ -7,19 +7,19 @@ import { toast } from 'react-toastify'
 
 export default function useCreateLead() {
 	const query = useQuery();
-    const tenantID = query.get('tenantID');
+	const tenantID = query.get('tenantID');
 	const [loading, setLoading] = useState(false)
-	const { isAuthenticated, user } = useAuthContext()
+	const { isAuthenticated } = useAuthContext()
 	const [visaCategories, setVisaCategories] = useState<VisaCategory[]>([])
 
 	const createLead = async (formData: FormData) => {
 		setLoading(true)
 		try {
 			if (tenantID) {
-                formData.append('tenantID', tenantID);
-            } else {
-                throw new Error("tenantID is missing");
-            }
+				formData.append('tenantID', tenantID);
+			} else {
+				throw new Error("tenantID is missing");
+			}
 			formData.append('userID', "By QR Code")
 			const data = await leadApi.createLead(formData)
 			toast.success(data.message)

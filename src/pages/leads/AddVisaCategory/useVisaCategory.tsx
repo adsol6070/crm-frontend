@@ -1,9 +1,9 @@
-import { useAuthContext } from '@/common';
+import { useAuthContext, visaCategoryApi } from '@/common';
 import visaCategory from '@/common/api/visaCategory';
 import { PageSize } from '@/components';
 import { VisaCategory } from '@/types';
 import { capitalizeFirstLetter } from '@/utils';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { RiDeleteBinLine, RiEdit2Line, RiSaveLine } from 'react-icons/ri';
 import { Column } from 'react-table';
 import { toast } from 'react-toastify';
@@ -17,7 +17,7 @@ export function useVisaCategory() {
     const [category, setCategory] = useState<string>("");
     const [visaCategories, setVisaCategories] = useState<VisaCategory[]>([]);
 
-    const columns: ReadonlyArray<Column> = [
+    const columns: ReadonlyArray<Column<any>> = useMemo(()=>[
         {
             Header: 'S.No',
             accessor: 'sno',
@@ -80,7 +80,7 @@ export function useVisaCategory() {
                 );
             },
         },
-    ];
+    ], []);
 
     const handleDelete = async (categoryID: string) => {
         try {
@@ -198,6 +198,30 @@ export function useVisaCategory() {
         }
     };
 
+    const handleDeleteSelected = async (selectedCategoryIds: any[]) => {
+        try {
+            setLoading(true); 
+            await visaCategoryApi.deleteSelectedVisaCategories({ categoryIds: selectedCategoryIds });
+
+            const updatedVisaCategories = visaCategories.filter(
+                (category) => !selectedCategoryIds.includes(category.id)
+            );
+    
+            const updatedCategoriesWithSno = updatedVisaCategories.map((category, index) => ({
+                ...category,
+                sno: index + 1
+            }));
+
+            setVisaCategories(updatedCategoriesWithSno);
+            toast.success('Categories deleted successfully.')
+        } catch (error) {
+            toast.error('Failed to delete categories.')
+            console.error(error)
+        }finally {
+            setLoading(false); 
+        }
+    }
+
     return {
         visaCategories,
         columns,
@@ -207,5 +231,6 @@ export function useVisaCategory() {
         createCategory,
         handleCategoryChange,
         sizePerPageList,
+        handleDeleteSelected,
     };
 }

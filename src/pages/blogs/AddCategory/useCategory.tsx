@@ -2,7 +2,7 @@ import { categoryApi, useAuthContext } from '@/common';
 import { PageSize } from '@/components'
 import { BlogCategory } from '@/types'
 import { capitalizeFirstLetter } from '@/utils';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { RiDeleteBinLine, RiEdit2Line, RiSaveLine } from 'react-icons/ri';
 import { Column } from 'react-table'
 import { toast } from 'react-toastify';
@@ -15,7 +15,7 @@ export function useCategory() {
     const [category, setCategory] = useState<string>("");
     const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([])
 
-    const columns: ReadonlyArray<Column> = [
+    const columns: ReadonlyArray<Column<any>> = useMemo(()=>[
         {
             Header: 'S.No',
             accessor: 'sno',
@@ -78,7 +78,7 @@ export function useCategory() {
                 );
             },
         },
-    ]
+    ], [])
 
     const handleDelete = async (categoryID: string) => {
         await categoryApi.deleteCategory(categoryID)
@@ -89,8 +89,8 @@ export function useCategory() {
         }));
         setBlogCategories(updatedCategoriesWithSno);
         toast.success("Category Deleted successfully!");
-
     }
+    
     const handleEdit = (categoryID: string, currentCategory: string) => {
         setEditCategoryId(categoryID);
         setEditCategoryValue(currentCategory);

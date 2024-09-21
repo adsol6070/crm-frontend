@@ -7,6 +7,8 @@ import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { FileUploader } from '@/components/FileUploader'
 import { useState } from 'react'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/ReactToastify.css'
 import Select from 'react-select'
 import useCreateBlog from './useCreateBlog'
 import { convertToRaw } from 'draft-js'
@@ -28,7 +30,7 @@ const AddBlog: React.FC = () => {
 	const [editorState, setEditorState] = useState(EditorState.createEmpty())
 	const [resetFileUploader, setResetFileUploader] = useState(0)
 
-	const MAX_FILE_SIZE = 10 * 1024 * 1024; // 4MB
+	const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 	const handleEditorChange = (state: EditorState) => {
 		setEditorState(state)
@@ -47,7 +49,7 @@ const AddBlog: React.FC = () => {
 					title: 'Oops...',
 					text: 'File size exceeds 10MB',
 				});
-				setResetFileUploader(resetFileUploader + 1); // Reset the file uploader
+				setResetFileUploader(resetFileUploader + 1);
 				return;
 			}
 			setBlogImage(file)
@@ -82,6 +84,7 @@ const AddBlog: React.FC = () => {
 
 	return (
 		<>
+		<ToastContainer />
 			<PageBreadcrumb title="Add Blog" subName="Blogs" />
 			<Row>
 				<Col xs={12}>

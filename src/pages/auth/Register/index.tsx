@@ -1,6 +1,6 @@
-import { Button, Col, Row } from 'react-bootstrap'
+import { Button, Col, Row, Spinner } from 'react-bootstrap'
 import AuthLayout from '../AuthLayout'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import useRegister from './useRegister'
@@ -155,7 +155,14 @@ const Register = () => {
 							disabled={loading}
 							className="fw-semibold"
 							type="submit">
-							Sign Up
+							{loading ? (
+								<Spinner animation="border" size="sm" />
+							) : (
+								<>
+									<i className="ri-login-circle-fill me-1" />
+									<span className="fw-bold">Log In</span>
+								</>
+							)}
 						</Button>
 					</div>
 				</VerticalForm>

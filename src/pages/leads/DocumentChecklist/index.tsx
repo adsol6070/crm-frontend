@@ -283,11 +283,12 @@ const AddLeadChecklist: React.FC = () => {
   const handleUpdateDocument = async (data: any) => {
     if (!currentFilename) return;
 
-    const formData = new FormData();
+    const formData = new FormData(); 
     formData.append('tenantID', user.tenantID);
     formData.append('name', data.updateDocumentName);
     formData.append('uploadType', `leadDocuments-${leadId}`);
     formData.append('documents', data.updateDocumentFile);
+
     await updateDocument(formData, currentFilename);
     closeUpdateModal();
     updateReset();

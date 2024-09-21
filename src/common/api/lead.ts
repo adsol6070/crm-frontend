@@ -45,6 +45,16 @@ function LeadService() {
 				headers: getAuthHeaders(),
 			})
 		},
+		deleteSelectedLeads: async (values: any) => {
+			return await HttpClient.post('/lead/deleteSelected', values, {
+				headers: getAuthHeaders(),
+			})
+		},
+		updateSelectedLeads: async (values: any) => {
+			return await HttpClient.patch('/lead/updateSelected', values, {
+				headers: getAuthHeaders(),
+			})
+		},
 		getLeadById: async (leadId: string) => {
 			return await HttpClient.get(`/lead/${leadId}`, {
 				headers: getAuthHeaders(),

@@ -37,13 +37,14 @@ const EditLead: React.FC = () => {
   const [selectedState, setSelectedState] = useState<DropdownOptions | null>(null)
   const [selectedDistrict, setSelectedDistrict] = useState<DropdownOptions | null>(null)
   const [selectedCity, setSelectedCity] = useState<DropdownOptions | null>(null)
+  const [phoneVal, setPhoneVal] = useState<string>("")
 
   const methods = useForm({
     defaultValues: leadData ?? {},
   });
 
   const { register, handleSubmit, setValue, formState: { errors } } = methods;
-  
+
   const getCountryISOCode = (countryName: any) => {
     const country = Country.getAllCountries().find((country) => country.name === countryName);
     return country ? country.isoCode : null;
@@ -124,6 +125,9 @@ const EditLead: React.FC = () => {
           setValue(key as keyof LeadData, leadData[key as keyof LeadData]);
         }
       });
+      if (leadData.phone) {
+        setPhoneVal(leadData.phone)
+      }
 
       if (leadData.gender) {
         setSelectedGender({
@@ -218,7 +222,7 @@ const EditLead: React.FC = () => {
 
   const onSubmit = async (data: any) => {
     const completeData = {
-      ...data, visaCategory: selectedVisaCategory?.value, gender: selectedGender?.value, countryOfInterest: selectedCountryOfInterest?.label, nationality: selectedNationality?.value, country: selectedCountry?.label, state: selectedState?.label, district: selectedDistrict?.value, city: selectedCity?.value
+      ...data, visaCategory: selectedVisaCategory?.value, gender: selectedGender?.value, countryOfInterest: selectedCountryOfInterest?.label, nationality: selectedNationality?.value, country: selectedCountry?.label, state: selectedState?.label, district: selectedDistrict?.value, city: selectedCity?.value, phone: phoneVal
     }
     await editLead(completeData, leadId);
   };
@@ -306,30 +310,40 @@ const EditLead: React.FC = () => {
                         <tr>
                           <td>
                             <Row>
+                            <Col lg={4} md={6} sm={12}>
+                                <Form.Group>
+                                  <Form.Label>Gender</Form.Label>
+                                  <Select
+                                    styles={customStyles(settings.theme === "dark")}
+                                    className="select2"
+                                    options={genderOptions}
+                                    getOptionLabel={(e) => e.label ?? ''}
+                                    getOptionValue={(e) => e.value ?? ''}
+                                    value={selectedGender?.label === "null" ? { value: '', label: 'Select' } : selectedGender}
+                                    onChange={handleSelect2}
+                                    isClearable={true}
+                                  />
+                                </Form.Group>
+                              </Col>
                               <Col lg={4} md={6} sm={12}>
-                                <FormInput
+                                {/* <FormInput
                                   label="Phone"
                                   name="phone"
                                   type="tel"
                                   placeholder="Enter Phone"
                                   register={register}
                                   errors={errors}
+                                /> */}
+                                <FormInput
+                                  label="Phone"
+                                  name="phone"
+                                  type="phone"
+                                  placeholder="9876543210"
+                                  value={phoneVal}
+                                  register={register}
+                                  errors={errors}
+                                  refCallback={(value: string) => setPhoneVal(value)}
                                 />
-                              </Col>
-                              <Col lg={4} md={6} sm={12}>
-                                <Form.Group>
-                                  <Form.Label>Gender</Form.Label>
-                                  <Select
-                                  styles={customStyles(settings.theme === "dark")}
-                                    className="select2"
-                                    options={genderOptions}
-                                    getOptionLabel={(e) => e.label ?? ''}
-                                    getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedGender?.label === "null" ? { value: '', label: 'Select' }: selectedGender}
-                                    onChange={handleSelect2}
-                                    isClearable={true}
-                                  />
-                                </Form.Group>
                               </Col>
                               <Col lg={4} md={6} sm={12}>
                                 <FormInput
@@ -351,12 +365,12 @@ const EditLead: React.FC = () => {
                                 <Form.Group>
                                   <Form.Label>Nationality</Form.Label>
                                   <Select
-                                  styles={customStyles(settings.theme === "dark")}
+                                    styles={customStyles(settings.theme === "dark")}
                                     className="select2"
                                     options={nationalityOptions}
                                     getOptionLabel={(e) => e.label ?? ''}
                                     getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedNationality?.label === "null" ? { value: '', label: 'Select' }: selectedNationality}
+                                    value={selectedNationality?.label === "null" ? { value: '', label: 'Select' } : selectedNationality}
                                     onChange={handleSelect3}
                                     isClearable={true}
                                   />
@@ -428,12 +442,12 @@ const EditLead: React.FC = () => {
                                 <Form.Group>
                                   <Form.Label>Country</Form.Label>
                                   <Select
-                                  styles={customStyles(settings.theme === "dark")}
+                                    styles={customStyles(settings.theme === "dark")}
                                     className="select2"
                                     options={countries}
                                     getOptionLabel={(e) => e.label ?? ''}
                                     getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedCountry?.label === "null" ? { value: '', label: 'Select' }: selectedCountry}
+                                    value={selectedCountry?.label === "null" ? { value: '', label: 'Select' } : selectedCountry}
                                     onChange={handleSelect5}
                                     isClearable={true}
                                   />
@@ -443,12 +457,12 @@ const EditLead: React.FC = () => {
                                 <Form.Group>
                                   <Form.Label>State</Form.Label>
                                   <Select
-                                  styles={customStyles(settings.theme === "dark")}
+                                    styles={customStyles(settings.theme === "dark")}
                                     className="select2"
                                     options={states}
                                     getOptionLabel={(e) => e.label ?? ''}
                                     getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedState?.label === "null" ? { value: '', label: 'Select' }: selectedState}
+                                    value={selectedState?.label === "null" ? { value: '', label: 'Select' } : selectedState}
                                     onChange={handleSelect6}
                                     isClearable={true}
                                   />
@@ -458,12 +472,12 @@ const EditLead: React.FC = () => {
                                 <Form.Group>
                                   <Form.Label>District</Form.Label>
                                   <Select
-                                  styles={customStyles(settings.theme === "dark")}
+                                    styles={customStyles(settings.theme === "dark")}
                                     className="select2"
                                     options={districts}
                                     getOptionLabel={(e) => e.label ?? ''}
                                     getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedDistrict?.label === "null" ? { value: '', label: 'Select' }: selectedDistrict}
+                                    value={selectedDistrict?.label === "null" ? { value: '', label: 'Select' } : selectedDistrict}
                                     onChange={handleSelect7}
                                     isClearable={true}
                                   />
@@ -480,12 +494,12 @@ const EditLead: React.FC = () => {
                                 <Form.Group>
                                   <Form.Label>City</Form.Label>
                                   <Select
-                                  styles={customStyles(settings.theme === "dark")}
+                                    styles={customStyles(settings.theme === "dark")}
                                     className="select2"
                                     options={cities}
                                     getOptionLabel={(e) => e.label ?? ''}
                                     getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedCity?.label === "null" ? { value: '', label: 'Select' }: selectedCity}
+                                    value={selectedCity?.label === "null" ? { value: '', label: 'Select' } : selectedCity}
                                     onChange={handleSelect8}
                                     isClearable={true}
                                   />
@@ -593,12 +607,12 @@ const EditLead: React.FC = () => {
                                 <Form.Group className="mb-3">
                                   <Form.Label>Visa Category</Form.Label>
                                   <Select
-                                  styles={customStyles(settings.theme === "dark")}
+                                    styles={customStyles(settings.theme === "dark")}
                                     className="select2 z-3"
                                     options={visaCategories as any[]}
                                     getOptionLabel={(e: any) => e.label}
                                     getOptionValue={(e: any) => e.value}
-                                    value={selectedVisaCategory?.label === "null" ? { value: '', label: 'Select' }: selectedVisaCategory}
+                                    value={selectedVisaCategory?.label === "null" ? { value: '', label: 'Select' } : selectedVisaCategory}
                                     onChange={handleSelect}
                                     isClearable={true}
                                   />
@@ -608,12 +622,12 @@ const EditLead: React.FC = () => {
                                 <Form.Group>
                                   <Form.Label>Country of Interest</Form.Label>
                                   <Select
-                                  styles={customStyles(settings.theme === "dark")}
+                                    styles={customStyles(settings.theme === "dark")}
                                     className="select2"
                                     options={countryOptions}
                                     getOptionLabel={(e) => e.label ?? ''}
                                     getOptionValue={(e) => e.value ?? ''}
-                                    value={selectedCountryOfInterest?.label === "null" ? { value: '', label: 'Select' }: selectedCountryOfInterest}
+                                    value={selectedCountryOfInterest?.label === "null" ? { value: '', label: 'Select' } : selectedCountryOfInterest}
                                     onChange={handleSelect4}
                                     isClearable={true}
                                   />

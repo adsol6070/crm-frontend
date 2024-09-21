@@ -25,6 +25,7 @@ const CreateUser = () => {
 	const [selectedRole, setSelectedRole] = useState<RoleOptions | null>(null)
 	const [roleOptions, setRoleOptions] = useState([])
 	const { loading, createUser } = useCreateUser()
+	const [userPhone, setUserPhone] = useState<string>("")
 
 	const handleSelect = (option: RoleOptions | null) => {
 		setSelectedRole(option)
@@ -57,18 +58,20 @@ const CreateUser = () => {
 				.required('Please enter Email')
 				.email('Please enter valid Email'),
 			password: yup.string().required('Please enter Password'),
-			phone: yup.string().required('Please enter Phone'),
+			phone: yup.string(),
 			profileImage: yup.mixed(),
 		})
 	)
 	const onSubmit = (data: any, { reset }: any) => {
 		const completeData = {
 			...data,
+			phone: userPhone,
 			role: selectedRole ? selectedRole.value : null,
 			profileImage,
 		}
 		createUser(completeData)
 		reset()
+		setUserPhone("")
 		setSelectedRole(null)
 	}
 	return (
@@ -118,10 +121,12 @@ const CreateUser = () => {
 										/>
 										<FormInput
 											label="Phone"
-											type="tel"
 											name="phone"
-											placeholder="Enter your phone"
+											type="phone"
+											placeholder="9876543210"
+											value={userPhone}
 											containerClass="mb-3"
+											refCallback={(value: string) => setUserPhone(value)}
 										/>
 										<FormInput
 											label="City"
@@ -149,7 +154,7 @@ const CreateUser = () => {
 										<Form.Group className="mb-3">
 											<Form.Label>Role</Form.Label>
 											<Select
-												styles={customStyles(settings.theme === 'dark')}
+												styles={customStyles(settings.theme === "dark")}
 												className="select2 z-3"
 												options={roleOptions as any[]}
 												getOptionLabel={(e: any) => e.label}

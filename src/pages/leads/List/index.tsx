@@ -1,24 +1,23 @@
 import { useState, useMemo } from 'react'
 import { PageBreadcrumb, Table } from '@/components'
-import { Row, Col, Card, Button, Nav, Spinner } from 'react-bootstrap'
+import { Row, Col, Card, Button, Nav, Spinner, Dropdown } from 'react-bootstrap'
 import { useLeadList } from './useLeadList'
-import { LeadData } from '@/types'
-import { ToastContainer } from 'react-toastify'
+import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import BulkLeadModal from './modals/bulkLeadModal'
 import AssignModal from './modals/assignModal'
 import styles from './LeadList.module.css'
 import { useUserList } from '@/pages/user/List/useUserList'
-import HistoryModal from './modals/HistoryModal'
-import { usePermissions, useThemeContext } from '@/common'
+import { leadApi, usePermissions, useThemeContext } from '@/common'
 import { capitalizeFirstLetter, hasPermission, textStyle } from '@/utils'
+import HistoryModal from './modals/HistoryModal'
+import UpdateModal from './modals/updateModal'
 
 const LeadList = () => {
 	const { settings } = useThemeContext()
 	const { permissions } = usePermissions()
 	const {
 		columns,
-		sizePerPageList,
 		leadRecords,
 		refreshLeads,
 		deleteAllLeads,
@@ -35,18 +34,52 @@ const LeadList = () => {
 		setSelectedAssignees,
 		loading,
 	} = useLeadList()
+	const { userRecords } = useUserList()
 
 	const [showModal, setShowModal] = useState(false)
+	const [showUpdateModal, setShowUpdateModal] = useState(false)
 	const [selectedCategory, setSelectedCategory] = useState('All')
-	const { userRecords } = useUserList()
-	const [currentPage, setCurrentPage] = useState(1)
-
 	const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
 
-	console.log('SelectedUserIDs in Lead List page:', selectedUserIds)
+	const canDeleteSelected = hasPermission(
+		permissions,
+		'Leads',
+		'DeleteSelected'
+	)
+	const canUpdateSelected = hasPermission(permissions, 'Leads', 'Edit')
+
+    let toggleAllRowsSelected: ((selected: boolean) => void) | undefined;
+
+	const showSelectedActions = selectedUserIds?.length > 0
+
+	const handleDeleteSelected = async (selectedUserIds: any[]) => {
+		try {
+			await leadApi.deleteSelectedLeads({ leadIds: selectedUserIds })
+			toast.success('Leads deleted successfully.')
+            refreshLeads()
+			setSelectedUserIds([])
+			toggleAllRowsSelected && toggleAllRowsSelected(false)
+		} catch (error) {
+			toast.error('Failed to delete leads.')
+			console.error(error)
+		}
+	}
+
+	const handleDeleteSelectedLeads = () => {
+		handleDeleteSelected(selectedUserIds)
+	}
+
+	const handleUpdateSelected = async (data: any) => {
+		await leadApi.updateSelectedLeads(data)
+		setSelectedUserIds([])
+		refreshLeads()
+		toggleAllRowsSelected && toggleAllRowsSelected(false)
+	}
 
 	const handleShow = () => setShowModal(true)
 	const handleClose = () => setShowModal(false)
+	const handleOpenUpdateModal = () => setShowUpdateModal(true)
+	const handleCloseUpdateModal = () => setShowUpdateModal(false)
 
 	const downloadCSVTemplate = () => {
 		const link = document.createElement('a')
@@ -59,7 +92,6 @@ const LeadList = () => {
 
 	const handleSelectCategory = (category: any) => {
 		setSelectedCategory(category)
-		setCurrentPage(1)
 	}
 
 	const filteredLeads = useMemo(() => {
@@ -67,6 +99,10 @@ const LeadList = () => {
 			? leadRecords
 			: leadRecords.filter((lead) => lead.visaCategory === selectedCategory)
 	}, [selectedCategory, leadRecords])
+
+	const selectedLeads = filteredLeads.filter((user) =>
+		selectedUserIds.includes(user.id)
+	)
 
 	return (
 		<>
@@ -142,13 +178,32 @@ const LeadList = () => {
 										</Nav.Item>
 									))}
 								</Nav>
-								{hasPermission(permissions, 'Leads', 'DeleteAll') && (
-									<button
-										className={`${styles.deleteAllLeads}`}
-										onClick={deleteAllLeads}>
-										Delete All Leads
-									</button>
-								)}
+								<div className="d-flex justify-content-between">
+									{showSelectedActions && (
+										<Dropdown className='mx-2'>
+											<Dropdown.Toggle variant="success" id="dropdown-actions">
+												Actions for {selectedUserIds.length} Selected
+											</Dropdown.Toggle>
+											<Dropdown.Menu>
+												{canUpdateSelected && (
+													<Dropdown.Item onClick={handleOpenUpdateModal}>
+														Update Selected
+													</Dropdown.Item>
+												)}
+												{canDeleteSelected && (
+													<Dropdown.Item onClick={handleDeleteSelectedLeads}>
+														Delete Selected
+													</Dropdown.Item>
+												)}
+											</Dropdown.Menu>
+										</Dropdown>
+									)}
+									{hasPermission(permissions, 'Leads', 'DeleteAll') && (
+										<Button variant="danger" onClick={deleteAllLeads}>
+											Delete All Leads
+										</Button>
+									)}
+								</div>
 							</div>
 							{loading ? (
 								<div
@@ -164,16 +219,16 @@ const LeadList = () => {
 									</Spinner>
 								</div>
 							) : (
-								<Table<LeadData>
+								<Table
 									columns={columns}
 									data={filteredLeads}
 									pageSize={5}
-									sizePerPageList={sizePerPageList}
 									isSortable={true}
 									pagination={true}
-									isSearchable={true}
 									isSelectable={true}
+									isSearchable={true}
 									setSelectedUserIds={setSelectedUserIds}
+									toggleAllRowsSelected={(val) => (toggleAllRowsSelected = val)}
 								/>
 							)}
 						</Card.Body>
@@ -198,6 +253,13 @@ const LeadList = () => {
 				show={showHistoryModal}
 				onHide={() => setShowHistoryModal(false)}
 				historyData={historyData}
+			/>
+			<UpdateModal
+				show={showUpdateModal}
+				handleClose={handleCloseUpdateModal}
+				selectedLeads={selectedLeads}
+				handleUpdateSelected={handleUpdateSelected}
+				selectedUserIds={selectedUserIds}
 			/>
 		</>
 	)

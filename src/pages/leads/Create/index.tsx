@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FormInput, PageBreadcrumb } from '@/components';
 import { Stepper, Step } from 'react-form-stepper';
 import Select from 'react-select';
-import styles from './AddLead.module.css'; // Import CSS module
+import styles from './AddLead.module.css';
 import useCreateLead from './useCreateLeadForm';
 import CountryList from 'react-select-country-list';
 import ReactToPrint from 'react-to-print';
@@ -29,7 +29,7 @@ const defaultGender = { value: 'male', label: 'Male' };
 const defaultNationality = { value: 'indian', label: 'Indian' };
 const defaultCountryOfInterest = { value: 'IN', label: 'India' };
 const defaultVisaCategory = { value: 'tourist visa', label: 'Tourist Visa' };
-const defaultMaritalStatus = { value: 'unmarried', label: 'Unmarried' };
+const defaultMaritalStatus = { value: 'single', label: 'Single' };
 
 const fieldOrder = [
   'firstname', 'lastname', 'email', 'phone', 'gender', 'dob', 'nationality',
@@ -60,7 +60,7 @@ const stepSchemas = [
       firstname: yup.string().required('Please enter your First Name').trim(),
       lastname: yup.string().required('Please enter your Last Name').trim(),
       email: yup.string().required('Please enter your Email').email('Please enter a valid Email'),
-      phone: yup.string().required('Please enter your Phone Number').matches(/^[0-9]{10}$/, 'Phone number must be exactly 10 digits').trim(),
+      phone: yup.string().required('Please enter your Phone Number'),
       dob: yup.string().required('Please select your Date of Birth'),
       maritalStatus: yup.string(),
       pincode: yup.string().nullable().matches(/(^$)|^[0-9]{6}$/, 'Pincode must be exactly 6 digits').trim(),
@@ -123,6 +123,7 @@ const AddLead = () => {
   const [selectedDistrict, setSelectedDistrict] = useState<DropdownOptions | null>(null);
   const [selectedCity, setSelectedCity] = useState<DropdownOptions | null>(null);
   const [selectedMaritalStatus, setSelectedMaritalStatus] = useState<DropdownOptions | null>(defaultMaritalStatus);
+  const [phoneValue, setPhoneValue] = useState<string>("");
 
   const today = new Date();
   const maxPassportExpiryDate = new Date(today.getFullYear() + 20, today.getMonth(), today.getDate());
@@ -345,6 +346,7 @@ const AddLead = () => {
     formData.append('nationality', nationality);
     formData.append('countryOfInterest', countryOfInterest);
     formData.append('maritalStatus', maritalStatus);
+    formData.append('phone', phoneValue);
 
     Object.keys(finalData).forEach(key => {
       if (finalData[key] instanceof FileList && finalData[key].length > 0) {
@@ -366,6 +368,7 @@ const AddLead = () => {
       setSelectedDistrict(null);
       setSelectedCity(null);
       setSelectedCountryOfInterest(null);
+      setPhoneValue("")
       setCollectedData({});
       setStep(1);
       sessionStorage.removeItem('currentStep');
@@ -460,10 +463,12 @@ const AddLead = () => {
                           <FormInput
                             label="Phone"
                             name="phone"
-                            type="tel"
+                            type="phone"
                             placeholder="9876543210"
+                            value={phoneValue}
                             register={register}
                             errors={errors}
+                            refCallback={(value: string) => setPhoneValue(value)}
                           />
                         </Col>
                         <Col md={4}>
@@ -483,7 +488,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Gender</Form.Label>
                             <Select
-                              styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={genderOptions}
                               getOptionLabel={(e) => e.label}
@@ -498,7 +503,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Nationality</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={nationalityOptions}
                               getOptionLabel={(e) => e.label}
@@ -513,7 +518,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Marital Status</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={maritalStatusOptions}
                               getOptionLabel={(e) => e.label}
@@ -530,7 +535,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Country</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={countries}
                               getOptionLabel={(e) => e.label}
@@ -545,7 +550,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>State</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={states}
                               getOptionLabel={(e) => e.label}
@@ -561,7 +566,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>District</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={districts}
                               getOptionLabel={(e) => e.label}
@@ -577,7 +582,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>City</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={cities}
                               getOptionLabel={(e) => e.label}
@@ -770,7 +775,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Choose Visa Category</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2 z-3"
                               options={visaCategories as any[]}
                               getOptionLabel={(e: any) => e.label}
@@ -785,7 +790,7 @@ const AddLead = () => {
                           <Form.Group>
                             <Form.Label>Country of Interest</Form.Label>
                             <Select
-                            styles={customStyles(settings.theme === "dark")} 
+                              styles={customStyles(settings.theme === "dark")}
                               className="select2"
                               options={countryOptions}
                               getOptionLabel={(e) => e.label}
@@ -1011,6 +1016,10 @@ const AddLead = () => {
                               </tr>
                             ))}
                             <tr>
+                              <td>Phone</td>
+                              <td>{phoneValue}</td>
+                            </tr>
+                            <tr>
                               <td>Gender</td>
                               <td>{capitalizeFirstLetter(String(selectedGender?.value))}</td>
                             </tr>
@@ -1020,27 +1029,27 @@ const AddLead = () => {
                             </tr>
                             <tr>
                               <td>Country</td>
-                              <td>{selectedCountry?.label === undefined?"" :capitalizeFirstLetter(String(selectedCountry?.label))}</td>
+                              <td>{selectedCountry?.label === undefined ? "" : capitalizeFirstLetter(String(selectedCountry?.label))}</td>
                             </tr>
                             <tr>
                               <td>State</td>
-                              <td>{selectedState?.label === undefined?"" :capitalizeFirstLetter(String(selectedState?.label))}</td>
+                              <td>{selectedState?.label === undefined ? "" : capitalizeFirstLetter(String(selectedState?.label))}</td>
                             </tr>
                             <tr>
                               <td>District</td>
-                              <td>{selectedDistrict?.value === undefined?"" :capitalizeFirstLetter(String(selectedDistrict?.value))}</td>
+                              <td>{selectedDistrict?.value === undefined ? "" : capitalizeFirstLetter(String(selectedDistrict?.value))}</td>
                             </tr>
                             <tr>
                               <td>City</td>
-                              <td>{selectedCity?.value === undefined?"" :capitalizeFirstLetter(String(selectedCity?.value))}</td>
+                              <td>{selectedCity?.value === undefined ? "" : capitalizeFirstLetter(String(selectedCity?.value))}</td>
                             </tr>
                             <tr>
                               <td>Country of Interest</td>
-                              <td>{selectedCountryOfInterest?.label === undefined?"" :capitalizeFirstLetter(String(selectedCountryOfInterest?.label))}</td>
+                              <td>{selectedCountryOfInterest?.label === undefined ? "" : capitalizeFirstLetter(String(selectedCountryOfInterest?.label))}</td>
                             </tr>
                             <tr>
                               <td>Visa Category</td>
-                              <td>{selectedVisaCategory?.value === undefined?"" :capitalizeFirstLetter(String(selectedVisaCategory?.value))}</td>
+                              <td>{selectedVisaCategory?.value === undefined ? "" : capitalizeFirstLetter(String(selectedVisaCategory?.value))}</td>
                             </tr>
                           </tbody>
                         </Table>
