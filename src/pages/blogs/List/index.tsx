@@ -1,9 +1,9 @@
 import { PageBreadcrumb } from '@/components'
-import { Row, Col, Card, Button, Spinner } from 'react-bootstrap'
+import { Row, Col, Card, Button } from 'react-bootstrap'
 import useGetBlogPosts from './useBlogList'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
-import { useAuthContext, usePermissions } from '@/common/context'
+import { usePermissions } from '@/common/context'
 import { capitalizeFirstLetter, hasPermission } from '@/utils'
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -16,7 +16,6 @@ const BlogList = () => {
 		handleDeleteBlog,
 		handleEditBlog,
 	} = useGetBlogPosts()
-	const { user } = useAuthContext()
 	const { permissions } = usePermissions();
 	const renderHTML = (htmlString: string) => ({ __html: htmlString })
 

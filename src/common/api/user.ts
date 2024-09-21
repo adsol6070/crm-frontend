@@ -56,6 +56,11 @@ function UserService() {
 				headers: getAuthHeaders(),
 			})
 		},
+		deleteSelectedUsers: async (values: any) => {
+			return await HttpClient.post('/users/deleteSelected', values, {
+				headers: getAuthHeaders(),
+			})
+		},
 	}
 }
 

@@ -33,8 +33,8 @@ interface PermissionsModalProps {
 const initialPermissions: Permissions = {
 	Blogs: { Create: false, Read: false, Update: false, Delete: false },
 	BlogCategory: { Create: false },
-	Users: { Create: false, Read: false, Update: false, Delete: false },
-	Scores: { Create: false, Read: false, Delete: false, DeleteAll: false },
+	Users: { Create: false, Read: false, Update: false, Delete: false, DeleteSelected: false },
+	Scores: { Create: false, Read: false, Delete: false, DeleteAll: false, DeleteSelected: false  },
 	Leads: {
 		ReadQR: false,
 		Create: false,
@@ -50,6 +50,7 @@ const initialPermissions: Permissions = {
 		Edit: false,
 		Delete: false,
 		DeleteAll: false,
+		DeleteSelected: false,
 		ImportBulk: false,
 		DownloadCSV: false,
 		DownloadCSVFormat: false,

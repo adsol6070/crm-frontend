@@ -29,7 +29,7 @@ const defaultGender = { value: 'male', label: 'Male' };
 const defaultNationality = { value: 'indian', label: 'Indian' };
 const defaultCountryOfInterest = { value: 'IN', label: 'India' };
 const defaultVisaCategory = { value: 'tourist visa', label: 'Tourist Visa' };
-const defaultMaritalStatus = { value: 'unmarried', label: 'Unmarried' };
+const defaultMaritalStatus = { value: 'single', label: 'Single' };
 
 const fieldOrder = [
   'firstname', 'lastname', 'email', 'phone', 'gender', 'dob', 'nationality',
@@ -60,7 +60,7 @@ const stepSchemas = [
       firstname: yup.string().required('Please enter your First Name').trim(),
       lastname: yup.string().required('Please enter your Last Name').trim(),
       email: yup.string().required('Please enter your Email').email('Please enter a valid Email'),
-      phone: yup.string().required('Please enter your Phone Number').matches(/^[0-9]{10}$/, 'Phone number must be exactly 10 digits').trim(),
+      phone: yup.string().required('Please enter your Phone Number'),
       dob: yup.string().required('Please select your Date of Birth'),
       maritalStatus: yup.string(),
       pincode: yup.string().nullable().matches(/(^$)|^[0-9]{6}$/, 'Pincode must be exactly 6 digits').trim(),
@@ -123,6 +123,7 @@ const AddLead = () => {
   const [selectedDistrict, setSelectedDistrict] = useState<DropdownOptions | null>(null);
   const [selectedCity, setSelectedCity] = useState<DropdownOptions | null>(null);
   const [selectedMaritalStatus, setSelectedMaritalStatus] = useState<DropdownOptions | null>(defaultMaritalStatus);
+  const [phoneValue, setPhoneValue] = useState<string>("");
 
   const today = new Date();
   const maxPassportExpiryDate = new Date(today.getFullYear() + 20, today.getMonth(), today.getDate());
@@ -345,6 +346,7 @@ const AddLead = () => {
     formData.append('nationality', nationality);
     formData.append('countryOfInterest', countryOfInterest);
     formData.append('maritalStatus', maritalStatus);
+    formData.append('phone', phoneValue);
 
     Object.keys(finalData).forEach(key => {
       if (finalData[key] instanceof FileList && finalData[key].length > 0) {
@@ -366,6 +368,7 @@ const AddLead = () => {
       setSelectedDistrict(null);
       setSelectedCity(null);
       setSelectedCountryOfInterest(null);
+      setPhoneValue("")
       setCollectedData({});
       setStep(1);
       sessionStorage.removeItem('currentStep');
@@ -460,10 +463,12 @@ const AddLead = () => {
                           <FormInput
                             label="Phone"
                             name="phone"
-                            type="tel"
+                            type="phone"
                             placeholder="9876543210"
+                            value={phoneValue}
                             register={register}
                             errors={errors}
+                            refCallback={(value: string) => setPhoneValue(value)}
                           />
                         </Col>
                         <Col md={4}>
@@ -1010,6 +1015,10 @@ const AddLead = () => {
                                 <td>{String(collectedData[key])}</td>
                               </tr>
                             ))}
+                            <tr>
+                              <td>Phone</td>
+                              <td>{phoneValue}</td>
+                            </tr>
                             <tr>
                               <td>Gender</td>
                               <td>{capitalizeFirstLetter(String(selectedGender?.value))}</td>

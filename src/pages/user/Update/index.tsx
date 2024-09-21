@@ -35,6 +35,8 @@ const EditUser: React.FC = () => {
   const [roleOptions, setRoleOptions] = useState([]);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const { userData, loading, error, editUser } = useEditUser(userId);
+  const [editUserPhone, setEditUserPhone] = useState<string>("")
+
   const {
     register,
     handleSubmit,
@@ -60,6 +62,7 @@ const EditUser: React.FC = () => {
       Object.keys(userData).forEach((key) => {
         setValue(key as keyof User, userData[key as keyof User]);
       });
+      setEditUserPhone(userData.phone)
       setSelectedRole(userData.role);
     }
   }, [userData, setValue]);
@@ -73,6 +76,7 @@ const EditUser: React.FC = () => {
   const onSubmit = async (data: User) => {
     let formData = new FormData();
     formData.append('uploadType', "User");
+
     Object.keys(data).forEach((key) => {
       if (key === 'password' && data[key] === '') {
         return;
@@ -85,6 +89,7 @@ const EditUser: React.FC = () => {
     if (newImage) {
       formData.append('profileImage', newImage);
     }
+    formData.append('phone', editUserPhone);
     await editUser(formData);
   };
 
@@ -158,12 +163,14 @@ const EditUser: React.FC = () => {
                       containerClass="mb-3"
                     />
                     <FormInput
-                      label="Phone"
-                      name="phone"
-                      register={register}
-                      errors={errors}
+											label="Phone"
+											name="phone"
+											type="phone"
+											placeholder="9876543210"
+											value={editUserPhone}
                       containerClass="mb-3"
-                    />
+											refCallback={(value: string) => setEditUserPhone(value)}
+										/>
                     <FormInput
                       label="Password"
                       type="password"

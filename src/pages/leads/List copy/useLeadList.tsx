@@ -1,13 +1,8 @@
 import { Column } from 'react-table'
 import { PageSize } from '@/components'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { LeadData } from '@/types'
-import {
-	leadApi,
-	useAuthContext,
-	usePermissions,
-	useThemeContext,
-} from '@/common'
+import { leadApi, useAuthContext, usePermissions, useThemeContext } from '@/common'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { Dropdown } from 'react-bootstrap'
@@ -27,7 +22,7 @@ interface HistoryItem {
 }
 
 interface LeadListHookResult {
-	columns: ReadonlyArray<Column<any>>
+	columns: ReadonlyArray<Column>
 	sizePerPageList: PageSize[]
 	leadRecords: LeadData[]
 	loading: boolean
@@ -47,18 +42,23 @@ interface LeadListHookResult {
 	handleCloseAssignModal: () => void
 	selectedAssignees: string[]
 	setSelectedAssignees: React.Dispatch<React.SetStateAction<string[]>>
+	handleDeleteSelected: (formattedData: any[]) => void
+	handleUpdateSelected: (data: any) => void
 }
 
 export const useLeadList = (): LeadListHookResult => {
 	const { permissions } = usePermissions()
 	const navigate = useNavigate()
 	const { user } = useAuthContext()
-	const { settings } = useThemeContext()
+	const { settings } = useThemeContext();
 	const [loading, setLoading] = useState(true)
 	const [leadRecords, setLeadRecords] = useState<LeadData[]>([])
 	const [leadStatuses, setLeadStatuses] = useState<{ [key: string]: string }>(
 		{}
 	)
+
+	console.log("LeadStatuses:", leadStatuses);
+
 	const [visaCategories, setVisaCategories] = useState<string[]>([])
 	const [showAssignModal, setShowAssignModal] = useState(false)
 	const [selectedLeadId, setSelectedLeadId] = useState<string>('')
@@ -96,8 +96,8 @@ export const useLeadList = (): LeadListHookResult => {
 			if (entry.details.updatedBy) {
 				action = `Updated by ${entry.details.updatedBy.firstname} ${entry.details.updatedBy.lastname}`
 			} else if (entry.details.createdBy) {
-				if (entry.details == '') {
-					action = 'Created By User'
+				if (entry.details == "") {
+					action = "Created By User"
 				}
 				action = `Created by ${entry.details.createdBy.firstname} ${entry.details.createdBy.lastname}`
 			} else if (entry.details.statusUpdatedBy) {
@@ -139,230 +139,8 @@ export const useLeadList = (): LeadListHookResult => {
 		}
 	}
 
-	const columns = useMemo(
-		() => [
-			{
-				Header: 'S.No',
-				accessor: 'sno',
-				defaultCanSort: true,
-			},
-			{
-				Header: 'ID',
-				accessor: 'id',
-				defaultCanSort: true,
-			},
-			{
-				Header: 'Firstname',
-				accessor: 'firstname',
-				defaultCanSort: true,
-				Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
-			},
-			{
-				Header: 'Lastname',
-				accessor: 'lastname',
-				defaultCanSort: false,
-				Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
-			},
-			{
-				Header: 'Email',
-				accessor: 'email',
-				defaultCanSort: true,
-			},
-			{
-				Header: 'Phone',
-				accessor: 'phone',
-				defaultCanSort: false,
-			},
-			{
-				Header: 'Visa Category',
-				accessor: 'visaCategory',
-				defaultCanSort: true,
-				Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
-			},
-			{
-				Header: 'Status',
-				accessor: 'status',
-				disableSortBy: true,
-				Cell: ({ cell }: any) => {
-					if (hasPermission(permissions, 'Leads', 'Status')) {
-						return (
-							<Dropdown
-								onSelect={(status: any) =>
-									handleStatus(cell.row.original.id, status)
-								}>
-								<Dropdown.Toggle
-									as="div"
-									className={`badge btn btn-${getStatusBadgeClass(leadStatuses[cell.row.original.id])} ${styles.statusStyling}`}
-									id="dropdown-basic">
-									<span>
-										{leadStatuses[cell.row.original.id]
-											? capitalizeFirstLetter(
-													leadStatuses[cell.row.original.id]
-												)
-											: 'New'}
-									</span>
-								</Dropdown.Toggle>
-								<Dropdown.Menu>
-									<Dropdown.Item eventKey="new">New</Dropdown.Item>
-									<Dropdown.Item eventKey="pending">Pending</Dropdown.Item>
-									<Dropdown.Item eventKey="inprogress">
-										Inprogress
-									</Dropdown.Item>
-									<Dropdown.Item eventKey="completed">Completed</Dropdown.Item>
-								</Dropdown.Menu>
-							</Dropdown>
-						)
-					} else {
-						return (
-							<div
-								className={`badge btn btn-${getStatusBadgeClass(leadStatuses[cell.row.original.id])} ${styles.statusStyling}`}>
-								<span>
-									{leadStatuses[cell.row.original.id]
-										? capitalizeFirstLetter(leadStatuses[cell.row.original.id])
-										: 'New'}
-								</span>
-							</div>
-						)
-					}
-				},
-			},
-		],
-		[leadStatuses]
-	)
 
-	const actionsColumn = {
-		Header: 'Actions',
-		accessor: 'actions',
-		disableSortBy: true,
-		Cell: ({ cell }: any) => (
-			<Dropdown className={styles.dropdownStyling}>
-				<Dropdown.Toggle as="button" className={styles.customActionButton}>
-					<i className={`bi bi-gear ${styles.biGear}`}></i>
-				</Dropdown.Toggle>
-				<Dropdown.Menu
-					className={styles.customMenuStyle}
-					style={actionStyle(settings.theme === 'dark')}>
-					{hasPermission(permissions, 'Leads', 'AddNotes') && (
-						<Dropdown.Item onClick={() => handleAddNotes(cell.row.original.id)}>
-							Add Notes
-						</Dropdown.Item>
-					)}
-					{hasPermission(permissions, 'Leads', 'View') && (
-						<Dropdown.Item onClick={() => handleView(cell.row.original.id)}>
-							View
-						</Dropdown.Item>
-					)}
-					{hasPermission(permissions, 'Leads', 'Edit') && (
-						<Dropdown.Item onClick={() => handleEdit(cell.row.original.id)}>
-							Edit
-						</Dropdown.Item>
-					)}
-					{hasPermission(permissions, 'Leads', 'Checklist') && (
-						<Dropdown.Item
-							onClick={() => handleChecklist(cell.row.original.id)}>
-							Checklist
-						</Dropdown.Item>
-					)}
-					{hasPermission(permissions, 'Leads', 'Delete') && (
-						<Dropdown.Item onClick={() => handleDelete(cell.row.original.id)}>
-							Delete
-						</Dropdown.Item>
-					)}
-				</Dropdown.Menu>
-			</Dropdown>
-		),
-	}
 
-	// const insertColumnsBeforeActions = () => {
-	// 	const index = columns.findIndex((column) => column.accessor === 'actions')
-
-	// 	if (index > -1) {
-	// 		if (hasPermission(permissions, 'Leads', 'Assign')) {
-	// 			columns.splice(index, 0, {
-	// 				Header: 'Assign',
-	// 				accessor: 'assign',
-	// 				disableSortBy: true,
-	// 				Cell: ({ cell }: any) => (
-	// 					<button
-	// 						className={`btn btn-sm btn-danger ${styles.assignButton}`}
-	// 						onClick={() => handleAssignButtonClick(cell.row.original.id)}>
-	// 						<i className={`ri-user-add-line ${styles.riUserAddLine}`}></i>{' '}
-	// 						Assign
-	// 					</button>
-	// 				),
-	// 			})
-	// 		}
-
-	// 		if (hasPermission(permissions, 'Leads', 'History')) {
-	// 			columns.splice(index, 0, {
-	// 				Header: 'History',
-	// 				accessor: 'history',
-	// 				disableSortBy: true,
-	// 				Cell: ({ cell }: any) => (
-	// 					<button
-	// 						className={`btn btn-sm btn-info ${styles.historyButton}`}
-	// 						onClick={() => handleHistoryClick(cell.row.original.id)}>
-	// 						<i className={`ri-history-line ${styles.riHistoryLine}`}></i>{' '}
-	// 						History
-	// 					</button>
-	// 				),
-	// 			})
-	// 		}
-	// 	}
-	// }
-
-	const insertColumnsBeforeActions = () => {
-		const index = columns.findIndex((column) => column.accessor === 'actions')
-
-		if (index > -1) {
-			// Insert 'assign' column if it doesn't already exist
-			if (
-				hasPermission(permissions, 'Leads', 'Assign') &&
-				!columns.some((col) => col.accessor === 'assign')
-			) {
-				columns.splice(index, 0, {
-					Header: 'Assign',
-					accessor: 'assign',
-					disableSortBy: true,
-					Cell: ({ cell }: any) => (
-						<button
-							className={`btn btn-sm btn-danger ${styles.assignButton}`}
-							onClick={() => handleAssignButtonClick(cell.row.original.id)}>
-							<i className={`ri-user-add-line ${styles.riUserAddLine}`}></i>{' '}
-							Assign
-						</button>
-					),
-				})
-			}
-
-			// Insert 'history' column if it doesn't already exist
-			if (
-				hasPermission(permissions, 'Leads', 'History') &&
-				!columns.some((col) => col.accessor === 'history')
-			) {
-				columns.splice(index, 0, {
-					Header: 'History',
-					accessor: 'history',
-					disableSortBy: true,
-					Cell: ({ cell }: any) => (
-						<button
-							className={`btn btn-sm btn-info ${styles.historyButton}`}
-							onClick={() => handleHistoryClick(cell.row.original.id)}>
-							<i className={`ri-history-line ${styles.riHistoryLine}`}></i>{' '}
-							History
-						</button>
-					),
-				})
-			}
-		}
-	}
-
-	// columns.push(actionsColumn)
-	if (!columns.some((col) => col.accessor === 'actions')) {
-		columns.push(actionsColumn)
-	}
-
-	insertColumnsBeforeActions()
 
 	const handleStatusChange = (leadId: string, status: string) => {
 		setLeadStatuses((prevStatuses) => ({
@@ -432,9 +210,7 @@ export const useLeadList = (): LeadListHookResult => {
 	const handleDelete = async (leadId: string) => {
 		try {
 			await leadApi.delete(leadId)
-			const updatedLeadRecords = leadRecords.filter(
-				(lead) => lead.id !== leadId
-			)
+			const updatedLeadRecords = leadRecords.filter((lead) => lead.id !== leadId)
 			setLeadRecords(updatedLeadRecords)
 			toast.success('Lead deleted successfully.')
 		} catch (error) {
@@ -442,6 +218,41 @@ export const useLeadList = (): LeadListHookResult => {
 			console.error(error)
 		}
 	}
+
+	const handleDeleteSelected = async (formattedData: any[]) => {
+		try {
+			const data: any = formattedData;
+			await leadApi.deleteSelectedLeads(data)
+			const updatedLeadRecords = leadRecords.filter(lead => !data.leadIds.includes(lead.id));
+			setLeadRecords(updatedLeadRecords);
+			toast.success('Leads deleted successfully.')
+		} catch (error) {
+			toast.error('Failed to delete leads.')
+			console.error(error)
+		}
+	}
+
+	const handleUpdateSelected = useCallback(async (data: any) => {
+		console.log("Data:", data);
+		const transformedObject = data.leadIds.reduce((acc, leadId) => {
+			acc[leadId] = data.leadStatus;
+			return acc;
+		}, {});
+		try {
+			const updatedData: any = data;
+			await leadApi.updateSelectedLeads(updatedData)
+			setLeadStatuses((prevLeadStatuses) => ({
+				...prevLeadStatuses,
+				...transformedObject
+			}));
+
+
+			toast.success('Leads Updated Successfully.')
+		} catch (error) {
+			toast.error('Failed to update leads.')
+			console.error(error)
+		}
+	}, [])
 
 	const deleteAllLeads = async () => {
 		if (leadRecords.length === 0) {
@@ -473,6 +284,175 @@ export const useLeadList = (): LeadListHookResult => {
 			}
 		})
 	}
+
+	const columns = [
+		{
+			Header: 'S.No',
+			accessor: 'sno',
+			defaultCanSort: true,
+		},
+		{
+			Header: 'ID',
+			accessor: 'id',
+			defaultCanSort: true,
+		},
+		{
+			Header: 'Firstname',
+			accessor: 'firstname',
+			defaultCanSort: true,
+			Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value)
+		},
+		{
+			Header: 'Lastname',
+			accessor: 'lastname',
+			defaultCanSort: false,
+			Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value)
+		},
+		{
+			Header: 'Email',
+			accessor: 'email',
+			defaultCanSort: true,
+		},
+		{
+			Header: 'Phone',
+			accessor: 'phone',
+			defaultCanSort: false,
+		},
+		{
+			Header: 'Visa Category',
+			accessor: 'visaCategory',
+			defaultCanSort: true,
+			Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
+		},
+		{
+			Header: 'Status',
+			accessor: 'status',
+			disableSortBy: true,
+			Cell: ({ cell }: any) => {
+				if (hasPermission(permissions, 'Leads', 'Status')) {
+					console.log("Get called...1");
+					console.log("IDDDDD:", cell.row.original.id);
+					console.log("leadStatuses:", leadStatuses);
+					return (
+						<Dropdown
+							onSelect={(status: any) =>
+								handleStatus(cell.row.original.id, status)
+							}>
+							<Dropdown.Toggle
+								as="div"
+								className={`badge btn btn-${getStatusBadgeClass(leadStatuses[cell.row.original.id])} ${styles.statusStyling}`}
+								id="dropdown-basic">
+								<span>
+									{leadStatuses[cell.row.original.id]
+										? capitalizeFirstLetter(leadStatuses[cell.row.original.id])
+										: 'New'}
+								</span>
+							</Dropdown.Toggle>
+							<Dropdown.Menu>
+								<Dropdown.Item eventKey="new">New</Dropdown.Item>
+								<Dropdown.Item eventKey="pending">Pending</Dropdown.Item>
+								<Dropdown.Item eventKey="inprogress">Inprogress</Dropdown.Item>
+								<Dropdown.Item eventKey="completed">Completed</Dropdown.Item>
+							</Dropdown.Menu>
+						</Dropdown>
+					)
+				} else {
+					return (
+						<div
+							className={`badge btn btn-${getStatusBadgeClass(leadStatuses[cell.row.original.id])} ${styles.statusStyling}`}>
+							<span>
+								{leadStatuses[cell.row.original.id]
+									? capitalizeFirstLetter(leadStatuses[cell.row.original.id])
+									: 'New'}
+							</span>
+						</div>
+					)
+				}
+			},
+		},
+	]
+
+	const actionsColumn = {
+		Header: 'Actions',
+		accessor: 'actions',
+		disableSortBy: true,
+		Cell: ({ cell }: any) => (
+			<Dropdown className={styles.dropdownStyling}>
+				<Dropdown.Toggle as="button" className={styles.customActionButton}>
+					<i className={`bi bi-gear ${styles.biGear}`}></i>
+				</Dropdown.Toggle>
+				<Dropdown.Menu className={styles.customMenuStyle} style={actionStyle(settings.theme === "dark")}>
+					{hasPermission(permissions, 'Leads', 'AddNotes') && (
+						<Dropdown.Item onClick={() => handleAddNotes(cell.row.original.id)}>
+							Add Notes
+						</Dropdown.Item>
+					)}
+					{hasPermission(permissions, 'Leads', 'View') && (
+						<Dropdown.Item onClick={() => handleView(cell.row.original.id)}>
+							View
+						</Dropdown.Item>
+					)}
+					{hasPermission(permissions, 'Leads', 'Edit') && (
+						<Dropdown.Item onClick={() => handleEdit(cell.row.original.id)}>
+							Edit
+						</Dropdown.Item>
+					)}
+					{hasPermission(permissions, 'Leads', 'Checklist') && (
+						<Dropdown.Item onClick={() => handleChecklist(cell.row.original.id)}>
+							Checklist
+						</Dropdown.Item>
+					)}
+					{hasPermission(permissions, 'Leads', 'Delete') && (
+						<Dropdown.Item onClick={() => handleDelete(cell.row.original.id)}>
+							Delete
+						</Dropdown.Item>
+					)}
+				</Dropdown.Menu>
+			</Dropdown>
+		),
+	}
+
+	const insertColumnsBeforeActions = () => {
+		const index = columns.findIndex((column) => column.accessor === 'actions')
+
+		if (index > -1) {
+			if (hasPermission(permissions, 'Leads', 'Assign')) {
+				columns.splice(index, 0, {
+					Header: 'Assign',
+					accessor: 'assign',
+					disableSortBy: true,
+					Cell: ({ cell }: any) => (
+						<button
+							className={`btn btn-sm btn-danger ${styles.assignButton}`}
+							onClick={() => handleAssignButtonClick(cell.row.original.id)}>
+							<i className={`ri-user-add-line ${styles.riUserAddLine}`}></i>{' '}
+							Assign
+						</button>
+					),
+				})
+			}
+
+			if (hasPermission(permissions, 'Leads', 'History')) {
+				columns.splice(index, 0, {
+					Header: 'History',
+					accessor: 'history',
+					disableSortBy: true,
+					Cell: ({ cell }: any) => (
+						<button
+							className={`btn btn-sm btn-info ${styles.historyButton}`}
+							onClick={() => handleHistoryClick(cell.row.original.id)}>
+							<i className={`ri-history-line ${styles.riHistoryLine}`}></i>{' '}
+							History
+						</button>
+					),
+				})
+			}
+		}
+	}
+
+	columns.push(actionsColumn)
+
+	insertColumnsBeforeActions()
 
 	const sizePerPageList: PageSize[] = [
 		{
@@ -636,5 +616,7 @@ export const useLeadList = (): LeadListHookResult => {
 		handleCloseAssignModal,
 		selectedAssignees,
 		setSelectedAssignees,
+		handleDeleteSelected,
+		handleUpdateSelected,
 	}
 }

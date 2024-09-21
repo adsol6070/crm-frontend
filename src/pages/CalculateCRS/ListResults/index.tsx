@@ -1,18 +1,46 @@
 import { PageBreadcrumb, Table } from '@/components';
 import { Row, Col, Card, Spinner, Modal, Button } from 'react-bootstrap';
 import { useResultList } from './useListResults';
-import { Result } from '@/types';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/ReactToastify.css';
 import styles from "./listResults.module.css";
-import { useAuthContext, usePermissions, useThemeContext } from '@/common';
+import { scoreApi, useAuthContext, usePermissions, useThemeContext } from '@/common';
 import { backgroundStyle, hasPermission } from '@/utils';
+import { useState } from 'react';
 
 const ListResults: React.FC = () => {
     const { permissions } = usePermissions();
     const { user } = useAuthContext();
     const { settings } = useThemeContext();
-    const { columns, sizePerPageList, resultRecords, deleteAllResults, loading, selectedResult, setSelectedResult } = useResultList();
+    const { columns, resultRecords, deleteAllResults, loading, selectedResult, setSelectedResult } = useResultList();
+    const [selectedScoresIds, setSelectedScoresIds] = useState<string[]>([])
+    console.log("SelectedIds ", selectedScoresIds)
+
+    let toggleAllRowsSelected: (() => void) | undefined
+
+    const showDeleteSelectedButton = selectedScoresIds?.length > 0
+
+    const canDeleteSelected = hasPermission(
+		permissions,
+		'Scores',
+		'DeleteSelected'
+	)
+
+    const handleDeleteSelected = async (selectedScoresIds: any[]) => {
+        try {
+            await scoreApi.deleteSelectedScores({ scoreIds: selectedScoresIds })
+            toast.success('Scores deleted successfully.')
+            setSelectedScoresIds([])
+            toggleAllRowsSelected && toggleAllRowsSelected(false)
+        } catch (error) {
+            toast.error('Failed to delete scores.')
+            console.error(error)
+        }
+    }
+
+    const handleDeleteSelectedScores = () => {
+        handleDeleteSelected(selectedScoresIds)
+    }
 
     const handleDeleteAll = () => {
         deleteAllResults(user.tenantID);
@@ -30,12 +58,24 @@ const ListResults: React.FC = () => {
                                 <div>
                                     <h4 className="header-title">Saved CRS Score</h4>
                                 </div>
-                                <div>
-                                    {hasPermission(permissions, 'Scores', 'DeleteAll') && (
-                                        <button className="btn btn-danger" onClick={handleDeleteAll}>
-                                            Delete All Results
-                                        </button>
-                                    )}
+                                <div className="d-flex justify-content-between">
+                                    <div>
+                                        {showDeleteSelectedButton && canDeleteSelected &&(
+                                            <Button
+                                                variant="danger"
+                                                onClick={handleDeleteSelectedScores}
+                                                className="mx-2">
+                                                {`Delete ${selectedScoresIds.length} Selected`}
+                                            </Button>
+                                        )}
+                                    </div>
+                                    <div>
+                                        {hasPermission(permissions, 'Scores', 'DeleteAll') && (
+                                            <button className="btn btn-danger" onClick={handleDeleteAll}>
+                                                Delete All Results
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </Card.Header>
@@ -47,14 +87,16 @@ const ListResults: React.FC = () => {
                                     </Spinner>
                                 </div>
                             ) : (
-                                <Table<Result>
+                                <Table
                                     columns={columns}
                                     data={resultRecords}
                                     pageSize={5}
-                                    sizePerPageList={sizePerPageList}
                                     isSortable={true}
                                     pagination={true}
+                                    isSelectable={true}
                                     isSearchable={true}
+                                    setSelectedUserIds={setSelectedScoresIds}
+                                    toggleAllRowsSelected={(val) => (toggleAllRowsSelected = val)}
                                 />
                             )}
                         </Card.Body>

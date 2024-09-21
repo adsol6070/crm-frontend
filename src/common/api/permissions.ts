@@ -54,6 +54,12 @@ function PermissionsService() {
 				headers: getAuthHeaders(),
 			})
 		},
+
+		deleteSelectedRoles: async (values: any) => {
+			return await HttpClient.post('/permissions/deleteSelected', values, {
+				headers: getAuthHeaders(),
+			})
+		},
 	}
 }
 

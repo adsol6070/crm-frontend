@@ -82,3 +82,10 @@ export const backgroundStyle = (isDarkMode: any) =>( {
 export const textStyle = (isDarkMode: any) =>( {
     color:  isDarkMode ? '#fff' : '#000',
 });
+
+export const phoneStyle = (isDarkMode: any) =>( {
+    backgroundColor: isDarkMode ? '#313a46' : '#fff',
+    color: isDarkMode ? '#aab8c5' : '#000',
+    borderColor: isDarkMode ? '#464f5b' : '#ccc',
+    width: '100%'
+});

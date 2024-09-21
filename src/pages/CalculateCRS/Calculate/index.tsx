@@ -83,7 +83,7 @@ const canadianDegreeOptions: OptionType[] = [
 
 const schema = yup.object().shape({
     name: yup.string().required('Please enter your name').trim(),
-    phone: yup.string().required('Please enter your phone number').matches(/^\d{10}$/, 'Phone number is not valid').trim(),
+    phone: yup.string(),
     email: yup.string().required('Please enter your email').email('Email is not valid').trim(),
     age: yup.number().required('Please enter your age').min(18, 'Minimum age is 18').max(47, 'Maximum age is 47'),
     education: yup.string().required('Please select your education level'),
@@ -132,6 +132,7 @@ const CRScalculator: React.FC = () => {
     const [showModal, setShowModal] = useState(false);
     const { settings } = useThemeContext();
     const [userData, setUserData] = useState<FormValues | null>(null);
+    const [phoneValue, setPhoneValue] = useState<string>("");
     const [userScore, setUserScore] = useState(0);
     const maxScore = 1200;
     const { user } = useAuthContext();
@@ -185,7 +186,7 @@ const CRScalculator: React.FC = () => {
         if (foreignExperience === '5_or_more') score += 50;
         else if (foreignExperience === '3_to_4') score += 40;
         else if (foreignExperience === '1_to_2') score += 25;
-        
+
         if (canadianExperience === '5_or_more') score += 80;
         else if (canadianExperience === '3_to_4') score += 72;
         else if (canadianExperience === '1_to_2') score += 64;
@@ -238,6 +239,7 @@ const CRScalculator: React.FC = () => {
         if (userData) {
             const dataToSave = {
                 ...userData,
+                phone: phoneValue,
                 tenantID: user.tenantID,
                 score: userScore,
             };
@@ -288,10 +290,12 @@ const CRScalculator: React.FC = () => {
                                             <FormInput
                                                 label="Phone"
                                                 name="phone"
-                                                type="tel"
-                                                placeholder="Enter your phone number"
+                                                type="phone"
+                                                placeholder="9876543210"
+                                                value={phoneValue}
                                                 register={methods.register}
                                                 errors={errors}
+                                                refCallback={(value: string) => setPhoneValue(value)}
                                             />
                                         </Col>
                                         <Col md={6}>
@@ -607,7 +611,7 @@ const CRScalculator: React.FC = () => {
                     {userData && (
                         <div>
                             <p><strong>Name:</strong> {userData.name}</p>
-                            <p><strong>Phone:</strong> {userData.phone}</p>
+                            <p><strong>Phone:</strong> {phoneValue}</p>
                             <p><strong>Email:</strong> {userData.email}</p>
                             <p><strong>Age:</strong> {userData.age}</p>
                             <p><strong>Education:</strong> {userData.education}</p>

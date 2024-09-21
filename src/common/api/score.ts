@@ -38,9 +38,16 @@ function ScoreService() {
 		deleteResultById: (scoreId: string) => {
 			return HttpClient.delete(`/CRSScore/${scoreId}`, { headers: getAuthHeaders() })
 		},
+
 		deleteAllResult: (userId: string) => {
 			return HttpClient.delete(`/CRSScore/deleteAll/${userId}`, { headers: getAuthHeaders() })
-		}
+		},
+
+		deleteSelectedScores: async (values: any) => {
+			return await HttpClient.post('/CRSScore/deleteSelected', values, {
+				headers: getAuthHeaders(),
+			})
+		},
 	}
 }
 

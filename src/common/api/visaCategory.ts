@@ -19,38 +19,38 @@ const getAuthHeaders = (isMultipart: boolean = false) => {
 
 function VisaCategoryService() {
 	return {
-		// Create a new blog post
 		createVisaCategory: (categoryData: any) => {
 			return HttpClient.post('/lead/visaCategory', categoryData, { headers: getAuthHeaders() })
 		},
 
-		// Retrieve all blog posts
 		getAllVisaCategory: (tenantID: any) => {
 			return HttpClient.post('/lead/getVisaCategory', tenantID)
 		},
 
-		// Retrieve all blog posts
 		getAllCategory: () => {
 			return HttpClient.get('/lead/visaCategory', { headers: getAuthHeaders() })
 		},
 
-		// Retrieve a single blog Category post by ID
 		getCategoryById: (visaCategoryId: string) => {
 			return HttpClient.get(`/lead/visaCategory/${visaCategoryId}`, {
 				headers: getAuthHeaders(),
 			})
 		},
 
-		// Update an existing blog post
 		updateCategory: (visaCategoryId: any, updatedVisaCategory: any) => {
 			return HttpClient.patch(`/lead/visaCategory/${visaCategoryId}`, updatedVisaCategory, {
 				headers: getAuthHeaders(),
 			})
 		},
 
-		// Delete a blog post by ID
 		deleteCategory: (visaCategoryId: string) => {
 			return HttpClient.delete(`/lead/visaCategory/${visaCategoryId}`, { headers: getAuthHeaders() })
+		},
+
+		deleteSelectedVisaCategories: async (values: any) => {
+			return await HttpClient.post('/lead/deleteSelected', values, {
+				headers: getAuthHeaders(),
+			})
 		},
 	}
 }
