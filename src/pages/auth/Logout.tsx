@@ -7,7 +7,7 @@ import AuthLayout from './AuthLayout'
 // images
 import shield from '@/assets/images/svg/shield.gif'
 
-// components
+
 import { PageBreadcrumb } from '@/components'
 
 const Logout = () => {
@@ -22,7 +22,7 @@ const Logout = () => {
 				console.error('Failed to logout:', error)
 			}
 		}
-		
+
 		performLogout()
 	}, [])
 
@@ -34,7 +34,13 @@ const Logout = () => {
 		return (
 			<Row>
 				<Col xs={12} className="text-center">
-					<p className="text-dark-emphasis" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+					<p
+						className="text-dark-emphasis"
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+						}}>
 						Back To
 						<Button
 							variant="link"

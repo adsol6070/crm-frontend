@@ -19,7 +19,13 @@ const BottomLinks = () => {
 	return (
 		<Row>
 			<Col xs={12} className="text-center">
-				<p className="text-dark-emphasis" style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+				<p
+					className="text-dark-emphasis"
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+					}}>
 					Don't have an account?
 					<Button
 						variant="link"
@@ -49,7 +55,7 @@ const Login = () => {
 
 	return (
 		<>
-		<ToastContainer />
+			<ToastContainer />
 			<PageBreadcrumb title="Log In" />
 
 			{isAuthenticated && <Navigate to={redirectUrl} replace />}

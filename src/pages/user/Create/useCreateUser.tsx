@@ -28,7 +28,7 @@ export default function useCreateUser() {
 		const userData = data;
 		setLoading(true)
 		try {
-			const formData = new FormData()
+			const formData = new FormData()	
 			formData.append('tenantID', user.tenantID)
 			formData.append('firstname', userData.firstname)
 			formData.append('lastname', userData.lastname)

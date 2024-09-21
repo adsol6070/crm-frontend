@@ -20,7 +20,7 @@ const toTitleCase = (str: string) => {
 }
 
 const CreateUser = () => {
-	const { settings } = useThemeContext();
+	const { settings } = useThemeContext()
 	const [profileImage, setProfileImage] = useState<File | null>(null)
 	const [selectedRole, setSelectedRole] = useState<RoleOptions | null>(null)
 	const [roleOptions, setRoleOptions] = useState([])

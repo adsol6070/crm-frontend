@@ -20,7 +20,7 @@ export default function useRegister() {
 	const { isAuthenticated } = useAuthContext()
 
 	const register = async (data: RegisterData) => {
-		const userData = data;
+		const userData = data
 		setLoading(true)
 		try {
 			const formData = new FormData()
@@ -34,11 +34,15 @@ export default function useRegister() {
 			formData.append('uploadType', 'User')
 
 			if (userData.profileImage) {
-				formData.append('profileImage', userData.profileImage, userData.profileImage.name)
+				formData.append(
+					'profileImage',
+					userData.profileImage,
+					userData.profileImage.name
+				)
 			}
 
 			const data = await authApi.register(formData)
-			
+
 			if (data?.user?.tenantID) {
 				Swal.fire({
 					icon: 'success',
