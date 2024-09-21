@@ -51,7 +51,7 @@ function LeadService() {
 			})
 		},
 		updateSelectedLeads: async (values: any) => {
-			return await HttpClient.post('/lead/updateSelected', values, {
+			return await HttpClient.patch('/lead/updateSelected', values, {
 				headers: getAuthHeaders(),
 			})
 		},

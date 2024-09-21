@@ -48,7 +48,7 @@ function VisaCategoryService() {
 		},
 
 		deleteSelectedVisaCategories: async (values: any) => {
-			return await HttpClient.post('/lead/deleteSelected', values, {
+			return await HttpClient.post('/lead/deleteSelectedCategories', values, {
 				headers: getAuthHeaders(),
 			})
 		},

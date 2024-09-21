@@ -44,7 +44,7 @@ function CategoryService() {
 		},
 
 		deleteSelectedBlogCategories: async (values: any) => {
-			return await HttpClient.post('/blog/deleteSelected', values, {
+			return await HttpClient.post('/blog/deleteSelectedBlogCategories', values, {
 				headers: getAuthHeaders(),
 			})
 		},

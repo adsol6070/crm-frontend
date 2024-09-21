@@ -96,6 +96,31 @@ export function useCategory() {
         setEditCategoryValue(currentCategory);
     };
 
+    
+    const handleDeleteSelected = async (selectedCategoryIds: any[]) => {
+        try {
+            setLoading(true); 
+            await categoryApi.deleteSelectedBlogCategories({ categoryIds: selectedCategoryIds });
+
+            const updatedVisaCategories = blogCategories.filter(
+                (category) => !selectedCategoryIds.includes(category.id)
+            );
+    
+            const updatedCategoriesWithSno = updatedVisaCategories.map((category, index) => ({
+                ...category,
+                sno: index + 1
+            }));
+
+            setBlogCategories(updatedCategoriesWithSno);
+            toast.success('Categories deleted successfully.')
+        } catch (error) {
+            toast.error('Failed to delete categories.')
+            console.error(error)
+        }finally {
+            setLoading(false); 
+        }
+    }
+
     const handleSave = async (categoryID: string) => {
         if (!editCategoryValue.trim()) {
             toast.error("Please enter a category name.");
@@ -189,6 +214,7 @@ export function useCategory() {
         category,
         createCategory,
         handleCategoryChange,
-        sizePerPageList
+        sizePerPageList,
+        handleDeleteSelected
     }
 }

@@ -4,33 +4,22 @@ import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Row, Col, Card, Button } from 'react-bootstrap'
 import { useCategory } from './useCategory'
-import { toast, ToastContainer } from 'react-toastify'
+import { ToastContainer } from 'react-toastify'
 import "react-toastify/ReactToastify.css";
-import { blogApi, categoryApi } from '@/common'
 
 const AddCategory: React.FC = () => {
-	const { columns, loading, blogCategories, createCategory } = useCategory();
+	const { columns, loading, blogCategories, createCategory, handleDeleteSelected } = useCategory();
 	const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([])
 	console.log("SelectedIds ", selectedCategoryIds)
 
-	let toggleAllRowsSelected: (() => void) | undefined
+    let toggleAllRowsSelected: ((selected: boolean) => void) | undefined;
 
 	const showDeleteSelectedButton = selectedCategoryIds?.length > 0
 
-	const handleDeleteSelected = async (selectedCategoryIds: any[]) => {
-		try {
-			await categoryApi.deleteSelectedBlogCategories({ categoryIds: selectedCategoryIds })
-			toast.success('Categories deleted successfully.')
-			setSelectedCategoryIds([])
-			toggleAllRowsSelected && toggleAllRowsSelected(false)
-		} catch (error) {
-			toast.error('Failed to delete categories.')
-			console.error(error)
-		}
-	}
-
 	const handleDeleteSelectedCategories = () => {
 		handleDeleteSelected(selectedCategoryIds)
+		setSelectedCategoryIds([])
+		toggleAllRowsSelected && toggleAllRowsSelected(false)
 	}
 
 	const onSubmit = (data: { category: string }, { reset }: { reset: () => void }) => {
