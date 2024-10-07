@@ -14,6 +14,7 @@ import CountryList from 'react-select-country-list';
 import ReactToPrint from 'react-to-print';
 import { Country, State, City } from 'country-state-city';
 import { capitalizeFirstLetter, nationalityOptions, genderOptions, maritalStatusOptions } from '@/utils';
+import { formatStringDisplayName } from '@/utils/formatString';
 
 interface CollectedData {
   [key: string]: any;
@@ -1035,7 +1036,7 @@ const CreateLeadForm = () => {
                               </tr>
                               <tr>
                                 <td>Visa Category</td>
-                                <td>{selectedVisaCategory?.value === undefined ? "" : capitalizeFirstLetter(String(selectedVisaCategory?.value))}</td>
+                                <td>{selectedVisaCategory?.value === undefined ? "" : formatStringDisplayName(String(selectedVisaCategory?.value))}</td>
                               </tr>
                             </tbody>
                           </Table>

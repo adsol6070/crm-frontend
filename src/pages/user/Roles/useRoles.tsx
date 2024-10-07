@@ -79,9 +79,20 @@ export const useRoles = () => {
 		}
 	}
 
+	const deleteSelectedPermission = async (selectedRoleIds: any[]) => {
+		try {
+			await permissionService.deleteSelectedRoles({ roleIds: selectedRoleIds })
+			toast.success('Permissions successfully deleted.')
+			fetchPermissions()
+		} catch (error) {
+			toast.error('Failed to delete permissions.')
+			console.error('Failed to delete permissions:', error)
+		}
+	}
+
 	useEffect(() => {
 		fetchPermissions()
 	}, [])
 
-	return { columns, permissionsData, fetchPermissions, deletePermission, loading }
+	return { columns, permissionsData, fetchPermissions, deletePermission, deleteSelectedPermission, loading }
 }

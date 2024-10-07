@@ -12,11 +12,10 @@ const ListResults: React.FC = () => {
     const { permissions } = usePermissions();
     const { user } = useAuthContext();
     const { settings } = useThemeContext();
-    const { columns, resultRecords, deleteAllResults, loading, selectedResult, setSelectedResult } = useResultList();
+    const { columns, resultRecords, deleteAllResults, loading, selectedResult, setSelectedResult, handleDeleteSelected } = useResultList();
     const [selectedScoresIds, setSelectedScoresIds] = useState<string[]>([])
-    console.log("SelectedIds ", selectedScoresIds)
 
-    let toggleAllRowsSelected: (() => void) | undefined
+    let toggleAllRowsSelected: ((selected: boolean) => void) | undefined
 
     const showDeleteSelectedButton = selectedScoresIds?.length > 0
 
@@ -26,20 +25,10 @@ const ListResults: React.FC = () => {
 		'DeleteSelected'
 	)
 
-    const handleDeleteSelected = async (selectedScoresIds: any[]) => {
-        try {
-            await scoreApi.deleteSelectedScores({ scoreIds: selectedScoresIds })
-            toast.success('Scores deleted successfully.')
-            setSelectedScoresIds([])
-            toggleAllRowsSelected && toggleAllRowsSelected(false)
-        } catch (error) {
-            toast.error('Failed to delete scores.')
-            console.error(error)
-        }
-    }
-
     const handleDeleteSelectedScores = () => {
         handleDeleteSelected(selectedScoresIds)
+        setSelectedScoresIds([])
+        toggleAllRowsSelected && toggleAllRowsSelected(false)
     }
 
     const handleDeleteAll = () => {

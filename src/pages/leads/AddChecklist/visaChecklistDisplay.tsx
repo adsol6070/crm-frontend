@@ -8,6 +8,7 @@ import { capitalizeFirstLetterOfEachWord, hasPermission } from '@/utils';
 import { usePermissions } from '@/common';
 import { FaClock } from 'react-icons/fa';
 import { RiDeleteBinLine, RiEdit2Line, RiSaveLine, RiCloseLine } from 'react-icons/ri';
+import { formatStringDisplayName } from '@/utils/formatString';
 
 interface VisaChecklistDisplayProps {
     id: string;
@@ -81,7 +82,7 @@ const VisaChecklistDisplay: React.FC<VisaChecklistDisplayProps> = ({ id, deleteC
         <Card className={styles.card}>
             <Card.Header>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <h5>{capitalizeFirstLetterOfEachWord(visaType)} Checklist</h5>
+                    <h5>{formatStringDisplayName(visaType)} Checklist</h5>
                     {hasPermission(permissions, 'Checklists', 'DeleteChecklist') && (
                         <Button variant="danger" onClick={() => handleDeleteChecklist(id)}>
                             Delete Checklist

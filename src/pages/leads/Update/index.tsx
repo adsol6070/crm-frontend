@@ -13,6 +13,7 @@ import { Country, State, City } from 'country-state-city';
 import { LeadData } from '@/types';
 import { capitalizeFirstLetter, nationalityOptions, genderOptions, customStyles } from '@/utils'
 import { useThemeContext } from '@/common';
+import { formatStringDisplayName } from '@/utils/formatString';
 
 interface DropdownOptions {
   value?: string
@@ -179,7 +180,7 @@ const EditLead: React.FC = () => {
 
       if (leadData.visaCategory) {
         setSelectedVisaCategory({
-          label: capitalizeFirstLetter(leadData.visaCategory),
+          label: formatStringDisplayName(leadData.visaCategory),
           value: leadData.visaCategory,
         })
       }
@@ -326,14 +327,6 @@ const EditLead: React.FC = () => {
                                 </Form.Group>
                               </Col>
                               <Col lg={4} md={6} sm={12}>
-                                {/* <FormInput
-                                  label="Phone"
-                                  name="phone"
-                                  type="tel"
-                                  placeholder="Enter Phone"
-                                  register={register}
-                                  errors={errors}
-                                /> */}
                                 <FormInput
                                   label="Phone"
                                   name="phone"

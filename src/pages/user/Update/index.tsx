@@ -62,8 +62,12 @@ const EditUser: React.FC = () => {
       Object.keys(userData).forEach((key) => {
         setValue(key as keyof User, userData[key as keyof User]);
       });
-      setEditUserPhone(userData.phone)
-      setSelectedRole(userData.role);
+      if(userData.phone){
+        setEditUserPhone(userData.phone)
+      }
+      if(userData.role){
+        setSelectedRole(userData.role);
+      }
     }
   }, [userData, setValue]);
 
@@ -74,22 +78,24 @@ const EditUser: React.FC = () => {
   };
 
   const onSubmit = async (data: User) => {
+    console.log(data)
     let formData = new FormData();
     formData.append('uploadType', "User");
-
     Object.keys(data).forEach((key) => {
       if (key === 'password' && data[key] === '') {
         return;
       }
-      if (key !== 'profileImage') {
+      if (key !== 'profileImage' && key !== 'phone') {
         formData.append(key as keyof User, data[key as keyof User] as any);
+      }
+      if (key === 'phone') {
+        formData.append('phone', editUserPhone);
       }
     });
 
     if (newImage) {
       formData.append('profileImage', newImage);
     }
-    formData.append('phone', editUserPhone);
     await editUser(formData);
   };
 

@@ -9,6 +9,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { PageBreadcrumb } from '@/components';
 import styles from './ReadLead.module.css';
+import { formatStringDisplayName } from '@/utils/formatString';
 
 interface LeadData {
     [key: string]: any;
@@ -74,6 +75,9 @@ const ReadLead: React.FC = () => {
             if (key === 'dob' || key === 'passportExpiry' || key === 'visaExpiryDate' || key === 'followUpDates') {
                 return formatDate(value);
             }
+            if(key === "visaCategory"){
+                return formatStringDisplayName(value)
+            }
             if (value === "" || value === null || value === undefined || value === "null") {
                 return "N/A";
             }
@@ -128,6 +132,9 @@ const ReadLead: React.FC = () => {
         if (key === 'dob' || key === 'passportExpiry' || key === 'visaExpiryDate' || key === 'followUpDates') {
             return formatDate(value);
         }
+        if(key === "visaCategory"){
+            return formatStringDisplayName(value)
+        }
         if (value === "" || value === null || value === undefined || value === "null") {
             return "N/A";
         }
@@ -152,7 +159,7 @@ const ReadLead: React.FC = () => {
                                 <h5 className={`text-muted ${styles.textMuted}`}>Lead ID: {data.id}</h5>
                                 <div><p>Created At - {formatDate(data.created_at)}</p></div>
                                 <Badge className={styles.styleStatus} bg={getStatusBadgeClass(data.leadStatus)}>
-                                    {data.leadStatus ? data.leadStatus.charAt(0).toUpperCase() + data.leadStatus.slice(1) : 'New'}
+                                    {data.leadStatus ? data.leadStatus.charAt(0).toUpperCase() + data.leadStatus.slice(1) : 'No Status'}
                                 </Badge>
                             </Col>
                         </Row>

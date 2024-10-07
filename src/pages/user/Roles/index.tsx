@@ -8,32 +8,21 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
 
 const Roles = () => {
-	const { columns, permissionsData, fetchPermissions, deletePermission, loading } =
+	const { columns, permissionsData, fetchPermissions, deletePermission, deleteSelectedPermission, loading } =
 		useRoles()
 	const [showModal, setShowModal] = useState(false)
 	const [modalMode, setModalMode] = useState('create')
-	const [currentPermissions, setCurrentPermissions] = useState({})
+	const [currentPermissions, setCurrentPermissions] = useState<any>({})
 	const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([])
-	console.log("SelectedIds ", selectedRoleIds)
 
-	let toggleAllRowsSelected: (() => void) | undefined
+	let toggleAllRowsSelected: ((selected: boolean) => void) | undefined
 
 	const showDeleteSelectedButton = selectedRoleIds?.length > 0
 
-	const handleDeleteSelected = async (selectedRoleIds: any[]) => {
-		try {
-			// await leadApi.deleteSelectedLeads({ leadIds: selectedUserIds })
-			toast.success('Roles deleted successfully.')
-			setSelectedRoleIds([])
-			toggleAllRowsSelected && toggleAllRowsSelected(false)
-		} catch (error) {
-			toast.error('Failed to delete roles.')
-			console.error(error)
-		}
-	}
-
 	const handleDeleteSelectedRoles = () => {
-		handleDeleteSelected(selectedRoleIds)
+		deleteSelectedPermission(selectedRoleIds)
+		setSelectedRoleIds([])
+		toggleAllRowsSelected && toggleAllRowsSelected(false)
 	}
 
 	const handleOpenModal = (mode: string, permissions = {}) => {

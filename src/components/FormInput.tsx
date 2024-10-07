@@ -155,8 +155,8 @@ const FormInput = ({
                 onChange={handlePhoneChange}
                 inputProps={{
                   name: name,
-                  required: true,
                   autoComplete: 'phone',
+                  required: true,
                   style: {...phoneStyle(settings.theme === "dark")},
                   className: `form-control ${errors && errors[name] ? 'is-invalid' : ''}`,
                   ...restProps,

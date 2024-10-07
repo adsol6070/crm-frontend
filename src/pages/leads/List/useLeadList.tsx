@@ -14,6 +14,7 @@ import { Dropdown } from 'react-bootstrap'
 import Swal from 'sweetalert2'
 import styles from './LeadList.module.css'
 import { actionStyle, capitalizeFirstLetter, hasPermission } from '@/utils'
+import { formatStringDisplayName } from '@/utils/formatString'
 
 interface HistoryItem {
 	action: string
@@ -177,7 +178,7 @@ export const useLeadList = (): LeadListHookResult => {
 				Header: 'Visa Category',
 				accessor: 'visaCategory',
 				defaultCanSort: true,
-				Cell: ({ cell }: any) => capitalizeFirstLetter(cell.value),
+				Cell: ({ cell }: any) => formatStringDisplayName(cell.value),
 			},
 			{
 				Header: 'Status',
@@ -199,7 +200,7 @@ export const useLeadList = (): LeadListHookResult => {
 											? capitalizeFirstLetter(
 													leadStatuses[cell.row.original.id]
 												)
-											: 'New'}
+											: 'No Status'}
 									</span>
 								</Dropdown.Toggle>
 								<Dropdown.Menu>
@@ -219,7 +220,7 @@ export const useLeadList = (): LeadListHookResult => {
 								<span>
 									{leadStatuses[cell.row.original.id]
 										? capitalizeFirstLetter(leadStatuses[cell.row.original.id])
-										: 'New'}
+										: 'No Status'}
 								</span>
 							</div>
 						)

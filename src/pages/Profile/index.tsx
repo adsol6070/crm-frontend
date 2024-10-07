@@ -55,7 +55,7 @@ const ProfilePages = () => {
                   <p className="text-muted mb-0">
                     {loading ? <Skeleton width={200} /> : (
                       <small>
-                        {`${loggedInUser?.address === "null" ? "" : loggedInUser?.address}, ${loggedInUser?.city === "null" ? "" : loggedInUser?.city}`}
+                        {`${loggedInUser?.address == null ? "" : loggedInUser?.address}, ${loggedInUser?.city == null ? "" : loggedInUser?.city}`}
                       </small>
                     )}
                   </p>

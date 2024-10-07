@@ -3,6 +3,7 @@ import { leadApi, visaCategoryApi } from '@/common/api';
 import { useAuthContext } from '@/common/context';
 import { toast } from 'react-toastify';
 import { VisaCategory, LeadData } from '@/types';
+import { formatStringDisplayName } from '@/utils/formatString';
 
 const useEditLead = () => {
   const [loading, setLoading] = useState(true);
@@ -34,7 +35,7 @@ const useEditLead = () => {
         const categoriesData = await visaCategoryApi.getAllCategory();
         const newCategories = categoriesData.map((category: any) => ({
           value: category.category,
-          label: category.category
+          label: formatStringDisplayName(category.category)
         }));
         setVisaCategories(newCategories);
       } catch (err) {
