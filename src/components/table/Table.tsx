@@ -115,7 +115,7 @@ const Table = ({
 	setSelectedUserIds,
 	toggleAllRowsSelected,
 }: TableProps) => {
-	const location = useLocation();
+	const location = useLocation()
 	const initialState = getSavedPaginationState()
 
 	const {
@@ -179,10 +179,10 @@ const Table = ({
 
 	useEffect(() => {
 		return () => {
-			localStorage.removeItem('paginationPageIndex');
-			localStorage.removeItem('paginationPageSize');
-		};
-	}, [location]);
+			localStorage.removeItem('paginationPageIndex')
+			localStorage.removeItem('paginationPageSize')
+		}
+	}, [location])
 
 	useEffect(() => {
 		const selectedUserIds = page
