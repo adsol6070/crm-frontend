@@ -15,6 +15,7 @@ import ReactToPrint from 'react-to-print';
 import { Country, State, City } from 'country-state-city';
 import { capitalizeFirstLetter, nationalityOptions, genderOptions, maritalStatusOptions, customStyles } from '@/utils';
 import { useThemeContext } from '@/common';
+import { formatStringDisplayName } from '@/utils/formatString';
 
 interface CollectedData {
   [key: string]: any;
@@ -28,7 +29,7 @@ interface DropdownOptions {
 const defaultGender = { value: 'male', label: 'Male' };
 const defaultNationality = { value: 'indian', label: 'Indian' };
 const defaultCountryOfInterest = { value: 'IN', label: 'India' };
-const defaultVisaCategory = { value: 'tourist visa', label: 'Tourist Visa' };
+const defaultVisaCategory = { value: 'tourist_visa', label: 'Tourist Visa' };
 const defaultMaritalStatus = { value: 'single', label: 'Single' };
 
 const fieldOrder = [
@@ -60,7 +61,7 @@ const stepSchemas = [
       firstname: yup.string().required('Please enter your First Name').trim(),
       lastname: yup.string().required('Please enter your Last Name').trim(),
       email: yup.string().required('Please enter your Email').email('Please enter a valid Email'),
-      phone: yup.string().required('Please enter your Phone Number'),
+      phone: yup.string(),
       dob: yup.string().required('Please select your Date of Birth'),
       maritalStatus: yup.string(),
       pincode: yup.string().nullable().matches(/(^$)|^[0-9]{6}$/, 'Pincode must be exactly 6 digits').trim(),
@@ -1049,7 +1050,7 @@ const AddLead = () => {
                             </tr>
                             <tr>
                               <td>Visa Category</td>
-                              <td>{selectedVisaCategory?.value === undefined ? "" : capitalizeFirstLetter(String(selectedVisaCategory?.value))}</td>
+                              <td>{selectedVisaCategory?.value === undefined ? "" : formatStringDisplayName(String(selectedVisaCategory?.value))}</td>
                             </tr>
                           </tbody>
                         </Table>

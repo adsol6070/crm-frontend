@@ -46,8 +46,6 @@ const LeadList = () => {
     const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
     const [bulkStatus, setBulkStatus] = useState('');
 
-    console.log("selected UserId:", selectedUserIds);
-
 
 
     // const idsInRawData = Array.from(new Set(selectedUserIds?.map((item: any) => item.original.id)));

@@ -15,7 +15,7 @@ export function useCategory() {
     const [category, setCategory] = useState<string>("");
     const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([])
 
-    const columns: ReadonlyArray<Column<any>> = useMemo(()=>[
+    const columns: ReadonlyArray<Column<any>> = useMemo(() => [
         {
             Header: 'S.No',
             accessor: 'sno',
@@ -78,34 +78,29 @@ export function useCategory() {
                 );
             },
         },
-    ], [])
+    ], [editCategoryId, editCategoryValue])
 
     const handleDelete = async (categoryID: string) => {
         await categoryApi.deleteCategory(categoryID)
-        const updatedBlogCategory = blogCategories.filter((category) => category.id !== categoryID)
-        const updatedCategoriesWithSno = updatedBlogCategory.map((category, index) => ({
-            ...category,
-            sno: index + 1
-        }));
-        setBlogCategories(updatedCategoriesWithSno);
+        const response = await categoryApi.getAllCategory();
+        setBlogCategories(response.map((category: any, index: any) => ({ ...category, sno: index + 1 })));
         toast.success("Category Deleted successfully!");
     }
-    
+
     const handleEdit = (categoryID: string, currentCategory: string) => {
         setEditCategoryId(categoryID);
         setEditCategoryValue(currentCategory);
     };
 
-    
     const handleDeleteSelected = async (selectedCategoryIds: any[]) => {
         try {
-            setLoading(true); 
+            setLoading(true);
             await categoryApi.deleteSelectedBlogCategories({ categoryIds: selectedCategoryIds });
 
             const updatedVisaCategories = blogCategories.filter(
                 (category) => !selectedCategoryIds.includes(category.id)
             );
-    
+
             const updatedCategoriesWithSno = updatedVisaCategories.map((category, index) => ({
                 ...category,
                 sno: index + 1
@@ -116,8 +111,8 @@ export function useCategory() {
         } catch (error) {
             toast.error('Failed to delete categories.')
             console.error(error)
-        }finally {
-            setLoading(false); 
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -200,8 +195,14 @@ export function useCategory() {
             setBlogCategories(blogCategories => [...blogCategories, newCategory]);
             toast.success(data.message);
             setLoading(false)
-        } catch (error) {
-            console.error(error)
+        } catch (error: any) {
+            if (error.includes("duplicate key value violates unique constraint")) {
+                toast.error("Category already exists");
+            }
+            else {
+                toast.error("Failed to create category.");
+                console.error('Error creating category:', error);
+            }
         } finally {
             setLoading(false)
         }

@@ -11,7 +11,6 @@ const AddVisaCategory: React.FC = () => {
     const { columns, loading, visaCategories, createCategory, category, handleCategoryChange, dataLoading, handleDeleteSelected } = useVisaCategory();
 
     const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([])
-    console.log("SelectedIds ", selectedCategoryIds)
 
     let toggleAllRowsSelected: ((selected: boolean) => void) | undefined;
 
@@ -30,7 +29,7 @@ const AddVisaCategory: React.FC = () => {
 
     const schemaResolver = yupResolver(
         yup.object().shape({
-            category: yup.string().required('Please enter a category').trim('Please enter a valid category'),
+            category: yup.string().required('Please enter a category').trim('Please enter a valid category').matches(/^[a-z_]+$/, "Category name must be lowercase"),
         })
     );
 
@@ -52,7 +51,7 @@ const AddVisaCategory: React.FC = () => {
                                     label="Category Name"
                                     type="text"
                                     name="category"
-                                    placeholder="Enter your Category"
+                                    placeholder="eg. student_visa, visitor_visa"
                                     containerClass="mb-3"
                                     onChange={handleCategoryChange}
                                     value={category}

@@ -15,7 +15,6 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ show, handleClose, selectedLe
     const [status, setStatus] = useState('');
     const { handleUpdateSelected } = useLeadList();
     const filteredLeads = formattedData.filter((user) => selectedLeads.includes(user.id));
-    console.log("FilteredLeads:", filteredLeads);
 
     // const selectedLeadData = selectedLeads?.map((item: any) => ({
     //     leadId: item.original.id,
@@ -54,7 +53,6 @@ const UpdateModal: React.FC<UpdateModalProps> = ({ show, handleClose, selectedLe
                         </thead>
                         <tbody>
                             {filteredLeads?.map((lead, index) => {
-                                console.log("Lead:", lead);
                                 return (
                                     <tr key={index}>
                                         <td>{index + 1}</td>

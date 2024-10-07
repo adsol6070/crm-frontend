@@ -10,7 +10,6 @@ import "react-toastify/ReactToastify.css";
 const AddCategory: React.FC = () => {
 	const { columns, loading, blogCategories, createCategory, handleDeleteSelected } = useCategory();
 	const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([])
-	console.log("SelectedIds ", selectedCategoryIds)
 
     let toggleAllRowsSelected: ((selected: boolean) => void) | undefined;
 
@@ -28,7 +27,7 @@ const AddCategory: React.FC = () => {
 	};
 	const schemaResolver = yupResolver(
 		yup.object().shape({
-			category: yup.string().required('Please enter category'),
+			category: yup.string().required('Please enter category').matches(/^[a-z]+$/, "Category name must be lowercase"),
 		})
 	)
 

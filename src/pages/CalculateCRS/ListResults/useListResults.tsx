@@ -15,6 +15,7 @@ interface ResultListHookResult {
   deleteAllResults: (userId: string) => void;
   selectedResult: Result | null;
   setSelectedResult: (result: Result | null) => void;
+  handleDeleteSelected: (selectedScoreIds: any[]) => void;
 }
 
 export const useResultList = (): ResultListHookResult => {
@@ -114,6 +115,30 @@ export const useResultList = (): ResultListHookResult => {
     }
   };
 
+  const handleDeleteSelected = async (selectedScoreIds: any[]) => {
+    try {
+        setLoading(true); 
+        await scoreApi.deleteSelectedScores({ scoreIds: selectedScoreIds })
+
+        const updatedResultRecords = resultRecords.filter(
+            (category) => !selectedScoreIds.includes(category.id)
+        );
+
+        const updatedResultRecordsWithSno = updatedResultRecords.map((category, index) => ({
+            ...category,
+            sno: index + 1
+        }));
+
+        setResultRecords(updatedResultRecordsWithSno);
+        toast.success('Scores deleted successfully.')
+    } catch (error) {
+        toast.error('Failed to delete scores.')
+        console.error(error)
+    }finally {
+        setLoading(false); 
+    }
+} 
+
   const sizePerPageList = [
     { text: '5', value: 5 },
     { text: '10', value: 10 },
@@ -149,5 +174,6 @@ export const useResultList = (): ResultListHookResult => {
     loading,
     selectedResult,
     setSelectedResult,
+    handleDeleteSelected,
   };
 };

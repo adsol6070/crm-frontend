@@ -53,12 +53,7 @@ export const useLeadList = (): LeadListHookResult => {
 	const { settings } = useThemeContext();
 	const [loading, setLoading] = useState(true)
 	const [leadRecords, setLeadRecords] = useState<LeadData[]>([])
-	const [leadStatuses, setLeadStatuses] = useState<{ [key: string]: string }>(
-		{}
-	)
-
-	console.log("LeadStatuses:", leadStatuses);
-
+	const [leadStatuses, setLeadStatuses] = useState<{ [key: string]: string }>({})
 	const [visaCategories, setVisaCategories] = useState<string[]>([])
 	const [showAssignModal, setShowAssignModal] = useState(false)
 	const [selectedLeadId, setSelectedLeadId] = useState<string>('')
@@ -233,7 +228,6 @@ export const useLeadList = (): LeadListHookResult => {
 	}
 
 	const handleUpdateSelected = useCallback(async (data: any) => {
-		console.log("Data:", data);
 		const transformedObject = data.leadIds.reduce((acc, leadId) => {
 			acc[leadId] = data.leadStatus;
 			return acc;
@@ -330,9 +324,6 @@ export const useLeadList = (): LeadListHookResult => {
 			disableSortBy: true,
 			Cell: ({ cell }: any) => {
 				if (hasPermission(permissions, 'Leads', 'Status')) {
-					console.log("Get called...1");
-					console.log("IDDDDD:", cell.row.original.id);
-					console.log("leadStatuses:", leadStatuses);
 					return (
 						<Dropdown
 							onSelect={(status: any) =>

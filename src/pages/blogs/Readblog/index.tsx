@@ -5,6 +5,7 @@ import { Row, Col, Card, Alert, Container } from 'react-bootstrap';
 import useReadBlog from './useReadBlog';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { capitalizeFirstLetter } from '@/utils';
 
 interface DateTimeOptions {
 	year?: 'numeric' | '2-digit';
@@ -107,11 +108,11 @@ const ReadBlog: React.FC = () => {
 								</Card.Title>
 								<Card.Text className="text-muted mb-2">
 									<small>
-										Posted on {formattedDateTime?"N/A":formattedDateTime} | Category: {category?"N/A":category}
+										Posted on {formattedDateTime ?? "N/A"} | Category: {capitalizeFirstLetter(category ?? "N/A")}
 									</small>
 								</Card.Text>
 								<Card.Text className="text-muted mb-4" style={{ fontStyle: 'italic' }}>
-									{description?"N/A":description}
+									{description??"N/A"}
 								</Card.Text>
 								<div
 									className="blog-content"

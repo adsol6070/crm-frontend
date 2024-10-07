@@ -2,6 +2,7 @@ import { leadApi, visaCategoryApi } from '@/common/api'
 import { useAuthContext } from '@/common/context'
 import { useQuery } from '@/hooks'
 import { VisaCategory } from '@/types'
+import { formatStringDisplayName } from '@/utils/formatString'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
@@ -47,7 +48,7 @@ export default function useCreateLead() {
 				const newCategories = categoriesData.map((category: any) => {
 					return {
 						value: category.category,
-						label: category.category,
+						label: formatStringDisplayName(category.category),
 					}
 				})
 				setVisaCategories(newCategories)

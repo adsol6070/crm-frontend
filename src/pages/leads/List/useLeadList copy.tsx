@@ -57,14 +57,12 @@ export const useLeadList = (): LeadListHookResult => {
 		{}
 	)
 
-	console.log("LeadStatuses:", leadStatuses);
 	const [visaCategories, setVisaCategories] = useState<string[]>([])
 	const [showAssignModal, setShowAssignModal] = useState(false)
 	const [selectedLeadId, setSelectedLeadId] = useState<string>('')
 	const [showHistoryModal, setShowHistoryModal] = useState(false)
 	const [historyData, setHistoryData] = useState<HistoryItem[]>([])
 	const [selectedAssignees, setSelectedAssignees] = useState<string[]>([])
-	// console.log("Lead Ids ", lead)
 
 	const handleAssignButtonClick = async (leadId: string) => {
 		setSelectedLeadId(leadId)
@@ -128,8 +126,6 @@ export const useLeadList = (): LeadListHookResult => {
 
 	const handleAssign = async (leadId: string, assignees: string[]) => {
 		try {
-			console.log(leadId)
-			console.log(assignees)
 			const response = await leadApi.assignLead({
 				lead_id: leadId,
 				user_id: assignees,
@@ -185,7 +181,6 @@ export const useLeadList = (): LeadListHookResult => {
 			accessor: 'status',
 			disableSortBy: true,
 			Cell: ({ cell }: any) => {
-				console.log("Cell:", cell.row.original.id);
 				if (hasPermission(permissions, 'Leads', 'Status')) {
 					return (
 						<Dropdown
@@ -349,7 +344,7 @@ export const useLeadList = (): LeadListHookResult => {
 			}
 		}
 	}
-	
+
 	// columns.push(actionsColumn)
 	if (!columns.some((col) => col.accessor === 'actions')) {
 		columns.push(actionsColumn)
@@ -357,7 +352,7 @@ export const useLeadList = (): LeadListHookResult => {
 
 	insertColumnsBeforeActions()
 
-	const handleStatusChange = (leadId: string, status: string)=>{
+	const handleStatusChange = (leadId: string, status: string) => {
 		setLeadStatuses((prevStatuses) => ({
 			...prevStatuses,
 			[leadId]: status,
@@ -448,13 +443,12 @@ export const useLeadList = (): LeadListHookResult => {
 	}
 
 	const handleUpdateSelected = async (data: any) => {
-		console.log("Data:", data);
 		try {
 			const updatedData: any = data;
 			await leadApi.updateSelectedLeads(updatedData)
-		
+
 			window.location.reload();
-	
+
 			toast.success('Leads Updated Successfully.')
 		} catch (error) {
 			toast.error('Failed to update leads.')

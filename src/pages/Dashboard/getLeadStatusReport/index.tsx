@@ -37,7 +37,7 @@ const LeadStatusReport = () => {
         enabled: false
       },
       xaxis: {
-        categories: filteredData.map(item => item.status || 'New'),
+        categories: filteredData.map(item => item.status || 'No Status'),
         title: {
           text: 'Status',
           style: {

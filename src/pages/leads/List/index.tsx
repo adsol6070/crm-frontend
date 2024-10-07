@@ -12,6 +12,7 @@ import { leadApi, usePermissions, useThemeContext } from '@/common'
 import { capitalizeFirstLetter, hasPermission, textStyle } from '@/utils'
 import HistoryModal from './modals/HistoryModal'
 import UpdateModal from './modals/updateModal'
+import { formatStringDisplayName } from '@/utils/formatString'
 
 const LeadList = () => {
 	const { settings } = useThemeContext()
@@ -173,7 +174,7 @@ const LeadList = () => {
 												style={textStyle(settings.theme === 'dark')}>
 												<i
 													className={`bi bi-${category.toLowerCase()} ${styles.navLinkIcon}`}></i>{' '}
-												{capitalizeFirstLetter(category)}
+												{formatStringDisplayName(category)}
 											</Nav.Link>
 										</Nav.Item>
 									))}

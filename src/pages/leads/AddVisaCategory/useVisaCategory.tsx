@@ -2,7 +2,7 @@ import { useAuthContext, visaCategoryApi } from '@/common';
 import visaCategory from '@/common/api/visaCategory';
 import { PageSize } from '@/components';
 import { VisaCategory } from '@/types';
-import { capitalizeFirstLetter } from '@/utils';
+import { formatStringDisplayName } from '@/utils/formatString';
 import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import { RiDeleteBinLine, RiEdit2Line, RiSaveLine } from 'react-icons/ri';
 import { Column } from 'react-table';
@@ -41,7 +41,7 @@ export function useVisaCategory() {
                         autoFocus
                     />
                 ) : (
-                    capitalizeFirstLetter(cell.value)
+                    formatStringDisplayName(cell.value)
                 );
             },
         },
@@ -60,7 +60,7 @@ export function useVisaCategory() {
         },
         {
             Header: 'Edit',
-            accessor: 'Edit',
+            accessor: 'edit',
             disableSortBy: true,
             Cell: ({ cell }: any) => {
                 return editCategoryId === cell.row.original.id ? (
@@ -80,18 +80,14 @@ export function useVisaCategory() {
                 );
             },
         },
-    ], []);
+    ], [editCategoryId, editCategoryValue]);
 
     const handleDelete = async (categoryID: string) => {
         try {
             setLoading(true);
             await visaCategory.deleteCategory(categoryID);
-            const updatedVisaCategory = visaCategories.filter((category) => category.id !== categoryID);
-            const updatedCategoriesWithSno = updatedVisaCategory.map((category, index) => ({
-                ...category,
-                sno: index + 1
-            }));
-            setVisaCategories(updatedCategoriesWithSno);
+            const response = await visaCategory.getAllCategory();
+            setVisaCategories(response.map((category: any, index: any) => ({ ...category, sno: index + 1 })));
             toast.success("Category Deleted successfully!");
         } catch (error) {
             console.error('Error deleting category:', error);
@@ -190,9 +186,14 @@ export function useVisaCategory() {
             setVisaCategories(visaCategories => [...visaCategories, newCategory]);
             toast.success(data.message);
             setCategory('');
-        } catch (error) {
-            console.error('Error creating category:', error);
-            toast.error("Failed to create category.");
+        } catch (error: any) {
+            if (error.includes("duplicate key value violates unique constraint")) {
+                toast.error("Category already exists");
+            }
+            else{
+                toast.error("Failed to create category.");
+                console.error('Error creating category:', error);
+            }
         } finally {
             setLoading(false);
         }

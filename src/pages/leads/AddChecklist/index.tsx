@@ -13,6 +13,7 @@ import { useVisaCategory } from '../AddVisaCategory/useVisaCategory';
 import VisaChecklistDisplay from './visaChecklistDisplay';
 import { capitalizeFirstLetter, hasPermission } from '@/utils';
 import { usePermissions } from '@/common';
+import { formatStringDisplayName } from '@/utils/formatString';
 
 const schema = yup.object().shape({
   visaType: yup.string().required('Visa type is required'),
@@ -83,7 +84,7 @@ const AddVisaChecklists: React.FC = () => {
             >
               <option value="">Select visa type</option>
               {visaCategories.map((category: { id: string, category: string }) => (
-                <option key={category.id} value={category.category}>{category.category}</option>
+                <option key={category.id} value={category.category}>{formatStringDisplayName(category.category)}</option>
               ))}
             </FormInput>
             
@@ -122,7 +123,7 @@ const AddVisaChecklists: React.FC = () => {
         fill
       >
         {visaChecklists.map((checklist: any) => (
-          <Tab eventKey={checklist.visaType} title={capitalizeFirstLetter(checklist.visaType)} key={checklist.id}>
+          <Tab eventKey={checklist.visaType} title={formatStringDisplayName(checklist.visaType)} key={checklist.id}>
             <VisaChecklistDisplay
               id={checklist.id} 
               deleteChecklist={onDelete} 
