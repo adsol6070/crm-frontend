@@ -335,6 +335,7 @@ const EditLead: React.FC = () => {
                                   value={phoneVal}
                                   register={register}
                                   errors={errors}
+                                  phoneNumber={phoneVal}
                                   refCallback={(value: string) => setPhoneVal(value)}
                                 />
                               </Col>

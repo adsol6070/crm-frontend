@@ -30,7 +30,7 @@ export default function useRegister() {
 			formData.append('email', userData.email)
 			formData.append('password', userData.password)
 			formData.append('phone', userData.phone)
-			formData.append('role', 'superAdmin')
+			formData.append('role', 'super_admin')
 			formData.append('uploadType', 'User')
 
 			if (userData.profileImage) {

@@ -467,7 +467,7 @@ export const useLeadList = (): LeadListHookResult => {
 	const getLeads = async () => {
 		setLoading(true)
 		try {
-			if (user.role === 'superAdmin') {
+			if (user.role === 'super_admin') {
 				const leadData = await leadApi.get()
 				const leadsWithIndex = leadData.map((lead: any, index: any) => ({
 					...lead,

@@ -29,7 +29,7 @@ const AssignModal: React.FC<AssignModalProps> = ({ show, handleClose, handleAssi
     handleClose();
   };
 
-  const filteredUsers = users.filter(user => user.role !== 'superAdmin');
+  const filteredUsers = users.filter(user => user.role !== 'super_admin');
 
   return (
     <Modal show={show} onHide={handleClose} size="md">

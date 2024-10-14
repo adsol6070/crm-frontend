@@ -1,6 +1,7 @@
 import { useThemeContext } from '@/common';
 import { phoneStyle } from '@/utils';
-import { useState, InputHTMLAttributes } from 'react';
+import { Country } from 'country-state-city';
+import { useState, InputHTMLAttributes, useEffect } from 'react';
 import { Form, InputGroup } from 'react-bootstrap';
 import { FieldErrors, Control, useForm } from 'react-hook-form';
 import PhoneInput from 'react-phone-input-2';
@@ -74,6 +75,7 @@ interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
   children?: any;
   rows?: number;
   reset?: any;
+  phoneNumber?: string;
 }
 
 const FormInput = ({
@@ -91,6 +93,7 @@ const FormInput = ({
   isTerms = false,
   refCallback,
   children,
+  phoneNumber,
   rows,
   ...otherProps
 }: FormInputProps) => {
@@ -98,6 +101,20 @@ const FormInput = ({
   const { setValue, watch } = useForm();
   const comp = type === 'textarea' ? 'textarea' : type === 'select' ? 'select' : 'input';
   const { ...restProps } = otherProps;
+  const [initialCountry, setInitialCountry] = useState<string>('in');
+
+  useEffect(() => {
+    if (phoneNumber) {
+      const countryCodeMatch = phoneNumber.match(/^\+(\d+)/);
+      if (countryCodeMatch && countryCodeMatch[1]) {
+        const countryCode = countryCodeMatch[1];
+        const country = Country.getAllCountries().find((c) => c.phonecode === countryCode);
+        if (country) {
+          setInitialCountry(country.isoCode.toLowerCase()); 
+        }
+      }
+    }
+  }, [phoneNumber]);
 
   const handlePhoneChange = (value: string, data: any) => {
     const val = value.slice(data.dialCode.length)
@@ -146,7 +163,7 @@ const FormInput = ({
               ) : null}
 
               <PhoneInput
-                country={'in'}
+                country={initialCountry}
                 placeholder={placeholder}
                 enableSearch={true}
                 prefix="+"

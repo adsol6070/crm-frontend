@@ -18,7 +18,7 @@ interface User {
 	password: string
 	phone: string
 	profileImage: string
-	role: 'superAdmin' | 'admin' | 'user'
+	role: 'super_admin' | 'admin' | 'user'
 	isEmailVerified: boolean
 }
 
@@ -144,7 +144,7 @@ const EditUser = () => {
 											<Form.Label>Role</Form.Label>
 											<Select
 												options={[
-													{ value: 'superAdmin', label: 'Super Admin' },
+													{ value: 'super_admin', label: 'Super Admin' },
 													{ value: 'admin', label: 'Admin' },
 													{ value: 'user', label: 'User' },
 												]}

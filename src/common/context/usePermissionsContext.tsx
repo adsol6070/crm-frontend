@@ -41,11 +41,11 @@ export const PermissionsProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
 	const [permissions, setPermissions] = useState<Permissions>({})
 	const { user } = useAuthContext()
-	const isSuperAdmin = user?.role === 'superAdmin'
+	const isSuperAdmin = user?.role === 'super_admin'
 
 	const fetchPermissions = async (role: string) => {
 		try {
-			if (role === 'superAdmin') {
+			if (role === 'super_admin') {
 				setPermissions({
 					'*': { '*': true },
 				})

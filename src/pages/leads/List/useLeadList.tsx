@@ -33,6 +33,7 @@ interface LeadListHookResult {
 	leadRecords: LeadData[]
 	loading: boolean
 	downloadCSV: (category: string) => void
+	downloadFullCSV: (category: string) => void
 	refreshLeads: () => void
 	uploadLeads: (formData: FormData) => Promise<void>
 	deleteAllLeads: () => void
@@ -274,49 +275,10 @@ export const useLeadList = (): LeadListHookResult => {
 		),
 	}
 
-	// const insertColumnsBeforeActions = () => {
-	// 	const index = columns.findIndex((column) => column.accessor === 'actions')
-
-	// 	if (index > -1) {
-	// 		if (hasPermission(permissions, 'Leads', 'Assign')) {
-	// 			columns.splice(index, 0, {
-	// 				Header: 'Assign',
-	// 				accessor: 'assign',
-	// 				disableSortBy: true,
-	// 				Cell: ({ cell }: any) => (
-	// 					<button
-	// 						className={`btn btn-sm btn-danger ${styles.assignButton}`}
-	// 						onClick={() => handleAssignButtonClick(cell.row.original.id)}>
-	// 						<i className={`ri-user-add-line ${styles.riUserAddLine}`}></i>{' '}
-	// 						Assign
-	// 					</button>
-	// 				),
-	// 			})
-	// 		}
-
-	// 		if (hasPermission(permissions, 'Leads', 'History')) {
-	// 			columns.splice(index, 0, {
-	// 				Header: 'History',
-	// 				accessor: 'history',
-	// 				disableSortBy: true,
-	// 				Cell: ({ cell }: any) => (
-	// 					<button
-	// 						className={`btn btn-sm btn-info ${styles.historyButton}`}
-	// 						onClick={() => handleHistoryClick(cell.row.original.id)}>
-	// 						<i className={`ri-history-line ${styles.riHistoryLine}`}></i>{' '}
-	// 						History
-	// 					</button>
-	// 				),
-	// 			})
-	// 		}
-	// 	}
-	// }
-
 	const insertColumnsBeforeActions = () => {
 		const index = columns.findIndex((column) => column.accessor === 'actions')
 
 		if (index > -1) {
-			// Insert 'assign' column if it doesn't already exist
 			if (
 				hasPermission(permissions, 'Leads', 'Assign') &&
 				!columns.some((col) => col.accessor === 'assign')
@@ -336,7 +298,6 @@ export const useLeadList = (): LeadListHookResult => {
 				})
 			}
 
-			// Insert 'history' column if it doesn't already exist
 			if (
 				hasPermission(permissions, 'Leads', 'History') &&
 				!columns.some((col) => col.accessor === 'history')
@@ -358,7 +319,6 @@ export const useLeadList = (): LeadListHookResult => {
 		}
 	}
 
-	// columns.push(actionsColumn)
 	if (!columns.some((col) => col.accessor === 'actions')) {
 		columns.push(actionsColumn)
 	}
@@ -497,7 +457,7 @@ export const useLeadList = (): LeadListHookResult => {
 	const getLeads = async () => {
 		setLoading(true)
 		try {
-			if (user.role === 'superAdmin') {
+			if (user.role === 'super_admin') {
 				const leadData = await leadApi.get()
 				const leadsWithIndex = leadData.map((lead: any, index: any) => ({
 					...lead,
@@ -616,6 +576,19 @@ export const useLeadList = (): LeadListHookResult => {
 		})
 	}
 
+const downloadFullCSV = async (category: string)=>{
+	try {
+		const response = await leadApi.downloadLeadCsv(category);
+		const url = window.URL.createObjectURL(response);
+		const link = document.createElement("a");
+		link.href = url;
+		link.setAttribute("download", "leads_data.csv");
+		link.click(); 
+	  } catch (error) {
+		console.error("Error downloading CSV file", error);
+	  }
+}
+
 	return {
 		columns,
 		sizePerPageList,
@@ -637,5 +610,6 @@ export const useLeadList = (): LeadListHookResult => {
 		handleCloseAssignModal,
 		selectedAssignees,
 		setSelectedAssignees,
+		downloadFullCSV,
 	}
 }

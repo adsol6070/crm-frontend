@@ -19,6 +19,7 @@ import {
 	useSortBy,
 	useTable,
 } from 'react-table'
+import styles from './Table.module.css'
 
 interface TableProps {
 	isSortable?: boolean
@@ -117,6 +118,8 @@ const Table = ({
 }: TableProps) => {
 	const location = useLocation()
 	const initialState = getSavedPaginationState()
+	const [pageIndex, setPageIndex] = useState<number>(initialState.pageIndex)
+	const [currentData, setCurrentData] = useState<any[]>(data)
 
 	const {
 		getTableProps,
@@ -129,14 +132,14 @@ const Table = ({
 		canPreviousPage,
 		canNextPage,
 		page,
-		state: { selectedRowIds, pageIndex, globalFilter },
+		state: { selectedRowIds, globalFilter },
 		preGlobalFilteredRows,
 		setGlobalFilter,
 		toggleAllRowsSelected: internalToggleAllRowsSelected,
 	} = useTable(
 		{
 			columns,
-			data,
+			data: currentData,
 			initialState: {
 				pageIndex: initialState.pageIndex,
 				pageSize: initialState.pageSize,
@@ -166,6 +169,7 @@ const Table = ({
 
 	const handlePageChange = (newPageIndex: number) => {
 		gotoPage(newPageIndex)
+		setPageIndex(newPageIndex)
 	}
 
 	const dynamicRows = pagination ? page : rows
@@ -184,12 +188,27 @@ const Table = ({
 		}
 	}, [location])
 
+	// Update the selected user IDs when rows are selected/unselected
 	useEffect(() => {
 		const selectedUserIds = page
 			.filter((row) => selectedRowIds[row.id])
 			.map((row) => row.original.id)
 		setSelectedUserIds(selectedUserIds)
 	}, [page, selectedRowIds, setSelectedUserIds])
+
+	// Handle page change if the current page becomes empty after data changes (e.g., deletion)
+	useEffect(() => {
+		if (dynamicRows.length === 0 && pageIndex > 0) {
+			// If no rows are present in the current page, navigate to the last page that has data
+			gotoPage(pageIndex - 1)
+			setPageIndex(pageIndex - 1)
+		}
+	}, [dynamicRows.length, pageIndex, gotoPage])
+
+	// Update the current data when external data changes
+	useEffect(() => {
+		setCurrentData(data)
+	}, [data])
 
 	return (
 		<>
@@ -200,9 +219,9 @@ const Table = ({
 					setGlobalFilter={setGlobalFilter}
 				/>
 			)}
-			<div className={`table-responsive`}>
+			<div className={`table-responsive ${styles.tableStyles}`}>
 				<table
-					className="table table-centered react-table"
+					className={`table table-centered react-table`}
 					{...getTableProps()}>
 					<thead>
 						{headerGroups.map((headerGroup) => {
@@ -252,6 +271,11 @@ const Table = ({
 						})}
 					</tbody>
 				</table>
+				{rows.length === 0 && (
+					<div className={styles.noDataMessage}>
+						<p>No data available</p>
+					</div>
+				)}
 			</div>
 			{pagination && (
 				<div className="d-lg-flex align-items-center text-center pb-1">

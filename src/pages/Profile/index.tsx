@@ -62,7 +62,7 @@ const ProfilePages = () => {
                 </div>
               </Col>
               <Col sm={6}>
-                {loggedInUser?.role === 'superAdmin' && (
+                {loggedInUser?.role === 'super_admin' && (
                   <div className="d-flex justify-content-end align-items-center gap-2">
                     <Button
                       type="button"
