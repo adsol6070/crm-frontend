@@ -182,7 +182,7 @@ const ChatHeader = ({ messages, setFilteredMessages }) => {
 				handleExportChat(true)
 			} else if (result.dismiss === Swal.DismissReason.cancel) {
 				handleExportChat(false)
-			}
+			}		
 		})
 	}
 

@@ -13,6 +13,7 @@ import { capitalizeFirstLetter, hasPermission, textStyle } from '@/utils'
 import HistoryModal from './modals/HistoryModal'
 import UpdateModal from './modals/updateModal'
 import { formatStringDisplayName } from '@/utils/formatString'
+import Swal from 'sweetalert2'
 
 const LeadList = () => {
 	const { settings } = useThemeContext()
@@ -34,6 +35,7 @@ const LeadList = () => {
 		selectedAssignees,
 		setSelectedAssignees,
 		loading,
+		downloadFullCSV,
 	} = useLeadList()
 	const { userRecords } = useUserList()
 
@@ -49,7 +51,7 @@ const LeadList = () => {
 	)
 	const canUpdateSelected = hasPermission(permissions, 'Leads', 'Edit')
 
-    let toggleAllRowsSelected: ((selected: boolean) => void) | undefined;
+	let toggleAllRowsSelected: ((selected: boolean) => void) | undefined;
 
 	const showSelectedActions = selectedUserIds?.length > 0
 
@@ -57,7 +59,7 @@ const LeadList = () => {
 		try {
 			await leadApi.deleteSelectedLeads({ leadIds: selectedUserIds })
 			toast.success('Leads deleted successfully.')
-            refreshLeads()
+			refreshLeads()
 			setSelectedUserIds([])
 			toggleAllRowsSelected && toggleAllRowsSelected(false)
 		} catch (error) {
@@ -105,6 +107,23 @@ const LeadList = () => {
 		selectedUserIds.includes(user.id)
 	)
 
+	const downloadCsvOptions = () => {
+		Swal.fire({
+			title: 'Download Data',
+			icon: 'question',
+			showCancelButton: true,
+			showCloseButton: true,
+			confirmButtonText: 'Include History',
+			cancelButtonText: 'Without History',
+		}).then((result: any) => {
+			if (result.isConfirmed) {
+				downloadFullCSV(selectedCategory)
+			} else if (result.dismiss === Swal.DismissReason.cancel) {
+				downloadCSV(selectedCategory)
+			}
+		})
+	}
+
 	return (
 		<>
 			<ToastContainer />
@@ -141,12 +160,12 @@ const LeadList = () => {
 										</Button>
 									)}
 									{hasPermission(permissions, 'Leads', 'DownloadCSV') && (
-										<Button
-											className="m-2"
-											variant="primary"
-											onClick={() => downloadCSV(selectedCategory)}>
-											Download CSV
-										</Button>
+											<Button
+												className="m-2"
+												variant="primary"
+												onClick={downloadCsvOptions}>
+												Download CSV
+											</Button>
 									)}
 								</Col>
 							</Row>

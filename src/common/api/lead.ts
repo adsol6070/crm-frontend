@@ -66,6 +66,12 @@ function LeadService() {
 			})
 			return data
 		},
+		downloadLeadCsv: async (category: string) => {
+			return await HttpClient.get(`/lead/downloadFullCsv/${category}`, {
+				responseType: 'blob',
+				headers: getAuthHeaders(),
+			})
+		},
 		updateLeadStatusById: async (leadId: string, values: any) => {
 			return await HttpClient.patch(`/lead/leadStatus/${leadId}`, values, {
 				headers: getAuthHeaders(),

@@ -172,6 +172,7 @@ const EditUser: React.FC = () => {
 											label="Phone"
 											name="phone"
 											type="phone"
+                      phoneNumber={editUserPhone}
 											placeholder="9876543210"
 											value={editUserPhone}
                       containerClass="mb-3"
