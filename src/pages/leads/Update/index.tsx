@@ -44,7 +44,7 @@ const EditLead: React.FC = () => {
     defaultValues: leadData ?? {},
   });
 
-  const { register, handleSubmit, setValue, formState: { errors } } = methods;
+  const { register, handleSubmit, setValue, formState: { errors }, watch, trigger } = methods;
 
   const getCountryISOCode = (countryName: any) => {
     const country = Country.getAllCountries().find((country) => country.name === countryName);
@@ -337,6 +337,9 @@ const EditLead: React.FC = () => {
                                   errors={errors}
                                   phoneNumber={phoneVal}
                                   refCallback={(value: string) => setPhoneVal(value)}
+                                  watch={watch}
+                                  trigger={trigger}
+                                  setValue={setValue}
                                 />
                               </Col>
                               <Col lg={4} md={6} sm={12}>

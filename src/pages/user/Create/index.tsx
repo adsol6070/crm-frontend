@@ -25,7 +25,7 @@ const CreateUser = () => {
 	const [selectedRole, setSelectedRole] = useState<RoleOptions | null>(null)
 	const [roleOptions, setRoleOptions] = useState([])
 	const { loading, createUser } = useCreateUser()
-	const [userPhone, setUserPhone] = useState<string>("")
+	const [userPhone, setUserPhone] = useState<string>('')
 
 	const handleSelect = (option: RoleOptions | null) => {
 		setSelectedRole(option)
@@ -71,7 +71,7 @@ const CreateUser = () => {
 		}
 		createUser(completeData)
 		reset()
-		setUserPhone("")
+		setUserPhone('')
 		setSelectedRole(null)
 	}
 	return (
@@ -154,7 +154,7 @@ const CreateUser = () => {
 										<Form.Group className="mb-3">
 											<Form.Label>Role</Form.Label>
 											<Select
-												styles={customStyles(settings.theme === "dark")}
+												styles={customStyles(settings.theme === 'dark')}
 												className="select2 z-3"
 												options={roleOptions as any[]}
 												getOptionLabel={(e: any) => e.label}

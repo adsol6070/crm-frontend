@@ -42,6 +42,8 @@ const EditUser: React.FC = () => {
     handleSubmit,
     formState: { errors },
     setValue,
+    watch, 
+    trigger
   } = useForm<User>();
 
   useEffect(() => {
@@ -177,6 +179,10 @@ const EditUser: React.FC = () => {
 											value={editUserPhone}
                       containerClass="mb-3"
 											refCallback={(value: string) => setEditUserPhone(value)}
+                      watch={watch}
+                      trigger={trigger}
+                      setValue={setValue}
+                      isEditMode
 										/>
                     <FormInput
                       label="Password"

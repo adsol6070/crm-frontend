@@ -4,8 +4,8 @@ import { FieldValues, Resolver, useForm } from 'react-hook-form'
 interface VerticalFormProps<TFormValues extends FieldValues> {
 	defaultValues?: any
 	resolver?: Resolver<TFormValues>
-	children: React.ReactNode;
-    onSubmit: (data: TFormValues, methods: any) => void;
+	children: React.ReactNode
+	onSubmit: (data: TFormValues, methods: any) => void
 	formClass?: string
 }
 
@@ -29,15 +29,37 @@ const VerticalForm = <
 		register,
 		control,
 		formState: { errors },
+		watch,
+		trigger,
+		setValue
 	} = methods
-    // Wrap onSubmit to provide form methods as the second parameter
-    const handleFormSubmit = (data: TFormValues) => {
-        onSubmit(data, methods);  // Pass entire methods object to onSubmit
-    };
+	// Wrap onSubmit to provide form methods as the second parameter
+	const handleFormSubmit = (data: TFormValues) => {
+		onSubmit(data, methods) // Pass entire methods object to onSubmit
+	}
 	return (
-		<form onSubmit={handleSubmit(handleFormSubmit)} className={formClass} noValidate>
+		<form
+			onSubmit={handleSubmit(handleFormSubmit)}
+			className={formClass}
+			noValidate>
 			{Array.isArray(children)
 				? children.map((child) => {
+						if (child.props && child.props.name === 'phone') {
+							return React.createElement(child.type, {
+								...{
+									...child.props,
+									register,
+									key: child.props.name,
+									errors,
+									control,
+									reset,
+									watch,
+									trigger,
+									setValue
+								},
+							})
+						}
+
 						return child.props && child.props.name
 							? React.createElement(child.type, {
 									...{
@@ -48,9 +70,9 @@ const VerticalForm = <
 										control,
 										reset,
 									},
-							  })
+								})
 							: child
-				  })
+					})
 				: children}
 		</form>
 	)
