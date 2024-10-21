@@ -93,7 +93,7 @@ const Login = () => {
 							className="w-100"
 							type="submit"
 							disabled={loading}>
-								{loading ? (
+							{loading ? (
 								<Spinner animation="border" size="sm" />
 							) : (
 								<>
