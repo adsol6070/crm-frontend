@@ -1153,8 +1153,8 @@ const AddLead = () => {
 																{selectedCountry?.label === undefined
 																	? ''
 																	: capitalizeFirstLetter(
-																			String(selectedCountry?.label)
-																		)}
+																		String(selectedCountry?.label)
+																	)}
 															</td>
 														</tr>
 														<tr>
@@ -1163,8 +1163,8 @@ const AddLead = () => {
 																{selectedState?.label === undefined
 																	? ''
 																	: capitalizeFirstLetter(
-																			String(selectedState?.label)
-																		)}
+																		String(selectedState?.label)
+																	)}
 															</td>
 														</tr>
 														<tr>
@@ -1173,8 +1173,8 @@ const AddLead = () => {
 																{selectedDistrict?.value === undefined
 																	? ''
 																	: capitalizeFirstLetter(
-																			String(selectedDistrict?.value)
-																		)}
+																		String(selectedDistrict?.value)
+																	)}
 															</td>
 														</tr>
 														<tr>
@@ -1183,8 +1183,8 @@ const AddLead = () => {
 																{selectedCity?.value === undefined
 																	? ''
 																	: capitalizeFirstLetter(
-																			String(selectedCity?.value)
-																		)}
+																		String(selectedCity?.value)
+																	)}
 															</td>
 														</tr>
 														<tr>
@@ -1193,8 +1193,8 @@ const AddLead = () => {
 																{selectedCountryOfInterest?.label === undefined
 																	? ''
 																	: capitalizeFirstLetter(
-																			String(selectedCountryOfInterest?.label)
-																		)}
+																		String(selectedCountryOfInterest?.label)
+																	)}
 															</td>
 														</tr>
 														<tr>
@@ -1203,8 +1203,8 @@ const AddLead = () => {
 																{selectedVisaCategory?.value === undefined
 																	? ''
 																	: formatStringDisplayName(
-																			String(selectedVisaCategory?.value)
-																		)}
+																		String(selectedVisaCategory?.value)
+																	)}
 															</td>
 														</tr>
 													</tbody>

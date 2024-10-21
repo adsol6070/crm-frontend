@@ -95,3 +95,7 @@ export const phoneStyle = (isDarkMode: any, errors: any, name: string) => ({
 	borderColor: errors && errors[name] ? 'red' : isDarkMode ? '#464f5b' : '#ccc',
 	width: '100%',
 })
+
+export const blogTextStyle = (isDarkMode: any) => ({
+	color: isDarkMode ? '#8391a2' : '#2c3036',
+})

@@ -5,7 +5,8 @@ import { Row, Col, Card, Alert, Container } from 'react-bootstrap';
 import useReadBlog from './useReadBlog';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { capitalizeFirstLetter } from '@/utils';
+import { blogTextStyle, capitalizeFirstLetter } from '@/utils';
+import { useThemeContext } from '@/common';
 
 interface DateTimeOptions {
 	year?: 'numeric' | '2-digit';
@@ -20,6 +21,7 @@ interface DateTimeOptions {
 const ReadBlog: React.FC = () => {
 	const { blogId } = useParams() as { blogId: string };
 	const { blogData, loading, error } = useReadBlog(blogId);
+	const { settings } = useThemeContext();
 
 	const renderHTML = (htmlString: string) => ({ __html: htmlString });
 
@@ -103,7 +105,7 @@ const ReadBlog: React.FC = () => {
 								}}
 							/>
 							<Card.Body className="p-5">
-								<Card.Title as="h2" className="fw-bold mb-3" style={{ color: '#2c3e50' }}>
+								<Card.Title as="h2" className="fw-bold mb-3" style={blogTextStyle(settings.theme === 'dark')}>
 									{title==null?"N/A":title}
 								</Card.Title>
 								<Card.Text className="text-muted mb-2">
@@ -120,7 +122,6 @@ const ReadBlog: React.FC = () => {
 									style={{
 										fontSize: '1.1rem',
 										lineHeight: '1.8',
-										color: '#34495e',
 										marginBottom: '1rem',
 									}}
 								/>

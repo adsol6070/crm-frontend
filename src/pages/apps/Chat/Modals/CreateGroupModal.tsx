@@ -51,6 +51,17 @@ const CreateGroupModal = () => {
 	const handleGroupImageChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0]
 		if (file) {
+			const fileType = file.type
+			const validFileTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml']
+			if(!validFileTypes.includes(fileType)){
+				MySwal.fire({
+					text: 'Please upload a valid file type (jpg, png, gif)',
+					icon: 'warning',
+					confirmButtonText: 'Ok'
+				})
+				e.target.value = ''
+				return
+			}
 			setGroupImage(file)
 		}
 	}
@@ -123,7 +134,6 @@ const CreateGroupModal = () => {
 		setSelectedUsers(new Set())
 	}
 
-	// Filter out the currentUser from the chats array
 	const filteredChats = chats.filter((chat) => chat.id !== currentUser?.id)
 
 	const body = (

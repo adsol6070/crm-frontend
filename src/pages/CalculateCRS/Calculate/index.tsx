@@ -83,7 +83,7 @@ const canadianDegreeOptions: OptionType[] = [
 
 const schema = yup.object().shape({
     name: yup.string().required('Please enter your name').trim(),
-    phone: yup.string(),
+    phone: yup.string().required('Please enter your phone'),
     email: yup.string().required('Please enter your email').email('Email is not valid').trim(),
     age: yup.number().required('Please enter your age').min(18, 'Minimum age is 18').max(47, 'Maximum age is 47'),
     education: yup.string().required('Please select your education level'),
@@ -126,7 +126,7 @@ const CRScalculator: React.FC = () => {
         },
     });
 
-    const { handleSubmit, formState: { errors }, setValue, reset, watch } = methods;
+    const { handleSubmit, formState: { errors }, setValue, trigger, reset, watch } = methods;
     const watchedValues = watch();
 
     const [showModal, setShowModal] = useState(false);
@@ -295,7 +295,12 @@ const CRScalculator: React.FC = () => {
                                                 value={phoneValue}
                                                 register={methods.register}
                                                 errors={errors}
-                                                refCallback={(value: string) => setPhoneValue(value)}
+                                                refCallback={(value: string) =>
+                                                    setPhoneValue(value)
+                                                }
+                                                setValue={setValue}
+                                                watch={watch}
+                                                trigger={trigger}
                                             />
                                         </Col>
                                         <Col md={6}>
