@@ -7,6 +7,7 @@ import { RiEdit2Line, RiDeleteBinLine } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 import { useUserImage } from '@/hooks';
 import { hasPermission } from '@/utils';
+import { formatStringDisplayName } from '@/utils/formatString';
 
 interface UserListHookResult {
 	columns: ReadonlyArray<Column<any>>;
@@ -54,7 +55,7 @@ export const useUserList = (): UserListHookResult => {
 			{ Header: 'Phone', accessor: 'phone', defaultCanSort: false },
 			{ Header: 'City', accessor: 'city', defaultCanSort: false, Cell: ({ cell }: any) => <span>{cell.value || 'N/A'}</span> },
 			{ Header: 'Address', accessor: 'address', defaultCanSort: false, Cell: ({ cell }: any) => <span>{cell.value || 'N/A'}</span> },
-			{ Header: 'Role', accessor: 'role', defaultCanSort: false },
+			{ Header: 'Role', accessor: 'role', defaultCanSort: false, Cell: ({ cell }: any) => <span>{formatStringDisplayName(cell.value)}</span> },
 		];
 
 		if (hasPermission(permissions, 'Users', 'Update')) {

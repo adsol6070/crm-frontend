@@ -24,7 +24,6 @@ interface PermissionsModalProps {
 	onPermissionsChange: () => void;
 }
 
-// Define the modules array
 const modules = [
 	{
 		id: 'users',
@@ -58,23 +57,24 @@ const modules = [
 		id: 'leads',
 		name: 'Leads',
 		permissions: [
-			{ name: 'AddNotes' },
-			{ name: 'Assign', dependsOn: 'View' },
 			{ name: 'Create' },
+			{ name: 'View' },
+			{ name: 'Edit', dependsOn: 'View' },
 			{ name: 'Delete', dependsOn: 'View' },
 			{ name: 'DeleteAll', dependsOn: 'View' },
-			{ name: 'DeleteNote' },
-			{ name: 'DeleteNotes' },
-			{ name: 'DownloadCSV', dependsOn: 'View' },
-			{ name: 'DownloadCSVFormat' },
-			{ name: 'Edit', dependsOn: 'View' },
-			{ name: 'EditNote' },
-			{ name: 'History', dependsOn: 'View' },
-			{ name: 'ImportBulk', dependsOn: 'View' },
+			{ name: 'DeleteSelected', dependsOn: 'View' },
 			{ name: 'ReadQR', dependsOn: 'View' },
+			{ name: 'DownloadCSVFormat', dependsOn: 'ImportBulk' },
+			{ name: 'DownloadCSV', dependsOn: 'View' },
+			{ name: 'ImportBulk', dependsOn: 'View' },
 			{ name: 'Status', dependsOn: 'View' },
-			{ name: 'Status', dependsOn: 'View' },
-			{ name: 'View' },
+			{ name: 'History', dependsOn: 'View' },
+			{ name: 'Assign', dependsOn: 'View' },
+			{ name: 'Checklist', dependsOn: 'View' },
+			{ name: 'AddNotes', dependsOn: 'View' },
+			{ name: 'EditNote', dependsOn: 'View' },
+			{ name: 'DeleteNote', dependsOn: 'View' },
+			{ name: 'DeleteNotes', dependsOn: 'View' },
 		],
 	},
 	{
@@ -84,8 +84,8 @@ const modules = [
 			{ name: 'Create' },
 			{ name: 'Read' },
 			{ name: 'Delete', dependsOn: 'Read' },
-			{ name: 'DeleteAll', dependsOn: 'Delete' },
-			{ name: 'DeleteSelected', dependsOn: 'Delete' },
+			{ name: 'DeleteAll', dependsOn: 'Read' },
+			{ name: 'DeleteSelected', dependsOn: 'Read' },
 		],
 	},
 	{
@@ -95,7 +95,7 @@ const modules = [
 			{ name: 'Create' },
 			{ name: 'Read' },
 			{ name: 'AddDocument', dependsOn: 'Read' },
-			{ name: 'DeleteChecklist', dependsOn: 'Delete' },
+			{ name: 'DeleteChecklist', dependsOn: 'Read' },
 			{ name: 'EditDocument', dependsOn: 'Read' },
 			{ name: 'DeleteDocument', dependsOn: 'Read' },
 			{ name: 'Update', dependsOn: 'Read' },
@@ -120,7 +120,6 @@ const generateInitialPermissions = (modules: any[]): Permissions => {
 	return permissions;
 };
 
-// Use generated initialPermissions
 const initialPermissions: Permissions = generateInitialPermissions(modules);
 
 const standardizeRoleName = (role: string) => {

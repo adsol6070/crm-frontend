@@ -29,7 +29,6 @@ type UserPermissions = Omit<
 	updated_at: string
 }
 
-// Converts a string to Title Case
 const toTitleCase = (str: string) => {
 	return str.toLowerCase().replace(/\b(\w)/g, (s) => s.toUpperCase())
 }
