@@ -1,12 +1,14 @@
 import { PageBreadcrumb, Table } from '@/components';
 import { Row, Col, Card, Spinner, Modal, Button } from 'react-bootstrap';
 import { useResultList } from './useListResults';
-import { toast, ToastContainer } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/ReactToastify.css';
 import styles from "./listResults.module.css";
-import { scoreApi, useAuthContext, usePermissions, useThemeContext } from '@/common';
+import { useAuthContext, usePermissions, useThemeContext } from '@/common';
 import { backgroundStyle, hasPermission } from '@/utils';
 import { useState } from 'react';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const ListResults: React.FC = () => {
     const { permissions } = usePermissions();
@@ -33,6 +35,52 @@ const ListResults: React.FC = () => {
 
     const handleDeleteAll = () => {
         deleteAllResults(user.tenantID);
+    };
+
+    const handleDownloadPdf = async () => {
+        if (selectedResult) {
+            const doc = new jsPDF();
+    
+            doc.setFontSize(16);
+            doc.text("CRS Scorecard", 10, 10);
+    
+            doc.setFontSize(12);
+            doc.text(`CRS Score: ${selectedResult.score}`, 10, 20);
+    
+            const rows = [
+                ["Name", selectedResult.name],
+                ["Phone", selectedResult.phone],
+                ["Email", selectedResult.email],
+                ["Age", selectedResult.age],
+                ["Education", selectedResult.education],
+                ["Foreign Experience", selectedResult.foreign_experience],
+                ["Canadian Experience", selectedResult.canadian_experience],
+                ["First Language", selectedResult.first_language],
+                ["Second Language", selectedResult.second_language || 'N/A'],
+                ["Spouse/Common-law Partner", selectedResult.spouse],
+                ["Sibling in Canada", selectedResult.sibling_in_canada],
+                ["Job Offer", selectedResult.job_offer],
+                ["Provincial Nomination", selectedResult.provincial_nomination],
+                ["Canadian Degree", selectedResult.canadian_degree],
+            ];
+    
+            if (selectedResult.spouse === 'yes') {
+                rows.push(
+                    ["Spouse Education", selectedResult.spouse_education],
+                    ["Spouse Language", selectedResult.spouse_language || 'N/A'],
+                    ["Spouse Experience", selectedResult.spouse_experience]
+                );
+            }
+    
+            autoTable(doc, {
+                head: [["Field", "Value"]],
+                body: rows,
+                startY: 30,  
+                theme: 'grid'
+            });
+    
+            doc.save('CRS_Scorecard.pdf');
+        }
     };
 
     return (
@@ -105,7 +153,7 @@ const ListResults: React.FC = () => {
                             </h3>
                             <div className={styles.scoreTable}>
                                 <Row>
-                                    <Col md={6}>
+                                    <Col md={12}>
                                         <table className="table table-bordered">
                                             <tbody>
                                                 <tr>
@@ -127,7 +175,7 @@ const ListResults: React.FC = () => {
                                             </tbody>
                                         </table>
                                     </Col>
-                                    <Col md={6}>
+                                    <Col md={12}>
                                         <table className="table table-bordered">
                                             <tbody>
                                                 <tr>
@@ -149,7 +197,7 @@ const ListResults: React.FC = () => {
                                             </tbody>
                                         </table>
                                     </Col>
-                                    <Col md={6}>
+                                    <Col md={12}>
                                         <table className="table table-bordered">
                                             <tbody>
                                                 <tr>
@@ -171,7 +219,7 @@ const ListResults: React.FC = () => {
                                             </tbody>
                                         </table>
                                     </Col>
-                                    <Col md={6}>
+                                    <Col md={12}>
                                         <table className="table table-bordered">
                                             <tbody>
                                                 <tr>
@@ -207,6 +255,7 @@ const ListResults: React.FC = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={() => setSelectedResult(null)}>Close</Button>
+                        <Button variant="primary" onClick={handleDownloadPdf}>Download Scorecard</Button>
                     </Modal.Footer>
                 </Modal>
             )}

@@ -60,6 +60,11 @@ function LeadService() {
 				headers: getAuthHeaders(),
 			})
 		},
+		getLeadDocumentStatus: async () => {
+			return await HttpClient.get(`/lead/getDocumentStatus`, {
+				headers: getAuthHeaders(),
+			})
+		},
 		update: async (values: any, leadId?: string) => {
 			const data = await HttpClient.patch(`/lead/${leadId}`, values, {
 				headers: getAuthHeaders(),

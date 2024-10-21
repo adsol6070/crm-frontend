@@ -1,8 +1,9 @@
 import { Column } from 'react-table'
-import { PageSize } from '@/components'
+import { PageSize, ProgressBar } from '@/components'
 import React, { useEffect, useMemo, useState } from 'react'
 import { LeadData } from '@/types'
 import {
+	checklistsApi,
 	leadApi,
 	useAuthContext,
 	usePermissions,
@@ -15,6 +16,7 @@ import Swal from 'sweetalert2'
 import styles from './LeadList.module.css'
 import { actionStyle, capitalizeFirstLetter, hasPermission } from '@/utils'
 import { formatStringDisplayName } from '@/utils/formatString'
+import useAddDocumentChecklist from '../DocumentChecklist/useDocumentChecklist'
 
 interface HistoryItem {
 	action: string
@@ -67,6 +69,8 @@ export const useLeadList = (): LeadListHookResult => {
 	const [showHistoryModal, setShowHistoryModal] = useState(false)
 	const [historyData, setHistoryData] = useState<HistoryItem[]>([])
 	const [selectedAssignees, setSelectedAssignees] = useState<string[]>([])
+	const [progressData, setProgressData] = useState<{ [key: string]: string }>({});
+	const [checklistData, setChecklistData] = useState<{ [key: string]: string }>({});
 
 	const handleAssignButtonClick = async (leadId: string) => {
 		setSelectedLeadId(leadId)
@@ -182,6 +186,19 @@ export const useLeadList = (): LeadListHookResult => {
 				Cell: ({ cell }: any) => formatStringDisplayName(cell.value),
 			},
 			{
+				Header: 'Checklist Status',
+				accessor: 'checklistStatus',
+				defaultCanSort: true,
+				Cell: ({ cell }: any) => {
+					return <span>
+						{progressData[cell.row.original.id]
+							? <ProgressBar totalDocuments={checklistData[cell.row.original.visaCategory]} uploadedDocuments={progressData[cell.row.original.id]} />
+							: <ProgressBar totalDocuments={checklistData[cell.row.original.visaCategory]} uploadedDocuments={0} />}
+
+					</span>
+				}
+			},
+			{
 				Header: 'Status',
 				accessor: 'status',
 				disableSortBy: true,
@@ -199,8 +216,8 @@ export const useLeadList = (): LeadListHookResult => {
 									<span>
 										{leadStatuses[cell.row.original.id]
 											? capitalizeFirstLetter(
-													leadStatuses[cell.row.original.id]
-												)
+												leadStatuses[cell.row.original.id]
+											)
 											: 'No Status'}
 									</span>
 								</Dropdown.Toggle>
@@ -229,7 +246,7 @@ export const useLeadList = (): LeadListHookResult => {
 				},
 			},
 		],
-		[leadStatuses]
+		[leadStatuses, progressData]
 	)
 
 	const actionsColumn = {
@@ -324,6 +341,26 @@ export const useLeadList = (): LeadListHookResult => {
 	}
 
 	insertColumnsBeforeActions()
+
+	const getDocumentStatus = async () => {
+		try {
+			const response = await leadApi.getLeadDocumentStatus();
+			const checklistResponse = await checklistsApi.getChecklist();
+			const formattedChecklistData = checklistResponse.checklists.reduce((acc: any, curr: any) => {
+				acc[curr.visaType] = curr.checklist.length
+				return acc
+			}, {})
+			const formattedData = response.reduce((acc: any, curr: any) => {
+				acc[curr.leadID] = curr.documents.length
+				return acc
+			}, {})
+			setChecklistData(formattedChecklistData)
+			setProgressData(formattedData)
+		} catch (error) {
+			toast.error('Failed to get lead document status.')
+			console.error(error)
+		}
+	}
 
 	const handleStatusChange = (leadId: string, status: string) => {
 		setLeadStatuses((prevStatuses) => ({
@@ -466,7 +503,7 @@ export const useLeadList = (): LeadListHookResult => {
 				setLeadRecords(leadsWithIndex)
 
 				await getLeadStatuses()
-
+				await getDocumentStatus();
 				const categories: any = [
 					...new Set(leadData.map((lead: any) => lead.visaCategory)),
 				]
@@ -480,6 +517,7 @@ export const useLeadList = (): LeadListHookResult => {
 				setLeadRecords(leadsWithIndex)
 
 				await getLeadStatuses()
+				await getDocumentStatus();
 
 				const categories: any = [
 					...new Set(leadData.map((lead: any) => lead.visaCategory)),
@@ -576,18 +614,18 @@ export const useLeadList = (): LeadListHookResult => {
 		})
 	}
 
-const downloadFullCSV = async (category: string)=>{
-	try {
-		const response = await leadApi.downloadLeadCsv(category);
-		const url = window.URL.createObjectURL(response);
-		const link = document.createElement("a");
-		link.href = url;
-		link.setAttribute("download", "leads_data.csv");
-		link.click(); 
-	  } catch (error) {
-		console.error("Error downloading CSV file", error);
-	  }
-}
+	const downloadFullCSV = async (category: string) => {
+		try {
+			const response = await leadApi.downloadLeadCsv(category);
+			const url = window.URL.createObjectURL(response);
+			const link = document.createElement("a");
+			link.href = url;
+			link.setAttribute("download", "leads_data.csv");
+			link.click();
+		} catch (error) {
+			console.error("Error downloading CSV file", error);
+		}
+	}
 
 	return {
 		columns,

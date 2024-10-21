@@ -6,6 +6,7 @@ import { useUser } from '@/hooks';
 import { capitalizeFirstLetter } from '@/utils';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { formatStringDisplayName } from '@/utils/formatString';
 
 const ProfilePages = () => {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ const ProfilePages = () => {
                     )}
                   </h4>
                   <p className="font-13">
-                    {loading ? <Skeleton width={100} /> : capitalizeFirstLetter(String(loggedInUser?.role))}
+                    {loading ? <Skeleton width={100} /> : formatStringDisplayName(String(loggedInUser?.role))}
                   </p>
                   <p className="text-muted mb-0">
                     {loading ? <Skeleton width={200} /> : (
@@ -108,7 +109,7 @@ const ProfilePages = () => {
                             <tr>
                               <th scope="row">Role</th>
                               <td className="ng-binding">
-                                {loading ? <Skeleton width={100} /> : capitalizeFirstLetter(String(loggedInUser?.role == null?"":loggedInUser?.role))}
+                                {loading ? <Skeleton width={100} /> : formatStringDisplayName(String(loggedInUser?.role == null?"":loggedInUser?.role))}
                               </td>
                             </tr>
                             <tr>

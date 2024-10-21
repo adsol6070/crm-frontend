@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Table, Form, Modal, Spinner, Container } from 'react-bootstrap';
-import { PageBreadcrumb } from '@/components';
+import { PageBreadcrumb, ProgressBar } from '@/components';
 import { useForm, FormProvider, useFieldArray } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -298,6 +298,9 @@ const AddLeadChecklist: React.FC = () => {
     <>
       <ToastContainer />
       <PageBreadcrumb title="Add Documents" subName="Leads" />
+      <div className={styles.progressContainerDesign}>
+      <ProgressBar totalDocuments={docLength || 0} uploadedDocuments={uploadedDocs.length} />
+      </div>
       {loading ? (
         <Container className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
           <Spinner animation="border" role="status">
