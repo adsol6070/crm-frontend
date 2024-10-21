@@ -1,84 +1,86 @@
 .formStepContainer {
-    transition: all 0.3s ease-in-out;
-    padding: 20px;
-  }
-  
-  @media (max-width: 500px) {
-    .customStepperStyle {
-      overflow-x: scroll;
-    }
-  }
-  
-  .stepForm {
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .confirmationStep {
-    text-align: center;
-    padding: 20px;
-  }
-  
-  .stepLabel {
-    transition: background-color 0.3s, transform 0.2s;
-  }
-  
-  .stepLabel:hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
-  }
-  
-  input,
-  button {
-    height: 38px;
-  }
-  
-  .reactFormStepper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
-  
-  .reactFormStepper .step {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .reactFormStepper .stepLabel {
-    text-align: center;
-    margin-top: 8px;
-  }
-  
-  .reactFormStepper .stepIcon {
-    width: 2.5em;
-    height: 2.5em;
-    line-height: 2.5em;
-    border-radius: 50%;
-    background: #e0e0e0;
-    color: #333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
-  }
-  
-  .reactFormStepper .isActive .stepIcon {
-    background: #007bff;
-    color: white;
-  }
-  
-  .reactFormStepper .isCompleted .stepIcon {
-    background: #28a745;
-    color: white;
-  }
-
-.customMargin{
-  margin: 15px 0px;
+	transition: all 0.3s ease-in-out;
+	padding: 20px;
 }
 
-.darkDesign{
-  background-color: transparent;
+@media (max-width: 500px) {
+	.customStepperStyle {
+		overflow-x: scroll;
+	}
+}
+
+.stepForm {
+	padding: 20px;
+	border-radius: 8px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.confirmationStep {
+	text-align: center;
+	padding: 20px;
+}
+
+.stepLabel {
+	transition:
+		background-color 0.3s,
+		transform 0.2s;
+}
+
+.stepLabel:hover {
+	background-color: #0056b3;
+	transform: scale(1.05);
+}
+
+input,
+button {
+	height: 38px;
+}
+
+.reactFormStepper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 20px;
+}
+
+.reactFormStepper .step {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.reactFormStepper .stepLabel {
+	text-align: center;
+	margin-top: 8px;
+}
+
+.reactFormStepper .stepIcon {
+	width: 2.5em;
+	height: 2.5em;
+	line-height: 2.5em;
+	border-radius: 50%;
+	background: #e0e0e0;
+	color: #333;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s;
+}
+
+.reactFormStepper .isActive .stepIcon {
+	background: #007bff;
+	color: white;
+}
+
+.reactFormStepper .isCompleted .stepIcon {
+	background: #28a745;
+	color: white;
+}
+
+.customMargin {
+	margin: 15px 0px;
+}
+
+.darkDesign {
+	background-color: transparent;
 }
