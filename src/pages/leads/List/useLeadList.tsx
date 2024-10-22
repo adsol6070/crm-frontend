@@ -186,8 +186,8 @@ export const useLeadList = (): LeadListHookResult => {
 				Cell: ({ cell }: any) => formatStringDisplayName(cell.value),
 			},
 			{
-				Header: 'Checklist Status',
-				accessor: 'checklistStatus',
+				Header: 'Uploaded Documents',
+				accessor: 'uploadedDocuments',
 				defaultCanSort: true,
 				Cell: ({ cell }: any) => {
 					return <span>

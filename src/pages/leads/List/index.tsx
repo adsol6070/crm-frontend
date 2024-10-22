@@ -43,6 +43,7 @@ const LeadList = () => {
 	const [showUpdateModal, setShowUpdateModal] = useState(false)
 	const [selectedCategory, setSelectedCategory] = useState('All')
 	const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
+	console.log("selectedUserIds", selectedUserIds)
 
 	const canDeleteSelected = hasPermission(
 		permissions,

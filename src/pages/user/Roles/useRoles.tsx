@@ -40,7 +40,6 @@ export const useRoles = () => {
 	const [loading, setLoading] = useState(true)
 	const columns = [
 		{ Header: 'Role Title', accessor: 'role', defaultCanSort: true },
-		{ Header: 'Users', accessor: 'users' },
 		{ Header: 'Created On', accessor: 'createdOn' },
 		{ Header: 'Updated On', accessor: 'updatedOn' },
 	]

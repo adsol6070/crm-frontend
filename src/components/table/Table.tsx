@@ -188,7 +188,6 @@ const Table = ({
 		}
 	}, [location])
 
-	// Update the selected user IDs when rows are selected/unselected
 	useEffect(() => {
 		const selectedUserIds = page
 			.filter((row) => selectedRowIds[row.id])
@@ -196,16 +195,13 @@ const Table = ({
 		setSelectedUserIds(selectedUserIds)
 	}, [page, selectedRowIds, setSelectedUserIds])
 
-	// Handle page change if the current page becomes empty after data changes (e.g., deletion)
 	useEffect(() => {
 		if (dynamicRows.length === 0 && pageIndex > 0) {
-			// If no rows are present in the current page, navigate to the last page that has data
 			gotoPage(pageIndex - 1)
 			setPageIndex(pageIndex - 1)
 		}
 	}, [dynamicRows.length, pageIndex, gotoPage])
 
-	// Update the current data when external data changes
 	useEffect(() => {
 		setCurrentData(data)
 	}, [data])

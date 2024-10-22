@@ -77,6 +77,7 @@ interface FormInputProps extends InputHTMLAttributes<HTMLInputElement> {
 	setValue?: any
 	watch?: any
 	trigger?: any
+	isEditMode?: boolean
 }
 
 const FormInput = ({
@@ -99,6 +100,7 @@ const FormInput = ({
 	setValue,
 	watch,
 	trigger,
+	isEditMode,
 	...otherProps
 }: FormInputProps) => {
 	const { settings }: any = useThemeContext()
@@ -123,7 +125,7 @@ const FormInput = ({
 	}, [phoneNumber])
 
 	const handlePhoneChange = (value: string, data: any) => {
-		const val = value.slice(data.dialCode.length)
+		const val = value.slice(data.dialCode?.length)
 		const formattedData = `+${data.dialCode} ${val}`
 		setValue(name, formattedData)
 		trigger(name)
@@ -170,7 +172,7 @@ const FormInput = ({
 							) : null}
 
 							<PhoneInput
-								country={initialCountry}
+								{...(isEditMode ? {} : { country: 'in' })}
 								placeholder={placeholder}
 								enableSearch={true}
 								prefix="+"

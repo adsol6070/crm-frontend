@@ -336,12 +336,10 @@ const EditLead: React.FC = () => {
                                   register={register}
                                   errors={errors}
                                   phoneNumber={phoneVal}
-                                  refCallback={(value: string) =>
-                                    setPhoneVal(value)
-                                  }
-                                  setValue={setValue}
+                                  refCallback={(value: string) => setPhoneVal(value)}
                                   watch={watch}
                                   trigger={trigger}
+                                  setValue={setValue}
                                 />
                               </Col>
                               <Col lg={4} md={6} sm={12}>

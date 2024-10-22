@@ -29,7 +29,7 @@ const modules = [
 		id: 'users',
 		name: 'Users',
 		permissions: [
-			{ name: 'Create' },
+			{ name: 'Create', dependsOn: 'Read' },
 			{ name: 'Read' },
 			{ name: 'Update', dependsOn: 'Read' },
 			{ name: 'Delete', dependsOn: 'Read' },
@@ -47,7 +47,7 @@ const modules = [
 		id: 'blogs',
 		name: 'Blogs',
 		permissions: [
-			{ name: 'Create' },
+			{ name: 'Create', dependsOn: 'Read' },
 			{ name: 'Read' },
 			{ name: 'Update', dependsOn: 'Read' },
 			{ name: 'Delete', dependsOn: 'Read' },
@@ -57,14 +57,14 @@ const modules = [
 		id: 'leads',
 		name: 'Leads',
 		permissions: [
-			{ name: 'Create' },
+			{ name: 'Create', dependsOn: 'View' },
 			{ name: 'View' },
 			{ name: 'Edit', dependsOn: 'View' },
 			{ name: 'Delete', dependsOn: 'View' },
 			{ name: 'DeleteAll', dependsOn: 'View' },
 			{ name: 'DeleteSelected', dependsOn: 'View' },
 			{ name: 'ReadQR', dependsOn: 'View' },
-			{ name: 'DownloadCSVFormat', dependsOn: 'ImportBulk' },
+			{ name: 'DownloadCSVFormat', dependsOn: 'View' },
 			{ name: 'DownloadCSV', dependsOn: 'View' },
 			{ name: 'ImportBulk', dependsOn: 'View' },
 			{ name: 'Status', dependsOn: 'View' },
@@ -81,7 +81,7 @@ const modules = [
 		id: 'scores',
 		name: 'Scores',
 		permissions: [
-			{ name: 'Create' },
+			{ name: 'Create', dependsOn: 'Read' },
 			{ name: 'Read' },
 			{ name: 'Delete', dependsOn: 'Read' },
 			{ name: 'DeleteAll', dependsOn: 'Read' },
@@ -92,7 +92,7 @@ const modules = [
 		id: 'Checklists',
 		name: 'checklists',
 		permissions: [
-			{ name: 'Create' },
+			{ name: 'Create', dependsOn: 'Read' },
 			{ name: 'Read' },
 			{ name: 'AddDocument', dependsOn: 'Read' },
 			{ name: 'DeleteChecklist', dependsOn: 'Read' },
