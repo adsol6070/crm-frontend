@@ -80,7 +80,6 @@ const EditUser: React.FC = () => {
   };
 
   const onSubmit = async (data: User) => {
-    console.log(data)
     let formData = new FormData();
     formData.append('uploadType', "User");
     Object.keys(data).forEach((key) => {

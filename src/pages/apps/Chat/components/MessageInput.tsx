@@ -26,24 +26,24 @@ const MessageInput = () => {
 		currentRoomId,
 	} = useChatContext()
 
-	const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+	const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
 	const handleFileUploadWithValidation = (event: any) => {
-		const files = event.target.files;
+		const files = event.target.files
 		if (files.length > 0) {
-			const file = files[0];
+			const file = files[0]
 			if (file.size > MAX_FILE_SIZE) {
 				Swal.fire({
 					icon: 'error',
 					title: 'File Too Large',
 					text: 'File size exceeds 10MB. Please select a smaller file.',
-				});
+				})
 				if (fileInputRef.current) {
-					fileInputRef.current.value = '';
+					fileInputRef.current.value = ''
 				}
-				return;
+				return
 			}
-			handleFileUpload(event);
+			handleFileUpload(event)
 		}
 	}
 
@@ -72,13 +72,17 @@ const MessageInput = () => {
 							<EmojiButton
 								type="button"
 								color="link"
-								onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+								onClick={(e) => {
+									e.stopPropagation()
+									setShowEmojiPicker((prevState) => !prevState)
+								}}>
 								😊
 							</EmojiButton>
 							{showEmojiPicker && (
 								<EmojiPickerContainer
 									className="position-absolute"
-									ref={emojiPickerRef}>
+									ref={emojiPickerRef}
+									onClick={(e) => e.stopPropagation()}>
 									<EmojiPicker onEmojiClick={handleEmojiClick} />
 								</EmojiPickerContainer>
 							)}
@@ -121,6 +125,7 @@ const MessageInput = () => {
 								src={selectedFile.url}
 								alt="Selected"
 								className="img-fluid rounded"
+								style={{ width: '300px', height: '200px', objectFit: 'cover' }}
 							/>
 							<div className="d-flex align-items-center justify-content-center mt-2">
 								<input
