@@ -2,7 +2,7 @@ import { chatApi, useAuthContext } from '@/common'
 import groupPlaceholder from '@/assets/images/users/group-placeholder.jpg'
 import SocketManager from '@/common/context/SocketManager'
 import { EmojiClickData } from 'emoji-picker-react'
-import { useOutsideClick, useUser, useUserImage } from '@/hooks'
+import { useUser, useUserImage } from '@/hooks'
 import React, {
 	createContext,
 	KeyboardEvent,
@@ -159,7 +159,27 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
 	const isGroupChat = groups.some((group) => group.id === currentRoomId)
 
-	useOutsideClick(emojiPickerRef, () => setShowEmojiPicker(false))
+
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				emojiPickerRef.current &&
+				!emojiPickerRef.current.contains(event.target as Node)
+			) {
+				setShowEmojiPicker(false) 
+			}
+		}
+
+		if (showEmojiPicker) {
+			document.addEventListener('click', handleClickOutside)
+		} else {
+			document.removeEventListener('click', handleClickOutside)
+		}
+
+		return () => {
+			document.removeEventListener('click', handleClickOutside)
+		}
+	}, [showEmojiPicker])
 
 	const fetchGroupImage = async (group: any) => {
 		try {
@@ -665,6 +685,12 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 		const handleLeftClick = (event: any) => {
 			if (selectedFile) {
 				const container = document.getElementById('selected-file-container')
+				const emojiPicker = emojiPickerRef.current
+
+				if (emojiPicker) {
+					return
+				}
+
 				if (container && !container.contains(event.target)) {
 					event.preventDefault()
 
@@ -697,7 +723,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 		return () => {
 			document.removeEventListener('click', handleLeftClick)
 		}
-	}, [selectedFile])
+	}, [selectedFile, emojiPickerRef])
 
 	const deleteSelfMessage = (messageId: string) => {
 		const socket = SocketManager.getSocket()
