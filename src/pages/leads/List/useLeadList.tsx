@@ -37,7 +37,7 @@ interface LeadListHookResult {
 	downloadCSV: (category: string) => void
 	downloadFullCSV: (category: string) => void
 	refreshLeads: () => void
-	uploadLeads: (formData: FormData) => Promise<void>
+	uploadLeads: (leadData: any) => Promise<void>
 	deleteAllLeads: () => void
 	visaCategories: string[]
 	showAssignModal: boolean
@@ -193,7 +193,7 @@ export const useLeadList = (): LeadListHookResult => {
 					return <span>
 						{progressData[cell.row.original.id]
 							? <ProgressBar totalDocuments={checklistData[cell.row.original.visaCategory]} uploadedDocuments={progressData[cell.row.original.id]} />
-							: <ProgressBar totalDocuments={checklistData[cell.row.original.visaCategory]} uploadedDocuments={0} />}
+							: <ProgressBar totalDocuments={checklistData[cell.row.original.visaCategory] ?? 0} uploadedDocuments={0} />}
 
 					</span>
 				}
@@ -538,10 +538,10 @@ export const useLeadList = (): LeadListHookResult => {
 		}
 	}, [])
 
-	const uploadLeads = async (formData: FormData) => {
+	const uploadLeads = async (leadData: any) => {
 		setLoading(true)
 		try {
-			const data = await leadApi.uploadBulkLeads(formData)
+			const data = await leadApi.uploadBulkLeads(leadData)
 			toast.success(data.message)
 		} catch (error: any) {
 			toast.error('Lead not imported')

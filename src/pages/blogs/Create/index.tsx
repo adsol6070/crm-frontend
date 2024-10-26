@@ -30,7 +30,7 @@ const AddBlog: React.FC = () => {
 	const [editorState, setEditorState] = useState(EditorState.createEmpty())
 	const [resetFileUploader, setResetFileUploader] = useState(0)
 
-	const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+	const MAX_FILE_SIZE = 10 * 1024 * 1024; 
 
 	const handleEditorChange = (state: EditorState) => {
 		setEditorState(state)

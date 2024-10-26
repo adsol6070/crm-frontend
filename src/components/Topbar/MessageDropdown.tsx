@@ -149,7 +149,8 @@ const MessageDropdown = () => {
 					</div>
 					<SimpleBar style={{ maxHeight: 300 }}>
 						{/* item*/}
-						{(newMessages || []).map((message, idx) => {
+						{newMessages.length > 0 ? 
+						(newMessages || []).map((message, idx) => {
 							return (
 								<Link
 									key={idx}
@@ -181,14 +182,19 @@ const MessageDropdown = () => {
 									</Card.Body>
 								</Link>
 							)
-						})}
+						}) :  (
+							<div className="text-center p-3">
+								<p className="text-muted mb-0">No notifications available</p>
+							</div>
+						)
+					}
 					</SimpleBar>
 					{/* All*/}
-					<Link
+					{/* <Link
 						to="#"
 						className="dropdown-item text-center text-primary text-decoration-underline fw-bold notify-item border-top border-light py-2">
 						View All
-					</Link>
+					</Link> */}
 				</Dropdown.Menu>
 			</Dropdown>
 		</>

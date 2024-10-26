@@ -27,7 +27,7 @@ function LeadService() {
 		},
 		uploadBulkLeads: async (values: any) => {
 			return await HttpClient.post('/lead/importLeads', values, {
-				headers: getAuthHeaders(true),
+				headers: getAuthHeaders(),
 			})
 		},
 		get: async () => {

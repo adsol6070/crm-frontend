@@ -142,7 +142,7 @@ const ListResults: React.FC = () => {
             </Row>
 
             {selectedResult && (
-                <Modal show={true} onHide={() => setSelectedResult(null)} centered>
+                <Modal show={true} onHide={() => setSelectedResult(null)} centered size="lg">
                     <Modal.Header closeButton>
                         <Modal.Title>CRS Score Details</Modal.Title>
                     </Modal.Header>
@@ -153,7 +153,7 @@ const ListResults: React.FC = () => {
                             </h3>
                             <div className={styles.scoreTable}>
                                 <Row>
-                                    <Col md={12}>
+                                    <Col md={6}>
                                         <table className="table table-bordered">
                                             <tbody>
                                                 <tr>
@@ -175,7 +175,7 @@ const ListResults: React.FC = () => {
                                             </tbody>
                                         </table>
                                     </Col>
-                                    <Col md={12}>
+                                    <Col md={6}>
                                         <table className="table table-bordered">
                                             <tbody>
                                                 <tr>
@@ -197,7 +197,7 @@ const ListResults: React.FC = () => {
                                             </tbody>
                                         </table>
                                     </Col>
-                                    <Col md={12}>
+                                    <Col md={6}>
                                         <table className="table table-bordered">
                                             <tbody>
                                                 <tr>
@@ -219,7 +219,7 @@ const ListResults: React.FC = () => {
                                             </tbody>
                                         </table>
                                     </Col>
-                                    <Col md={12}>
+                                    <Col md={6}>
                                         <table className="table table-bordered">
                                             <tbody>
                                                 <tr>

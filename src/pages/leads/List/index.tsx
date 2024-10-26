@@ -9,7 +9,7 @@ import AssignModal from './modals/assignModal'
 import styles from './LeadList.module.css'
 import { useUserList } from '@/pages/user/List/useUserList'
 import { leadApi, usePermissions, useThemeContext } from '@/common'
-import { capitalizeFirstLetter, hasPermission, textStyle } from '@/utils'
+import { hasPermission, textStyle } from '@/utils'
 import HistoryModal from './modals/HistoryModal'
 import UpdateModal from './modals/updateModal'
 import { formatStringDisplayName } from '@/utils/formatString'
@@ -43,7 +43,6 @@ const LeadList = () => {
 	const [showUpdateModal, setShowUpdateModal] = useState(false)
 	const [selectedCategory, setSelectedCategory] = useState('All')
 	const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
-	console.log("selectedUserIds", selectedUserIds)
 
 	const canDeleteSelected = hasPermission(
 		permissions,
