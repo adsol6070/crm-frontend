@@ -13,7 +13,7 @@ import useCreateLead from './useCreateLeadForm';
 import CountryList from 'react-select-country-list';
 import ReactToPrint from 'react-to-print';
 import { Country, State, City } from 'country-state-city';
-import { capitalizeFirstLetter, nationalityOptions, genderOptions, maritalStatusOptions } from '@/utils';
+import { capitalizeFirstLetter, nationalityOptions, genderOptions, maritalStatusOptions, sourceOptions } from '@/utils';
 import { formatStringDisplayName } from '@/utils/formatString';
 
 interface CollectedData {
@@ -26,6 +26,7 @@ interface DropdownOptions {
 }
 
 const defaultGender = { value: 'male', label: 'Male' };
+const defaultSource = { value: 'direct', label: 'Direct' }
 const defaultNationality = { value: 'indian', label: 'Indian' };
 const defaultCountryOfInterest = { value: 'IN', label: 'India' };
 const defaultVisaCategory = { value: 'tourist visa', label: 'Tourist Visa' };
@@ -60,7 +61,7 @@ const stepSchemas = [
       firstname: yup.string().required('Please enter your First Name').trim(),
       lastname: yup.string().required('Please enter your Last Name').trim(),
       email: yup.string().required('Please enter your Email').email('Please enter a valid Email'),
-      phone: yup.string(),
+      phone: yup.string().required('Phone number is required'),
       dob: yup.string().required('Please select your Date of Birth'),
       maritalStatus: yup.string(),
       pincode: yup.string().nullable().matches(/(^$)|^[0-9]{6}$/, 'Pincode must be exactly 6 digits').trim(),
@@ -111,6 +112,7 @@ const CreateLeadForm = () => {
   const [collectedData, setCollectedData] = useState<CollectedData>({});
   const [selectedVisaCategory, setSelectedVisaCategory] = useState<DropdownOptions | null>(defaultVisaCategory);
   const [selectedGender, setSelectedGender] = useState<DropdownOptions | null>(defaultGender);
+  const [selectedSource, setSelectedSource] = useState<DropdownOptions | null>(defaultSource);
   const [selectNationalityOptions, setNationalityOptions] = useState<DropdownOptions | null>(defaultNationality);
   const [selectedCountryOfInterest, setSelectedCountryOfInterest] = useState<DropdownOptions | null>(defaultCountryOfInterest);
   const [countries, setCountries] = useState<DropdownOptions[]>([]);
@@ -140,6 +142,8 @@ const CreateLeadForm = () => {
     formState: { errors },
     reset,
     setValue,
+    watch,
+    trigger,
   } = methods;
 
   useEffect(() => {
@@ -188,6 +192,7 @@ const CreateLeadForm = () => {
       const savedStep = sessionStorage.getItem('currentStep');
       const savedData = sessionStorage.getItem('formData');
       const savedGenderOption = sessionStorage.getItem('selectedGender');
+      const savedSourceOption = sessionStorage.getItem('selectedSource');
       const savedVisaCategoryOption = sessionStorage.getItem('selectedVisaCategory');
       const savedNationalityOption = sessionStorage.getItem('selectedNationality');
       const savedCountryOfInterestOption = sessionStorage.getItem('selectedCountryOfInterest');
@@ -206,6 +211,9 @@ const CreateLeadForm = () => {
         });
         if (savedGenderOption) {
           setSelectedGender(JSON.parse(savedGenderOption));
+        }
+        if (savedSourceOption) {
+          setSelectedGender(JSON.parse(savedSourceOption));
         }
         if (savedVisaCategoryOption) {
           setSelectedVisaCategory(JSON.parse(savedVisaCategoryOption));
@@ -288,6 +296,11 @@ const CreateLeadForm = () => {
     sessionStorage.setItem('selectedGender', JSON.stringify(option));
   };
 
+  const handleSelectSource = (option: DropdownOptions | null) => {
+		setSelectedSource(option)
+		sessionStorage.setItem('selectedSource', JSON.stringify(option))
+	}
+
   const handleSelect3 = (option: DropdownOptions | null) => {
     setNationalityOptions(option);
     sessionStorage.setItem('selectedNationality', JSON.stringify(option));
@@ -332,6 +345,7 @@ const CreateLeadForm = () => {
     const city: any = selectedCity ? selectedCity.value : null;
     const visaCategory: any = selectedVisaCategory ? selectedVisaCategory.value : null;
     const gender: any = selectedGender ? selectedGender.value : null;
+    const source: any = selectedSource ? selectedSource.value : null;
     const nationality: any = selectNationalityOptions ? selectNationalityOptions.value : null;
     const countryOfInterest: any = selectedCountryOfInterest ? selectedCountryOfInterest.label : null;
     const maritalStatus: any = selectedMaritalStatus ? selectedMaritalStatus.label : null;
@@ -345,14 +359,15 @@ const CreateLeadForm = () => {
     formData.append('nationality', nationality);
     formData.append('countryOfInterest', countryOfInterest);
     formData.append('maritalStatus', maritalStatus);
-    formData.append('leadSource', "By QR Code");
-    formData.append('phone', phoneValue);
+    formData.append('leadSource', source);
 
     Object.keys(finalData).forEach(key => {
       if (finalData[key] instanceof FileList && finalData[key].length > 0) {
         formData.append(key, finalData[key][0]);
       } else if (finalData[key] instanceof Date) {
         formData.append(key, finalData[key].toISOString());
+      } else if (key === 'phone') {
+        formData.append('phone', phoneValue);
       } else {
         formData.append(key, finalData[key]);
       }
@@ -464,7 +479,12 @@ const CreateLeadForm = () => {
                               value={phoneValue}
                               register={register}
                               errors={errors}
-                              refCallback={(value: string) => setPhoneValue(value)}
+                              refCallback={(value: string) =>
+                                setPhoneValue(value)
+                              }
+                              setValue={setValue}
+                              watch={watch}
+                              trigger={trigger}
                             />
                           </Col>
                           <Col md={4}>
@@ -925,14 +945,18 @@ const CreateLeadForm = () => {
                         </Row>
                         <Row className={`${styles.customMargin}`}>
                           <Col>
-                            <FormInput
-                              label="Source of Lead"
-                              name="leadSource"
-                              type="text"
-                              placeholder="Enter Source of Lead"
-                              register={register}
-                              errors={errors}
-                            />
+                            <Form.Group>
+														<Form.Label>Source of Lead</Form.Label>
+														<Select
+															className="select2"
+															options={sourceOptions}
+															getOptionLabel={(e) => e.label}
+															getOptionValue={(e) => e.value}
+															value={selectedSource}
+															onChange={handleSelectSource}
+															isClearable={true}
+														/>
+													</Form.Group>
                           </Col>
                         </Row>
                         <Row className={`${styles.customMargin}`}>
@@ -1009,6 +1033,10 @@ const CreateLeadForm = () => {
                               <tr>
                                 <td>Gender</td>
                                 <td>{capitalizeFirstLetter(String(selectedGender?.value))}</td>
+                              </tr>
+                              <tr>
+                                <td>Source of Lead</td>
+                                <td>{capitalizeFirstLetter(String(selectedSource?.value))}</td>
                               </tr>
                               <tr>
                                 <td>Nationality</td>

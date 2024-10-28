@@ -58,7 +58,7 @@ const CreateUser = () => {
 				.required('Please enter Email')
 				.email('Please enter valid Email'),
 			password: yup.string().required('Please enter Password'),
-			phone: yup.string(),
+			phone: yup.string().required('Please enter phone'),
 			profileImage: yup.mixed(),
 		})
 	)

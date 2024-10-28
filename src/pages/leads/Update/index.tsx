@@ -11,7 +11,7 @@ import useReadLead from '../Read/useReadLead';
 import CountryList from 'react-select-country-list';
 import { Country, State, City } from 'country-state-city';
 import { LeadData } from '@/types';
-import { capitalizeFirstLetter, nationalityOptions, genderOptions, customStyles } from '@/utils'
+import { capitalizeFirstLetter, nationalityOptions, genderOptions, customStyles, sourceOptions } from '@/utils'
 import { useThemeContext } from '@/common';
 import { formatStringDisplayName } from '@/utils/formatString';
 
@@ -28,6 +28,7 @@ const EditLead: React.FC = () => {
   const { editLead, visaCategories } = useEditLead();
   const [selectedVisaCategory, setSelectedVisaCategory] = useState<DropdownOptions | null>(null)
   const [selectedGender, setSelectedGender] = useState<DropdownOptions | null>(null)
+  const [selectedSource, setSelectedSource] = useState<DropdownOptions | null>(null)
   const [selectedNationality, setSelectedNationality] = useState<DropdownOptions | null>(null)
   const [selectedCountryOfInterest, setSelectedCountryOfInterest] = useState<DropdownOptions | null>(null)
   const [countries, setCountries] = useState<DropdownOptions[]>([]);
@@ -137,6 +138,13 @@ const EditLead: React.FC = () => {
         })
       }
 
+      if (leadData.leadSource) {
+        setSelectedSource({
+          label: capitalizeFirstLetter(leadData.leadSource),
+          value: leadData.leadSource,
+        })
+      }
+
       if (leadData.nationality) {
         setSelectedNationality({
           label: capitalizeFirstLetter(leadData.nationality),
@@ -196,6 +204,10 @@ const EditLead: React.FC = () => {
     setSelectedGender(option)
   }
 
+  const handleSelectSource = (option: DropdownOptions | null) => {
+    setSelectedSource(option)
+  }
+
   const handleSelect3 = (option: DropdownOptions | null) => {
     setSelectedNationality(option)
   }
@@ -223,7 +235,7 @@ const EditLead: React.FC = () => {
 
   const onSubmit = async (data: any) => {
     const completeData = {
-      ...data, visaCategory: selectedVisaCategory?.value, gender: selectedGender?.value, countryOfInterest: selectedCountryOfInterest?.label, nationality: selectedNationality?.value, country: selectedCountry?.label, state: selectedState?.label, district: selectedDistrict?.value, city: selectedCity?.value, phone: phoneVal
+      ...data, visaCategory: selectedVisaCategory?.value, gender: selectedGender?.value, countryOfInterest: selectedCountryOfInterest?.label, nationality: selectedNationality?.value, country: selectedCountry?.label, state: selectedState?.label, district: selectedDistrict?.value, city: selectedCity?.value, phone: phoneVal, leadSource: selectedSource?.value
     }
     await editLead(completeData, leadId);
   };
@@ -641,14 +653,19 @@ const EditLead: React.FC = () => {
                                 />
                               </Col>
                               <Col lg={4} md={6} sm={12}>
-                                <FormInput
-                                  label="Preferred Mode of Communication"
-                                  name="communicationMode"
-                                  type="text"
-                                  placeholder="Enter Preferred Mode of Communication"
-                                  register={register}
-                                  errors={errors}
-                                />
+                                <Form.Group>
+                                  <Form.Label>Source of Lead</Form.Label>
+                                  <Select
+                                    styles={customStyles(settings.theme === "dark")}
+                                    className="select2"
+                                    options={sourceOptions}
+                                    getOptionLabel={(e) => e.label ?? ''}
+                                    getOptionValue={(e) => e.value ?? ''}
+                                    value={selectedSource?.label === "null" ? { value: '', label: 'Select' } : selectedSource}
+                                    onChange={handleSelectSource}
+                                    isClearable={true}
+                                  />
+                                </Form.Group>
                               </Col>
                               <Col lg={4} md={6} sm={12}>
                                 <FormInput
@@ -749,11 +766,11 @@ const EditLead: React.FC = () => {
                                 />
                               </Col>
                               <Col lg={4} md={6} sm={12}>
-                                <FormInput
-                                  label="Source of Lead"
-                                  name="leadSource"
+                                  <FormInput
+                                  label="Preferred Mode of Communication"
+                                  name="communicationMode"
                                   type="text"
-                                  placeholder="Enter Source of Lead"
+                                  placeholder="Enter Preferred Mode of Communication"
                                   register={register}
                                   errors={errors}
                                 />
