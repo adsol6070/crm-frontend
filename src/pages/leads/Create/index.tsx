@@ -19,6 +19,7 @@ import {
 	genderOptions,
 	maritalStatusOptions,
 	customStyles,
+	sourceOptions,
 } from '@/utils'
 import { useThemeContext } from '@/common'
 import { formatStringDisplayName } from '@/utils/formatString'
@@ -33,6 +34,7 @@ interface DropdownOptions {
 }
 
 const defaultGender = { value: 'male', label: 'Male' }
+const defaultSource = { value: 'direct', label: 'Direct' }
 const defaultNationality = { value: 'indian', label: 'Indian' }
 const defaultCountryOfInterest = { value: 'IN', label: 'India' }
 const defaultVisaCategory = { value: 'tourist_visa', label: 'Tourist Visa' }
@@ -176,6 +178,9 @@ const AddLead = () => {
 	const [selectedGender, setSelectedGender] = useState<DropdownOptions | null>(
 		defaultGender
 	)
+	const [selectedSource, setSelectedSource] = useState<DropdownOptions | null>(
+		defaultSource
+	)
 	const [selectNationalityOptions, setNationalityOptions] =
 		useState<DropdownOptions | null>(defaultNationality)
 	const [selectedCountryOfInterest, setSelectedCountryOfInterest] =
@@ -275,6 +280,7 @@ const AddLead = () => {
 			const savedStep = sessionStorage.getItem('currentStep')
 			const savedData = sessionStorage.getItem('formData')
 			const savedGenderOption = sessionStorage.getItem('selectedGender')
+			const savedSourceOption = sessionStorage.getItem('selectedSource')
 			const savedVisaCategoryOption = sessionStorage.getItem(
 				'selectedVisaCategory'
 			)
@@ -299,6 +305,9 @@ const AddLead = () => {
 				})
 				if (savedGenderOption) {
 					setSelectedGender(JSON.parse(savedGenderOption))
+				}
+				if (savedSourceOption) {
+					setSelectedGender(JSON.parse(savedSourceOption))
 				}
 				if (savedVisaCategoryOption) {
 					setSelectedVisaCategory(JSON.parse(savedVisaCategoryOption))
@@ -389,6 +398,11 @@ const AddLead = () => {
 		sessionStorage.setItem('selectedGender', JSON.stringify(option))
 	}
 
+	const handleSelectSource = (option: DropdownOptions | null) => {
+		setSelectedSource(option)
+		sessionStorage.setItem('selectedSource', JSON.stringify(option))
+	}
+
 	const handleSelect3 = (option: DropdownOptions | null) => {
 		setNationalityOptions(option)
 		sessionStorage.setItem('selectedNationality', JSON.stringify(option))
@@ -444,6 +458,9 @@ const AddLead = () => {
 		const maritalStatus: any = selectedMaritalStatus
 			? selectedMaritalStatus.label
 			: null
+		const leadSource: any = selectedSource
+			? selectedSource.label
+			: null
 
 		formData.append('country', country)
 		formData.append('state', state)
@@ -454,16 +471,19 @@ const AddLead = () => {
 		formData.append('nationality', nationality)
 		formData.append('countryOfInterest', countryOfInterest)
 		formData.append('maritalStatus', maritalStatus)
-		formData.append('phone', phoneValue)
+		formData.append('leadSource', leadSource)
 
 		Object.keys(finalData).forEach((key) => {
 			if (finalData[key] instanceof FileList && finalData[key].length > 0) {
 				formData.append(key, finalData[key][0])
 			} else if (finalData[key] instanceof Date) {
 				formData.append(key, finalData[key].toISOString())
+			} else if (key === 'phone') {
+				formData.append('phone', phoneValue);
 			} else {
 				formData.append(key, finalData[key])
 			}
+
 		})
 		const submitFlag = await createLead(formData)
 		if (submitFlag) {
@@ -490,6 +510,7 @@ const AddLead = () => {
 			sessionStorage.removeItem('selectedDistrict')
 			sessionStorage.removeItem('selectedCity')
 			sessionStorage.removeItem('selectedStatus')
+			sessionStorage.removeItem('selectedSource')
 		}
 	}
 
@@ -1051,14 +1072,19 @@ const AddLead = () => {
 											</Row>
 											<Row className={`${styles.customMargin}`}>
 												<Col>
-													<FormInput
-														label="Source of Lead"
-														name="leadSource"
-														type="text"
-														placeholder="Enter Source of Lead"
-														register={register}
-														errors={errors}
-													/>
+													<Form.Group>
+														<Form.Label>Source of Lead</Form.Label>
+														<Select
+															styles={customStyles(settings.theme === 'dark')}
+															className="select2"
+															options={sourceOptions}
+															getOptionLabel={(e) => e.label}
+															getOptionValue={(e) => e.value}
+															value={selectedSource}
+															onChange={handleSelectSource}
+															isClearable={true}
+														/>
+													</Form.Group>
 												</Col>
 											</Row>
 											<Row className={`${styles.customMargin}`}>
@@ -1136,6 +1162,14 @@ const AddLead = () => {
 															<td>
 																{capitalizeFirstLetter(
 																	String(selectedGender?.value)
+																)}
+															</td>
+														</tr>
+														<tr>
+															<td>Source of Lead</td>
+															<td>
+																{capitalizeFirstLetter(
+																	String(selectedSource?.value)
 																)}
 															</td>
 														</tr>

@@ -205,3 +205,11 @@ export const maritalStatusOptions = [
 	{ value: 'widowed', label: 'Widowed' },
 	{ value: 'separated', label: 'Separated' },
 ];
+
+export const sourceOptions = [
+	{ value: 'direct', label: 'Direct' },
+	{ value: 'website', label: 'Website' },
+	{ value: 'whatsapp', label: 'Whatsapp' },
+	{ value: 'facebook', label: 'Facebook' },
+	{ value: 'instagram', label: 'Instagram' },
+]

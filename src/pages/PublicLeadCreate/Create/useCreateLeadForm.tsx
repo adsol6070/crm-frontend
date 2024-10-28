@@ -26,8 +26,12 @@ export default function useCreateLead() {
 			toast.success(data.message)
 			return true
 		} catch (error: any) {
-			console.error("Error creating lead:", error)
-			toast.error("Lead not added")
+			if(error == "Email already taken"){
+				toast.error(error)
+			} else{
+				toast.error("Lead not added")
+				console.error("Error creating lead:", error)
+			}
 			return false
 		} finally {
 			setLoading(false)

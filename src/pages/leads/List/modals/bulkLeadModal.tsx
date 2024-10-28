@@ -75,7 +75,7 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({ show, handleClose, refreshLe
                 if (file.type === 'text/csv') {
                     Papa.parse(data as string, {
                         header: true,
-                        skipEmptyLines: true,
+                        skipEmptyLines: 'greedy',
                         complete: (results) => {
                             setPreviewData(results.data);
                         },
