@@ -171,7 +171,7 @@ const GetLeadFullYearReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start
           <FaCalendarAlt />
         </div>
       </div>
-      <div style={chartStyle(settings.theme === "dark")}>
+      <div style={chartStyle(settings.theme === "dark")} className={styles.customDesign}>
         <ReactApexChart 
           options={chartData.options} 
           series={chartData.series} 

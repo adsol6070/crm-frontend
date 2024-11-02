@@ -109,6 +109,10 @@
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
+.customDesign{
+  border-radius: 10px;
+}
+
 @media (max-width: 768px) {
   .customDatepickerWrapper {
     flex-direction: column; 

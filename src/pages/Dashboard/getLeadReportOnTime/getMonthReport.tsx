@@ -171,7 +171,7 @@ const GetLeadMonthReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ start, e
           <FaCalendarAlt />
         </div>
       </div>
-      <div style={chartStyle(settings.theme === "dark")}>
+      <div style={chartStyle(settings.theme === "dark")} className={styles.customDesign}>
         <ReactApexChart 
           options={chartData.options} 
           series={chartData.series} 

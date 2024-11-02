@@ -257,7 +257,7 @@ const GetLeadCustomRangeReportOnTime: React.FC<GetLeadReportOnTimeProps> = ({ ba
           </select>
         </div>
       </div>
-      <div style={chartStyle(settings.theme === "dark")}>
+      <div style={chartStyle(settings.theme === "dark")} className={styles.customDesign}>
         <ReactApexChart 
           options={chartData.options} 
           series={startDate && endDate ? chartData.series : chartType === 'pie' || chartType === 'donut' ? [] : [{ name: 'Leads Count', data: [] }]} 

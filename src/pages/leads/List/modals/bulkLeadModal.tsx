@@ -95,6 +95,7 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({
 	const { uploadLeads } = useLeadList()
 	const { user } = useAuthContext()
 	const [previewData, setPreviewData] = useState<any[]>([])
+	const { leadRecords } = useLeadList();
 	const [fileError, setFileError] = useState<string | null>(null)
 	const [columnMappings, setColumnMappings] = useState<Record<string, string>>(
 		{}
@@ -133,20 +134,32 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({
 				return mappedRow
 			}),
 		}
+		console.log("leadRecords", leadRecords)
+		console.log("importedData", leadData.importedData)
+		const existingEmails = new Set(leadRecords.map(record => record.email.toLowerCase().trim()));
 
-		console.log('LeadData:', leadData)
-
-		// try {
-		// 	await uploadLeads(leadData)
-		// 	handleClose()
-		// 	refreshLeads()
-		// 	handleRemove()
-		// 	reset()
-		// } catch (error) {
-		// 	toast.error('Failed to upload file')
-		// 	handleRemove()
-		// 	reset()
-		// }
+		// Check for duplicate emails in importedData
+		const duplicateEmails = leadData.importedData.filter(row => {
+			return existingEmails.has(row.email.toLowerCase().trim());
+		});
+		console.log("duplicate emails", duplicateEmails)
+		if (duplicateEmails.length > 0) {
+			// Display warning for duplicate emails
+			toast.error('Emails in your records already exist')
+			return; // Stop further execution if duplicates are found
+		}
+		try {
+			await uploadLeads(leadData)
+			handleClose()
+			refreshLeads()
+			handleRemove()
+			reset()
+		} catch (error) {
+			toast.error('Failed to upload file')
+			console.log("error", error)
+			handleRemove()
+			reset()
+		}
 	}
 
 	const handleFileChange = (e: any) => {
@@ -370,7 +383,7 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({
 																	as="select"
 																	value={
 																		columnMappings[
-																			Object.keys(previewData[0])[idx + 1]
+																		Object.keys(previewData[0])[idx + 1]
 																		] || ''
 																	}
 																	onChange={(e) =>
@@ -381,7 +394,7 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({
 																	}
 																	disabled={
 																		autoMappedColumns[
-																			Object.keys(previewData[0])[idx + 1]
+																		Object.keys(previewData[0])[idx + 1]
 																		]
 																	} // Disable if auto-mapped
 																>
@@ -397,21 +410,21 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({
 																{autoMappedColumns[
 																	Object.keys(previewData[0])[idx + 1]
 																] && (
-																	<div
-																		style={{
-																			color: 'green',
-																			marginTop: '5px',
-																			padding: '3px',
-																			display: 'flex',
-																			alignItems: 'center',
-																		}}>
-																		<BsCheckCircleFill
-																			size={14}
-																			className="me-1"
-																		/>
-																		<span>Auto Mapped</span>
-																	</div>
-																)}
+																		<div
+																			style={{
+																				color: 'green',
+																				marginTop: '5px',
+																				padding: '3px',
+																				display: 'flex',
+																				alignItems: 'center',
+																			}}>
+																			<BsCheckCircleFill
+																				size={14}
+																				className="me-1"
+																			/>
+																			<span>Auto Mapped</span>
+																		</div>
+																	)}
 															</Form.Group>
 														</Col>
 													)}
@@ -426,7 +439,7 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({
 																	as="select"
 																	value={
 																		columnMappings[
-																			Object.keys(previewData[0])[idx + 2]
+																		Object.keys(previewData[0])[idx + 2]
 																		] || ''
 																	}
 																	onChange={(e) =>
@@ -437,7 +450,7 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({
 																	}
 																	disabled={
 																		autoMappedColumns[
-																			Object.keys(previewData[0])[idx + 2]
+																		Object.keys(previewData[0])[idx + 2]
 																		]
 																	} // Disable if auto-mapped
 																>
@@ -453,21 +466,21 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({
 																{autoMappedColumns[
 																	Object.keys(previewData[0])[idx + 2]
 																] && (
-																	<div
-																		style={{
-																			color: 'green',
-																			marginTop: '5px',
-																			padding: '3px',
-																			display: 'flex',
-																			alignItems: 'center',
-																		}}>
-																		<BsCheckCircleFill
-																			size={14}
-																			className="me-1"
-																		/>
-																		<span>Auto Mapped</span>
-																	</div>
-																)}
+																		<div
+																			style={{
+																				color: 'green',
+																				marginTop: '5px',
+																				padding: '3px',
+																				display: 'flex',
+																				alignItems: 'center',
+																			}}>
+																			<BsCheckCircleFill
+																				size={14}
+																				className="me-1"
+																			/>
+																			<span>Auto Mapped</span>
+																		</div>
+																	)}
 															</Form.Group>
 														</Col>
 													)}
@@ -515,7 +528,7 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({
 										</tbody>
 									</Table>
 								)}
-								<p>Displaying first 5 rows for preview...</p>
+								<p>Displaying first {previewData.length} rows for preview...</p>
 							</>
 						</div>
 					</Collapse>

@@ -20,9 +20,13 @@ const useEditLead = () => {
       const data = await leadApi.update(updatedUserWithUserID, leadId);
       toast.success(data.message);
     } catch (err: any) {
-      console.error('Failed to update lead data:', err);
-      toast.error('Failed to update lead data');
-      setError('Failed to update the lead data.');
+      if(err == "Email already taken"){
+				toast.error(err)
+        setError('Email already taken');
+			} else{
+				toast.error('Failed to update lead data');
+				console.error('Failed to update lead data:', err);
+			}
     } finally {
       setLoading(false);
     }

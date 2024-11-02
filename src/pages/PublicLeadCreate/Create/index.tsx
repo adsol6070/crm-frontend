@@ -8,7 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FormInput } from '@/components';
 import { Stepper, Step } from 'react-form-stepper';
 import Select from 'react-select';
-import styles from './AddLead.module.css'; // Import CSS module
+import styles from './AddLead.module.css';
 import useCreateLead from './useCreateLeadForm';
 import CountryList from 'react-select-country-list';
 import ReactToPrint from 'react-to-print';

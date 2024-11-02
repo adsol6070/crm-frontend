@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Col, Row, Button } from 'react-bootstrap';
 import ReactApexChart from 'react-apexcharts';
 import useGetLeadReports from './useGetLeadReports';
-import styles from './leadStatusReport.module.css'; // Create a new CSS module if needed
+import styles from './leadStatusReport.module.css';
 import { chartStyle } from '@/utils';
 import { useThemeContext } from '@/common';
 
