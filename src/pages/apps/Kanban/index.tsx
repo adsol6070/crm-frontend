@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap'
+import { PageBreadcrumb } from '@/components'
 
 const ItemType = {
 	CARD: 'card',
@@ -53,7 +54,20 @@ const Column = ({
 	return (
 		<Col ref={drop} className="p-2">
 			<div className="d-flex flex-column gap-2">
-				<Card.Title className="fw-bold text-black">{title}</Card.Title>
+				<div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+					<span
+						style={{
+							height: '8px',
+							width: '8px',
+							background: 'green',
+							borderRadius: '50%',
+							lineHeight: '3px',
+						}}></span>
+					<Card.Title className="fw-bold text-black">{title}</Card.Title>
+					<Badge pill bg="secondary">
+						1
+					</Badge>
+				</div>
 				<Button
 					style={{
 						background: '#FFF',
@@ -222,6 +236,8 @@ const Kanban = () => {
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<Container fluid className="py-4">
+				<PageBreadcrumb title="Kanban" subName="Kanban" />
+
 				<Row>
 					<Column
 						title="To Do"
