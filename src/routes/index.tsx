@@ -9,7 +9,9 @@ import PrivateRoute from './PrivateRoute'
 // auth
 const Login = React.lazy(() => import('../pages/auth/Login'))
 const Register = React.lazy(() => import('../pages/auth/Register'))
-const OrganizationRegister = React.lazy(() => import('../pages/auth/Organization'))
+const OrganizationRegister = React.lazy(
+	() => import('../pages/auth/Organization')
+)
 const Logout = React.lazy(() => import('../pages/auth/Logout'))
 const ForgotPassword = React.lazy(() => import('../pages/auth/ForgotPassword'))
 const ResetPassword = React.lazy(() => import('../pages/auth/ResetPassword'))
@@ -28,9 +30,11 @@ const StarterPages = React.lazy(() => import('../pages/other/Starter'))
 const ContactListPages = React.lazy(() => import('../pages/other/ContactList'))
 const TimelinePages = React.lazy(() => import('../pages/other/Timeline'))
 
-// Express Entry 
+// Express Entry
 const CalculateCRS = React.lazy(() => import('../pages/CalculateCRS/Calculate'))
-const ListCRSscores = React.lazy(() => import('../pages/CalculateCRS/ListResults'))
+const ListCRSscores = React.lazy(
+	() => import('../pages/CalculateCRS/ListResults')
+)
 
 // blogs
 const AddBlog = React.lazy(() => import('../pages/blogs/Create'))
@@ -44,11 +48,17 @@ const AddLead = React.lazy(() => import('../pages/leads/Create'))
 const ListLead = React.lazy(() => import('../pages/leads/List'))
 const ReadLead = React.lazy(() => import('../pages/leads/Read'))
 const EditLead = React.lazy(() => import('../pages/leads/Update'))
-const AddLeadDocument = React.lazy(() => import('../pages/leads/DocumentChecklist'))
-const AddVisaCategory = React.lazy(() => import('../pages/leads/AddVisaCategory'))
+const AddLeadDocument = React.lazy(
+	() => import('../pages/leads/DocumentChecklist')
+)
+const AddVisaCategory = React.lazy(
+	() => import('../pages/leads/AddVisaCategory')
+)
 const LeadNotes = React.lazy(() => import('../pages/leads/LeadNotes/'))
 const Formqr = React.lazy(() => import('../pages/leads/Formqr/'))
-const CreateLeadForm = React.lazy(() => import('../pages/PublicLeadCreate/Create/'))
+const CreateLeadForm = React.lazy(
+	() => import('../pages/PublicLeadCreate/Create/')
+)
 const AddVisaChecklist = React.lazy(() => import('../pages/leads/AddChecklist'))
 
 // // users
@@ -58,6 +68,7 @@ const EditUser = React.lazy(() => import('../pages/user/Update'))
 const UserRoles = React.lazy(() => import('../pages/user/Roles'))
 
 const Chats = React.lazy(() => import('../pages/apps/Chat'))
+const Kanban = React.lazy(() => import('../pages/apps/Kanban'))
 
 // // error
 const Error404 = React.lazy(() => import('../pages/error/Error404'))
@@ -365,6 +376,7 @@ const authRoutes: RoutesProps[] = [
 		route: Route,
 	},
 ]
+
 const chatRoutes = {
 	path: '/chats',
 	name: 'Chats',
@@ -379,6 +391,14 @@ const chatRoutes = {
 			roles: ['super_admin', 'admin'],
 		},
 	],
+}
+
+const kanbanRoutes = {
+	path: '/kanban',
+	name: 'Kanban',
+	element: <Kanban />,
+	route: PrivateRoute,
+	roles: ['super_admin', 'admin'],
 }
 
 // public routes
@@ -434,11 +454,13 @@ const authProtectedRoutes = [
 	dashboardRoutes,
 	blogRoutes,
 	chatRoutes,
+	kanbanRoutes,
 	leadRoutes,
 	expressEntryRoutes,
 	adminRoutes,
 	customPagesRoutes,
 ]
+console.log('AuthProtectedRoutes:', authProtectedRoutes)
 const publicRoutes = [...authRoutes, ...otherPublicRoutes]
 
 const authProtectedFlattenRoutes = flattenRoutes([...authProtectedRoutes])

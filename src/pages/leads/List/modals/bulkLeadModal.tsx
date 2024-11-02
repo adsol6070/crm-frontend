@@ -18,6 +18,10 @@ import * as yup from 'yup'
 import Papa from 'papaparse'
 import * as XLSX from 'xlsx'
 import { BsCheckCircleFill, BsExclamationTriangleFill } from 'react-icons/bs'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal)
 
 const schema = yup.object().shape({
 	leadFile: yup
@@ -87,6 +91,51 @@ interface ParameterUpload {
 	refreshLeads: () => void
 }
 
+interface ToggleButtonProps {
+	label: string
+	variant: string
+	active: boolean
+	ariaControls: string
+	onClick: () => void
+}
+
+const ToggleButton = ({
+	label,
+	onClick,
+	active,
+	variant,
+	ariaControls,
+}: ToggleButtonProps) => (
+	<Button
+		variant={variant}
+		onClick={onClick}
+		aria-controls={ariaControls}
+		aria-expanded={active}
+		className="me-2">
+		{active ? `Hide ${label}` : `Show ${label}`}
+	</Button>
+)
+
+const CollapsibleSection = ({ show, title, id, children }: any) => (
+	<Collapse in={show}>
+		<div
+			id={id}
+			className="mt-3"
+			style={{
+				maxHeight: '350px',
+				overflowY: 'auto',
+				padding: '15px',
+				backgroundColor: '#f8f9fa',
+				border: '1px solid #ddd',
+				borderRadius: '5px',
+				marginTop: '10px',
+			}}>
+			<h5>{title}</h5>
+			{children}
+		</div>
+	</Collapse>
+)
+
 const BulkLeadModal: React.FC<ParameterUpload> = ({
 	show,
 	handleClose,
@@ -119,9 +168,30 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({
 	const handleRemove = () => {
 		setPreviewData([])
 		setColumnMappings({})
+		setMissingFields([]);
 	}
 
 	const onSubmit = async () => {
+		if (missingFields?.length > 0) {
+			// alert(
+			// 	"You can't upload because there is some missing fields exist in validation report . Please fulfil that requirements first."
+			// )
+
+			MySwal.fire({
+				title: 'Missing Fields Detected',
+				text: "You can't upload because there are missing fields in the validation report. Please fulfill those requirements first.",
+				icon: 'warning',
+				confirmButtonText: 'OK',
+				allowOutsideClick: false,
+				allowEscapeKey: false,
+			}).then((result) => {
+				if (result.isConfirmed) {
+					// Optional: add any actions to perform after the user clicks 'OK'
+				}
+			})
+			return
+		}
+
 		const leadData = {
 			tenantID: user.tenantID,
 			userID: user.sub,
@@ -260,75 +330,53 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({
 									Show validation report
 								</Button>
 							)}
-
-							<Button
+							<ToggleButton
+								label="Mapping"
 								variant="outline-primary"
+								ariaControls="mapping-collapse"
 								onClick={() => setShowMapping(!showMapping)}
-								aria-controls="mapping-collapse"
-								aria-expanded={showMapping}
-								className="me-2">
-								{showMapping ? 'Hide Mapping' : 'Show Mapping'}
-							</Button>
-
-							<Button
+								active={showMapping}
+							/>
+							<ToggleButton
+								label="Preview"
 								variant="outline-primary"
+								ariaControls="preview-collapse"
 								onClick={() => setShowPreview(!showPreview)}
-								aria-controls="preview-collapse"
-								aria-expanded={showPreview}>
-								{showPreview ? 'Hide Preview' : 'Show Preview'}
-							</Button>
+								active={showPreview}
+							/>
 						</div>
 					)}
+					<CollapsibleSection
+						show={showReport}
+						title="Validation Report"
+						id="report-collapse"
+						children={
+							<>
+								<p className="text-muted">
+									Please review the missing fields below:
+								</p>
+								<ListGroup variant="flush">
+									{missingFields?.map((field, index) => (
+										<ListGroup.Item
+											key={index}
+											className="d-flex align-items-center">
+											<BsExclamationTriangleFill className="me-2 text-warning" />
+											<span>{field}</span>
+										</ListGroup.Item>
+									))}
+								</ListGroup>
+							</>
+						}
+					/>
 
-					<Collapse in={showReport}>
-						<div
-							id="report-collapse"
-							className="mt-3"
-							style={{
-								maxHeight: '350px',
-								overflowY: 'auto',
-								padding: '15px',
-								border: '1px solid #ddd',
-								borderRadius: '5px',
-								marginTop: '10px',
-							}}>
-							<h5 className="text-danger d-flex align-items-center">
-								<BsExclamationTriangleFill className="me-2" />
-								Validation Report
-							</h5>
-							<p className="text-muted">
-								Please review the missing fields below:
-							</p>
-							<ListGroup variant="flush">
-								{missingFields?.map((field, index) => (
-									<ListGroup.Item
-										key={index}
-										className="d-flex align-items-center">
-										<BsExclamationTriangleFill className="me-2 text-warning" />
-										<span>{field}</span>
-									</ListGroup.Item>
-								))}
-							</ListGroup>
-						</div>
-					</Collapse>
-
-					<Collapse in={showMapping}>
-						<div
-							id="mapping-collapse"
-							className="mt-3"
-							style={{
-								maxHeight: '350px',
-								overflowY: 'auto',
-								padding: '15px',
-								backgroundColor: '#f8f9fa',
-								border: '1px solid #ddd',
-								borderRadius: '5px',
-								marginTop: '10px',
-							}}>
-							{previewData.length > 0 && (
-								<>
-									<h5>Map Columns</h5>
-									{Object.keys(previewData[0]).map((fileCol, idx) => {
+					<CollapsibleSection
+						show={showMapping}
+						title="Map Columns"
+						id="mapping-collapse"
+						children={
+							<>
+								{previewData.length > 0 &&
+									Object.keys(previewData[0]).map((fileCol, idx) => {
 										// Display three fields in one row
 										if (idx % 3 === 0) {
 											return (
@@ -489,25 +537,16 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({
 										}
 										return null // If not a starting index for a new row
 									})}
-								</>
-							)}
-						</div>
-					</Collapse>
+							</>
+						}
+					/>
 
-					<Collapse in={showPreview}>
-						<div
-							id="preview-collapse"
-							style={{
-								maxHeight: '350px',
-								overflowY: 'auto',
-								padding: '15px',
-								backgroundColor: '#f1f1f1',
-								border: '1px solid #ddd',
-								borderRadius: '5px',
-								marginTop: '10px',
-							}}>
+					<CollapsibleSection
+						show={showPreview}
+						title="Preview Data"
+						id="preview-collapse"
+						children={
 							<>
-								<h5>Preview Data</h5>
 								{previewData.length > 0 && (
 									<Table bordered style={{ fontSize: '0.9rem' }}>
 										<thead>
@@ -530,8 +569,8 @@ const BulkLeadModal: React.FC<ParameterUpload> = ({
 								)}
 								<p>Displaying first {previewData.length} rows for preview...</p>
 							</>
-						</div>
-					</Collapse>
+						}
+					/>
 
 					<div className="d-flex justify-content-end mt-4">
 						<Button variant="success" type="submit">
