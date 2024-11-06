@@ -1,7 +1,14 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap'
+import { PageBreadcrumb } from '@/components'
+import AddTaskModal from './AddTaskModal'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/ReactToastify.css'
+import useTask from './useTask'
+import { formatStringDisplayName } from '@/utils/formatString'
+import styles from './kanban.module.css'
 
 const ItemType = {
 	CARD: 'card',
@@ -16,13 +23,14 @@ interface ColumnProps {
 		status: keyof KanbanState
 	) => void
 	status: keyof KanbanState
+	onAddTask: () => void
 }
 
 interface CardType {
 	id: number
 	title: string
 	description?: string
-	category?: string
+	status?: string
 }
 
 interface KanbanState {
@@ -38,6 +46,7 @@ const Column = ({
 	backgroundColor,
 	onDrop,
 	status,
+	onAddTask
 }: ColumnProps) => {
 	const [, drop] = useDrop({
 		accept: ItemType.CARD,
@@ -51,9 +60,22 @@ const Column = ({
 	})
 
 	return (
-		<Col ref={drop}>
+		<Col ref={drop} className={styles.colDesign}>
 			<div className="d-flex flex-column gap-2">
-				<Card.Title className="fw-bold text-black">{title}</Card.Title>
+				<div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+					<span
+						style={{
+							height: '8px',
+							width: '8px',
+							background: 'green',
+							borderRadius: '50%',
+							lineHeight: '3px',
+						}}></span>
+					<Card.Title className="fw-bold text-black">{title}</Card.Title>
+					<Badge pill bg="secondary">
+						1
+					</Badge>
+				</div>
 				<Button
 					style={{
 						background: '#FFF',
@@ -72,7 +94,9 @@ const Column = ({
 					onMouseOut={(e) => {
 						e.currentTarget.style.background = '#FFF'
 						e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)'
-					}}>
+					}}
+					onClick={onAddTask} 
+					>
 					+ Add New Task
 				</Button>
 
@@ -114,12 +138,12 @@ const KanbanCard = ({ card, index, moveCard, status }: CardProps) => {
 
 	return (
 		<Card
-			ref={(node) => ref(drop(node))}
+			ref={(node: any) => ref(drop(node))}
 			className="mb-3 shadow-sm"
 			style={{ cursor: 'pointer' }}>
 			<Card.Body>
 				<Badge bg="secondary" className="mb-2">
-					{card.category || 'Category'}
+					{card.status || 'Status'}
 				</Badge>
 				<Card.Title className="h6">{card.title}</Card.Title>
 				<Card.Text className="text-muted">
@@ -148,40 +172,56 @@ const KanbanCard = ({ card, index, moveCard, status }: CardProps) => {
 
 const Kanban = () => {
 	const [cards, setCards] = useState<KanbanState>({
-		todo: [
-			{
-				id: 1,
-				title: 'Wireframing',
-				category: 'UX stages',
-				description: 'Create low-fidelity designs...',
-			},
-		],
-		inProgress: [
-			{
-				id: 2,
-				title: 'Customer Journey Mapping',
-				category: 'UX stages',
-				description: 'Identify the key touchpoints...',
-			},
-		],
-		needReview: [
-			{
-				id: 3,
-				title: 'Competitor Research',
-				category: 'UX stages',
-				description: 'Research competitors...',
-			},
-		],
-		done: [
-			{
-				id: 4,
-				title: 'Branding, visual identity',
-				category: 'Branding',
-				description: 'Create a brand identity system...',
-			},
-		],
-	})
+		todo: [],
+		inProgress: [],
+		needReview: [],
+		done: [],
+	  })
+	  
+	const formatTasks = (tasks: any[]): KanbanState => {
+		const formattedData: KanbanState = {
+		  todo: [],
+		  inProgress: [],
+		  needReview: [],
+		  done: [],
+		};
+	  
+		tasks.forEach((task) => {
+		  const formattedTask: CardType = {
+			id: task.id,
+			title: task.taskTitle,
+			status: formatStringDisplayName(task.taskStatus),
+			description: task.taskDescription,
+		  };
+	  
+		  switch (task.taskStatus) {
+			case "to_do":
+			  formattedData.todo.push(formattedTask);
+			  break;
+			case "in_progress":
+			  formattedData.inProgress.push(formattedTask);
+			  break;
+			case "need_review":
+			  formattedData.needReview.push(formattedTask);
+			  break;
+			case "done":
+			  formattedData.done.push(formattedTask);
+			  break;
+			default:
+			  break;
+		  }
+		});
+	  
+		return formattedData;
+	  };
 
+	const { tasks } = useTask();
+	useEffect(() => {
+		const organizedTasks = formatTasks(tasks);
+		setCards(organizedTasks)
+	}, [tasks])
+
+	const [showAddTaskModal, setShowAddTaskModal] = useState(false)
 	const moveCard = (
 		draggedItem: CardType & { status: keyof KanbanState; index: number },
 		newIndex: number,
@@ -201,7 +241,7 @@ const Kanban = () => {
 		updatedNewStatusCards.splice(newIndex, 0, {
 			id,
 			title: draggedItem.title,
-			category: draggedItem.category,
+			status: draggedItem.status,
 			description: draggedItem.description,
 		})
 
@@ -222,12 +262,17 @@ const Kanban = () => {
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<Container fluid className="py-4">
+			<ToastContainer />
+				<PageBreadcrumb title="Kanban" subName="Kanban" />
+
 				<Row className='flex-nowrap'>
 					<Column
 						title="To Do"
 						backgroundColor="#0fb9b1"
 						status="todo"
-						onDrop={handleDrop}>
+						onDrop={handleDrop}
+						onAddTask={() => setShowAddTaskModal(true)}
+						>
 						{cards.todo.map((card, index) => (
 							<KanbanCard
 								key={card.id}
@@ -242,7 +287,9 @@ const Kanban = () => {
 						title="In Progress"
 						backgroundColor="#8854d0"
 						status="inProgress"
-						onDrop={handleDrop}>
+						onDrop={handleDrop}
+						onAddTask={() => setShowAddTaskModal(true)}
+						>
 						{cards.inProgress.map((card, index) => (
 							<KanbanCard
 								key={card.id}
@@ -257,7 +304,9 @@ const Kanban = () => {
 						title="Need Review"
 						backgroundColor="#a5b1c2"
 						status="needReview"
-						onDrop={handleDrop}>
+						onDrop={handleDrop}
+						onAddTask={() => setShowAddTaskModal(true)}
+						>
 						{cards.needReview.map((card, index) => (
 							<KanbanCard
 								key={card.id}
@@ -272,7 +321,9 @@ const Kanban = () => {
 						title="Done"
 						backgroundColor="#fa8231"
 						status="done"
-						onDrop={handleDrop}>
+						onDrop={handleDrop}
+						onAddTask={() => setShowAddTaskModal(true)}
+						>
 						{cards.done.map((card, index) => (
 							<KanbanCard
 								key={card.id}
@@ -284,6 +335,10 @@ const Kanban = () => {
 						))}
 					</Column>
 				</Row>
+				<AddTaskModal
+					show={showAddTaskModal}
+					onHide={() => setShowAddTaskModal(false)}
+				/>
 			</Container>
 		</DndProvider>
 	)
