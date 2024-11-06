@@ -22,10 +22,27 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #888;
+    background: transparent;
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: transparent;
+}
+
+.cardDesign {
+    box-shadow: 0px 0px 4px black;
+}
+
+.headerDesign {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    /* padding: 30px;
+    position: sticky;
+    top: 0px;
+    z-index: 1000;
+    background-color: white; */
+    margin: 30px 0px;
+    flex-wrap: wrap;
 }
