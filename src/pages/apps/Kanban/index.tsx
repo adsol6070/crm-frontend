@@ -9,6 +9,8 @@ import 'react-toastify/ReactToastify.css'
 import useTask from './useTask'
 import { formatStringDisplayName } from '@/utils/formatString'
 import styles from './kanban.module.css'
+import ViewTaskModal from './viewTaskModal'
+import Swal from 'sweetalert2';
 
 const ItemType = {
 	CARD: 'card',
@@ -27,7 +29,7 @@ interface ColumnProps {
 }
 
 interface CardType {
-	id: number
+	id: string
 	title: string
 	description?: string
 	status?: string
@@ -61,7 +63,7 @@ const Column = ({
 
 	return (
 		<Col ref={drop} className={styles.colDesign}>
-			<div className="d-flex flex-column gap-2">
+			<div className={styles.headerDesign}>
 				<div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
 					<span
 						style={{
@@ -82,24 +84,25 @@ const Column = ({
 						border: 'none',
 						outline: 'none',
 						color: 'black',
-						boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+						boxShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
 						transition: 'background 0.3s, box-shadow 0.3s',
 					}}
 					size="sm"
 					className="text-decoration-none"
 					onMouseOver={(e) => {
 						e.currentTarget.style.background = '#f0f0f0'
-						e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)'
+						e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.8)'
 					}}
 					onMouseOut={(e) => {
 						e.currentTarget.style.background = '#FFF'
-						e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)'
+						e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.5)'
 					}}
-					onClick={onAddTask} 
-					>
+					onClick={onAddTask}
+				>
 					+ Add New Task
 				</Button>
-
+			</div>
+			<div className="d-flex flex-column gap-2">
 				<div>{children}</div>
 			</div>
 		</Col>
@@ -115,9 +118,11 @@ interface CardProps {
 		newStatus: keyof KanbanState
 	) => void
 	status: keyof KanbanState
+	onViewTask: () => void
+	onDeleteTask: () => void
 }
 
-const KanbanCard = ({ card, index, moveCard, status }: CardProps) => {
+const KanbanCard = ({ card, index, moveCard, status, onViewTask, onDeleteTask }: CardProps) => {
 	const [, ref] = useDrag({
 		type: ItemType.CARD,
 		item: { ...card, index, status },
@@ -139,7 +144,7 @@ const KanbanCard = ({ card, index, moveCard, status }: CardProps) => {
 	return (
 		<Card
 			ref={(node: any) => ref(drop(node))}
-			className="mb-3 shadow-sm"
+			className={`mb-3 ${styles.cardDesign}`}
 			style={{ cursor: 'pointer' }}>
 			<Card.Body>
 				<Badge bg="secondary" className="mb-2">
@@ -150,10 +155,13 @@ const KanbanCard = ({ card, index, moveCard, status }: CardProps) => {
 					{card.description || 'No description provided.'}
 				</Card.Text>
 				<div className="d-flex justify-content-between align-items-center">
-					<Button variant="outline-primary" size="sm">
+					<Button variant="outline-primary" size="sm" onClick={onViewTask}>
 						View
 					</Button>
-					<div>
+					<Button variant="danger" size="sm" onClick={onDeleteTask}>
+						Delete
+					</Button>
+					{/* <div>
 						<Badge bg="light" text="dark">
 							👥 3
 						</Badge>{' '}
@@ -163,7 +171,7 @@ const KanbanCard = ({ card, index, moveCard, status }: CardProps) => {
 						<Badge bg="light" text="dark">
 							💬 2
 						</Badge>
-					</div>
+					</div> */}
 				</div>
 			</Card.Body>
 		</Card>
@@ -176,52 +184,55 @@ const Kanban = () => {
 		inProgress: [],
 		needReview: [],
 		done: [],
-	  })
-	  
+	})
+
 	const formatTasks = (tasks: any[]): KanbanState => {
 		const formattedData: KanbanState = {
-		  todo: [],
-		  inProgress: [],
-		  needReview: [],
-		  done: [],
+			todo: [],
+			inProgress: [],
+			needReview: [],
+			done: [],
 		};
-	  
-		tasks.forEach((task) => {
-		  const formattedTask: CardType = {
-			id: task.id,
-			title: task.taskTitle,
-			status: formatStringDisplayName(task.taskStatus),
-			description: task.taskDescription,
-		  };
-	  
-		  switch (task.taskStatus) {
-			case "to_do":
-			  formattedData.todo.push(formattedTask);
-			  break;
-			case "in_progress":
-			  formattedData.inProgress.push(formattedTask);
-			  break;
-			case "need_review":
-			  formattedData.needReview.push(formattedTask);
-			  break;
-			case "done":
-			  formattedData.done.push(formattedTask);
-			  break;
-			default:
-			  break;
-		  }
-		});
-	  
-		return formattedData;
-	  };
 
-	const { tasks } = useTask();
+		tasks.forEach((task) => {
+			const formattedTask: CardType = {
+				id: task.id,
+				title: task.taskTitle,
+				status: formatStringDisplayName(task.taskStatus),
+				description: task.taskDescription,
+			};
+
+			switch (task.taskStatus) {
+				case "to_do":
+					formattedData.todo.push(formattedTask);
+					break;
+				case "in_progress":
+					formattedData.inProgress.push(formattedTask);
+					break;
+				case "need_review":
+					formattedData.needReview.push(formattedTask);
+					break;
+				case "done":
+					formattedData.done.push(formattedTask);
+					break;
+				default:
+					break;
+			}
+		});
+
+		return formattedData;
+	};
+
+	const { tasks, deleteTaskById } = useTask();
 	useEffect(() => {
 		const organizedTasks = formatTasks(tasks);
 		setCards(organizedTasks)
 	}, [tasks])
 
 	const [showAddTaskModal, setShowAddTaskModal] = useState(false)
+	const [showViewTaskModal, setShowViewTaskModal] = useState(false)
+	const [selectedTask, setSelectedTask] = useState({})
+	
 	const moveCard = (
 		draggedItem: CardType & { status: keyof KanbanState; index: number },
 		newIndex: number,
@@ -259,11 +270,33 @@ const Kanban = () => {
 		moveCard(draggedItem, cards[status].length, status)
 	}
 
+	const handleViewTask = (task: CardType) => {
+		setSelectedTask(task)
+		setShowViewTaskModal(true)
+	}
+
+	const handleDeleteTask = async (id: string) => {
+		const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        if (result.isConfirmed) {
+            deleteTaskById(id);
+            Swal.fire('Deleted!', 'Your task has been deleted.', 'success');
+        }
+	}
+
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<Container fluid className="py-4">
-			<ToastContainer />
-				<PageBreadcrumb title="Kanban" subName="Kanban" />
+				<ToastContainer />
+				<PageBreadcrumb title="Task Management" subName="Kanban" />
 
 				<Row className='flex-nowrap'>
 					<Column
@@ -272,7 +305,7 @@ const Kanban = () => {
 						status="todo"
 						onDrop={handleDrop}
 						onAddTask={() => setShowAddTaskModal(true)}
-						>
+					>
 						{cards.todo.map((card, index) => (
 							<KanbanCard
 								key={card.id}
@@ -280,6 +313,8 @@ const Kanban = () => {
 								index={index}
 								moveCard={moveCard}
 								status="todo"
+								onViewTask={() => handleViewTask(card)}
+								onDeleteTask={() => handleDeleteTask(card.id)}
 							/>
 						))}
 					</Column>
@@ -289,7 +324,7 @@ const Kanban = () => {
 						status="inProgress"
 						onDrop={handleDrop}
 						onAddTask={() => setShowAddTaskModal(true)}
-						>
+					>
 						{cards.inProgress.map((card, index) => (
 							<KanbanCard
 								key={card.id}
@@ -297,6 +332,8 @@ const Kanban = () => {
 								index={index}
 								moveCard={moveCard}
 								status="inProgress"
+								onViewTask={() => handleViewTask(card)}
+								onDeleteTask={() => handleDeleteTask(card.id)}
 							/>
 						))}
 					</Column>
@@ -306,7 +343,7 @@ const Kanban = () => {
 						status="needReview"
 						onDrop={handleDrop}
 						onAddTask={() => setShowAddTaskModal(true)}
-						>
+					>
 						{cards.needReview.map((card, index) => (
 							<KanbanCard
 								key={card.id}
@@ -314,6 +351,8 @@ const Kanban = () => {
 								index={index}
 								moveCard={moveCard}
 								status="needReview"
+								onViewTask={() => handleViewTask(card)}
+								onDeleteTask={() => handleDeleteTask(card.id)}
 							/>
 						))}
 					</Column>
@@ -323,7 +362,7 @@ const Kanban = () => {
 						status="done"
 						onDrop={handleDrop}
 						onAddTask={() => setShowAddTaskModal(true)}
-						>
+					>
 						{cards.done.map((card, index) => (
 							<KanbanCard
 								key={card.id}
@@ -331,6 +370,8 @@ const Kanban = () => {
 								index={index}
 								moveCard={moveCard}
 								status="done"
+								onViewTask={() => handleViewTask(card)}
+								onDeleteTask={() => handleDeleteTask(card.id)}
 							/>
 						))}
 					</Column>
@@ -339,6 +380,13 @@ const Kanban = () => {
 					show={showAddTaskModal}
 					onHide={() => setShowAddTaskModal(false)}
 				/>
+				{selectedTask && (
+					<ViewTaskModal
+						show={showViewTaskModal}
+						onHide={() => setShowViewTaskModal(false)}
+						task={selectedTask}
+					/>
+				)}
 			</Container>
 		</DndProvider>
 	)

@@ -33,11 +33,24 @@ const useTask = () => {
 	}
   };
 
+  const deleteTaskById = async (id: string) => {
+	setLoading(true);
+	try {
+	  await taskApi.deleteTaskByID(id);
+	} catch (err) {
+	  console.error('Failed to delete task:', err);
+	  toast.error('Failed to delete task');
+	} finally {
+	  setLoading(false);
+	}
+  };
+
+
   useEffect(() => {
     getTasks();
   }, []);
 
-  return { loading, createTask, getTasks, tasks };
+  return { loading, createTask, getTasks, tasks, deleteTaskById };
 };
 
 export default useTask;
