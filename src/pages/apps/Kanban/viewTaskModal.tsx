@@ -40,11 +40,11 @@ const ViewTaskModal = ({ show, onHide, task }: ViewTaskModalProps) => {
 					</Col>
 					<Col className="text-end">
 						<Badge bg={
-							task.status === 'done'
+							task.status === 'Done'
 								? 'success'
-								: task.status === 'inProgress'
+								: task.status === 'In Progress'
 								? 'warning'
-								: task.status === 'needReview'
+								: task.status === 'Need Review'
 								? 'info'
 								: 'secondary'
 						} className="py-2 px-3 text-uppercase">

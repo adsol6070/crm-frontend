@@ -89,7 +89,7 @@ const Column = ({
 					}}
 					size="sm"
 					className="text-decoration-none"
-					onMouseOver={(e) => {
+					onMouseOver={(e)		 => {
 						e.currentTarget.style.background = '#f0f0f0'
 						e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.8)'
 					}}
@@ -288,7 +288,13 @@ const Kanban = () => {
 
         if (result.isConfirmed) {
             deleteTaskById(id);
-            Swal.fire('Deleted!', 'Your task has been deleted.', 'success');
+			Swal.fire({
+				title: 'Deleted!',
+				text: 'Your task has been deleted.',
+				icon: 'success',
+				timer: 2000,
+				showConfirmButton: false
+			});
         }
 	}
 

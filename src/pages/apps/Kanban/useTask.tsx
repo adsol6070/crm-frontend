@@ -37,6 +37,7 @@ const useTask = () => {
 	setLoading(true);
 	try {
 	  await taskApi.deleteTaskByID(id);
+	  getTasks();
 	} catch (err) {
 	  console.error('Failed to delete task:', err);
 	  toast.error('Failed to delete task');

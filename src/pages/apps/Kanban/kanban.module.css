@@ -14,7 +14,7 @@
 }
 
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -22,12 +22,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: transparent;
+    background: black;
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: transparent;
+    background: rgb(56, 56, 56);
 }
 
 .cardDesign {
