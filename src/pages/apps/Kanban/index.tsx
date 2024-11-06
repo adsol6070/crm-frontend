@@ -17,7 +17,6 @@ const ItemType = {
 interface ColumnProps {
 	title: string
 	children: React.ReactNode
-	backgroundColor: string
 	onDrop: (
 		card: CardType & { status: keyof KanbanState; index: number },
 		status: keyof KanbanState
@@ -43,10 +42,9 @@ interface KanbanState {
 const Column = ({
 	title,
 	children,
-	backgroundColor,
 	onDrop,
 	status,
-	onAddTask
+	onAddTask,
 }: ColumnProps) => {
 	const [, drop] = useDrop({
 		accept: ItemType.CARD,
@@ -95,8 +93,7 @@ const Column = ({
 						e.currentTarget.style.background = '#FFF'
 						e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)'
 					}}
-					onClick={onAddTask} 
-					>
+					onClick={onAddTask}>
 					+ Add New Task
 				</Button>
 
@@ -170,58 +167,52 @@ const KanbanCard = ({ card, index, moveCard, status }: CardProps) => {
 	)
 }
 
+const formatTask = (task): CardType => ({
+	id: task.id,
+	title: task.taskTitle,
+	status: formatStringDisplayName(task.taskStatus),
+	description: task.taskDescription,
+})
+
+const formatTasks = (tasks: any[]): KanbanState => {
+	const formattedData: KanbanState = {
+		todo: [],
+		inProgress: [],
+		needReview: [],
+		done: [],
+	}
+
+	const statusMap = {
+		to_do: 'todo',
+		in_progress: 'inProgress',
+		need_review: 'needReview',
+		done: 'done',
+	}
+
+	tasks.forEach((task) => {
+		const formattedTask: CardType = formatTask(task)
+
+		const kanbanKey = statusMap[task.taskStatus]
+		formattedData[kanbanKey].push(formattedTask)
+	})
+
+	return formattedData
+}
+
 const Kanban = () => {
 	const [cards, setCards] = useState<KanbanState>({
 		todo: [],
 		inProgress: [],
 		needReview: [],
 		done: [],
-	  })
-	  
-	const formatTasks = (tasks: any[]): KanbanState => {
-		const formattedData: KanbanState = {
-		  todo: [],
-		  inProgress: [],
-		  needReview: [],
-		  done: [],
-		};
-	  
-		tasks.forEach((task) => {
-		  const formattedTask: CardType = {
-			id: task.id,
-			title: task.taskTitle,
-			status: formatStringDisplayName(task.taskStatus),
-			description: task.taskDescription,
-		  };
-	  
-		  switch (task.taskStatus) {
-			case "to_do":
-			  formattedData.todo.push(formattedTask);
-			  break;
-			case "in_progress":
-			  formattedData.inProgress.push(formattedTask);
-			  break;
-			case "need_review":
-			  formattedData.needReview.push(formattedTask);
-			  break;
-			case "done":
-			  formattedData.done.push(formattedTask);
-			  break;
-			default:
-			  break;
-		  }
-		});
-	  
-		return formattedData;
-	  };
+	})
+	const { tasks, createTask } = useTask()
+	const [showAddTaskModal, setShowAddTaskModal] = useState<boolean>(false)
 
-	const { tasks } = useTask();
 	useEffect(() => {
-		const organizedTasks = formatTasks(tasks);
-		setCards(organizedTasks)
+		setCards(formatTasks(tasks))
 	}, [tasks])
 
-	const [showAddTaskModal, setShowAddTaskModal] = useState(false)
 	const moveCard = (
 		draggedItem: CardType & { status: keyof KanbanState; index: number },
 		newIndex: number,
@@ -259,85 +250,43 @@ const Kanban = () => {
 		moveCard(draggedItem, cards[status].length, status)
 	}
 
+	const handleCreateTask = async (data: any) => {
+		await createTask(data)
+		setShowAddTaskModal(false)
+	}
+
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<Container fluid className="py-4">
-			<ToastContainer />
+				<ToastContainer />
 				<PageBreadcrumb title="Kanban" subName="Kanban" />
-
-				<Row className='flex-nowrap'>
-					<Column
-						title="To Do"
-						backgroundColor="#0fb9b1"
-						status="todo"
-						onDrop={handleDrop}
-						onAddTask={() => setShowAddTaskModal(true)}
+				<Row className="flex-nowrap">
+					{(
+						['todo', 'inProgress', 'needReview', 'done'] as Array<
+							keyof KanbanState
 						>
-						{cards.todo.map((card, index) => (
-							<KanbanCard
-								key={card.id}
-								card={card}
-								index={index}
-								moveCard={moveCard}
-								status="todo"
-							/>
-						))}
-					</Column>
-					<Column
-						title="In Progress"
-						backgroundColor="#8854d0"
-						status="inProgress"
-						onDrop={handleDrop}
-						onAddTask={() => setShowAddTaskModal(true)}
-						>
-						{cards.inProgress.map((card, index) => (
-							<KanbanCard
-								key={card.id}
-								card={card}
-								index={index}
-								moveCard={moveCard}
-								status="inProgress"
-							/>
-						))}
-					</Column>
-					<Column
-						title="Need Review"
-						backgroundColor="#a5b1c2"
-						status="needReview"
-						onDrop={handleDrop}
-						onAddTask={() => setShowAddTaskModal(true)}
-						>
-						{cards.needReview.map((card, index) => (
-							<KanbanCard
-								key={card.id}
-								card={card}
-								index={index}
-								moveCard={moveCard}
-								status="needReview"
-							/>
-						))}
-					</Column>
-					<Column
-						title="Done"
-						backgroundColor="#fa8231"
-						status="done"
-						onDrop={handleDrop}
-						onAddTask={() => setShowAddTaskModal(true)}
-						>
-						{cards.done.map((card, index) => (
-							<KanbanCard
-								key={card.id}
-								card={card}
-								index={index}
-								moveCard={moveCard}
-								status="done"
-							/>
-						))}
-					</Column>
+					).map((status) => (
+						<Column
+							title={status}
+							status={status}
+							onDrop={handleDrop}
+							onAddTask={() => setShowAddTaskModal(true)}>
+							{cards[status]?.map((card, index) => (
+								<KanbanCard
+									key={card.id}
+									card={card}
+									index={index}
+									moveCard={moveCard}
+									status={status}
+								/>
+							))}
+						</Column>
+					))}
 				</Row>
 				<AddTaskModal
 					show={showAddTaskModal}
 					onHide={() => setShowAddTaskModal(false)}
+					handleCreateTask={handleCreateTask}
 				/>
 			</Container>
 		</DndProvider>

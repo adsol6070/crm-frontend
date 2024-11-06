@@ -24,6 +24,7 @@ const useTask = () => {
 	setLoading(true);
 	try {
 	  const response = await taskApi.createTask(data);
+	  await getTasks();
 	  toast.success(response.message)
 	} catch (err) {
 	  console.error('Failed to get tasks:', err);
