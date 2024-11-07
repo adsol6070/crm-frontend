@@ -9,36 +9,51 @@ import 'react-toastify/ReactToastify.css'
 import Swal from 'sweetalert2'
 import styles from './kanban.module.css'
 import useTask from './useTask'
-import AddTaskModal from './AddTaskModal'
-import ViewTaskModal from './viewTaskModal'
+import AddTaskModal from './modals/AddTaskModal'
+import ViewTaskModal from './modals/viewTaskModal'
+import {
+	ColumnProps,
+	CardType,
+	KanbanState,
+	Task,
+	CardProps,
+	CreateData,
+} from '@/types/KanbanTypes'
 
 const ItemType = {
 	CARD: 'card',
 }
 
-interface ColumnProps {
-	title: string
-	children: React.ReactNode
-	onDrop: (
-		card: CardType & { status: keyof KanbanState; index: number },
-		status: keyof KanbanState
-	) => void
-	status: keyof KanbanState
-	onAddTask: () => void
-}
+const formatTask = (task: Task): CardType => ({
+	id: task.id,
+	title: task.taskTitle,
+	status: formatStringDisplayName(task.taskStatus),
+	description: task.taskDescription,
+})
 
-interface CardType {
-	id: string
-	title: string
-	description?: string
-	status?: string
-}
+const formatTasks = (tasks: Task[]): KanbanState => {
+	const formattedData: KanbanState = {
+		todo: [],
+		inProgress: [],
+		needReview: [],
+		done: [],
+	}
 
-interface KanbanState {
-	todo: CardType[]
-	inProgress: CardType[]
-	needReview: CardType[]
-	done: CardType[]
+	const statusMap: Record<string, string> = {
+		to_do: 'todo',
+		in_progress: 'inProgress',
+		need_review: 'needReview',
+		done: 'done',
+	}
+
+	tasks.forEach((task: Task) => {
+		const formattedTask: CardType = formatTask(task)
+
+		const kanbanKey = statusMap[task.taskStatus] as keyof KanbanState
+		formattedData[kanbanKey].push(formattedTask)
+	})
+
+	return formattedData
 }
 
 const Column = ({
@@ -71,7 +86,9 @@ const Column = ({
 							borderRadius: '50%',
 							lineHeight: '3px',
 						}}></span>
-					<Card.Title className="fw-bold text-black">{title}</Card.Title>
+					<Card.Title className="fw-bold text-black">
+						{formatStringDisplayName(title)}
+					</Card.Title>
 					<Badge pill bg="secondary">
 						1
 					</Badge>
@@ -104,19 +121,6 @@ const Column = ({
 			</div>
 		</Col>
 	)
-}
-
-interface CardProps {
-	card: CardType
-	index: number
-	moveCard: (
-		draggedItem: CardType & { status: keyof KanbanState; index: number },
-		newIndex: number,
-		newStatus: keyof KanbanState
-	) => void
-	status: keyof KanbanState
-	onViewTask: () => void
-	onDeleteTask: () => void
 }
 
 const KanbanCard = ({
@@ -171,55 +175,23 @@ const KanbanCard = ({
 	)
 }
 
-const formatTask = (task): CardType => ({
-	id: task.id,
-	title: task.taskTitle,
-	status: formatStringDisplayName(task.taskStatus),
-	description: task.taskDescription,
-})
-
-const formatTasks = (tasks: any[]): KanbanState => {
-	const formattedData: KanbanState = {
-		todo: [],
-		inProgress: [],
-		needReview: [],
-		done: [],
-	}
-
-	const statusMap = {
-		to_do: 'todo',
-		in_progress: 'inProgress',
-		need_review: 'needReview',
-		done: 'done',
-	}
-
-	tasks.forEach((task) => {
-		const formattedTask: CardType = formatTask(task)
-
-		const kanbanKey = statusMap[task.taskStatus]
-		formattedData[kanbanKey].push(formattedTask)
-	})
-
-	return formattedData
-}
-
 const Kanban = () => {
-	const [cards, setCards] = useState<KanbanState>({
+	const { tasks, createTask, deleteTaskById, updateTaskStatus } = useTask()
+	const [kanbanState, setKanbanState] = useState<KanbanState>({
 		todo: [],
 		inProgress: [],
 		needReview: [],
 		done: [],
 	})
-	const { tasks, createTask, deleteTaskById } = useTask()
 	const [showAddTaskModal, setShowAddTaskModal] = useState<boolean>(false)
 	const [showViewTaskModal, setShowViewTaskModal] = useState<boolean>(false)
 	const [selectedTask, setSelectedTask] = useState({})
 
 	useEffect(() => {
-		setCards(formatTasks(tasks))
+		setKanbanState(formatTasks(tasks))
 	}, [tasks])
 
-	const moveCard = (
+	const moveCard = async (
 		draggedItem: CardType & { status: keyof KanbanState; index: number },
 		newIndex: number,
 		newStatus: keyof KanbanState
@@ -230,11 +202,13 @@ const Kanban = () => {
 			return
 		}
 
-		const updatedOldStatusCards = [...cards[oldStatus]].filter(
+		const updatedOldStatusCards = [...kanbanState[oldStatus]].filter(
 			(card) => card.id !== id
 		)
 		const updatedNewStatusCards =
-			oldStatus === newStatus ? updatedOldStatusCards : [...cards[newStatus]]
+			oldStatus === newStatus
+				? updatedOldStatusCards
+				: [...kanbanState[newStatus]]
 		updatedNewStatusCards.splice(newIndex, 0, {
 			id,
 			title: draggedItem.title,
@@ -242,21 +216,34 @@ const Kanban = () => {
 			description: draggedItem.description,
 		})
 
-		setCards((prevCards) => ({
+		setKanbanState((prevCards) => ({
 			...prevCards,
 			[oldStatus]: updatedOldStatusCards,
 			[newStatus]: updatedNewStatusCards,
 		}))
+
+		const statusMap: Record<string, string> = {
+			todo: 'to_do',
+			inProgress: 'in_progress',
+			needReview: 'need_review',
+			done: 'done',
+		}
+
+		try {
+			await updateTaskStatus(id, { taskStatus: statusMap[newStatus] })
+		} catch (error) {
+			console.error('Failed to update task status:', error)
+		}
 	}
 
 	const handleDrop = (
 		draggedItem: CardType & { status: keyof KanbanState; index: number },
 		status: keyof KanbanState
 	) => {
-		moveCard(draggedItem, cards[status].length, status)
+		moveCard(draggedItem, kanbanState[status].length, status)
 	}
 
-	const handleCreateTask = async (data: any) => {
+	const handleCreateTask = async (data: CreateData) => {
 		await createTask(data)
 		setShowAddTaskModal(false)
 	}
@@ -267,9 +254,9 @@ const Kanban = () => {
 	}
 
 	const handleDeleteTask = async (id: string) => {
-		const result = await Swal.fire({
+		const confirmDelete = await Swal.fire({
 			title: 'Are you sure?',
-			text: "You won't be able to revert this!",
+			text: 'This action is irreversible!',
 			icon: 'warning',
 			showCancelButton: true,
 			confirmButtonColor: '#3085d6',
@@ -277,8 +264,8 @@ const Kanban = () => {
 			confirmButtonText: 'Yes, delete it!',
 		})
 
-		if (result.isConfirmed) {
-			deleteTaskById(id)
+		if (confirmDelete.isConfirmed) {
+			await deleteTaskById(id)
 			Swal.fire({
 				title: 'Deleted!',
 				text: 'Your task has been deleted.',
@@ -295,23 +282,20 @@ const Kanban = () => {
 				<ToastContainer />
 				<PageBreadcrumb title="Kanban" subName="Kanban" />
 				<Row className="flex-nowrap">
-					{(
-						['todo', 'inProgress', 'needReview', 'done'] as Array<
-							keyof KanbanState
-						>
-					).map((status) => (
+					{Object.keys(kanbanState).map((status, index) => (
 						<Column
+							key={index}
 							title={status}
-							status={status}
+							status={status as keyof KanbanState}
 							onDrop={handleDrop}
 							onAddTask={() => setShowAddTaskModal(true)}>
-							{cards[status]?.map((card, index) => (
+							{kanbanState[status as keyof KanbanState]?.map((card, index) => (
 								<KanbanCard
-									key={card.id}
+									key={index}
 									card={card}
 									index={index}
 									moveCard={moveCard}
-									status={status}
+									status={status as keyof KanbanState}
 									onViewTask={() => handleViewTask(card)}
 									onDeleteTask={() => handleDeleteTask(card.id)}
 								/>

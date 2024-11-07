@@ -1,5 +1,5 @@
 import { Modal, Badge, Row, Col } from 'react-bootstrap'
-import styles from './kanban.module.css'
+import styles from '../kanban.module.css'
 
 interface CardType {
 	id?: number

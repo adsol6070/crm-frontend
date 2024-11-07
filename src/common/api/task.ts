@@ -28,18 +28,20 @@ function TaskService() {
 		getAllTaks: async () => {
 			return HttpClient.get('/task/', { headers: getAuthHeaders() })
 		},
-		
-		// Delete a task by ID 
+
+		// Delete a task by ID
 		getTaskByID: (taskId: string) => {
 			return HttpClient.get(`/task/${taskId}`, { headers: getAuthHeaders() })
 		},
 
-		// Delete a task by ID 
-		updateTaskByID: (taskId: string) => {
-			return HttpClient.patch(`/task/${taskId}`, { headers: getAuthHeaders() })
+		// Delete a task by ID
+		updateTaskByID: (taskId: string, data: any) => {
+			return HttpClient.patch(`/task/${taskId}`, data, {
+				headers: getAuthHeaders(),
+			})
 		},
 
-		// Delete a task by ID 
+		// Delete a task by ID
 		deleteTaskByID: (taskId: string) => {
 			return HttpClient.delete(`/task/${taskId}`, { headers: getAuthHeaders() })
 		},
