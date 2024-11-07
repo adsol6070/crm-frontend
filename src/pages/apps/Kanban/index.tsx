@@ -9,7 +9,7 @@ import 'react-toastify/ReactToastify.css'
 import Swal from 'sweetalert2'
 import styles from './kanban.module.css'
 import useTask from './useTask'
-import { RiDeleteBinLine, RiEyeLine } from 'react-icons/ri';
+import { RiDeleteBinLine, RiEyeLine, RiAddLine } from 'react-icons/ri';
 import AddTaskModal from './modals/AddTaskModal'
 import ViewTaskModal from './modals/viewTaskModal'
 import {
@@ -95,28 +95,25 @@ const Column = ({
 						{taskCount}
 					</Badge>
 				</div>
-				<Button
+				<div
 					style={{
-						background: '#FFF',
-						border: 'none',
-						outline: 'none',
 						color: 'black',
-						boxShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
-						transition: 'background 0.3s, box-shadow 0.3s',
+						padding: '5px',
+						transition: 'background 0.3s',
 					}}
-					size="sm"
 					className="text-decoration-none m-1"
 					onMouseOver={(e) => {
 						e.currentTarget.style.background = '#f0f0f0'
-						e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.8)'
+						e.currentTarget.style.borderRadius = "50%"
+						e.currentTarget.style.cursor = "pointer"
 					}}
 					onMouseOut={(e) => {
 						e.currentTarget.style.background = '#FFF'
-						e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.5)'
+						e.currentTarget.style.borderRadius = "50%"
 					}}
 					onClick={onAddTask}>
-					+ Add New Task
-				</Button>
+					<RiAddLine size={24} />
+				</div>
 			</div>
 			<div className={`d-flex flex-column gap-2 ${styles.barDesign}`}>
 				<div>{children}</div>
@@ -165,7 +162,7 @@ const KanbanCard = ({
 					{card.description || 'No description provided.'}
 				</Card.Text>
 				<div className="d-flex align-items-center">
-					<RiEyeLine size={18} className="mx-1" color="blue" onClick={onViewTask} />
+					<RiEyeLine size={18} className="mx-1" onClick={onViewTask} />
 					<RiDeleteBinLine size={18} className="mx-1" color="red" onClick={onDeleteTask} />
 				</div>
 			</Card.Body>
@@ -289,7 +286,7 @@ const Kanban = () => {
 							onDrop={handleDrop}
 							onAddTask={() => setShowAddTaskModal(true)}
 							taskCount={kanbanState[status as keyof KanbanState].length}
-							>
+						>
 							{kanbanState[status as keyof KanbanState]?.map((card, index) => (
 								<KanbanCard
 									key={index}
