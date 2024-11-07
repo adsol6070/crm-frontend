@@ -16,7 +16,6 @@ import Swal from 'sweetalert2'
 import styles from './LeadList.module.css'
 import { actionStyle, capitalizeFirstLetter, hasPermission } from '@/utils'
 import { formatStringDisplayName } from '@/utils/formatString'
-import useAddDocumentChecklist from '../DocumentChecklist/useDocumentChecklist'
 
 interface HistoryItem {
 	action: string

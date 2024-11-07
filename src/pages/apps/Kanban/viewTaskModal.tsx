@@ -55,7 +55,7 @@ const ViewTaskModal = ({ show, onHide, task }: ViewTaskModalProps) => {
 
 				<hr className="my-3" />
 
-				<Row className="mb-4">
+				<Row>
 					<Col>
 						<h6 className="text-muted">Description</h6>
 						<p className="fw-light text-dark">

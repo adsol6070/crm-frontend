@@ -19,13 +19,13 @@ const getAuthHeaders = (isMultipart: boolean = false) => {
 
 function TaskService() {
 	return {
-		// Create a new task 
+		// Create a new task
 		createTask: (data: any) => {
 			return HttpClient.post('/task/', data, { headers: getAuthHeaders() })
 		},
 
-        // Retrieve all tasks
-		getAllTaks: () => {
+		// Retrieve all tasks
+		getAllTaks: async () => {
 			return HttpClient.get('/task/', { headers: getAuthHeaders() })
 		},
 		
