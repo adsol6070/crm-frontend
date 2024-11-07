@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Col, Form, Modal } from 'react-bootstrap'
-import styles from './kanban.module.css'
+import styles from '../kanban.module.css'
 import { useForm, FormProvider } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
