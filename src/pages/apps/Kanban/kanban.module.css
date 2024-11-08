@@ -6,13 +6,12 @@
 .colDesign {
     margin: 0px 5px;
     background-color: currentcolor;
-    padding: 20px;
     color: #ffffff;
     border-radius: 10px;
 }
 .barDesign {
     padding: 20px 20px 10px 5px;
-    height: 64vh;
+    height: 68vh;
     overflow-y: scroll;
 }
 
@@ -25,7 +24,7 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: black;
+    background: #555;
     border-radius: 10px;
 }
 
@@ -41,5 +40,5 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 20px 0px;
+    margin: 10px;
 }

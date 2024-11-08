@@ -89,6 +89,10 @@ export const textStyle = (isDarkMode: any) => ({
 	color: isDarkMode ? '#fff' : '#000',
 })
 
+export const kanbanBackgroundStyle = (isDarkMode: any) => ({
+	backgroundColor: isDarkMode ? '#404954' : '#fff',
+})
+
 export const phoneStyle = (isDarkMode: any, errors: any, name: string) => ({
 	backgroundColor: isDarkMode ? '#313a46' : '#fff',
 	color: isDarkMode ? '#aab8c5' : '#000',

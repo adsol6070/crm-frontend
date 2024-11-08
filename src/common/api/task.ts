@@ -45,6 +45,11 @@ function TaskService() {
 		deleteTaskByID: (taskId: string) => {
 			return HttpClient.delete(`/task/${taskId}`, { headers: getAuthHeaders() })
 		},
+
+		// Delete a task by ID
+		deleteTasks: () => {
+			return HttpClient.delete(`/task/`, { headers: getAuthHeaders() })
+		},
 	}
 }
 

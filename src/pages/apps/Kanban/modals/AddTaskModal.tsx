@@ -78,9 +78,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
 						<Col className="mb-2">
 							<FormInput
 								label="Task Description"
+								type="textarea"
 								name="taskDescription"
-								type=""
 								placeholder="Enter your task description"
+								rows={3}
+								key="textarea"
 								register={methods.register}
 								errors={errors}
 							/>

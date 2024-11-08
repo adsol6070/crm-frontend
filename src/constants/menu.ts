@@ -38,8 +38,8 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		url: '/chat',
 	},
 	{
-		key: 'kanban',
-		label: 'Kanban',
+		key: 'taskManagement',
+		label: 'Task Management',
 		isTitle: false,
 		icon: 'ri-trello-line',
 		url: '/kanban',
