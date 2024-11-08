@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap'
+import { Container, Row, Col, Card, Badge } from 'react-bootstrap'
 import { PageBreadcrumb } from '@/components'
 import { ToastContainer } from 'react-toastify'
 import { formatStringDisplayName } from '@/utils/formatString'
@@ -9,7 +9,7 @@ import 'react-toastify/ReactToastify.css'
 import Swal from 'sweetalert2'
 import styles from './kanban.module.css'
 import useTask from './useTask'
-import { RiDeleteBinLine, RiEyeLine, RiAddLine } from 'react-icons/ri';
+import { RiDeleteBinLine, RiEyeLine, RiAddLine } from 'react-icons/ri'
 import AddTaskModal from './modals/AddTaskModal'
 import ViewTaskModal from './modals/viewTaskModal'
 import {
@@ -63,7 +63,7 @@ const Column = ({
 	onDrop,
 	status,
 	onAddTask,
-	taskCount
+	taskCount,
 }: ColumnProps) => {
 	const [, drop] = useDrop({
 		accept: ItemType.CARD,
@@ -79,7 +79,7 @@ const Column = ({
 	return (
 		<Col ref={drop} className={styles.colDesign}>
 			<div className={styles.headerDesign}>
-				<div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+				<div style={{ display: 'flex', alignItems: 'center' }}>
 					<span
 						style={{
 							height: '8px',
@@ -104,12 +104,12 @@ const Column = ({
 					className="text-decoration-none m-1"
 					onMouseOver={(e) => {
 						e.currentTarget.style.background = '#f0f0f0'
-						e.currentTarget.style.borderRadius = "50%"
-						e.currentTarget.style.cursor = "pointer"
+						e.currentTarget.style.borderRadius = '50%'
+						e.currentTarget.style.cursor = 'pointer'
 					}}
 					onMouseOut={(e) => {
 						e.currentTarget.style.background = '#FFF'
-						e.currentTarget.style.borderRadius = "50%"
+						e.currentTarget.style.borderRadius = '50%'
 					}}
 					onClick={onAddTask}>
 					<RiAddLine size={24} />
@@ -163,7 +163,12 @@ const KanbanCard = ({
 				</Card.Text>
 				<div className="d-flex align-items-center">
 					<RiEyeLine size={18} className="mx-1" onClick={onViewTask} />
-					<RiDeleteBinLine size={18} className="mx-1" color="red" onClick={onDeleteTask} />
+					<RiDeleteBinLine
+						size={18}
+						className="mx-1"
+						color="red"
+						onClick={onDeleteTask}
+					/>
 				</div>
 			</Card.Body>
 		</Card>
@@ -285,8 +290,7 @@ const Kanban = () => {
 							status={status as keyof KanbanState}
 							onDrop={handleDrop}
 							onAddTask={() => setShowAddTaskModal(true)}
-							taskCount={kanbanState[status as keyof KanbanState].length}
-						>
+							taskCount={kanbanState[status as keyof KanbanState].length}>
 							{kanbanState[status as keyof KanbanState]?.map((card, index) => (
 								<KanbanCard
 									key={index}

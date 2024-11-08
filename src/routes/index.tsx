@@ -69,6 +69,7 @@ const UserRoles = React.lazy(() => import('../pages/user/Roles'))
 
 const Chats = React.lazy(() => import('../pages/apps/Chat'))
 const Kanban = React.lazy(() => import('../pages/apps/Kanban'))
+const CreateBoard = React.lazy(() => import('../pages/apps/Kanban/CreateBoard'))
 
 // // error
 const Error404 = React.lazy(() => import('../pages/error/Error404'))
@@ -394,11 +395,26 @@ const chatRoutes = {
 }
 
 const kanbanRoutes = {
-	path: '/kanban',
-	name: 'Kanban',
-	element: <Kanban />,
-	route: PrivateRoute,
-	roles: ['super_admin', 'admin'],
+	path: '/tasks',
+	name: 'Tasks',
+	icon: 'tasks',
+	header: 'Custom',
+	children: [
+		{
+			path: '/kanban',
+			name: 'Tasks',
+			element: <Kanban />,
+			route: PrivateRoute,
+			roles: ['super_admin', 'admin'],
+		},
+		{
+			path: '/create-board',
+			name: 'CreateBoard',
+			element: <CreateBoard />,
+			route: PrivateRoute,
+			roles: ['super_admin', 'admin'],
+		},
+	],
 }
 
 // public routes
