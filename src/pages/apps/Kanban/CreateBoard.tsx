@@ -29,12 +29,8 @@ interface Board {
 const CreateBoard = () => {
 	const [boards, setBoards] = useState<Board[]>([])
 	const [showModal, setShowModal] = useState(false)
-	const [newBoard, setNewBoard] = useState<Board>({
-		id: '',
-		title: '',
-		description: '',
-	})
 	const [mode, setMode] = useState<'create' | 'edit'>('create')
+	const [currentBoardId, setCurrentBoardId] = useState<string | null>(null)
 
 	const {
 		control,
@@ -42,7 +38,7 @@ const CreateBoard = () => {
 		formState: { errors },
 		setValue,
 		reset,
-		getValues,
+		watch,
 	} = useForm<Board>({
 		resolver: yupResolver(schema),
 		defaultValues: {
@@ -50,6 +46,9 @@ const CreateBoard = () => {
 			description: '',
 		},
 	})
+
+	// Watch the description field for real-time updates
+	const description = watch('description', '')
 
 	useEffect(() => {
 		const storedBoards = localStorage.getItem('boards')
@@ -66,22 +65,23 @@ const CreateBoard = () => {
 		setMode('create')
 		setShowModal(true)
 		reset({ title: '', description: '' })
+		setCurrentBoardId(null)
 	}
 
 	const handleCloseModal = () => {
 		setShowModal(false)
 		reset({ title: '', description: '' })
 		setMode('create')
+		setCurrentBoardId(null)
 	}
 
 	const handleFormSubmit = (data: Board) => {
-		const newBoardData = { ...data, id: uuidv4() }
-
 		if (mode === 'create') {
+			const newBoardData = { ...data, id: uuidv4() }
 			setBoards([...boards, newBoardData])
-		} else if (mode === 'edit') {
+		} else if (mode === 'edit' && currentBoardId) {
 			const updatedBoards = boards.map((board) =>
-				board.id === newBoardData.id ? newBoardData : board
+				board.id === currentBoardId ? { ...data, id: currentBoardId } : board
 			)
 			setBoards(updatedBoards)
 		}
@@ -110,7 +110,7 @@ const CreateBoard = () => {
 		if (boardToEdit) {
 			setValue('title', boardToEdit.title)
 			setValue('description', boardToEdit.description)
-			setNewBoard(boardToEdit)
+			setCurrentBoardId(id)
 			setMode('edit')
 			setShowModal(true)
 		}
@@ -246,7 +246,7 @@ const CreateBoard = () => {
 							</Form.Control.Feedback>
 						</Form.Group>
 						<div className="text-muted">
-							{getValues()?.description?.length} / 58 characters
+							{description.length} / 58 characters
 						</div>
 						<Modal.Footer>
 							<Button variant="secondary" onClick={handleCloseModal}>
