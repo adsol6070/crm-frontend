@@ -4,8 +4,8 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap'
 import { PageBreadcrumb } from '@/components'
 import { ToastContainer } from 'react-toastify'
-import { formatStringDisplayName } from '@/utils/formatString'
 import 'react-toastify/ReactToastify.css'
+import { formatStringDisplayName } from '@/utils/formatString'
 import Swal from 'sweetalert2'
 import styles from './kanban.module.css'
 import useTask from './useTask'
@@ -20,6 +20,9 @@ import {
 	CardProps,
 	CreateData,
 } from '@/types/KanbanTypes'
+import { useThemeContext } from '@/common'
+import { kanbanBackgroundStyle, textStyle } from '@/utils'
+import { useParams } from 'react-router-dom'
 
 const ItemType = {
 	CARD: 'card',
@@ -30,6 +33,7 @@ const formatTask = (task: Task): CardType => ({
 	title: task.taskTitle,
 	status: formatStringDisplayName(task.taskStatus),
 	description: task.taskDescription,
+	createdAt: task.created_at,
 })
 
 const formatTasks = (tasks: Task[]): KanbanState => {
@@ -75,9 +79,10 @@ const Column = ({
 			}
 		},
 	})
+	const { settings } = useThemeContext();
 
 	return (
-		<Col ref={drop} className={styles.colDesign}>
+		<Col ref={drop} className={styles.colDesign} style={kanbanBackgroundStyle(settings.theme === 'dark')}>
 			<div className={styles.headerDesign}>
 				<div style={{ display: 'flex', alignItems: 'center' }}>
 					<span
@@ -88,7 +93,7 @@ const Column = ({
 							borderRadius: '50%',
 							lineHeight: '3px',
 						}}></span>
-					<Card.Title className="fw-bold text-black m-1">
+					<Card.Title className="fw-bold m-1" style={textStyle(settings.theme === 'dark')}>
 						{formatStringDisplayName(title)}
 					</Card.Title>
 					<Badge pill bg="secondary">
@@ -111,7 +116,8 @@ const Column = ({
 						e.currentTarget.style.background = '#FFF'
 						e.currentTarget.style.borderRadius = '50%'
 					}}
-					onClick={onAddTask}>
+					onClick={onAddTask}
+					>
 					<RiAddLine size={24} />
 				</div>
 			</div>
@@ -147,6 +153,7 @@ const KanbanCard = ({
 			}
 		},
 	})
+	const truncatedDescription = card.description ? (card.description.length > 30 ? `${card.description.slice(0, 30)}...` : card.description) : 'No description provided.'
 
 	return (
 		<Card
@@ -159,7 +166,7 @@ const KanbanCard = ({
 				</Badge>
 				<Card.Title className="h6">{card.title}</Card.Title>
 				<Card.Text className="text-muted">
-					{card.description || 'No description provided.'}
+					{truncatedDescription}
 				</Card.Text>
 				<div className="d-flex align-items-center">
 					<RiEyeLine size={18} className="mx-1" onClick={onViewTask} />
@@ -176,7 +183,8 @@ const KanbanCard = ({
 }
 
 const Kanban = () => {
-	const { tasks, createTask, deleteTaskById, updateTaskStatus } = useTask()
+	const { boardId } = useParams() as { boardId: string };
+	const { tasks, createTask, deleteTaskById, updateTaskStatus, deleteAllTasks } = useTask(boardId)
 	const [kanbanState, setKanbanState] = useState<KanbanState>({
 		todo: [],
 		inProgress: [],
@@ -186,7 +194,6 @@ const Kanban = () => {
 	const [showAddTaskModal, setShowAddTaskModal] = useState<boolean>(false)
 	const [showViewTaskModal, setShowViewTaskModal] = useState<boolean>(false)
 	const [selectedTask, setSelectedTask] = useState({})
-	// console.log("cards ", cards)
 
 	useEffect(() => {
 		setKanbanState(formatTasks(tasks))
@@ -254,6 +261,29 @@ const Kanban = () => {
 		setShowViewTaskModal(true)
 	}
 
+	const handleDeleteAllTask = async () => {
+		const confirmDelete = await Swal.fire({
+			title: 'Are you sure?',
+			text: 'This action is irreversible!',
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#3085d6',
+			cancelButtonColor: '#d33',
+			confirmButtonText: 'Yes, delete it!',
+		})
+
+		if (confirmDelete.isConfirmed) {
+			await deleteAllTasks()
+			Swal.fire({
+				title: 'Deleted!',
+				text: 'Your all tasks has been deleted.',
+				icon: 'success',
+				showConfirmButton: false,
+				timer: 2000,
+			})
+		}
+	}
+
 	const handleDeleteTask = async (id: string) => {
 		const confirmDelete = await Swal.fire({
 			title: 'Are you sure?',
@@ -282,7 +312,8 @@ const Kanban = () => {
 			<Container fluid>
 				<ToastContainer />
 				<PageBreadcrumb title="Kanban" subName="Kanban" />
-				<Row className="flex-nowrap">
+				<button className='btn btn-danger mb-2' onClick={handleDeleteAllTask}>Delete All Tasks</button>
+				<Row className="flex-nowrap my-2">
 					{Object.keys(kanbanState).map((status, index) => (
 						<Column
 							key={index}

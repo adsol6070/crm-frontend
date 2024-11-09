@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import { PageBreadcrumb } from '@/components'
 import { Card, Button, Row, Col, Modal, Form } from 'react-bootstrap'
 import { FaPlus, FaEdit, FaTrashAlt } from 'react-icons/fa'
@@ -10,25 +9,35 @@ import { useForm, Controller } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import styles from './kanban.module.css'
+import useBoard from './useBoard'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/ReactToastify.css'
 
 // Validation Schema with Yup
 const schema = yup.object().shape({
-	title: yup.string().required('Board title is required'),
-	description: yup
+	boardTitle: yup.string().required('Board title is required'),
+	boardDescription: yup
 		.string()
 		.max(58, 'Description cannot exceed 58 characters')
 		.required('Description is required'),
 })
 
 interface Board {
-	id: string
-	title: string
-	description: string
+	id?: string;
+    tenantID?: string;
+    boardTitle: string;
+    boardDescription: string;
 }
 
 const CreateBoard = () => {
 	const [boards, setBoards] = useState<Board[]>([])
 	const [showModal, setShowModal] = useState(false)
+	const { createBoard } = useBoard()
+	const [newBoard, setNewBoard] = useState<Board>({
+		id: '',
+		boardTitle: '',
+		boardDescription: '',
+	})
 	const [mode, setMode] = useState<'create' | 'edit'>('create')
 	const [currentBoardId, setCurrentBoardId] = useState<string | null>(null)
 
@@ -42,13 +51,13 @@ const CreateBoard = () => {
 	} = useForm<Board>({
 		resolver: yupResolver(schema),
 		defaultValues: {
-			title: '',
-			description: '',
+			boardTitle: '',
+			boardDescription: '',
 		},
 	})
 
 	// Watch the description field for real-time updates
-	const description = watch('description', '')
+	const description = watch('boardDescription', '')
 
 	useEffect(() => {
 		const storedBoards = localStorage.getItem('boards')
@@ -64,20 +73,22 @@ const CreateBoard = () => {
 	const handleAddBoard = () => {
 		setMode('create')
 		setShowModal(true)
-		reset({ title: '', description: '' })
-		setCurrentBoardId(null)
+		reset({ boardTitle: '', boardDescription: '' })
 	}
 
 	const handleCloseModal = () => {
 		setShowModal(false)
-		reset({ title: '', description: '' })
+		reset({ boardTitle: '', boardDescription: '' })
 		setMode('create')
 		setCurrentBoardId(null)
 	}
 
 	const handleFormSubmit = (data: Board) => {
+		const newBoardData = { ...data }
+		console.log("data", data)
+
 		if (mode === 'create') {
-			const newBoardData = { ...data, id: uuidv4() }
+			createBoard(data)
 			setBoards([...boards, newBoardData])
 		} else if (mode === 'edit' && currentBoardId) {
 			const updatedBoards = boards.map((board) =>
@@ -108,9 +119,9 @@ const CreateBoard = () => {
 	const handleEditBoard = (id: string) => {
 		const boardToEdit = boards.find((board) => board.id === id)
 		if (boardToEdit) {
-			setValue('title', boardToEdit.title)
-			setValue('description', boardToEdit.description)
-			setCurrentBoardId(id)
+			setValue('boardTitle', boardToEdit.boardTitle)
+			setValue('boardDescription', boardToEdit.boardDescription)
+			setNewBoard(boardToEdit)
 			setMode('edit')
 			setShowModal(true)
 		}
@@ -150,10 +161,10 @@ const CreateBoard = () => {
 					<Card.Body className={styles.cardBody}>
 						<div className={styles.cardContent}>
 							<Card.Title className={styles.boardTitle}>
-								{board.title}
+								{board.boardTitle}
 							</Card.Title>
 							<Card.Text className={styles.boardDescription}>
-								{board.description}
+								{board.boardDescription}
 							</Card.Text>
 						</div>
 						<div className={styles.buttonContainer}>
@@ -183,6 +194,7 @@ const CreateBoard = () => {
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<PageBreadcrumb title="Boards" subName="Boards" />
+			<ToastContainer />
 			<div>
 				<Row xs={1} md={2} lg={3} className="g-3">
 					{boards.map((board, index) => (
@@ -211,38 +223,38 @@ const CreateBoard = () => {
 							<Form.Label>Board Title</Form.Label>
 							<Controller
 								control={control}
-								name="title"
+								name="boardTitle"
 								render={({ field }) => (
 									<Form.Control
 										type="text"
 										placeholder="Enter board title"
 										{...field}
-										isInvalid={!!errors.title}
+										isInvalid={!!errors.boardTitle}
 									/>
 								)}
 							/>
 							<Form.Control.Feedback type="invalid">
-								{errors.title?.message}
+								{errors.boardTitle?.message}
 							</Form.Control.Feedback>
 						</Form.Group>
-						<Form.Group controlId="boardDescription" className="mt-3">
+						<Form.Group controlId="boardDescription" className="mt-2">
 							<Form.Label>Description</Form.Label>
 							<Controller
 								control={control}
-								name="description"
+								name="boardDescription"
 								render={({ field }) => (
 									<Form.Control
 										as="textarea"
 										rows={3}
 										placeholder="Enter board description (max 58 characters)"
 										{...field}
-										isInvalid={!!errors.description}
+										isInvalid={!!errors.boardDescription}
 										maxLength={58}
 									/>
 								)}
 							/>
 							<Form.Control.Feedback type="invalid">
-								{errors.description?.message}
+								{errors.boardDescription?.message}
 							</Form.Control.Feedback>
 						</Form.Group>
 						<div className="text-muted">
