@@ -4,12 +4,12 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap'
 import { PageBreadcrumb } from '@/components'
 import { ToastContainer } from 'react-toastify'
-import { formatStringDisplayName } from '@/utils/formatString'
 import 'react-toastify/ReactToastify.css'
+import { formatStringDisplayName } from '@/utils/formatString'
 import Swal from 'sweetalert2'
 import styles from './kanban.module.css'
 import useTask from './useTask'
-import { RiDeleteBinLine, RiEyeLine, RiAddLine } from 'react-icons/ri';
+import { RiDeleteBinLine, RiEyeLine, RiAddLine } from 'react-icons/ri'
 import AddTaskModal from './modals/AddTaskModal'
 import ViewTaskModal from './modals/viewTaskModal'
 import {
@@ -22,6 +22,7 @@ import {
 } from '@/types/KanbanTypes'
 import { useThemeContext } from '@/common'
 import { kanbanBackgroundStyle, textStyle } from '@/utils'
+import { useParams } from 'react-router-dom'
 
 const ItemType = {
 	CARD: 'card',
@@ -66,7 +67,7 @@ const Column = ({
 	onDrop,
 	status,
 	onAddTask,
-	taskCount
+	taskCount,
 }: ColumnProps) => {
 	const [, drop] = useDrop({
 		accept: ItemType.CARD,
@@ -108,12 +109,12 @@ const Column = ({
 					className="text-decoration-none m-1"
 					onMouseOver={(e) => {
 						e.currentTarget.style.background = '#f0f0f0'
-						e.currentTarget.style.borderRadius = "50%"
-						e.currentTarget.style.cursor = "pointer"
+						e.currentTarget.style.borderRadius = '50%'
+						e.currentTarget.style.cursor = 'pointer'
 					}}
 					onMouseOut={(e) => {
 						e.currentTarget.style.background = '#FFF'
-						e.currentTarget.style.borderRadius = "50%"
+						e.currentTarget.style.borderRadius = '50%'
 					}}
 					onClick={onAddTask}
 					>
@@ -169,7 +170,12 @@ const KanbanCard = ({
 				</Card.Text>
 				<div className="d-flex align-items-center">
 					<RiEyeLine size={18} className="mx-1" onClick={onViewTask} />
-					<RiDeleteBinLine size={18} className="mx-1" color="red" onClick={onDeleteTask} />
+					<RiDeleteBinLine
+						size={18}
+						className="mx-1"
+						color="red"
+						onClick={onDeleteTask}
+					/>
 				</div>
 			</Card.Body>
 		</Card>
@@ -177,7 +183,8 @@ const KanbanCard = ({
 }
 
 const Kanban = () => {
-	const { tasks, createTask, deleteTaskById, updateTaskStatus, deleteAllTasks } = useTask()
+	const { boardId } = useParams() as { boardId: string };
+	const { tasks, createTask, deleteTaskById, updateTaskStatus, deleteAllTasks } = useTask(boardId)
 	const [kanbanState, setKanbanState] = useState<KanbanState>({
 		todo: [],
 		inProgress: [],
@@ -314,8 +321,7 @@ const Kanban = () => {
 							status={status as keyof KanbanState}
 							onDrop={handleDrop}
 							onAddTask={() => setShowAddTaskModal(true)}
-							taskCount={kanbanState[status as keyof KanbanState].length}
-						>
+							taskCount={kanbanState[status as keyof KanbanState].length}>
 							{kanbanState[status as keyof KanbanState]?.map((card, index) => (
 								<KanbanCard
 									key={index}

@@ -6,4 +6,9 @@ export type Task = {
     taskTitle: string;
 }
 
-
+export type Board = {
+    id?: string;
+    tenantID?: string;
+    boardTitle: string;
+    boardDescription: string;
+}
