@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { PageBreadcrumb } from '@/components'
 import { Card, Button, Row, Col, Modal, Form } from 'react-bootstrap'
 import { FaPlus, FaEdit, FaTrashAlt } from 'react-icons/fa'
+import { useNavigate } from 'react-router-dom'
 import { useDrag, useDrop, DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import Swal from 'sweetalert2'
@@ -23,23 +24,25 @@ const schema = yup.object().shape({
 })
 
 interface Board {
-	id?: string;
-    tenantID?: string;
-    boardTitle: string;
-    boardDescription: string;
+	id?: string
+	tenantID?: string
+	boardTitle: string
+	boardDescription: string
 }
 
 const CreateBoard = () => {
-	const [boards, setBoards] = useState<Board[]>([])
+	const {
+		boards,
+		setBoards,
+		createBoard,
+		deleteBoard,
+		updateBoard,
+		updateBoardOrder,
+	} = useBoard()
 	const [showModal, setShowModal] = useState(false)
-	const { createBoard } = useBoard()
-	const [newBoard, setNewBoard] = useState<Board>({
-		id: '',
-		boardTitle: '',
-		boardDescription: '',
-	})
 	const [mode, setMode] = useState<'create' | 'edit'>('create')
 	const [currentBoardId, setCurrentBoardId] = useState<string | null>(null)
+	const navigate = useNavigate() // Add navigation hook
 
 	const {
 		control,
@@ -56,19 +59,7 @@ const CreateBoard = () => {
 		},
 	})
 
-	// Watch the description field for real-time updates
 	const description = watch('boardDescription', '')
-
-	useEffect(() => {
-		const storedBoards = localStorage.getItem('boards')
-		if (storedBoards) {
-			setBoards(JSON.parse(storedBoards) as Board[])
-		}
-	}, [])
-
-	useEffect(() => {
-		localStorage.setItem('boards', JSON.stringify(boards))
-	}, [boards])
 
 	const handleAddBoard = () => {
 		setMode('create')
@@ -84,17 +75,10 @@ const CreateBoard = () => {
 	}
 
 	const handleFormSubmit = (data: Board) => {
-		const newBoardData = { ...data }
-		console.log("data", data)
-
 		if (mode === 'create') {
 			createBoard(data)
-			setBoards([...boards, newBoardData])
 		} else if (mode === 'edit' && currentBoardId) {
-			const updatedBoards = boards.map((board) =>
-				board.id === currentBoardId ? { ...data, id: currentBoardId } : board
-			)
-			setBoards(updatedBoards)
+			updateBoard(currentBoardId, data)
 		}
 		handleCloseModal()
 	}
@@ -110,21 +94,27 @@ const CreateBoard = () => {
 			confirmButtonText: 'Yes, delete it!',
 		}).then((result) => {
 			if (result.isConfirmed) {
-				const updatedBoards = boards.filter((board) => board.id !== id)
-				setBoards(updatedBoards)
+				deleteBoard(id)
 			}
 		})
 	}
 
 	const handleEditBoard = (id: string) => {
-		const boardToEdit = boards.find((board) => board.id === id)
+		const boardToEdit = boards.find((board) => board.id === id) as
+			| Board
+			| undefined
 		if (boardToEdit) {
 			setValue('boardTitle', boardToEdit.boardTitle)
 			setValue('boardDescription', boardToEdit.boardDescription)
-			setNewBoard(boardToEdit)
 			setMode('edit')
 			setShowModal(true)
+			setCurrentBoardId(id)
 		}
+	}
+
+	// Navigate to the board view
+	const handleViewBoard = (id: string) => {
+		navigate(`/kanban/${id}`)
 	}
 
 	const moveBoard = (dragIndex: number, hoverIndex: number) => {
@@ -132,6 +122,13 @@ const CreateBoard = () => {
 		const [draggedBoard] = updatedBoards.splice(dragIndex, 1)
 		updatedBoards.splice(hoverIndex, 0, draggedBoard)
 		setBoards(updatedBoards)
+
+		const orderedBoards = updatedBoards.map((board, index) => ({
+			boardId: board.id,
+			order: index, // The index represents the new order
+		}))
+
+		updateBoardOrder(orderedBoards)
 	}
 
 	const BoardCard = ({ board, index }: { board: Board; index: number }) => {
@@ -171,7 +168,10 @@ const CreateBoard = () => {
 							<Button
 								variant="outline-primary"
 								size="sm"
-								className={styles.viewButton}>
+								className={styles.viewButton}
+								onClick={() => handleViewBoard(board.id)}>
+								{' '}
+								{/* Attach handleViewBoard */}
 								View Board
 							</Button>
 							<div className={styles.iconButtons}>

@@ -42,20 +42,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		label: 'Task Manager',
 		isTitle: false,
 		icon: 'ri-trello-line',
-		children: [
-			{
-				key: 'task-createBoard',
-				label: 'Create Board',
-				url: '/create-board',
-				parentKey: 'task',
-			},
-			{
-				key: 'task-kanban',
-				label: 'Kanban',
-				url: '/kanban',
-				parentKey: 'task',
-			},
-		],
+		url: '/create-board',
 	},
 	{
 		key: 'leads',

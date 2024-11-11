@@ -79,10 +79,18 @@ const Column = ({
 			}
 		},
 	})
-	const { settings } = useThemeContext();
+	const { settings } = useThemeContext()
 
 	return (
-		<Col ref={drop} className={styles.colDesign} style={kanbanBackgroundStyle(settings.theme === 'dark')}>
+		<Col
+			ref={drop}
+			className={styles.colDesign}
+			style={{
+				...kanbanBackgroundStyle(settings.theme === 'dark'),
+				borderRadius: '8px',
+				boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+				marginBottom: '1rem'
+			}}>
 			<div className={styles.headerDesign}>
 				<div style={{ display: 'flex', alignItems: 'center' }}>
 					<span
@@ -93,7 +101,9 @@ const Column = ({
 							borderRadius: '50%',
 							lineHeight: '3px',
 						}}></span>
-					<Card.Title className="fw-bold m-1" style={textStyle(settings.theme === 'dark')}>
+					<Card.Title
+						className="fw-bold m-1"
+						style={textStyle(settings.theme === 'dark')}>
 						{formatStringDisplayName(title)}
 					</Card.Title>
 					<Badge pill bg="secondary">
@@ -116,8 +126,7 @@ const Column = ({
 						e.currentTarget.style.background = '#FFF'
 						e.currentTarget.style.borderRadius = '50%'
 					}}
-					onClick={onAddTask}
-					>
+					onClick={onAddTask}>
 					<RiAddLine size={24} />
 				</div>
 			</div>
@@ -153,7 +162,11 @@ const KanbanCard = ({
 			}
 		},
 	})
-	const truncatedDescription = card.description ? (card.description.length > 30 ? `${card.description.slice(0, 30)}...` : card.description) : 'No description provided.'
+	const truncatedDescription = card.description
+		? card.description.length > 30
+			? `${card.description.slice(0, 30)}...`
+			: card.description
+		: 'No description provided.'
 
 	return (
 		<Card
@@ -165,9 +178,7 @@ const KanbanCard = ({
 					{card.status || 'Status'}
 				</Badge>
 				<Card.Title className="h6">{card.title}</Card.Title>
-				<Card.Text className="text-muted">
-					{truncatedDescription}
-				</Card.Text>
+				<Card.Text className="text-muted">{truncatedDescription}</Card.Text>
 				<div className="d-flex align-items-center">
 					<RiEyeLine size={18} className="mx-1" onClick={onViewTask} />
 					<RiDeleteBinLine
@@ -183,8 +194,15 @@ const KanbanCard = ({
 }
 
 const Kanban = () => {
-	const { boardId } = useParams() as { boardId: string };
-	const { tasks, createTask, deleteTaskById, updateTaskStatus, deleteAllTasks } = useTask(boardId)
+	const { boardId } = useParams() as { boardId: string }
+	console.log('BoardID:', boardId)
+	const {
+		tasks,
+		createTask,
+		deleteTaskById,
+		updateTaskStatus,
+		deleteAllTasks,
+	} = useTask(boardId)
 	const [kanbanState, setKanbanState] = useState<KanbanState>({
 		todo: [],
 		inProgress: [],
@@ -312,7 +330,9 @@ const Kanban = () => {
 			<Container fluid>
 				<ToastContainer />
 				<PageBreadcrumb title="Kanban" subName="Kanban" />
-				<button className='btn btn-danger mb-2' onClick={handleDeleteAllTask}>Delete All Tasks</button>
+				<button className="btn btn-danger mb-2" onClick={handleDeleteAllTask}>
+					Delete All Tasks
+				</button>
 				<Row className="flex-nowrap my-2">
 					{Object.keys(kanbanState).map((status, index) => (
 						<Column

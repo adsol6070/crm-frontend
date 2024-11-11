@@ -401,7 +401,7 @@ const kanbanRoutes = {
 	header: 'Custom',
 	children: [
 		{
-			path: '/kanban',
+			path: '/kanban/:boardId',
 			name: 'Tasks',
 			element: <Kanban />,
 			route: PrivateRoute,

@@ -31,7 +31,9 @@ function BoardService() {
 
 		// Delete a task by ID
 		getBoardByID: (boardId: string) => {
-			return HttpClient.get(`/taskBoard/${boardId}`, { headers: getAuthHeaders() })
+			return HttpClient.get(`/taskBoard/${boardId}`, {
+				headers: getAuthHeaders(),
+			})
 		},
 
 		// Delete a task by ID
@@ -41,9 +43,17 @@ function BoardService() {
 			})
 		},
 
+		updateBoardOrder: (updatedBoards: any) => {
+			return HttpClient.patch(`/taskBoard/order`, updatedBoards, {
+				headers: getAuthHeaders(),
+			})
+		},
+
 		// Delete a task by ID
 		deleteBoardByID: (boardId: string) => {
-			return HttpClient.delete(`/taskBoard/${boardId}`, { headers: getAuthHeaders() })
+			return HttpClient.delete(`/taskBoard/${boardId}`, {
+				headers: getAuthHeaders(),
+			})
 		},
 
 		// Delete a task by ID

@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
 const useBoard = () => {
-	const [loading, setLoading] = useState(true)
 	const [boards, setBoards] = useState([])
+	const [loading, setLoading] = useState<boolean>(true)
 
 	const getBoards = async () => {
 		setLoading(true)
@@ -34,7 +34,37 @@ const useBoard = () => {
 		}
 	}
 
-	const deleteBoardById = async (id: string) => {
+	const updateBoard = async (id: string, updatedData: Board) => {
+		setLoading(true)
+		try {
+			const response = await boardApi.updateBoardByID(id, updatedData)
+			await getBoards()
+			toast.success(response.message || 'Board updated successfully')
+		} catch (err) {
+			console.error('Failed to update board:', err)
+			toast.error('Failed to update board')
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	const updateBoardOrder = async (updatedBoards: any[]) => {
+		setLoading(true)
+		try {
+			const response = await boardApi.updateBoardOrder({
+				orderedBoards: updatedBoards,
+			})
+			await getBoards()
+			toast.success(response.message || 'Board order updated successfully')
+		} catch (err) {
+			console.error('Failed to update board order:', err)
+			toast.error('Failed to update board order')
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	const deleteBoard = async (id: string) => {
 		setLoading(true)
 		try {
 			await boardApi.deleteBoardByID(id)
@@ -66,10 +96,13 @@ const useBoard = () => {
 
 	return {
 		loading,
+		boards,
+		setBoards,
 		getBoards,
 		createBoard,
-		boards,
-		deleteBoardById,
+		updateBoard,
+		updateBoardOrder,
+		deleteBoard,
 		deleteAllBoards,
 	}
 }
