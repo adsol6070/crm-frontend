@@ -23,6 +23,7 @@ import {
 import { useThemeContext } from '@/common'
 import { kanbanBackgroundStyle, textStyle } from '@/utils'
 import { useParams } from 'react-router-dom'
+import { BsThreeDots, BsThreeDotsVertical } from 'react-icons/bs'
 
 const ItemType = {
 	CARD: 'card',
@@ -87,20 +88,24 @@ const Column = ({
 			className={styles.colDesign}
 			style={{
 				...kanbanBackgroundStyle(settings.theme === 'dark'),
-				borderRadius: '8px',
+				borderRadius: '12px',
 				boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-				marginBottom: '1rem'
+				marginBottom: '1rem',
+				minHeight: '50px',
+				height: '100%',
+				padding: '10px',
 			}}>
-			<div className={styles.headerDesign}>
+			<div
+				id="header"
+				style={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					padding: '10px 20px',
+					borderRadius: '8px',
+					marginBottom: '10px',
+				}}>
 				<div style={{ display: 'flex', alignItems: 'center' }}>
-					<span
-						style={{
-							height: '8px',
-							width: '8px',
-							background: 'green',
-							borderRadius: '50%',
-							lineHeight: '3px',
-						}}></span>
 					<Card.Title
 						className="fw-bold m-1"
 						style={textStyle(settings.theme === 'dark')}>
@@ -110,28 +115,43 @@ const Column = ({
 						{taskCount}
 					</Badge>
 				</div>
-				<div
+				<BsThreeDots
+					size={20}
 					style={{
-						color: 'black',
-						padding: '5px',
-						transition: 'background 0.3s',
+						cursor: 'pointer',
+						color: settings.theme === 'dark' ? '#ffffff' : '#333333',
 					}}
-					className="text-decoration-none m-1"
-					onMouseOver={(e) => {
-						e.currentTarget.style.background = '#f0f0f0'
-						e.currentTarget.style.borderRadius = '50%'
-						e.currentTarget.style.cursor = 'pointer'
-					}}
-					onMouseOut={(e) => {
-						e.currentTarget.style.background = '#FFF'
-						e.currentTarget.style.borderRadius = '50%'
-					}}
-					onClick={onAddTask}>
-					<RiAddLine size={24} />
-				</div>
+				/>
 			</div>
-			<div className={`d-flex flex-column gap-2 ${styles.barDesign}`}>
-				<div>{children}</div>
+
+			<div style={{ marginInline: '5px' }}>{children}</div>
+
+			<div
+				id="footer"
+				style={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					padding: '10px 20px',
+					borderRadius: '8px',
+					marginTop: '10px',
+				}}
+				onMouseOver={(e) => {
+					e.currentTarget.style.background = '#e6e6e6'
+					e.currentTarget.style.cursor = 'pointer'
+				}}
+				onMouseOut={(e) => {
+					e.currentTarget.style.background = '#FFF'
+				}}
+				onClick={onAddTask}>
+				<div style={{ display: 'flex', alignItems: 'center' }}>
+					<RiAddLine size={20} color="black" />
+					<Card.Title
+						className="m-1"
+						style={textStyle(settings.theme === 'dark')}>
+						Add a card
+					</Card.Title>
+				</div>
 			</div>
 		</Col>
 	)
@@ -171,8 +191,8 @@ const KanbanCard = ({
 	return (
 		<Card
 			ref={(node: any) => ref(drop(node))}
-			className={`mb-3 ${styles.cardDesign}`}
-			style={{ cursor: 'pointer' }}>
+			className={`${styles.cardDesign}`}
+			style={{ cursor: 'pointer', marginBottom: '10px' }}>
 			<Card.Body>
 				<Badge bg="secondary" className="mb-2">
 					{card.status || 'Status'}
@@ -195,7 +215,6 @@ const KanbanCard = ({
 
 const Kanban = () => {
 	const { boardId } = useParams() as { boardId: string }
-	console.log('BoardID:', boardId)
 	const {
 		tasks,
 		createTask,
@@ -335,6 +354,7 @@ const Kanban = () => {
 				</button>
 				<Row className="flex-nowrap my-2">
 					{Object.keys(kanbanState).map((status, index) => (
+						// <div style={{ display: "inline-flex", flexDirection: "column", width: "100%" }}>
 						<Column
 							key={index}
 							title={status}
@@ -354,6 +374,7 @@ const Kanban = () => {
 								/>
 							))}
 						</Column>
+						// </div>
 					))}
 				</Row>
 				<AddTaskModal

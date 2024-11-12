@@ -14,6 +14,16 @@ import useBoard from './useBoard'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
 
+// Define color swatches
+const colorOptions = [
+	'#FFB6C1',
+	'#FFD700',
+	'#ADFF2F',
+	'#00BFFF',
+	'#FF6347',
+	'#EE82EE',
+]
+
 // Validation Schema with Yup
 const schema = yup.object().shape({
 	boardTitle: yup.string().required('Board title is required'),
@@ -42,6 +52,7 @@ const CreateBoard = () => {
 	const [showModal, setShowModal] = useState(false)
 	const [mode, setMode] = useState<'create' | 'edit'>('create')
 	const [currentBoardId, setCurrentBoardId] = useState<string | null>(null)
+	const [selectedColor, setSelectedColor] = useState<string | null>(null)
 	const navigate = useNavigate() // Add navigation hook
 
 	const {
@@ -219,7 +230,26 @@ const CreateBoard = () => {
 				</Modal.Header>
 				<Modal.Body>
 					<Form onSubmit={handleSubmit(handleFormSubmit)}>
-						<Form.Group controlId="boardTitle">
+						<Form.Label>Background</Form.Label>
+						<div className="d-flex">
+							{colorOptions.map((color) => (
+								<div
+									key={color}
+									onClick={() => setSelectedColor(color)}
+									style={{
+										backgroundColor: color,
+										width: 30,
+										height: 30,
+										borderRadius: '50%',
+										marginRight: 8,
+										cursor: 'pointer',
+										border:
+											selectedColor === color ? '2px solid black' : 'none',
+									}}
+								/>
+							))}
+						</div>
+						<Form.Group controlId="boardTitle" className="mt-2">
 							<Form.Label>Board Title</Form.Label>
 							<Controller
 								control={control}
@@ -257,7 +287,8 @@ const CreateBoard = () => {
 								{errors.boardDescription?.message}
 							</Form.Control.Feedback>
 						</Form.Group>
-						<div className="text-muted">
+
+						<div className="text-muted mt-2">
 							{description.length} / 58 characters
 						</div>
 						<Modal.Footer>
