@@ -165,9 +165,12 @@ const KanbanCard = ({
 	onViewTask,
 	onDeleteTask,
 }: CardProps) => {
-	const [, ref] = useDrag({
+	const [{ isDragging }, ref] = useDrag({
 		type: ItemType.CARD,
 		item: { ...card, index, status },
+		collect: (monitor) => ({
+			isDragging: monitor.isDragging(),
+		}),
 	})
 
 	const [, drop] = useDrop({
@@ -187,6 +190,16 @@ const KanbanCard = ({
 			? `${card.description.slice(0, 30)}...`
 			: card.description
 		: 'No description provided.'
+
+	const cardStyle = {
+		cursor: 'pointer',
+		opacity: isDragging ? 0.5 : 1,
+		transform: isDragging ? 'rotate(5deg)' : 'none',
+		boxShadow: isDragging
+			? '0px 4px 10px rgba(0, 0, 0, 0.2)'
+			: '0px 2px 5px rgba(0, 0, 0, 0.1)',
+		transition: 'all 0.2s ease',
+	}
 
 	return (
 		<Card
@@ -220,7 +233,6 @@ const Kanban = () => {
 		createTask,
 		deleteTaskById,
 		updateTaskStatus,
-		deleteAllTasks,
 	} = useTask(boardId)
 	const [kanbanState, setKanbanState] = useState<KanbanState>({
 		todo: [],
@@ -298,29 +310,6 @@ const Kanban = () => {
 		setShowViewTaskModal(true)
 	}
 
-	const handleDeleteAllTask = async () => {
-		const confirmDelete = await Swal.fire({
-			title: 'Are you sure?',
-			text: 'This action is irreversible!',
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
-			confirmButtonText: 'Yes, delete it!',
-		})
-
-		if (confirmDelete.isConfirmed) {
-			await deleteAllTasks()
-			Swal.fire({
-				title: 'Deleted!',
-				text: 'Your all tasks has been deleted.',
-				icon: 'success',
-				showConfirmButton: false,
-				timer: 2000,
-			})
-		}
-	}
-
 	const handleDeleteTask = async (id: string) => {
 		const confirmDelete = await Swal.fire({
 			title: 'Are you sure?',
@@ -349,9 +338,6 @@ const Kanban = () => {
 			<Container fluid>
 				<ToastContainer />
 				<PageBreadcrumb title="Kanban" subName="Kanban" />
-				<button className="btn btn-danger mb-2" onClick={handleDeleteAllTask}>
-					Delete All Tasks
-				</button>
 				<Row className="flex-nowrap my-2">
 					{Object.keys(kanbanState).map((status, index) => (
 						// <div style={{ display: "inline-flex", flexDirection: "column", width: "100%" }}>
