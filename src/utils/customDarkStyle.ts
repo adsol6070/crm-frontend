@@ -93,6 +93,22 @@ export const kanbanBackgroundStyle = (isDarkMode: any) => ({
 	backgroundColor: isDarkMode ? '#404954' : '#fff',
 })
 
+
+export const boardStyle = (isDarkMode: any) => ({
+	backgroundColor: isDarkMode ? '#313a46' : '#fff',
+	color: isDarkMode ? '#fff' : '#000',
+})
+
+export const addNewBoardStyle = (isDarkMode: any) => ({
+	backgroundColor: isDarkMode ? '#434a54' : '#f1f3f5',
+	border: isDarkMode ? '2px dashed #d3d3d3' : '2px dashed #007bff',
+	color: isDarkMode ? '#d3d3d3' : '#007bff',
+})
+
+export const addNewBoardTextStyle = (isDarkMode: any) => ({
+	color: isDarkMode ? '#d3d3d3' : '#007bff',
+})
+
 export const phoneStyle = (isDarkMode: any, errors: any, name: string) => ({
 	backgroundColor: isDarkMode ? '#313a46' : '#fff',
 	color: isDarkMode ? '#aab8c5' : '#000',

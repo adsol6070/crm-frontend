@@ -47,19 +47,6 @@ const useTask = (boardId: string) => {
 		}
 	}
 
-	const deleteAllTasks = async () => {
-		setLoading(true)
-		try {
-			await taskApi.deleteTasks()
-			await getTasks(boardId)
-		} catch (err) {
-			console.error('Failed to delete tasks:', err)
-			toast.error('Failed to delete tasks')
-		} finally {
-			setLoading(false)
-		}
-	}
-
 	const updateTaskStatus = async (taskId: string, data: any) => {
 		try {
 			await taskApi.updateTaskByID(taskId, data)
@@ -80,7 +67,6 @@ const useTask = (boardId: string) => {
 		tasks,
 		deleteTaskById,
 		updateTaskStatus,
-		deleteAllTasks,
 	}
 }
 

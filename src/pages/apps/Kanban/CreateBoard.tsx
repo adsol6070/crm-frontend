@@ -13,6 +13,8 @@ import styles from './kanban.module.css'
 import useBoard from './useBoard'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
+import { useThemeContext } from '@/common'
+import { addNewBoardStyle, addNewBoardTextStyle, boardStyle, textStyle } from '@/utils'
 
 // Validation Schema with Yup
 const schema = yup.object().shape({
@@ -42,7 +44,8 @@ const CreateBoard = () => {
 	const [showModal, setShowModal] = useState(false)
 	const [mode, setMode] = useState<'create' | 'edit'>('create')
 	const [currentBoardId, setCurrentBoardId] = useState<string | null>(null)
-	const navigate = useNavigate() // Add navigation hook
+	const navigate = useNavigate()
+	const { settings } = useThemeContext();
 
 	const {
 		control,
@@ -154,13 +157,13 @@ const CreateBoard = () => {
 			<Col
 				ref={(node) => dragRef(dropRef(node))}
 				style={{ opacity: isDragging ? 0.5 : 1 }}>
-				<Card className={styles.boardCard}>
+				<Card className={styles.boardCard} style={boardStyle(settings.theme === 'dark')}>
 					<Card.Body className={styles.cardBody}>
 						<div className={styles.cardContent}>
-							<Card.Title className={styles.boardTitle}>
+							<Card.Title className={styles.boardTitle} style={textStyle(settings.theme === 'dark')}>
 								{board.boardTitle}
 							</Card.Title>
-							<Card.Text className={styles.boardDescription}>
+							<Card.Text className={styles.boardDescription} style={textStyle(settings.theme === 'dark')}>
 								{board.boardDescription}
 							</Card.Text>
 						</div>
@@ -196,14 +199,14 @@ const CreateBoard = () => {
 			<PageBreadcrumb title="Boards" subName="Boards" />
 			<ToastContainer />
 			<div>
-				<Row xs={1} md={2} lg={3} className="g-3">
+				<Row xs={1} md={3} lg={4} className="g-2">
 					{boards.map((board, index) => (
 						<BoardCard key={board.id} board={board} index={index} />
 					))}
 					<Col>
-						<Card onClick={handleAddBoard} className={styles.addNewBoardCard}>
+						<Card onClick={handleAddBoard} className={styles.addNewBoardCard} style={addNewBoardStyle(settings.theme === 'dark')}>
 							<Card.Body className="d-flex justify-content-center align-items-center">
-								<FaPlus size={40} color="#007bff" />
+								<FaPlus size={40} color="#007bff" style={addNewBoardTextStyle(settings.theme === 'dark')}/>
 							</Card.Body>
 						</Card>
 					</Col>
