@@ -1,4 +1,4 @@
-import { Modal, Badge, Row, Col } from 'react-bootstrap'
+import { Modal, Badge, Row, Col, Dropdown } from 'react-bootstrap'
 import styles from '../kanban.module.css'
 
 interface CardType {
@@ -6,7 +6,7 @@ interface CardType {
 	title?: string
 	description?: string
 	status?: string
-    createdAt?: string
+	createdAt?: string
 }
 
 interface ViewTaskModalProps {
@@ -16,40 +16,74 @@ interface ViewTaskModalProps {
 }
 
 const ViewTaskModal = ({ show, onHide, task }: ViewTaskModalProps) => {
-    const formattedDate = task.createdAt
-    ? new Date(task.createdAt).toLocaleString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: true,
-      })
-    : 'No date provided'
+	const formattedDate = task.createdAt
+		? new Date(task.createdAt).toLocaleString('en-US', {
+			weekday: 'short',
+			month: 'short',
+			day: 'numeric',
+			year: 'numeric',
+			hour: 'numeric',
+			minute: 'numeric',
+			hour12: true,
+		})
+		: 'No date provided'
 	return (
-		<Modal show={show} onHide={onHide} centered size="lg" className={styles.customModal}>
-			<Modal.Header closeButton className="bg-primary text-white">
+		<Modal show={show} onHide={onHide} centered size="md" className={styles.customModal}>
+			<Modal.Header closeButton>
 				<Modal.Title className="fw-bold">{task.title}</Modal.Title>
 			</Modal.Header>
 			<Modal.Body className={`${styles.modalBody} p-4`}>
-				<Row className="mb-3">
-					<Col>
+				<Row>
+					<Col lg={8} md={8} sm={6}>
 						<h6 className="text-muted">Task ID</h6>
 						<p className="fw-semibold text-secondary">{task.id}</p>
 					</Col>
-					<Col className="text-end">
+					<Col lg={4} md={4} sm={6} className="d-flex align-items-center justify-content-center">
 						<Badge bg={
 							task.status === 'Done'
 								? 'success'
 								: task.status === 'In Progress'
-								? 'warning'
-								: task.status === 'Need Review'
-								? 'info'
-								: 'secondary'
+									? 'warning'
+									: task.status === 'Need Review'
+										? 'info'
+										: 'secondary'
 						} className="py-2 px-3 text-uppercase">
 							{task.status}
 						</Badge>
+					</Col>
+				</Row>
+				<Row className="my-1">
+					<Col>
+						<h6 className="text-muted">Change Status</h6>
+						<Dropdown>
+							<Dropdown.Toggle
+								as="button"
+								id="dropdown-custom-components"
+								variant="outline-secondary"
+								className="w-100 text-start text-capitalize py-2 px-3"
+								style={{
+									borderRadius: '8px',
+									border: '1px solid #ced4da',
+									fontWeight: '600',
+								}}
+							>
+								{task.status || 'Select Status'}
+							</Dropdown.Toggle>
+							<Dropdown.Menu className="w-100">
+								<Dropdown.Item eventKey="To Do">
+									To Do
+								</Dropdown.Item>
+								<Dropdown.Item eventKey="In Progress">
+									In Progress
+								</Dropdown.Item>
+								<Dropdown.Item eventKey="Done">
+									Done
+								</Dropdown.Item>
+								<Dropdown.Item eventKey="Need Review">
+									Need Review
+								</Dropdown.Item>
+							</Dropdown.Menu>
+						</Dropdown>
 					</Col>
 				</Row>
 
