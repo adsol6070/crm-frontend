@@ -221,7 +221,7 @@ const CreateBoard = () => {
 			<PageBreadcrumb title="Boards" subName="Boards" />
 			<ToastContainer />
 			<div>
-				<Row xs={1} md={3} lg={4} className="g-2">
+				<Row xs={1} md={3} lg={4} className="g-3">
 					{boards.map((board, index) => (
 						<BoardCard key={board.id} board={board} index={index} />
 					))}

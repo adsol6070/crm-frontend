@@ -23,7 +23,7 @@ import {
 import { useThemeContext } from '@/common'
 import { kanbanBackgroundStyle, textStyle } from '@/utils'
 import { useParams } from 'react-router-dom'
-import { BsThreeDots, BsThreeDotsVertical } from 'react-icons/bs'
+import { BsThreeDots } from 'react-icons/bs'
 
 const ItemType = {
 	CARD: 'card',
@@ -228,12 +228,8 @@ const KanbanCard = ({
 
 const Kanban = () => {
 	const { boardId } = useParams() as { boardId: string }
-	const {
-		tasks,
-		createTask,
-		deleteTaskById,
-		updateTaskStatus,
-	} = useTask(boardId)
+	const { tasks, createTask, deleteTaskById, updateTaskStatus } =
+		useTask(boardId)
 	const [kanbanState, setKanbanState] = useState<KanbanState>({
 		todo: [],
 		inProgress: [],
