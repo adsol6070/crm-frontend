@@ -198,8 +198,8 @@ const KanbanCard = ({
 		cursor: 'pointer',
 		opacity: isDragging ? 0.6 : 1,
 		transform: isDragging
-			? 'rotate(10deg) scale(1.05)'
-			: 'rotate(0deg) scale(1)',
+			? 'rotate(5deg)'
+			: 'rotate(0deg)',
 		boxShadow: isDragging
 			? '0px 6px 15px rgba(0, 0, 0, 0.3)'
 			: '0px 2px 5px rgba(0, 0, 0, 0.1)',
@@ -252,7 +252,7 @@ const Kanban = () => {
 	useEffect(() => {
 		setKanbanState(formatTasks(tasks))
 	}, [tasks])
-
+	
 	const moveCard = async (
 		draggedItem: CardType & { status: keyof KanbanState; index: number },
 		newIndex: number,
@@ -338,6 +338,11 @@ const Kanban = () => {
 		}
 	}
 
+	const handleStatusChange = async (status: string) => {
+		await updateTaskStatus(selectedTask.id, { taskStatus: status });
+		setKanbanState(prevState => formatTasks([...tasks]));
+	};
+
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<Container fluid>
@@ -378,6 +383,7 @@ const Kanban = () => {
 						show={showViewTaskModal}
 						onHide={() => setShowViewTaskModal(false)}
 						task={selectedTask}
+						handleStatusChange={handleStatusChange}
 					/>
 				)}
 			</Container>
