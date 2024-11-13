@@ -85,72 +85,75 @@ const Column = ({
 	return (
 		<Col
 			ref={drop}
-			className={styles.colDesign}
 			style={{
-				...kanbanBackgroundStyle(settings.theme === 'dark'),
-				borderRadius: '12px',
-				boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-				marginBottom: '1rem',
-				minHeight: '50px',
-				height: '100%',
-				padding: '10px',
-			}}>
-			<div
-				id="header"
+				height: "80vh"
+			}}
+		>
+			<div className={styles.colDesign}
 				style={{
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'center',
-					padding: '10px 20px',
-					borderRadius: '8px',
-					marginBottom: '10px',
+					...kanbanBackgroundStyle(settings.theme === 'dark'),
+					borderRadius: '12px',
+					boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+					marginBottom: '1rem',
+					padding: '10px',
 				}}>
-				<div style={{ display: 'flex', alignItems: 'center' }}>
-					<Card.Title
-						className="fw-bold m-1"
-						style={textStyle(settings.theme === 'dark')}>
-						{formatStringDisplayName(title)}
-					</Card.Title>
-					<Badge pill bg="secondary">
-						{taskCount}
-					</Badge>
-				</div>
-				<BsThreeDots
-					size={20}
+				<div
+					id="header"
 					style={{
-						cursor: 'pointer',
-						color: settings.theme === 'dark' ? '#ffffff' : '#333333',
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						padding: '10px 20px',
+						borderRadius: '8px',
+						marginBottom: '10px',
+					}}>
+					<div style={{ display: 'flex', alignItems: 'center' }}>
+						<Card.Title
+							className="fw-bold m-1"
+							style={textStyle(settings.theme === 'dark')}>
+							{formatStringDisplayName(title)}
+						</Card.Title>
+						<Badge pill bg="secondary">
+							{taskCount}
+						</Badge>
+					</div>
+					<BsThreeDots
+						size={20}
+						style={{
+							cursor: 'pointer',
+							color: settings.theme === 'dark' ? '#ffffff' : '#333333',
+						}}
+					/>
+				</div>
+
+				<div style={{ marginInline: '5px' }}>{children}</div>
+
+				<div
+					id="footer"
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						padding: '10px 20px',
+						borderRadius: '8px',
+						marginTop: '10px',
 					}}
-				/>
-			</div>
-
-			<div style={{ marginInline: '5px' }}>{children}</div>
-
-			<div
-				id="footer"
-				style={{
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'center',
-					padding: '10px 20px',
-					borderRadius: '8px',
-					marginTop: '10px',
-				}}
-				onMouseOver={(e) => {
-					e.currentTarget.style.background = '#e6e6e6'
-					e.currentTarget.style.cursor = 'pointer'
-				}}
-				onMouseOut={(e) => {
-					e.currentTarget.style.background = '#FFF'
-				}}
-				onClick={onAddTask}>
-				<div style={{ display: 'flex', alignItems: 'center' }}>
-					<RiAddLine size={20} color="black" />
-					<Card.Title
-						className="m-1"
-						style={textStyle(settings.theme === 'dark')}>
-						Add a card
-					</Card.Title>
+					onMouseOver={(e) => {
+						e.currentTarget.style.background = '#e6e6e6'
+						e.currentTarget.style.cursor = 'pointer'
+					}}
+					onMouseOut={(e) => {
+						e.currentTarget.style.background = '#FFF'
+					}}
+					onClick={onAddTask}>
+					<div style={{ display: 'flex', alignItems: 'center' }}>
+						<RiAddLine size={20} color="black" />
+						<Card.Title
+							className="m-1"
+							style={textStyle(settings.theme === 'dark')}>
+							Add a card
+						</Card.Title>
+					</div>
 				</div>
 			</div>
 		</Col>
@@ -193,19 +196,21 @@ const KanbanCard = ({
 
 	const cardStyle = {
 		cursor: 'pointer',
-		opacity: isDragging ? 0.5 : 1,
-		transform: isDragging ? 'rotate(5deg)' : 'none',
+		opacity: isDragging ? 0.6 : 1,
+		transform: isDragging
+			? 'rotate(10deg) scale(1.05)'
+			: 'rotate(0deg) scale(1)',
 		boxShadow: isDragging
-			? '0px 4px 10px rgba(0, 0, 0, 0.2)'
+			? '0px 6px 15px rgba(0, 0, 0, 0.3)'
 			: '0px 2px 5px rgba(0, 0, 0, 0.1)',
-		transition: 'all 0.2s ease',
+		transition: 'all 0.3s ease',
 	}
 
 	return (
 		<Card
 			ref={(node: any) => ref(drop(node))}
 			className={`${styles.cardDesign}`}
-			style={{ cursor: 'pointer', marginBottom: '10px' }}>
+			style={{ ...cardStyle, marginBottom: '10px' }}>
 			<Card.Body>
 				<Badge bg="secondary" className="mb-2">
 					{card.status || 'Status'}

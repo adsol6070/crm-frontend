@@ -43,6 +43,7 @@ const schema = yup.object().shape({
 interface Board {
 	id?: string
 	tenantID?: string
+	boardColor: string
 	boardTitle: string
 	boardDescription: string
 }
@@ -62,7 +63,7 @@ const CreateBoard = () => {
 	const [selectedColor, setSelectedColor] = useState<string | null>(null)
 	const navigate = useNavigate()
 	const { settings } = useThemeContext()
-
+    
 	const {
 		control,
 		handleSubmit,
@@ -83,6 +84,7 @@ const CreateBoard = () => {
 	const handleAddBoard = () => {
 		setMode('create')
 		setShowModal(true)
+		setSelectedColor(null)
 		reset({ boardTitle: '', boardDescription: '' })
 	}
 
@@ -95,7 +97,12 @@ const CreateBoard = () => {
 
 	const handleFormSubmit = (data: Board) => {
 		if (mode === 'create') {
-			createBoard(data)
+			const combinedData = {
+				...data,
+				boardColor: selectedColor
+			}
+		
+			createBoard(combinedData)
 		} else if (mode === 'edit' && currentBoardId) {
 			updateBoard(currentBoardId, data)
 		}
@@ -144,7 +151,7 @@ const CreateBoard = () => {
 
 		const orderedBoards = updatedBoards.map((board, index) => ({
 			boardId: board.id,
-			order: index, // The index represents the new order
+			order: index, 
 		}))
 
 		updateBoardOrder(orderedBoards)
@@ -175,23 +182,29 @@ const CreateBoard = () => {
 				style={{ opacity: isDragging ? 0.5 : 1 }}>
 				<Card
 					className={styles.boardCard}
-					style={boardStyle(settings.theme === 'dark')}>
+					// style={boardStyle(settings.theme === 'dark')}
+					style={{backgroundColor: board.boardColor}}
+					>
 					<Card.Body className={styles.cardBody}>
 						<div className={styles.cardContent}>
 							<Card.Title
 								className={styles.boardTitle}
-								style={textStyle(settings.theme === 'dark')}>
+								// style={textStyle(settings.theme === 'dark')}
+								style={{color: "white"}}
+								>
 								{board.boardTitle}
 							</Card.Title>
 							<Card.Text
 								className={styles.boardDescription}
-								style={textStyle(settings.theme === 'dark')}>
+								style={{color: "white"}}
+								// style={textStyle(settings.theme === 'dark')}
+								>
 								{board.boardDescription}
 							</Card.Text>
 						</div>
 						<div className={styles.buttonContainer}>
 							<Button
-								variant="outline-primary"
+								variant="outline-light"
 								size="sm"
 								className={styles.viewButton}
 								onClick={() => handleViewBoard(board.id)}>
@@ -202,10 +215,12 @@ const CreateBoard = () => {
 							<div className={styles.iconButtons}>
 								<FaEdit
 									className={styles.editIcon}
+									style={{color: "white"}}
 									onClick={() => handleEditBoard(board.id)}
 								/>
 								<FaTrashAlt
 									className={styles.deleteIcon}
+									style={{color: "white"}}
 									onClick={() => handleDeleteBoard(board.id)}
 								/>
 							</div>
@@ -229,7 +244,8 @@ const CreateBoard = () => {
 						<Card
 							onClick={handleAddBoard}
 							className={styles.addNewBoardCard}
-							style={addNewBoardStyle(settings.theme === 'dark')}>
+							// style={addNewBoardStyle(settings.theme === 'dark')}
+							>
 							<Card.Body className="d-flex justify-content-center align-items-center">
 								<FaPlus
 									size={40}
