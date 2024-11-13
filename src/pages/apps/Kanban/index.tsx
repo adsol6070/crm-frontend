@@ -9,12 +9,7 @@ import { formatStringDisplayName } from '@/utils/formatString'
 import Swal from 'sweetalert2'
 import styles from './kanban.module.css'
 import useTask from './useTask'
-import {
-	RiDeleteBinLine,
-	RiEyeLine,
-	RiAddLine,
-	RiMovieLine,
-} from 'react-icons/ri'
+import { RiDeleteBinLine, RiEyeLine, RiAddLine } from 'react-icons/ri'
 import { LuMoveRight } from 'react-icons/lu'
 import { SlPencil } from 'react-icons/sl'
 import { MdContentCopy } from 'react-icons/md'
@@ -215,7 +210,7 @@ const KanbanCard = ({
 		zIndex: isHighlighted ? 1000 : 'auto',
 		transform:
 			isDragging && !isHighlighted
-				? 'rotate(10deg) scale(1.05)'
+				? 'rotate(5deg) scale(1.05)'
 				: isHighlighted
 					? 'scale(1.05)'
 					: 'none',
@@ -385,6 +380,11 @@ const Kanban = () => {
 		}
 	}
 
+	const handleStatusChange = async (status: string) => {
+		await updateTaskStatus(selectedTask.id, { taskStatus: status })
+		setKanbanState((prevState) => formatTasks([...tasks]))
+	}
+
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<Container fluid>
@@ -438,6 +438,7 @@ const Kanban = () => {
 						show={showViewTaskModal}
 						onHide={() => setShowViewTaskModal(false)}
 						task={selectedTask}
+						handleStatusChange={handleStatusChange}
 					/>
 				)}
 			</Container>

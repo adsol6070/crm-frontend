@@ -99,6 +99,20 @@
 	border-radius: 20px;
 	padding: 0.3rem 1.2rem;
 	font-size: 0.85rem;
+	color: white;
+	border: none;
+	outline:  1px solid white !important;
+	background-color: transparent;
+}
+
+.viewButton:hover {
+	border-radius: 20px;
+	padding: 0.3rem 1.2rem;
+	font-size: 0.85rem;
+	color: black;
+	border: none;
+	outline:  1px solid white !important;
+	background-color: white;
 }
 
 .iconButtons {

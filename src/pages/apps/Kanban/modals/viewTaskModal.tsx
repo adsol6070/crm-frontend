@@ -1,5 +1,7 @@
 import { Modal, Badge, Row, Col, Dropdown } from 'react-bootstrap'
 import styles from '../kanban.module.css'
+import { useEffect, useState } from 'react'
+import { formatStringDisplayName } from '@/utils/formatString'
 
 interface CardType {
 	id?: number
@@ -13,9 +15,10 @@ interface ViewTaskModalProps {
 	show: boolean
 	onHide: () => void
 	task: CardType
+	handleStatusChange: (status: string) => void
 }
 
-const ViewTaskModal = ({ show, onHide, task }: ViewTaskModalProps) => {
+const ViewTaskModal = ({ show, onHide, task, handleStatusChange }: ViewTaskModalProps) => {
 	const formattedDate = task.createdAt
 		? new Date(task.createdAt).toLocaleString('en-US', {
 			weekday: 'short',
@@ -27,6 +30,12 @@ const ViewTaskModal = ({ show, onHide, task }: ViewTaskModalProps) => {
 			hour12: true,
 		})
 		: 'No date provided'
+	const [status, setStatus] = useState(task.status);
+
+	useEffect(() => {
+		setStatus(task.status);
+	}, [task]);
+
 	return (
 		<Modal show={show} onHide={onHide} centered size="md" className={styles.customModal}>
 			<Modal.Header closeButton>
@@ -39,26 +48,20 @@ const ViewTaskModal = ({ show, onHide, task }: ViewTaskModalProps) => {
 						<p className="fw-semibold text-secondary">{task.id}</p>
 					</Col>
 					<Col lg={4} md={4} sm={6} className="d-flex align-items-center justify-content-center">
-						<Badge bg={
-							task.status === 'Done'
-								? 'success'
-								: task.status === 'In Progress'
-									? 'warning'
-									: task.status === 'Need Review'
-										? 'info'
-										: 'secondary'
-						} className="py-2 px-3 text-uppercase">
-							{task.status}
+						<Badge bg="secondary" className="fs-5 px-2 py-1">
+							{formatStringDisplayName(status || "")}
 						</Badge>
 					</Col>
 				</Row>
 				<Row className="my-1">
 					<Col>
 						<h6 className="text-muted">Change Status</h6>
-						<Dropdown>
+						<Dropdown onSelect={(status) => {
+							handleStatusChange(status || "");
+							setStatus(status || "");
+						}}>
 							<Dropdown.Toggle
 								as="button"
-								id="dropdown-custom-components"
 								variant="outline-secondary"
 								className="w-100 text-start text-capitalize py-2 px-3"
 								style={{
@@ -67,21 +70,14 @@ const ViewTaskModal = ({ show, onHide, task }: ViewTaskModalProps) => {
 									fontWeight: '600',
 								}}
 							>
-								{task.status || 'Select Status'}
+								{formatStringDisplayName(status || 'Select Status')}
 							</Dropdown.Toggle>
 							<Dropdown.Menu className="w-100">
-								<Dropdown.Item eventKey="To Do">
-									To Do
-								</Dropdown.Item>
-								<Dropdown.Item eventKey="In Progress">
-									In Progress
-								</Dropdown.Item>
-								<Dropdown.Item eventKey="Done">
-									Done
-								</Dropdown.Item>
-								<Dropdown.Item eventKey="Need Review">
-									Need Review
-								</Dropdown.Item>
+								{['to_do', 'in_progress', 'done', 'need_review'].map(status => (
+									<Dropdown.Item eventKey={status} key={status}>
+										{formatStringDisplayName(status)}
+									</Dropdown.Item>
+								))}
 							</Dropdown.Menu>
 						</Dropdown>
 					</Col>

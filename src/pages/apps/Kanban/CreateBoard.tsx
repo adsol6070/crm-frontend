@@ -23,12 +23,12 @@ import {
 
 // Define color swatches
 const colorOptions = [
-	'#FFB6C1',
-	'#FFD700',
-	'#ADFF2F',
-	'#00BFFF',
-	'#FF6347',
-	'#EE82EE',
+	'#7f8c8d',
+	'#34495e',
+	'#c0392b',
+	'#2980b9',
+	'#01a3a4',
+	'#be2edd'
 ]
 
 // Validation Schema with Yup
@@ -189,7 +189,6 @@ const CreateBoard = () => {
 						<div className={styles.cardContent}>
 							<Card.Title
 								className={styles.boardTitle}
-								// style={textStyle(settings.theme === 'dark')}
 								style={{color: "white"}}
 								>
 								{board.boardTitle}
@@ -197,14 +196,13 @@ const CreateBoard = () => {
 							<Card.Text
 								className={styles.boardDescription}
 								style={{color: "white"}}
-								// style={textStyle(settings.theme === 'dark')}
 								>
 								{board.boardDescription}
 							</Card.Text>
 						</div>
 						<div className={styles.buttonContainer}>
 							<Button
-								variant="outline-light"
+								// variant="outline-light"
 								size="sm"
 								className={styles.viewButton}
 								onClick={() => handleViewBoard(board.id)}>
@@ -242,7 +240,6 @@ const CreateBoard = () => {
 						<Card
 							onClick={handleAddBoard}
 							className={styles.addNewBoardCard}
-							// style={addNewBoardStyle(settings.theme === 'dark')}
 							>
 							<Card.Body className="d-flex justify-content-center align-items-center">
 								<FaPlus
