@@ -46,6 +46,8 @@ export interface CardProps {
 	status: keyof KanbanState
 	onViewTask: () => void
 	onDeleteTask: () => void
+	onEdit: () => void
+	isHighlighted: boolean
 }
 
 export type CreateData = Pick<

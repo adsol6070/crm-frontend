@@ -9,7 +9,15 @@ import { formatStringDisplayName } from '@/utils/formatString'
 import Swal from 'sweetalert2'
 import styles from './kanban.module.css'
 import useTask from './useTask'
-import { RiDeleteBinLine, RiEyeLine, RiAddLine } from 'react-icons/ri'
+import {
+	RiDeleteBinLine,
+	RiEyeLine,
+	RiAddLine,
+	RiMovieLine,
+} from 'react-icons/ri'
+import { LuMoveRight } from 'react-icons/lu'
+import { SlPencil } from 'react-icons/sl'
+import { MdContentCopy } from 'react-icons/md'
 import AddTaskModal from './modals/AddTaskModal'
 import ViewTaskModal from './modals/viewTaskModal'
 import {
@@ -86,10 +94,10 @@ const Column = ({
 		<Col
 			ref={drop}
 			style={{
-				height: "80vh"
-			}}
-		>
-			<div className={styles.colDesign}
+				height: '80vh',
+			}}>
+			<div
+				className={styles.colDesign}
 				style={{
 					...kanbanBackgroundStyle(settings.theme === 'dark'),
 					borderRadius: '12px',
@@ -166,7 +174,9 @@ const KanbanCard = ({
 	moveCard,
 	status,
 	onViewTask,
+	onEdit,
 	onDeleteTask,
+	isHighlighted,
 }: CardProps) => {
 	const [{ isDragging }, ref] = useDrag({
 		type: ItemType.CARD,
@@ -195,38 +205,75 @@ const KanbanCard = ({
 		: 'No description provided.'
 
 	const cardStyle = {
+		position: 'relative',
 		cursor: 'pointer',
 		opacity: isDragging ? 0.6 : 1,
-		transform: isDragging
-			? 'rotate(10deg) scale(1.05)'
-			: 'rotate(0deg) scale(1)',
 		boxShadow: isDragging
 			? '0px 6px 15px rgba(0, 0, 0, 0.3)'
-			: '0px 2px 5px rgba(0, 0, 0, 0.1)',
+			: '0px 0px 5px rgba(0, 0, 0, 0.2)',
 		transition: 'all 0.3s ease',
+		zIndex: isHighlighted ? 1000 : 'auto',
+		transform:
+			isDragging && !isHighlighted
+				? 'rotate(10deg) scale(1.05)'
+				: isHighlighted
+					? 'scale(1.05)'
+					: 'none',
+		borderRadius: '12px',
+		marginBottom: '10px',
 	}
 
 	return (
-		<Card
-			ref={(node: any) => ref(drop(node))}
-			className={`${styles.cardDesign}`}
-			style={{ ...cardStyle, marginBottom: '10px' }}>
-			<Card.Body>
-				<Badge bg="secondary" className="mb-2">
-					{card.status || 'Status'}
-				</Badge>
-				<Card.Title className="h6">{card.title}</Card.Title>
-				<Card.Text className="text-muted">{truncatedDescription}</Card.Text>
-				<div className="d-flex align-items-center">
-					<RiEyeLine size={18} className="mx-1" onClick={onViewTask} />
-					<RiDeleteBinLine
-						size={18}
-						className="mx-1"
-						color="red"
-						onClick={onDeleteTask}
-					/>
-				</div>
+		<Card ref={(node: any) => ref(drop(node))} style={{ ...cardStyle }}>
+			<Card.Body
+				style={{
+					position: 'relative',
+					padding: '15px',
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+				}}>
+				<Card.Title className="h6 mb-0" style={{ maxWidth: '200px' }}>
+					{card.title}
+				</Card.Title>
+				<SlPencil size={14} className="ms-2" onClick={() => onEdit()} />
+				{/* <Card.Text className="text-muted">{truncatedDescription}</Card.Text> */}
 			</Card.Body>
+			{isHighlighted && (
+				<div
+					className="d-flex flex-column align-items-start"
+					style={{ gap: '8px', position: 'absolute', right: '-120px' }}>
+					<button
+						className="btn btn-light btn-sm d-flex align-items-center justify-content-start"
+						onClick={onViewTask}>
+						<RiEyeLine size={14} style={{ marginRight: '4px' }} />
+						<span>Open card</span>
+					</button>
+					<button className="btn btn-light btn-sm d-flex align-items-center justify-content-start">
+						<LuMoveRight size={14} style={{ marginRight: '4px' }} />
+						Move
+					</button>
+					<button className="btn btn-light btn-sm d-flex align-items-center justify-content-start">
+						<MdContentCopy size={14} style={{ marginRight: '4px' }} />
+						Copy
+					</button>
+					<button
+						className="btn btn-light btn-sm d-flex align-items-center justify-content-start"
+						onClick={onDeleteTask}>
+						<RiDeleteBinLine size={14} style={{ marginRight: '4px' }} />
+						Delete
+					</button>
+				</div>
+			)}
+			{isHighlighted && (
+				<div style={{ position: 'absolute', bottom: '-40px' }}>
+					<button
+						className="btn btn-sm"
+						style={{ background: '#0c66e4', color: '#fff' }}>
+						Save
+					</button>
+				</div>
+			)}
 		</Card>
 	)
 }
@@ -244,6 +291,10 @@ const Kanban = () => {
 	const [showAddTaskModal, setShowAddTaskModal] = useState<boolean>(false)
 	const [showViewTaskModal, setShowViewTaskModal] = useState<boolean>(false)
 	const [selectedTask, setSelectedTask] = useState({})
+
+	const [highlightedCardId, setHighlightedCardId] = useState<string | null>(
+		null
+	)
 
 	useEffect(() => {
 		setKanbanState(formatTasks(tasks))
@@ -339,9 +390,21 @@ const Kanban = () => {
 			<Container fluid>
 				<ToastContainer />
 				<PageBreadcrumb title="Kanban" subName="Kanban" />
+				{highlightedCardId && (
+					<div
+						style={{
+							position: 'fixed',
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							background: 'rgba(0, 0, 0, 0.7)',
+							zIndex: 999,
+						}}
+						onClick={() => setHighlightedCardId(null)}></div>
+				)}
 				<Row className="flex-nowrap my-2">
 					{Object.keys(kanbanState).map((status, index) => (
-						// <div style={{ display: "inline-flex", flexDirection: "column", width: "100%" }}>
 						<Column
 							key={index}
 							title={status}
@@ -358,10 +421,11 @@ const Kanban = () => {
 									status={status as keyof KanbanState}
 									onViewTask={() => handleViewTask(card)}
 									onDeleteTask={() => handleDeleteTask(card.id)}
+									onEdit={() => setHighlightedCardId(card.id)}
+									isHighlighted={highlightedCardId === card.id}
 								/>
 							))}
 						</Column>
-						// </div>
 					))}
 				</Row>
 				<AddTaskModal

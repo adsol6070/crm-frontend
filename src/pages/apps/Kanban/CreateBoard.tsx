@@ -208,8 +208,6 @@ const CreateBoard = () => {
 								size="sm"
 								className={styles.viewButton}
 								onClick={() => handleViewBoard(board.id)}>
-								{' '}
-								{/* Attach handleViewBoard */}
 								View Board
 							</Button>
 							<div className={styles.iconButtons}>
