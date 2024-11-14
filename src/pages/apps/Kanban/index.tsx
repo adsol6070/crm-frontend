@@ -27,6 +27,8 @@ import { useThemeContext } from '@/common'
 import { kanbanBackgroundStyle, textStyle } from '@/utils'
 import { useParams } from 'react-router-dom'
 import { BsThreeDots } from 'react-icons/bs'
+import MoveModal from './modals/moveModal'
+import { FaPlus } from 'react-icons/fa'
 
 const ItemType = {
 	CARD: 'card',
@@ -169,6 +171,7 @@ const KanbanCard = ({
 	moveCard,
 	status,
 	onViewTask,
+	onMoveTask,
 	onEdit,
 	onDeleteTask,
 	isHighlighted,
@@ -244,7 +247,7 @@ const KanbanCard = ({
 						<RiEyeLine size={14} style={{ marginRight: '4px' }} />
 						<span>Open card</span>
 					</button>
-					<button className="btn btn-light btn-sm d-flex align-items-center justify-content-start">
+					<button className="btn btn-light btn-sm d-flex align-items-center justify-content-start" onClick={onMoveTask}>
 						<LuMoveRight size={14} style={{ marginRight: '4px' }} />
 						Move
 					</button>
@@ -285,6 +288,7 @@ const Kanban = () => {
 	})
 	const [showAddTaskModal, setShowAddTaskModal] = useState<boolean>(false)
 	const [showViewTaskModal, setShowViewTaskModal] = useState<boolean>(false)
+	const [showMoveModal, setShowMoveModal] = useState<boolean>(false)
 	const [selectedTask, setSelectedTask] = useState({})
 
 	const [highlightedCardId, setHighlightedCardId] = useState<string | null>(
@@ -385,6 +389,11 @@ const Kanban = () => {
 		setKanbanState((prevState) => formatTasks([...tasks]))
 	}
 
+	const handleMoveCard = (task: CardType) => {
+		setSelectedTask(task)
+		setShowMoveModal(true)
+	}
+
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<Container fluid>
@@ -403,7 +412,7 @@ const Kanban = () => {
 						}}
 						onClick={() => setHighlightedCardId(null)}></div>
 				)}
-				<Row className="flex-nowrap my-2">
+				<Row className={`flex-nowrap my-2 ${styles.taskBoardDesign}`}>
 					{Object.keys(kanbanState).map((status, index) => (
 						<Column
 							key={index}
@@ -420,6 +429,7 @@ const Kanban = () => {
 									moveCard={moveCard}
 									status={status as keyof KanbanState}
 									onViewTask={() => handleViewTask(card)}
+									onMoveTask={() => handleMoveCard(card)}
 									onDeleteTask={() => handleDeleteTask(card.id)}
 									onEdit={() => setHighlightedCardId(card.id)}
 									isHighlighted={highlightedCardId === card.id}
@@ -427,6 +437,22 @@ const Kanban = () => {
 							))}
 						</Column>
 					))}
+					<Col>
+					<Card
+						// onClick={handleAddBoard}
+						className={styles.addNewStatusCard}
+					>
+						<Card.Body className="d-flex justify-content-center align-items-center">
+							<FaPlus
+								size={20}
+								color="black"
+								className='mx-1'
+								// style={addNewBoardTextStyle(settings.theme === 'dark')}
+							/>
+							<div className='fs-5 mx-1'>Add Status Column</div>
+						</Card.Body>
+					</Card>
+					</Col>
 				</Row>
 				<AddTaskModal
 					show={showAddTaskModal}
@@ -437,6 +463,14 @@ const Kanban = () => {
 					<ViewTaskModal
 						show={showViewTaskModal}
 						onHide={() => setShowViewTaskModal(false)}
+						task={selectedTask}
+						handleStatusChange={handleStatusChange}
+					/>
+				)}
+				{selectedTask && (
+					<MoveModal
+						show={showMoveModal}
+						onHide={() => setShowMoveModal(false)}
 						task={selectedTask}
 						handleStatusChange={handleStatusChange}
 					/>

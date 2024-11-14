@@ -45,6 +45,7 @@ export interface CardProps {
 	) => void
 	status: keyof KanbanState
 	onViewTask: () => void
+	onMoveTask: () => void
 	onDeleteTask: () => void
 	onEdit: () => void
 	isHighlighted: boolean

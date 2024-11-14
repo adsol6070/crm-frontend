@@ -39,7 +39,7 @@ const useTask = (boardId: string) => {
 		try {
 			console.log("Delete ID:", id);
 			await taskApi.deleteTaskByID(id)
-			// await getTasks(boardId)
+			await getTasks(boardId)
 		} catch (err) {
 			console.error('Failed to delete task:', err)
 			toast.error('Failed to delete task')

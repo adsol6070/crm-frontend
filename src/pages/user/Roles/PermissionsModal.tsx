@@ -37,6 +37,16 @@ const modules = [
 		],
 	},
 	{
+		id: 'task',
+		name: 'Task',
+		permissions: [
+			{ name: 'Create', dependsOn: 'Read' },
+			{ name: 'Read' },
+			{ name: 'Edit', dependsOn: 'Read' },
+			{ name: 'Delete', dependsOn: 'Read' },
+		],
+	},
+	{
 		id: 'blogCategory',
 		name: 'BlogCategory',
 		permissions: [

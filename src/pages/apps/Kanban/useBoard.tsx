@@ -14,7 +14,6 @@ const useBoard = () => {
 			setBoards(boardsData)
 		} catch (err) {
 			console.error('Failed to get boards:', err)
-			toast.error('Failed to get boards')
 		} finally {
 			setLoading(false)
 		}
