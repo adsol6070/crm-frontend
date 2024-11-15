@@ -10,10 +10,10 @@ import Swal from 'sweetalert2'
 import styles from './kanban.module.css'
 import useTask from './useTask'
 import { RiDeleteBinLine, RiEyeLine, RiAddLine } from 'react-icons/ri'
+import { RxCross2 } from 'react-icons/rx'
 import { LuMoveRight } from 'react-icons/lu'
 import { SlPencil } from 'react-icons/sl'
 import { MdContentCopy } from 'react-icons/md'
-import AddTaskModal from './modals/AddTaskModal'
 import ViewTaskModal from './modals/viewTaskModal'
 import {
 	ColumnProps,
@@ -21,14 +21,12 @@ import {
 	KanbanState,
 	Task,
 	CardProps,
-	CreateData,
 } from '@/types/KanbanTypes'
 import { useThemeContext } from '@/common'
 import { kanbanBackgroundStyle, textStyle } from '@/utils'
 import { useParams } from 'react-router-dom'
 import { BsThreeDots } from 'react-icons/bs'
 import MoveModal from './modals/moveModal'
-import { FaPlus } from 'react-icons/fa'
 
 const ItemType = {
 	CARD: 'card',
@@ -36,9 +34,9 @@ const ItemType = {
 
 const formatTask = (task: Task): CardType => ({
 	id: task.id,
-	title: task.taskTitle,
-	status: formatStringDisplayName(task.taskStatus),
-	description: task.taskDescription,
+	title: task?.taskTitle,
+	status: formatStringDisplayName(task?.taskStatus),
+	description: task?.taskDescription,
 	createdAt: task.created_at,
 })
 
@@ -69,11 +67,18 @@ const formatTasks = (tasks: Task[]): KanbanState => {
 
 const Column = ({
 	title,
+	task,
+	setNewTask,
 	children,
 	onDrop,
 	status,
 	onAddTask,
+	setKanbanState,
+	isAdding,
+	setIsAdding,
 	taskCount,
+	handleCreateTask,
+	addCard
 }: ColumnProps) => {
 	const [, drop] = useDrop({
 		accept: ItemType.CARD,
@@ -86,6 +91,19 @@ const Column = ({
 		},
 	})
 	const { settings } = useThemeContext()
+
+	
+
+	const removeCard = () => {
+		setKanbanState((prevState) => ({
+			...prevState,
+			[status]: prevState[status].filter((card) => !card.isCreatingMode),
+		}))
+		setIsAdding((prev) => ({
+			...prev,
+			[status]: false,
+		}))
+	}
 
 	return (
 		<Col
@@ -133,33 +151,53 @@ const Column = ({
 
 				<div style={{ marginInline: '5px' }}>{children}</div>
 
-				<div
-					id="footer"
-					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						padding: '10px 20px',
-						borderRadius: '8px',
-						marginTop: '10px',
-					}}
-					onMouseOver={(e) => {
-						e.currentTarget.style.background = '#e6e6e6'
-						e.currentTarget.style.cursor = 'pointer'
-					}}
-					onMouseOut={(e) => {
-						e.currentTarget.style.background = '#FFF'
-					}}
-					onClick={onAddTask}>
-					<div style={{ display: 'flex', alignItems: 'center' }}>
-						<RiAddLine size={20} color="black" />
-						<Card.Title
-							className="m-1"
-							style={textStyle(settings.theme === 'dark')}>
-							Add a card
-						</Card.Title>
+				{isAdding[status] ? (
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginTop: '15px',
+							marginInline: '5px',
+							background: 'none',
+						}}>
+						<button
+							className="btn btn-sm"
+							style={{ background: '#0c66e4', color: '#fff' }}
+							onClick={() => addCard(status)}>
+							Add card
+						</button>
+						<RxCross2 size={24} color="black" onClick={removeCard} />
 					</div>
-				</div>
+				) : (
+					<div
+						id="footer"
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							padding: '10px 20px',
+							borderRadius: '8px',
+							marginTop: '10px',
+						}}
+						onMouseOver={(e) => {
+							e.currentTarget.style.background = '#e6e6e6'
+							e.currentTarget.style.cursor = 'pointer'
+						}}
+						onMouseOut={(e) => {
+							e.currentTarget.style.background = '#FFF'
+						}}
+						onClick={onAddTask}>
+						<div style={{ display: 'flex', alignItems: 'center' }}>
+							<RiAddLine size={20} color="black" />
+							<Card.Title
+								className="m-1"
+								style={textStyle(settings.theme === 'dark')}>
+								Add a card
+							</Card.Title>
+						</div>
+					</div>
+				)}
 			</div>
 		</Col>
 	)
@@ -173,7 +211,10 @@ const KanbanCard = ({
 	onViewTask,
 	onMoveTask,
 	onEdit,
+	task,
+	setNewTask,
 	onDeleteTask,
+	addCard,
 	isHighlighted,
 }: CardProps) => {
 	const [{ isDragging }, ref] = useDrag({
@@ -196,11 +237,6 @@ const KanbanCard = ({
 			}
 		},
 	})
-	const truncatedDescription = card.description
-		? card.description.length > 30
-			? `${card.description.slice(0, 30)}...`
-			: card.description
-		: 'No description provided.'
 
 	const cardStyle = {
 		position: 'relative',
@@ -221,21 +257,45 @@ const KanbanCard = ({
 		marginBottom: '10px',
 	}
 
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            addCard(status); // Call the addCard function when Enter is pressed
+        }
+    };
+
 	return (
 		<Card ref={(node: any) => ref(drop(node))} style={{ ...cardStyle }}>
 			<Card.Body
 				style={{
 					position: 'relative',
-					padding: '15px',
+					padding: card.isCreatingMode ? '0px' : '15px',
 					display: 'flex',
 					justifyContent: 'space-between',
 					alignItems: 'center',
 				}}>
-				<Card.Title className="h6 mb-0" style={{ maxWidth: '200px' }}>
-					{card.title}
-				</Card.Title>
-				<SlPencil size={14} className="ms-2" onClick={() => onEdit()} />
-				{/* <Card.Text className="text-muted">{truncatedDescription}</Card.Text> */}
+				{card.isCreatingMode ? (
+					<input
+						type="text"
+						value={task}
+						onChange={(e) => setNewTask(e.target.value)}
+						className="form-control"
+						onKeyDown={handleKeyDown}
+						style={{
+							fontWeight: 'bold',
+							padding: '15px',
+							borderRadius: '12px',
+						}}
+						placeholder="Enter a title or paste a link"
+						autoFocus
+					/>
+				) : (
+					<>
+						<Card.Title className="h6 mb-0" style={{ maxWidth: '200px' }}>
+							{card.title}
+						</Card.Title>
+						<SlPencil size={14} className="ms-2" onClick={() => onEdit()} />
+					</>
+				)}
 			</Card.Body>
 			{isHighlighted && (
 				<div
@@ -286,10 +346,16 @@ const Kanban = () => {
 		needReview: [],
 		done: [],
 	})
-	const [showAddTaskModal, setShowAddTaskModal] = useState<boolean>(false)
+	const [task, setNewTask] = useState('')
 	const [showViewTaskModal, setShowViewTaskModal] = useState<boolean>(false)
 	const [showMoveModal, setShowMoveModal] = useState<boolean>(false)
 	const [selectedTask, setSelectedTask] = useState({})
+	const [isAdding, setIsAdding] = useState<Record<string, boolean>>({
+		todo: false,
+		inProgress: false,
+		needReview: false,
+		done: false,
+	})
 
 	const [highlightedCardId, setHighlightedCardId] = useState<string | null>(
 		null
@@ -351,14 +417,18 @@ const Kanban = () => {
 		moveCard(draggedItem, kanbanState[status].length, status)
 	}
 
-	const handleCreateTask = async (data: CreateData) => {
+	const handleCreateTask = async (data: any) => {
 		await createTask(data)
-		setShowAddTaskModal(false)
 	}
 
 	const handleViewTask = (task: CardType) => {
 		setSelectedTask(task)
 		setShowViewTaskModal(true)
+	}
+
+	const handleMoveTask = (task: CardType) => {
+		setSelectedTask(task)
+		setShowMoveModal(true)
 	}
 
 	const handleDeleteTask = async (id: string) => {
@@ -387,11 +457,55 @@ const Kanban = () => {
 	const handleStatusChange = async (status: string) => {
 		await updateTaskStatus(selectedTask.id, { taskStatus: status })
 		setKanbanState((prevState) => formatTasks([...tasks]))
+		setShowMoveModal(false)
+		setShowViewTaskModal(false)
+		setHighlightedCardId(null)
 	}
 
-	const handleMoveCard = (task: CardType) => {
-		setSelectedTask(task)
-		setShowMoveModal(true)
+	const handleAddCard = (status: string) => {
+		const emptyCard = {
+			isCreatingMode: true,
+		}
+
+		setKanbanState((prevState) => ({
+			...prevState,
+			[status]: [...prevState[status], emptyCard],
+		}))
+		setIsAdding((prev) => ({
+			...prev,
+			[status]: true,
+		}))
+	}
+
+	const statusMap: Record<string, string> = {
+		todo: 'to_do',
+		inProgress: 'in_progress',
+		needReview: 'need_review',
+		done: 'done',
+	}
+
+	const addCard = async (status: string) => {
+		if (task.trim() === '') {
+			setIsAdding((prev) => ({
+				...prev,
+				[status]: false,
+			}))
+			setKanbanState((prevState) => ({
+				...prevState,
+				[status]: prevState[status].filter((card) => !card.isCreatingMode),
+			}))
+			return
+		}
+		await handleCreateTask({ taskStatus: statusMap[status], taskTitle: task })
+		setIsAdding((prev) => ({
+			...prev,
+			[status]: false,
+		}))
+		setKanbanState((prevState) => ({
+			...prevState,
+			[status]: prevState[status].filter((card) => !card.isCreatingMode),
+		}))
+		setNewTask('')
 	}
 
 	return (
@@ -412,53 +526,42 @@ const Kanban = () => {
 						}}
 						onClick={() => setHighlightedCardId(null)}></div>
 				)}
-				<Row className={`flex-nowrap my-2 ${styles.taskBoardDesign}`}>
+				<Row className="flex-nowrap my-2">
 					{Object.keys(kanbanState).map((status, index) => (
 						<Column
 							key={index}
-							title={status}
+							title={status || 'Default Status'}
+							task={task}
+							setNewTask={setNewTask}
+							isAdding={isAdding}
+							setIsAdding={setIsAdding}
 							status={status as keyof KanbanState}
+							setKanbanState={setKanbanState}
 							onDrop={handleDrop}
-							onAddTask={() => setShowAddTaskModal(true)}
+							onAddTask={() => handleAddCard(status)}
+							handleCreateTask={handleCreateTask}
+							addCard={addCard}
 							taskCount={kanbanState[status as keyof KanbanState].length}>
 							{kanbanState[status as keyof KanbanState]?.map((card, index) => (
 								<KanbanCard
 									key={index}
 									card={card}
 									index={index}
+									task={task}
+									setNewTask={setNewTask}
 									moveCard={moveCard}
 									status={status as keyof KanbanState}
 									onViewTask={() => handleViewTask(card)}
-									onMoveTask={() => handleMoveCard(card)}
+									onMoveTask={() => handleMoveTask(card)}
 									onDeleteTask={() => handleDeleteTask(card.id)}
 									onEdit={() => setHighlightedCardId(card.id)}
 									isHighlighted={highlightedCardId === card.id}
+									addCard={addCard}
 								/>
 							))}
 						</Column>
 					))}
-					<Col>
-					<Card
-						// onClick={handleAddBoard}
-						className={styles.addNewStatusCard}
-					>
-						<Card.Body className="d-flex justify-content-center align-items-center">
-							<FaPlus
-								size={20}
-								color="black"
-								className='mx-1'
-								// style={addNewBoardTextStyle(settings.theme === 'dark')}
-							/>
-							<div className='fs-5 mx-1'>Add Status Column</div>
-						</Card.Body>
-					</Card>
-					</Col>
 				</Row>
-				<AddTaskModal
-					show={showAddTaskModal}
-					onHide={() => setShowAddTaskModal(false)}
-					handleCreateTask={handleCreateTask}
-				/>
 				{selectedTask && (
 					<ViewTaskModal
 						show={showViewTaskModal}

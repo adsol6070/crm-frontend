@@ -1,4 +1,4 @@
-import { Modal, Row, Col, Dropdown } from 'react-bootstrap'
+import { Modal, Row, Col, Dropdown, Button } from 'react-bootstrap'
 import styles from '../kanban.module.css'
 import { useEffect, useState } from 'react'
 import { formatStringDisplayName } from '@/utils/formatString'
@@ -21,11 +21,17 @@ interface MoveModalProps {
 const MoveModal = ({ show, onHide, task, handleStatusChange }: MoveModalProps) => {
 
 	const [status, setStatus] = useState(task.status);
-	console.log("currentStatus ", task.status)
 
 	useEffect(() => {
 		setStatus(task.status);
 	}, [task]);
+
+	const handleMoveClick = () => {
+		if (status) {
+			handleStatusChange(status);
+			onHide();
+		}
+	};
 
 	return (
 		<Modal show={show} onHide={onHide} centered size="sm" className={styles.customModal}>
@@ -35,10 +41,7 @@ const MoveModal = ({ show, onHide, task, handleStatusChange }: MoveModalProps) =
 			<Modal.Body className={`${styles.moveModalBody}`}>
 				<Row className="my-1">
 					<Col>
-						<Dropdown onSelect={(status) => {
-							handleStatusChange(status || "");
-							setStatus(status || "");
-						}}>
+						<Dropdown onSelect={(newStatus) => setStatus(newStatus || '')}>
 							<Dropdown.Toggle
 								as="button"
 								variant="outline-secondary"
@@ -52,16 +55,27 @@ const MoveModal = ({ show, onHide, task, handleStatusChange }: MoveModalProps) =
 								{formatStringDisplayName(status || 'Select Status')}
 							</Dropdown.Toggle>
 							<Dropdown.Menu className="w-100">
-								{['to_do', 'in_progress', 'done', 'need_review'].map(status => (
-									<Dropdown.Item eventKey={status} key={status}>
-										{formatStringDisplayName(status)}
+								{['to_do', 'in_progress', 'need_review', 'done'].map(statusOption => (
+									<Dropdown.Item eventKey={statusOption} key={statusOption}>
+										{formatStringDisplayName(statusOption)}
 									</Dropdown.Item>
 								))}
 							</Dropdown.Menu>
 						</Dropdown>
 					</Col>
 				</Row>
-		
+				<Row className="mt-3">
+					<Col>
+						<Button 
+							variant="dark" 
+							className="w-100" 
+							onClick={handleMoveClick} 
+							disabled={!status}
+						>
+							Move
+						</Button>
+					</Col>
+				</Row>
 			</Modal.Body>
 		</Modal>
 

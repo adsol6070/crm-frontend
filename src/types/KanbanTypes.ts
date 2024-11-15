@@ -1,5 +1,11 @@
+import { Dispatch, SetStateAction } from 'react'
+
 export interface ColumnProps {
 	title: string
+	task: string
+	setNewTask: Dispatch<SetStateAction<string>>
+	isAdding: Record<string, boolean>
+	setIsAdding: Dispatch<SetStateAction<Record<string, boolean>>>
 	children: React.ReactNode
 	onDrop: (
 		card: CardType & { status: keyof KanbanState; index: number },
@@ -8,6 +14,8 @@ export interface ColumnProps {
 	status: keyof KanbanState
 	onAddTask: () => void
 	taskCount: number
+	setKanbanState: Dispatch<SetStateAction<any>>
+	handleCreateTask: (data: any) => void
 }
 
 export interface CardType {
@@ -16,6 +24,7 @@ export interface CardType {
 	description?: string
 	status?: string
 	createdAt?: string
+	isCreatingMode?: boolean
 }
 
 export interface KanbanState {
@@ -43,6 +52,8 @@ export interface CardProps {
 		newIndex: number,
 		newStatus: keyof KanbanState
 	) => void
+	task: string
+	setNewTask: Dispatch<SetStateAction<string>>
 	status: keyof KanbanState
 	onViewTask: () => void
 	onMoveTask: () => void

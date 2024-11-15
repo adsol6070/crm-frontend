@@ -68,8 +68,8 @@ const EditUser = React.lazy(() => import('../pages/user/Update'))
 const UserRoles = React.lazy(() => import('../pages/user/Roles'))
 
 const Chats = React.lazy(() => import('../pages/apps/Chat'))
-const Kanban = React.lazy(() => import('../pages/apps/Kanban'))
 const CreateBoard = React.lazy(() => import('../pages/apps/Kanban/CreateBoard'))
+const Kanban = React.lazy(() => import('../pages/apps/Kanban'))
 
 // // error
 const Error404 = React.lazy(() => import('../pages/error/Error404'))
