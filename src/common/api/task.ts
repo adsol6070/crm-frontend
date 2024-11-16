@@ -45,6 +45,12 @@ function TaskService() {
 		deleteTaskByID: (taskId: string) => {
 			return HttpClient.delete(`/task/${taskId}`, { headers: getAuthHeaders() })
 		},
+
+		updateTaskOrder: (updatedTasks: any, boardId: string) => {
+			return HttpClient.patch(`/task/order/${boardId}`, updatedTasks, {
+				headers: getAuthHeaders(),
+			})
+		},
 	}
 }
 

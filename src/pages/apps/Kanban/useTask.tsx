@@ -39,7 +39,7 @@ const useTask = (boardId: string) => {
 		try {
 			console.log('Delete ID:', id)
 			await taskApi.deleteTaskByID(id)
-			// await getTasks(boardId)
+			await getTasks(boardId)
 		} catch (err) {
 			console.error('Failed to delete task:', err)
 			toast.error('Failed to delete task')
@@ -57,6 +57,22 @@ const useTask = (boardId: string) => {
 		}
 	}
 
+	const updateTaskOrder = async (updatedTasks: any[]) => {
+		setLoading(true)
+		try {
+			const response = await taskApi.updateTaskOrder({
+				orderedTasks: updatedTasks,
+			}, boardId)
+			await getTasks(boardId)
+			// toast.success(response.message || 'Board order updated successfully')
+		} catch (err) {
+			console.error('Failed to update board order:', err)
+			toast.error('Failed to update board order')
+		} finally {
+			setLoading(false)
+		}
+	}
+
 	useEffect(() => {
 		getTasks(boardId)
 	}, [])
@@ -68,6 +84,7 @@ const useTask = (boardId: string) => {
 		tasks,
 		deleteTaskById,
 		updateTaskStatus,
+		updateTaskOrder,
 	}
 }
 

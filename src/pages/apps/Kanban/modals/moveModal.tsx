@@ -1,0 +1,85 @@
+import { Modal, Row, Col, Dropdown, Button } from 'react-bootstrap'
+import styles from '../kanban.module.css'
+import { useEffect, useState } from 'react'
+import { formatStringDisplayName } from '@/utils/formatString'
+
+interface CardType {
+	id?: number
+	title?: string
+	description?: string
+	status?: string
+	createdAt?: string
+}
+
+interface MoveModalProps {
+	show: boolean
+	onHide: () => void
+	task: CardType
+	handleStatusChange: (status: string) => void
+}
+
+const MoveModal = ({ show, onHide, task, handleStatusChange }: MoveModalProps) => {
+
+	const [status, setStatus] = useState(task.status);
+
+	useEffect(() => {
+		setStatus(task.status);
+	}, [task]);
+
+	const handleMoveClick = () => {
+		if (status) {
+			handleStatusChange(status);
+			onHide();
+		}
+	};
+
+	return (
+		<Modal show={show} onHide={onHide} centered size="sm" className={styles.customModal}>
+			<Modal.Header closeButton>
+				<Modal.Title className="fw-bold">Move Card</Modal.Title>
+			</Modal.Header>
+			<Modal.Body className={`${styles.moveModalBody}`}>
+				<Row className="my-1">
+					<Col>
+						<Dropdown onSelect={(newStatus) => setStatus(newStatus || '')}>
+							<Dropdown.Toggle
+								as="button"
+								variant="outline-secondary"
+								className="w-100 text-start text-capitalize py-2 px-3"
+								style={{
+									borderRadius: '8px',
+									border: '1px solid #ced4da',
+									fontWeight: '600',
+								}}
+							>
+								{formatStringDisplayName(status || 'Select Status')}
+							</Dropdown.Toggle>
+							<Dropdown.Menu className="w-100">
+								{['to_do', 'in_progress', 'need_review', 'done'].map(statusOption => (
+									<Dropdown.Item eventKey={statusOption} key={statusOption}>
+										{formatStringDisplayName(statusOption)}
+									</Dropdown.Item>
+								))}
+							</Dropdown.Menu>
+						</Dropdown>
+					</Col>
+				</Row>
+				<Row className="mt-3">
+					<Col>
+						<Button 
+							variant="dark" 
+							className="w-100" 
+							onClick={handleMoveClick} 
+							disabled={!status}
+						>
+							Move
+						</Button>
+					</Col>
+				</Row>
+			</Modal.Body>
+		</Modal>
+
+	)
+}
+
+export default MoveModal

@@ -1,4 +1,4 @@
-import { Modal, Badge, Row, Col, Dropdown } from 'react-bootstrap'
+import { Modal, Badge, Row, Col, Dropdown, Button } from 'react-bootstrap'
 import styles from '../kanban.module.css'
 import { useEffect, useState } from 'react'
 import { formatStringDisplayName } from '@/utils/formatString'
@@ -36,6 +36,13 @@ const ViewTaskModal = ({ show, onHide, task, handleStatusChange }: ViewTaskModal
 		setStatus(task.status);
 	}, [task]);
 
+	const handleMoveClick = () => {
+		if (status) {
+			handleStatusChange(status);
+			onHide();
+		}
+	};
+
 	return (
 		<Modal show={show} onHide={onHide} centered size="md" className={styles.customModal}>
 			<Modal.Header closeButton>
@@ -43,17 +50,17 @@ const ViewTaskModal = ({ show, onHide, task, handleStatusChange }: ViewTaskModal
 			</Modal.Header>
 			<Modal.Body className={`${styles.modalBody} p-4`}>
 				<Row>
-					<Col lg={8} md={8} sm={6}>
+					<Col>
 						<h6 className="text-muted">Task ID</h6>
 						<p className="fw-semibold text-secondary">{task.id}</p>
 					</Col>
-					<Col lg={4} md={4} sm={6} className="d-flex align-items-center justify-content-center">
+					{/* <Col lg={4} md={4} sm={6} className="d-flex align-items-center justify-content-center">
 						<Badge bg="secondary" className="fs-5 px-2 py-1">
 							{formatStringDisplayName(status || "")}
 						</Badge>
-					</Col>
+					</Col> */}
 				</Row>
-				<Row className="my-1">
+				{/* <Row className="my-1">
 					<Col>
 						<h6 className="text-muted">Change Status</h6>
 						<Dropdown onSelect={(status) => {
@@ -80,6 +87,41 @@ const ViewTaskModal = ({ show, onHide, task, handleStatusChange }: ViewTaskModal
 								))}
 							</Dropdown.Menu>
 						</Dropdown>
+					</Col>
+				</Row> */}
+
+<Row className="my-1">
+					<Col md={10} lg={10}>
+						<Dropdown onSelect={(newStatus) => setStatus(newStatus || '')}>
+							<Dropdown.Toggle
+								as="button"
+								variant="outline-secondary"
+								className="w-100 text-start text-capitalize py-1 px-3"
+								style={{
+									borderRadius: '8px',
+									border: '1px solid #ced4da',
+									fontWeight: '600',
+								}}
+							>
+								{formatStringDisplayName(status || 'Select Status')}
+							</Dropdown.Toggle>
+							<Dropdown.Menu className="w-100">
+								{['to_do', 'in_progress', 'need_review', 'done'].map(statusOption => (
+									<Dropdown.Item eventKey={statusOption} key={statusOption}>
+										{formatStringDisplayName(statusOption)}
+									</Dropdown.Item>
+								))}
+							</Dropdown.Menu>
+						</Dropdown>
+					</Col>
+					<Col md={2} lg={2}>
+						<Button 
+							variant="dark" 
+							onClick={handleMoveClick} 
+							disabled={!status}
+						>
+							Move
+						</Button>
 					</Col>
 				</Row>
 

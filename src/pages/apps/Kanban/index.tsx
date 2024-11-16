@@ -276,7 +276,7 @@ const KanbanCard = ({ key, card, index, status, isHighlighted }: CardProps) => {
 						<RiEyeLine size={14} style={{ marginRight: '4px' }} />
 						<span>Open card</span>
 					</button>
-					<button className="btn btn-light btn-sm d-flex align-items-center justify-content-start">
+					<button className="btn btn-light btn-sm d-flex align-items-center justify-content-start" onClick={onMoveTask}>
 						<LuMoveRight size={14} style={{ marginRight: '4px' }} />
 						Move
 					</button>
@@ -363,6 +363,14 @@ const Kanban = () => {
 						task={selectedTask}
 						handleStatusChange={handleStatusChange}
 						updateTask={updateTaskById}
+					/>
+				)}
+				{selectedTask && (
+					<MoveModal
+						show={showMoveModal}
+						onHide={() => setShowMoveModal(false)}
+						task={selectedTask}
+						handleStatusChange={handleStatusChange}
 					/>
 				)}
 				{selectedTask && (

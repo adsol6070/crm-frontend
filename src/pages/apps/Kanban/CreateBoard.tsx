@@ -13,11 +13,12 @@ import styles from './kanban.module.css'
 import useBoard from './useBoard'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
-import { useThemeContext } from '@/common'
+import { usePermissions, useThemeContext } from '@/common'
 import {
 	addNewBoardStyle,
 	addNewBoardTextStyle,
 	boardStyle,
+	hasPermission,
 	textStyle,
 } from '@/utils'
 
@@ -63,6 +64,7 @@ const CreateBoard = () => {
 	const [selectedColor, setSelectedColor] = useState<string | null>(null)
 	const navigate = useNavigate()
 	const { settings } = useThemeContext()
+	const { permissions } = usePermissions()
     
 	const {
 		control,
@@ -209,16 +211,20 @@ const CreateBoard = () => {
 								View Board
 							</Button>
 							<div className={styles.iconButtons}>
+							{hasPermission(permissions, 'Task', 'Edit') && 
 								<FaEdit
 									className={styles.editIcon}
 									style={{color: "white"}}
 									onClick={() => handleEditBoard(board.id)}
 								/>
+							}
+							{hasPermission(permissions, 'Task', 'Delete') && 
 								<FaTrashAlt
 									className={styles.deleteIcon}
 									style={{color: "white"}}
 									onClick={() => handleDeleteBoard(board.id)}
 								/>
+	}
 							</div>
 						</div>
 					</Card.Body>
@@ -233,9 +239,13 @@ const CreateBoard = () => {
 			<ToastContainer />
 			<div>
 				<Row xs={1} md={3} lg={4} className="g-3">
+				{hasPermission(permissions, 'Task', 'Read') && 
+					<>
 					{boards.map((board, index) => (
 						<BoardCard key={board.id} board={board} index={index} />
 					))}
+					</>}
+					{hasPermission(permissions, 'Task', 'Create') && 
 					<Col>
 						<Card
 							onClick={handleAddBoard}
@@ -250,6 +260,7 @@ const CreateBoard = () => {
 							</Card.Body>
 						</Card>
 					</Col>
+					}
 				</Row>
 			</div>
 
