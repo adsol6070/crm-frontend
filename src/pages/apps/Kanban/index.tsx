@@ -163,6 +163,7 @@ const KanbanCard = ({ key, card, index, status, isHighlighted }: CardProps) => {
 		setEditTask,
 		addTaskToSection,
 		updateTask,
+		onMoveTask
 	} = useKanbanContext()
 
 	const [{ isDragging }, ref] = useDrag({
@@ -320,6 +321,7 @@ const Kanban = () => {
 		selectedTask,
 		showMoveModal,
 		setShowMoveModal,
+		updateTaskById,
 	} = useKanbanContext()
 
 	return (
@@ -366,14 +368,6 @@ const Kanban = () => {
 						task={selectedTask}
 						handleStatusChange={handleStatusChange}
 						updateTask={updateTaskById}
-					/>
-				)}
-				{selectedTask && (
-					<MoveModal
-						show={showMoveModal}
-						onHide={() => setShowMoveModal(false)}
-						task={selectedTask}
-						handleStatusChange={handleStatusChange}
 					/>
 				)}
 				{selectedTask && (

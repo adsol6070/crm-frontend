@@ -26,6 +26,7 @@ interface KanbanContextType {
 	isViewTaskModalVisible: boolean
 	setIsViewTaskModalVisible: Dispatch<SetStateAction<boolean>>
 	viewTaskModal: (task: any) => void
+	onMoveTask: (task: any) => void
 	kanbanState: any
 	isAddCardVisible: Record<string, boolean>
 	highlightedTaskId: string | null
@@ -33,6 +34,7 @@ interface KanbanContextType {
 	setKanbanState: Dispatch<SetStateAction<KanbanState>>
 	setHighlightedTaskId: Dispatch<SetStateAction<string | null>>
 	handleStatusChange: (status: string) => void
+	updateTaskById: (taskId: string, data: any) => void
 	editTask: string
 	setEditTask: Dispatch<SetStateAction<string>>
 	updateTask: () => void
@@ -57,7 +59,7 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 	children,
 }) => {
 	const { boardId } = useParams() as { boardId: string }
-	const { tasks, createTask, deleteTaskById, updateTaskStatus } =
+	const { tasks, createTask, deleteTaskById, updateTaskStatus, updateTaskById } =
 		useTask(boardId)
 	const [kanbanState, setKanbanState] = useState<KanbanState>({
 		todo: [],
@@ -277,7 +279,12 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 
 	const viewTaskModal = (task: any) => {
 		setSelectedTask(task)
-		setIsViewTaskModalVisible(false)
+		setIsViewTaskModalVisible(true)
+	}
+
+	const onMoveTask = (task: any) => {
+		setSelectedTask(task)
+		setShowMoveModal(true)
 	}
 
 	const handleStatusChange = async (status: string) => {
@@ -312,6 +319,8 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 				handleDrop,
 				showMoveModal,
 				setShowMoveModal,
+				updateTaskById,
+				onMoveTask,
 			}}>
 			{children}
 		</KanbanContext.Provider>
