@@ -1,7 +1,8 @@
-import { Modal, Badge, Row, Col, Dropdown, Button } from 'react-bootstrap'
+import { Modal, Row, Col, Dropdown, Button } from 'react-bootstrap'
 import styles from '../kanban.module.css'
 import { useEffect, useState } from 'react'
 import { formatStringDisplayName } from '@/utils/formatString'
+import { FormInput } from '@/components'
 
 interface CardType {
 	id?: number
@@ -16,9 +17,10 @@ interface ViewTaskModalProps {
 	onHide: () => void
 	task: CardType
 	handleStatusChange: (status: string) => void
+	updateTask: (taskId: string, data: any) => void
 }
 
-const ViewTaskModal = ({ show, onHide, task, handleStatusChange }: ViewTaskModalProps) => {
+const ViewTaskModal = ({ show, onHide, task, handleStatusChange, updateTask }: ViewTaskModalProps) => {
 	const formattedDate = task.createdAt
 		? new Date(task.createdAt).toLocaleString('en-US', {
 			weekday: 'short',
@@ -31,6 +33,10 @@ const ViewTaskModal = ({ show, onHide, task, handleStatusChange }: ViewTaskModal
 		})
 		: 'No date provided'
 	const [status, setStatus] = useState(task.status);
+	const [description, setDescription] = useState(task.description)
+	const [isEditing, setIsEditing] = useState(false)
+	const [tempDescription, setTempDescription] = useState(description)
+	console.log("description ", description)
 
 	useEffect(() => {
 		setStatus(task.status);
@@ -43,6 +49,26 @@ const ViewTaskModal = ({ show, onHide, task, handleStatusChange }: ViewTaskModal
 		}
 	};
 
+
+	const handleEditClick = () => {
+		setTempDescription(task.description)
+		setIsEditing(true)
+	}
+
+	const handleSaveDescription = () => {
+		setDescription(tempDescription)
+		const data = {
+			taskDescription: tempDescription
+		}
+		updateTask(task.id, data)
+		setIsEditing(false)
+	}
+
+	const handleCancelEdit = () => {
+		setTempDescription(description)
+		setIsEditing(false)
+	}
+
 	return (
 		<Modal show={show} onHide={onHide} centered size="md" className={styles.customModal}>
 			<Modal.Header closeButton>
@@ -54,43 +80,9 @@ const ViewTaskModal = ({ show, onHide, task, handleStatusChange }: ViewTaskModal
 						<h6 className="text-muted">Task ID</h6>
 						<p className="fw-semibold text-secondary">{task.id}</p>
 					</Col>
-					{/* <Col lg={4} md={4} sm={6} className="d-flex align-items-center justify-content-center">
-						<Badge bg="secondary" className="fs-5 px-2 py-1">
-							{formatStringDisplayName(status || "")}
-						</Badge>
-					</Col> */}
 				</Row>
-				{/* <Row className="my-1">
-					<Col>
-						<h6 className="text-muted">Change Status</h6>
-						<Dropdown onSelect={(status) => {
-							handleStatusChange(status || "");
-							setStatus(status || "");
-						}}>
-							<Dropdown.Toggle
-								as="button"
-								variant="outline-secondary"
-								className="w-100 text-start text-capitalize py-2 px-3"
-								style={{
-									borderRadius: '8px',
-									border: '1px solid #ced4da',
-									fontWeight: '600',
-								}}
-							>
-								{formatStringDisplayName(status || 'Select Status')}
-							</Dropdown.Toggle>
-							<Dropdown.Menu className="w-100">
-								{['to_do', 'in_progress', 'done', 'need_review'].map(status => (
-									<Dropdown.Item eventKey={status} key={status}>
-										{formatStringDisplayName(status)}
-									</Dropdown.Item>
-								))}
-							</Dropdown.Menu>
-						</Dropdown>
-					</Col>
-				</Row> */}
 
-<Row className="my-1">
+				<Row className="my-1">
 					<Col md={10} lg={10}>
 						<Dropdown onSelect={(newStatus) => setStatus(newStatus || '')}>
 							<Dropdown.Toggle
@@ -115,9 +107,10 @@ const ViewTaskModal = ({ show, onHide, task, handleStatusChange }: ViewTaskModal
 						</Dropdown>
 					</Col>
 					<Col md={2} lg={2}>
-						<Button 
-							variant="dark" 
-							onClick={handleMoveClick} 
+						<Button
+							variant="dark"
+							size="sm"
+							onClick={handleMoveClick}
 							disabled={!status}
 						>
 							Move
@@ -127,12 +120,48 @@ const ViewTaskModal = ({ show, onHide, task, handleStatusChange }: ViewTaskModal
 
 				<hr className="my-3" />
 
-				<Row>
+				<Row className='my-2'>
 					<Col>
 						<h6 className="text-muted">Description</h6>
-						<p className="fw-light text-dark">
-							{task.description || 'No description provided.'}
-						</p>
+						{isEditing ? (
+							<>
+								<FormInput
+									label="Description"
+									type="textarea"
+									name="description"
+									placeholder="Enter Description"
+									rows={3}
+									value={tempDescription}
+									onChange={(e) => setTempDescription(e.target.value)}
+									key="textarea"
+									required
+								/>
+								<div className="d-flex justify-content-end gap-2 my-2">
+									<Button variant="outline-secondary" size="sm" onClick={handleCancelEdit}>
+										Cancel
+									</Button>
+									<Button variant="success" size="sm" onClick={handleSaveDescription}>
+										Save
+									</Button>
+								</div>
+							</>
+						) : (
+							<>
+								{task.description ? (
+									<>
+										<p className="fw-light text-dark">{description}</p>
+										<Button variant="outline-primary mb-2" onClick={handleEditClick}>
+											Edit Description
+										</Button>
+									</>
+								) : (
+									<button className={styles.descriptionBtn} onClick={handleEditClick}
+										disabled={!status}>
+										Add Description
+									</button>
+								)}
+							</>
+						)}
 					</Col>
 				</Row>
 

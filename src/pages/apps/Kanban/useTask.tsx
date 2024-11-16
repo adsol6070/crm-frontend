@@ -77,6 +77,19 @@ const useTask = (boardId: string) => {
 		getTasks(boardId)
 	}, [])
 
+	const updateTaskById = async (taskId: any, data: any) => {
+		setLoading(true)
+		try {
+			await taskApi.updateTaskByID(taskId, data)
+			await getTasks(boardId)
+		} catch (err) {
+			console.error('Failed to add description:', err)
+			toast.error('Failed to add description')
+		} finally {
+			setLoading(false)
+		}
+	}
+
 	return {
 		loading,
 		createTask,
@@ -85,6 +98,7 @@ const useTask = (boardId: string) => {
 		deleteTaskById,
 		updateTaskStatus,
 		updateTaskOrder,
+		updateTaskById,
 	}
 }
 

@@ -338,7 +338,7 @@ const KanbanCard = ({
 
 const Kanban = () => {
 	const { boardId } = useParams() as { boardId: string }
-	const { tasks, createTask, deleteTaskById, updateTaskStatus } =
+	const { tasks, createTask, deleteTaskById, updateTaskStatus, updateTaskById } =
 		useTask(boardId)
 	const [kanbanState, setKanbanState] = useState<KanbanState>({
 		todo: [],
@@ -568,6 +568,7 @@ const Kanban = () => {
 						onHide={() => setShowViewTaskModal(false)}
 						task={selectedTask}
 						handleStatusChange={handleStatusChange}
+						updateTask={updateTaskById}
 					/>
 				)}
 				{selectedTask && (
