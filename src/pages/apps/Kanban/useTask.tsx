@@ -20,7 +20,7 @@ const useTask = (boardId: string) => {
 		}
 	}
 
-	const createTask = async (data: Task) => {
+	const createTask = async (data: Task): Promise<void> => {
 		setLoading(true)
 		try {
 			const response = await taskApi.createTask(boardId, data)
@@ -37,7 +37,7 @@ const useTask = (boardId: string) => {
 	const deleteTaskById = async (id: string) => {
 		setLoading(true)
 		try {
-			console.log("Delete ID:", id);
+			console.log('Delete ID:', id)
 			await taskApi.deleteTaskByID(id)
 			// await getTasks(boardId)
 		} catch (err) {

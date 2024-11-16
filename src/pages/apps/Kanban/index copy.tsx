@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap'
@@ -5,7 +6,9 @@ import { PageBreadcrumb } from '@/components'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/ReactToastify.css'
 import { formatStringDisplayName } from '@/utils/formatString'
+import Swal from 'sweetalert2'
 import styles from './kanban.module.css'
+import useTask from './useTask'
 import { RiDeleteBinLine, RiEyeLine, RiAddLine } from 'react-icons/ri'
 import { RxCross2 } from 'react-icons/rx'
 import { LuMoveRight } from 'react-icons/lu'
@@ -16,38 +19,85 @@ import {
 	ColumnProps,
 	CardType,
 	KanbanState,
+	Task,
 	CardProps,
 } from '@/types/KanbanTypes'
 import { useThemeContext } from '@/common'
 import { kanbanBackgroundStyle, textStyle } from '@/utils'
+import { useParams } from 'react-router-dom'
 import { BsThreeDots } from 'react-icons/bs'
-import { useKanbanContext } from './KanbanContext'
-import MoveModal from './modals/moveModal'
 
 const ItemType = {
 	CARD: 'card',
 }
 
-const Column = ({ title, children, status, taskCount }: ColumnProps) => {
-	const { settings } = useThemeContext()
-	const {
-		handleDrop,
-		createPlaceholderCard,
-		removePlaceholderCard,
-		isAddCardVisible,
-		addTaskToSection,
-	} = useKanbanContext()
+const formatTask = (task: Task): CardType => ({
+	id: task.id,
+	title: task?.taskTitle,
+	status: formatStringDisplayName(task?.taskStatus),
+	description: task?.taskDescription,
+	createdAt: task.created_at,
+})
 
+const formatTasks = (tasks: Task[]): KanbanState => {
+	const formattedData: KanbanState = {
+		todo: [],
+		inProgress: [],
+		needReview: [],
+		done: [],
+	}
+
+	const statusMap: Record<string, string> = {
+		to_do: 'todo',
+		in_progress: 'inProgress',
+		need_review: 'needReview',
+		done: 'done',
+	}
+
+	tasks.forEach((task: Task) => {
+		const formattedTask: CardType = formatTask(task)
+
+		const kanbanKey = statusMap[task.taskStatus] as keyof KanbanState
+		formattedData[kanbanKey].push(formattedTask)
+	})
+
+	return formattedData
+}
+
+const Column = ({
+	title,
+	children,
+	onDrop,
+	status,
+	onAddTask,
+	setKanbanState,
+	isAdding,
+	setIsAdding,
+	taskCount,
+	addCard,
+}: ColumnProps) => {
 	const [, drop] = useDrop({
 		accept: ItemType.CARD,
 		drop: (
 			draggedItem: CardType & { status: keyof KanbanState; index: number }
 		) => {
 			if (draggedItem.status !== status) {
-				handleDrop(draggedItem, status)
+				onDrop(draggedItem, status)
 			}
 		},
 	})
+	const { settings } = useThemeContext()
+
+	const removeCard = () => {
+		setKanbanState((prevState) => ({
+			...prevState,
+			[status]: prevState[status].filter((card) => !card.isCreatingMode),
+		}))
+		setIsAdding((prev) => ({
+			...prev,
+			[status]: false,
+		}))
+	}
 
 	return (
 		<Col
@@ -95,7 +145,7 @@ const Column = ({ title, children, status, taskCount }: ColumnProps) => {
 
 				<div style={{ marginInline: '5px' }}>{children}</div>
 
-				{isAddCardVisible[status] ? (
+				{isAdding[status] ? (
 					<div
 						style={{
 							display: 'flex',
@@ -108,14 +158,10 @@ const Column = ({ title, children, status, taskCount }: ColumnProps) => {
 						<button
 							className="btn btn-sm"
 							style={{ background: '#0c66e4', color: '#fff' }}
-							onClick={() => addTaskToSection(status)}>
+							onClick={() => addCard(status)}>
 							Add card
 						</button>
-						<RxCross2
-							size={24}
-							color="black"
-							onClick={() => removePlaceholderCard(status)}
-						/>
+						<RxCross2 size={24} color="black" onClick={removeCard} />
 					</div>
 				) : (
 					<div
@@ -135,7 +181,7 @@ const Column = ({ title, children, status, taskCount }: ColumnProps) => {
 						onMouseOut={(e) => {
 							e.currentTarget.style.background = '#FFF'
 						}}
-						onClick={() => createPlaceholderCard(status)}>
+						onClick={onAddTask}>
 						<div style={{ display: 'flex', alignItems: 'center' }}>
 							<RiAddLine size={20} color="black" />
 							<Card.Title
@@ -151,20 +197,23 @@ const Column = ({ title, children, status, taskCount }: ColumnProps) => {
 	)
 }
 
-const KanbanCard = ({ key, card, index, status, isHighlighted }: CardProps) => {
-	const {
-		newTaskTitle,
-		setNewTaskTitle,
-		moveCard,
-		viewTaskModal,
-		highlightTask,
-		removeTask,
-		editTask,
-		setEditTask,
-		addTaskToSection,
-		updateTask,
-	} = useKanbanContext()
-
+const KanbanCard = ({
+	card,
+	index,
+	moveCard,
+	status,
+	onViewTask,
+	onEdit,
+	task,
+	setNewTask,
+	onDeleteTask,
+	addCard,
+	isHighlighted,
+	editedTask,
+	setEditedTask,
+	onSave,
+}: CardProps) => {
+	// const [editedTitle, setEditedTitle] = useState(card.title)
 	const [{ isDragging }, ref] = useDrag({
 		type: ItemType.CARD,
 		item: { ...card, index, status },
@@ -207,9 +256,19 @@ const KanbanCard = ({ key, card, index, status, isHighlighted }: CardProps) => {
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Enter') {
-			addTaskToSection(status)
+			addCard(status) // Call the addCard function when Enter is pressed
 		}
 	}
+
+	const editTaskInputChange = (e: any) => {
+		setEditedTask(e.target.value)
+	}
+
+	useEffect(() => {
+		if (isHighlighted) {
+			setEditedTask(card.title)
+		}
+	}, [isHighlighted])
 
 	return (
 		<Card ref={(node: any) => ref(drop(node))} style={{ ...cardStyle }}>
@@ -224,8 +283,8 @@ const KanbanCard = ({ key, card, index, status, isHighlighted }: CardProps) => {
 				{card.isCreatingMode ? (
 					<input
 						type="text"
-						value={newTaskTitle}
-						onChange={(e) => setNewTaskTitle(e.target.value)}
+						value={task}
+						onChange={(e) => setNewTask(e.target.value)}
 						className="form-control"
 						onKeyDown={handleKeyDown}
 						style={{
@@ -240,8 +299,8 @@ const KanbanCard = ({ key, card, index, status, isHighlighted }: CardProps) => {
 					<>
 						<input
 							type="text"
-							value={editTask.task}
-							onChange={(e) => setEditTask(e.target.value)}
+							value={editedTask.task}
+							onChange={(e) => editTaskInputChange(e)}
 							className="form-control"
 							onKeyDown={handleKeyDown}
 							style={{
@@ -258,11 +317,7 @@ const KanbanCard = ({ key, card, index, status, isHighlighted }: CardProps) => {
 						<Card.Title className="h6 mb-0" style={{ maxWidth: '200px' }}>
 							{card.title}
 						</Card.Title>
-						<SlPencil
-							size={14}
-							className="ms-2"
-							onClick={() => highlightTask(card.id)}
-						/>
+						<SlPencil size={14} className="ms-2" onClick={() => onEdit()} />
 					</>
 				)}
 			</Card.Body>
@@ -272,7 +327,7 @@ const KanbanCard = ({ key, card, index, status, isHighlighted }: CardProps) => {
 					style={{ gap: '8px', position: 'absolute', right: '-120px' }}>
 					<button
 						className="btn btn-light btn-sm d-flex align-items-center justify-content-start"
-						onClick={() => viewTaskModal(card)}>
+						onClick={onViewTask}>
 						<RiEyeLine size={14} style={{ marginRight: '4px' }} />
 						<span>Open card</span>
 					</button>
@@ -286,7 +341,7 @@ const KanbanCard = ({ key, card, index, status, isHighlighted }: CardProps) => {
 					</button>
 					<button
 						className="btn btn-light btn-sm d-flex align-items-center justify-content-start"
-						onClick={() => removeTask(card.id)}>
+						onClick={onDeleteTask}>
 						<RiDeleteBinLine size={14} style={{ marginRight: '4px' }} />
 						Delete
 					</button>
@@ -297,7 +352,7 @@ const KanbanCard = ({ key, card, index, status, isHighlighted }: CardProps) => {
 					<button
 						className="btn btn-sm"
 						style={{ background: '#0c66e4', color: '#fff' }}
-						onClick={() => updateTask()}>
+						onClick={() => onSave()}>
 						Save
 					</button>
 				</div>
@@ -307,24 +362,177 @@ const KanbanCard = ({ key, card, index, status, isHighlighted }: CardProps) => {
 }
 
 const Kanban = () => {
-	const {
-		kanbanState,
-		highlightedTaskId,
-		setHighlightedTaskId,
-		handleStatusChange,
-		isViewTaskModalVisible,
-		setIsViewTaskModalVisible,
-		selectedTask,
-		showMoveModal,
-		setShowMoveModal,
-	} = useKanbanContext()
+	const { boardId } = useParams() as { boardId: string }
+	const { tasks, createTask, deleteTaskById, updateTaskStatus } =
+		useTask(boardId)
+	const [kanbanState, setKanbanState] = useState<KanbanState>({
+		todo: [],
+		inProgress: [],
+		needReview: [],
+		done: [],
+	})
+	const [task, setNewTask] = useState('')
+	const [showViewTaskModal, setShowViewTaskModal] = useState<boolean>(false)
+	const [selectedTask, setSelectedTask] = useState({})
+	const [isAdding, setIsAdding] = useState<Record<string, boolean>>({
+		todo: false,
+		inProgress: false,
+		needReview: false,
+		done: false,
+	})
+
+	const [highlightedCardId, setHighlightedCardId] = useState<string | null>(
+		null
+	)
+	const [editTask, setEditTask] = useState('')
+
+	useEffect(() => {
+		setKanbanState(formatTasks(tasks))
+	}, [tasks])
+
+	const moveCard = async (
+		draggedItem: CardType & { status: keyof KanbanState; index: number },
+		newIndex: number,
+		newStatus: keyof KanbanState
+	) => {
+		const { id, status: oldStatus, index: oldIndex } = draggedItem
+
+		if (oldStatus === newStatus && oldIndex === newIndex) {
+			return
+		}
+
+		const updatedOldStatusCards = [...kanbanState[oldStatus]].filter(
+			(card) => card.id !== id
+		)
+		const updatedNewStatusCards =
+			oldStatus === newStatus
+				? updatedOldStatusCards
+				: [...kanbanState[newStatus]]
+		updatedNewStatusCards.splice(newIndex, 0, {
+			id,
+			title: draggedItem.title,
+			status: draggedItem.status,
+			description: draggedItem.description,
+		})
+
+		setKanbanState((prevCards) => ({
+			...prevCards,
+			[oldStatus]: updatedOldStatusCards,
+			[newStatus]: updatedNewStatusCards,
+		}))
+
+		const statusMap: Record<string, string> = {
+			todo: 'to_do',
+			inProgress: 'in_progress',
+			needReview: 'need_review',
+			done: 'done',
+		}
+
+		try {
+			await updateTaskStatus(id, { taskStatus: statusMap[newStatus] })
+		} catch (error) {
+			console.error('Failed to update task status:', error)
+		}
+	}
+
+	const handleDrop = (
+		draggedItem: CardType & { status: keyof KanbanState; index: number },
+		status: keyof KanbanState
+	) => {
+		moveCard(draggedItem, kanbanState[status].length, status)
+	}
+
+	const handleViewTask = (task: CardType) => {
+		setSelectedTask(task)
+		setShowViewTaskModal(true)
+	}
+
+	const handleDeleteTask = async (id: string) => {
+		const confirmDelete = await Swal.fire({
+			title: 'Are you sure?',
+			text: 'This action is irreversible!',
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonColor: '#3085d6',
+			cancelButtonColor: '#d33',
+			confirmButtonText: 'Yes, delete it!',
+		})
+
+		if (confirmDelete.isConfirmed) {
+			await deleteTaskById(id)
+			Swal.fire({
+				title: 'Deleted!',
+				text: 'Your task has been deleted.',
+				icon: 'success',
+				showConfirmButton: false,
+				timer: 2000,
+			})
+		}
+	}
+
+	const handleStatusChange = async (status: string) => {
+		await updateTaskStatus(selectedTask.id, { taskStatus: status })
+		setKanbanState((prevState) => formatTasks([...tasks]))
+	}
+
+	const handleAddCard = (status: string) => {
+		const emptyCard = {
+			isCreatingMode: true,
+		}
+
+		setKanbanState((prevState) => ({
+			...prevState,
+			[status]: [...prevState[status], emptyCard],
+		}))
+		setIsAdding((prev) => ({
+			...prev,
+			[status]: true,
+		}))
+	}
+
+	const statusMap: Record<string, string> = {
+		todo: 'to_do',
+		inProgress: 'in_progress',
+		needReview: 'need_review',
+		done: 'done',
+	}
+
+	const addCard = async (status: string) => {
+		if (task.trim() === '') {
+			setIsAdding((prev) => ({
+				...prev,
+				[status]: false,
+			}))
+			setKanbanState((prevState) => ({
+				...prevState,
+				[status]: prevState[status].filter((card) => !card.isCreatingMode),
+			}))
+			return
+		}
+		await createTask({ taskStatus: statusMap[status], taskTitle: task })
+		setIsAdding((prev) => ({
+			...prev,
+			[status]: false,
+		}))
+		setNewTask('')
+	}
+
+	const handleEditTask = async () => {
+		await updateTaskStatus(highlightedCardId as string, { taskTitle: editTask })
+		setEditTask('')
+		setHighlightedCardId('')
+	}
+
+	const handleEdit = (id: string) => {
+		setHighlightedCardId(id)
+	}
 
 	return (
 		<DndProvider backend={HTML5Backend}>
 			<Container fluid>
 				<ToastContainer />
 				<PageBreadcrumb title="Kanban" subName="Kanban" />
-				{highlightedTaskId && (
+				{highlightedCardId && (
 					<div
 						style={{
 							position: 'fixed',
@@ -335,22 +543,38 @@ const Kanban = () => {
 							background: 'rgba(0, 0, 0, 0.7)',
 							zIndex: 999,
 						}}
-						onClick={() => setHighlightedTaskId(null)}></div>
+						onClick={() => setHighlightedCardId(null)}></div>
 				)}
 				<Row className="flex-nowrap my-2">
 					{Object.keys(kanbanState).map((status, index) => (
 						<Column
 							key={index}
 							title={status || 'Default Status'}
+							isAdding={isAdding}
+							setIsAdding={setIsAdding}
 							status={status as keyof KanbanState}
+							setKanbanState={setKanbanState}
+							onDrop={handleDrop}
+							onAddTask={() => handleAddCard(status)}
+							addCard={addCard}
 							taskCount={kanbanState[status as keyof KanbanState].length}>
 							{kanbanState[status as keyof KanbanState]?.map((card, index) => (
 								<KanbanCard
 									key={index}
 									card={card}
 									index={index}
+									task={task}
+									setNewTask={setNewTask}
+									moveCard={moveCard}
 									status={status as keyof KanbanState}
-									isHighlighted={highlightedTaskId === card.id}
+									onViewTask={() => handleViewTask(card)}
+									onDeleteTask={() => handleDeleteTask(card.id)}
+									onEdit={() => handleEdit(card.id)}
+									isHighlighted={highlightedCardId === card.id}
+									addCard={addCard}
+									editedTask={editTask}
+									setEditedTask={setEditTask}
+									onSave={handleEditTask}
 								/>
 							))}
 						</Column>
@@ -358,17 +582,8 @@ const Kanban = () => {
 				</Row>
 				{selectedTask && (
 					<ViewTaskModal
-						show={isViewTaskModalVisible}
-						onHide={() => setIsViewTaskModalVisible(false)}
-						task={selectedTask}
-						handleStatusChange={handleStatusChange}
-						updateTask={updateTaskById}
-					/>
-				)}
-				{selectedTask && (
-					<MoveModal
-						show={showMoveModal}
-						onHide={() => setShowMoveModal(false)}
+						show={showViewTaskModal}
+						onHide={() => setShowViewTaskModal(false)}
 						task={selectedTask}
 						handleStatusChange={handleStatusChange}
 					/>

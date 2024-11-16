@@ -3,6 +3,7 @@ import { Route, RouteProps } from 'react-router-dom'
 
 // components
 import PrivateRoute from './PrivateRoute'
+import { KanbanProvider } from '@/pages/apps/Kanban/KanbanContext'
 
 // lazy load all the views
 
@@ -403,7 +404,11 @@ const kanbanRoutes = {
 		{
 			path: '/kanban/:boardId',
 			name: 'Tasks',
-			element: <Kanban />,
+			element: (
+				<KanbanProvider>
+					<Kanban />
+				</KanbanProvider>
+			),
 			route: PrivateRoute,
 			roles: ['super_admin', 'admin'],
 		},

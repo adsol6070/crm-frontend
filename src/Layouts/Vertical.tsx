@@ -84,7 +84,7 @@ const VerticalLayout = ({ children }: VerticalLayoutProps) => {
 						</Suspense>
 					</div>
 					<Suspense fallback={<div />}>
-						<Footer />
+						{/* <Footer /> */}
 					</Suspense>
 				</div>
 
