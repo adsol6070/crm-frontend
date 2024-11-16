@@ -276,7 +276,10 @@ const KanbanCard = ({ key, card, index, status, isHighlighted }: CardProps) => {
 						<RiEyeLine size={14} style={{ marginRight: '4px' }} />
 						<span>Open card</span>
 					</button>
-					<button className="btn btn-light btn-sm d-flex align-items-center justify-content-start" onClick={onMoveTask}>
+					<button
+						className="btn btn-light btn-sm d-flex align-items-center justify-content-start"
+						/* onClick={onMoveTask} */
+						onClick={() => console.log('Move task get called.')}>
 						<LuMoveRight size={14} style={{ marginRight: '4px' }} />
 						Move
 					</button>

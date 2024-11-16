@@ -6,7 +6,7 @@ export interface ColumnProps {
 }
 
 export interface CardType {
-	id: string
+	id: string | undefined
 	title: string
 	description?: string
 	status?: string
