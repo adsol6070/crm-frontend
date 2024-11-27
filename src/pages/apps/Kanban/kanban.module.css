@@ -7,12 +7,12 @@
 	height: auto;
 }
 
-.colDesign {
+/* .colDesign {
 	margin: 0px 5px;
 	background-color: currentcolor;
 	color: #ffffff;
 	border-radius: 10px;
-}
+} */
 .barDesign {
 	padding: 25px 10px 10px 10px;
 	height: auto;
@@ -35,6 +35,10 @@
 
 ::-webkit-scrollbar-thumb:hover {
 	background: rgb(56, 56, 56);
+}
+
+::-webkit-scrollbar:vertical {
+	display: none;
 }
 
 .headerDesign {

@@ -21,7 +21,9 @@ function TaskService() {
 	return {
 		// Create a new task
 		createTask: (boardId: string, data: any) => {
-			return HttpClient.post(`/task/${boardId}`, data, { headers: getAuthHeaders() })
+			return HttpClient.post(`/task/${boardId}`, data, {
+				headers: getAuthHeaders(),
+			})
 		},
 
 		// Retrieve all tasks
@@ -48,6 +50,16 @@ function TaskService() {
 
 		updateTaskOrder: (updatedTasks: any, boardId: string) => {
 			return HttpClient.patch(`/task/order/${boardId}`, updatedTasks, {
+				headers: getAuthHeaders(),
+			})
+		},
+		createTaskColumn: (boardId: string, data: any) => {
+			return HttpClient.post(`/task/taskColumn/${boardId}`, data, {
+				headers: getAuthHeaders(),
+			})
+		},
+		getTaskColumn: (boardId: string) => {
+			return HttpClient.get(`/task/taskColumn/${boardId}`, {
 				headers: getAuthHeaders(),
 			})
 		},

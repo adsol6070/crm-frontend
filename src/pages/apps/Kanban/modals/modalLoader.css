@@ -1,0 +1,57 @@
+.loader {
+	width: 20px;
+	aspect-ratio: 1;
+	--c: no-repeat linear-gradient(#b6c2cf 0 0);
+	background:
+		var(--c) 0% 0%,
+		var(--c) 50% 0%,
+		var(--c) 100% 0%;
+	animation: l2 0.8s infinite linear;
+}
+@keyframes l2 {
+	0% {
+		background-size:
+			20% 100%,
+			20% 100%,
+			20% 100%;
+	}
+	20% {
+		background-size:
+			20% 60%,
+			20% 100%,
+			20% 100%;
+	}
+	40% {
+		background-size:
+			20% 80%,
+			20% 60%,
+			20% 100%;
+	}
+	60% {
+		background-size:
+			20% 100%,
+			20% 80%,
+			20% 60%;
+	}
+	80% {
+		background-size:
+			20% 100%,
+			20% 100%,
+			20% 80%;
+	}
+	100% {
+		background-size:
+			20% 100%,
+			20% 100%,
+			20% 100%;
+	}
+}
+
+.rdw-option-wrapper {
+	background: transparent !important;
+	border: none !important;
+}
+
+.rdw-dropdown-wrapper {
+	background: transparent !important;
+}

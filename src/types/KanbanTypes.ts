@@ -1,8 +1,10 @@
 export interface ColumnProps {
+	columnId: string
 	title: string
 	children: React.ReactNode
-	status: keyof KanbanState
+	status: string
 	taskCount: number
+	isFormVisible: boolean
 }
 
 export interface CardType {
@@ -14,11 +16,14 @@ export interface CardType {
 	isCreatingMode?: boolean
 }
 
+export interface ColumnType {
+	id: string
+	name: string
+	cards: CardType[]
+}
+
 export interface KanbanState {
-	todo: CardType[]
-	inProgress: CardType[]
-	needReview: CardType[]
-	done: CardType[]
+	columns: ColumnType[]
 }
 
 export interface Task {
@@ -32,11 +37,10 @@ export interface Task {
 }
 
 export interface CardProps {
-	key: string
 	card: CardType
 	index: number
-	status: keyof KanbanState
-	isHighlighted: boolean
+	status: string
+	columnId: string
 }
 
 export type CreateData = Pick<

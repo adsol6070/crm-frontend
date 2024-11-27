@@ -23,12 +23,36 @@ const useTask = (boardId: string) => {
 	const createTask = async (data: Task): Promise<void> => {
 		setLoading(true)
 		try {
-			const response = await taskApi.createTask(boardId, data)
+			await taskApi.createTask(boardId, data)
 			await getTasks(boardId)
-			toast.success(response.message)
 		} catch (err) {
 			console.error('Failed to get tasks:', err)
 			toast.error('Failed to get tasks')
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	const createTaskColumn = async (data: any) => {
+		setLoading(true)
+		try {
+			await taskApi.createTaskColumn(boardId, data)
+		} catch (error) {
+			console.error('Failed to create task column:', error)
+			toast.error('Failed to create column')
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	const getTaskColumns = async () => {
+		setLoading(true)
+		try {
+			const response = await taskApi.getTaskColumn(boardId)
+			return response[0]?.taskStatus ? response[0].taskStatus : []
+		} catch (error) {
+			console.error('Failed to get task columns:', error)
+			toast.error('Failed to get columns')
 		} finally {
 			setLoading(false)
 		}
@@ -60,9 +84,12 @@ const useTask = (boardId: string) => {
 	const updateTaskOrder = async (updatedTasks: any[]) => {
 		setLoading(true)
 		try {
-			const response = await taskApi.updateTaskOrder({
-				orderedTasks: updatedTasks,
-			}, boardId)
+			await taskApi.updateTaskOrder(
+				{
+					orderedTasks: updatedTasks,
+				},
+				boardId
+			)
 			await getTasks(boardId)
 			// toast.success(response.message || 'Board order updated successfully')
 		} catch (err) {
@@ -93,6 +120,8 @@ const useTask = (boardId: string) => {
 	return {
 		loading,
 		createTask,
+		createTaskColumn,
+		getTaskColumns,
 		getTasks,
 		tasks,
 		deleteTaskById,

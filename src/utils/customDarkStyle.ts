@@ -93,7 +93,6 @@ export const kanbanBackgroundStyle = (isDarkMode: any) => ({
 	backgroundColor: isDarkMode ? '#404954' : '#fff',
 })
 
-
 export const boardStyle = (isDarkMode: any) => ({
 	backgroundColor: isDarkMode ? '#313a46' : '#fff',
 	color: isDarkMode ? '#fff' : '#000',
