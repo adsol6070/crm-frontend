@@ -4,10 +4,9 @@ export interface ColumnProps {
 	columnId: string
 	title: string
 	children: React.ReactNode
-	status: keyof KanbanState
+	status: string
 	taskCount: number
 	isFormVisible: boolean
-	setOpenColumnStatus: Dispatch<SetStateAction<string | null>>
 }
 
 export interface CardType {
@@ -44,7 +43,8 @@ export interface Task {
 export interface CardProps {
 	card: CardType
 	index: number
-	status: keyof KanbanState
+	status: string
+	columnId: string
 }
 
 export type CreateData = Pick<

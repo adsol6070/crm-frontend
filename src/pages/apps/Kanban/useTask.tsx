@@ -23,9 +23,8 @@ const useTask = (boardId: string) => {
 	const createTask = async (data: Task): Promise<void> => {
 		setLoading(true)
 		try {
-			const response = await taskApi.createTask(boardId, data)
+			await taskApi.createTask(boardId, data)
 			await getTasks(boardId)
-			toast.success(response.message)
 		} catch (err) {
 			console.error('Failed to get tasks:', err)
 			toast.error('Failed to get tasks')
@@ -53,7 +52,6 @@ const useTask = (boardId: string) => {
 			return response[0]?.taskStatus ? response[0].taskStatus : []
 		} catch (error) {
 			console.error('Failed to get task columns:', error)
-			toast.error('Failed to get columns')
 		} finally {
 			setLoading(false)
 		}

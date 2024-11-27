@@ -19,6 +19,7 @@ import { generatePlaceholderImage } from '@/utils'
 import { GoDotFill } from "react-icons/go";
 import styles from '../kanban.module.css'
 import useTask from '../useTask'
+import { useKanbanContext } from '../KanbanContext'
 
 interface CardType {
 	id: string
@@ -65,6 +66,8 @@ const ViewTaskModal = ({
 		setColumns(cols)
 	}
 
+	const { setSelectedTask } = useKanbanContext()
+
 	useEffect(() => {
 		if (show) {
 			setLoading(true)
@@ -81,23 +84,11 @@ const ViewTaskModal = ({
 
 	if (!show) return null
 
-	const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-		if (event.currentTarget === event.target) {
-			onHide()
-		}
-	}
-
-	const handleMoveClick = () => {
-		if (status) {
-			handleStatusChange(status);
-			onHide();
-		}
-	};
-
 	const handleEditClick = () => {
 		setTempDescription(description)
 		setIsEditing(true)
 	}
+
 
 	const handleSaveDescription = () => {
 		setDescription(tempDescription)
@@ -108,9 +99,11 @@ const ViewTaskModal = ({
 		setIsEditing(false)
 	}
 
-	const handleCancelEdit = () => {
-		setTempDescription(description)
-		setIsEditing(false)
+	const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
+		if (event.currentTarget === event.target) {
+			onHide()
+			setSelectedTask({})
+		}
 	}
 
 	const handleAddComment = async () => {
@@ -142,6 +135,11 @@ const ViewTaskModal = ({
 			setEditingCommentIndex(null)
 			setTempEditComment('')
 		}
+	}
+
+	const handleCancelEdit = () => {
+		setTempDescription(description)
+		setIsEditing(false)
 	}
 
 	const handleCancelEditComment = () => {
@@ -237,7 +235,10 @@ const ViewTaskModal = ({
 										onMouseLeave={(e) =>
 											(e.currentTarget.style.background = 'transparent')
 										}
-										onClick={onHide}>
+										onClick={() => {
+											setSelectedTask({})
+											onHide()
+										}}>
 										<AiOutlineClose
 											style={{ color: '#B6C2CF', fontSize: '20px' }}
 										/>
@@ -546,6 +547,7 @@ const ViewTaskModal = ({
 																</button> : ""
 															}
 														</div>
+														<div></div>
 													</hgroup>
 													<div
 														style={{

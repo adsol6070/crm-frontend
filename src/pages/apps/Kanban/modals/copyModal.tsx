@@ -19,26 +19,30 @@ interface CopyModalProps {
 }
 
 const CopyModal = ({ show, onHide, task, createTask }: CopyModalProps) => {
-
-	const [status, setStatus] = useState(task.status);
+	const [status, setStatus] = useState(task.status)
 
 	useEffect(() => {
-		setStatus(task.status);
-	}, [task]);
+		setStatus(task.status)
+	}, [task])
 
 	const handleCopyClick = () => {
-			const newTask: any = {
-				taskStatus: status,
-				taskTitle: task.title,
-				taskDescription: task.description,
-			}
-	
-			createTask(newTask)
-			onHide();
-	};
+		const newTask: any = {
+			taskStatus: status,
+			taskTitle: task.title,
+			taskDescription: task.description,
+		}
+
+		createTask(newTask)
+		onHide()
+	}
 
 	return (
-		<Modal show={show} onHide={onHide} centered size="sm" className={styles.customModal}>
+		<Modal
+			show={show}
+			onHide={onHide}
+			centered
+			size="sm"
+			className={styles.customModal}>
 			<Modal.Header closeButton>
 				<Modal.Title className="fw-bold">Copy Card</Modal.Title>
 			</Modal.Header>
@@ -54,35 +58,34 @@ const CopyModal = ({ show, onHide, task, createTask }: CopyModalProps) => {
 									borderRadius: '8px',
 									border: '1px solid #ced4da',
 									fontWeight: '600',
-								}}
-							>
+								}}>
 								{formatStringDisplayName(status || 'Select Status')}
 							</Dropdown.Toggle>
 							<Dropdown.Menu className="w-100">
-								{['to_do', 'in_progress', 'need_review', 'done'].map(statusOption => (
-									<Dropdown.Item eventKey={statusOption} key={statusOption}>
-										{formatStringDisplayName(statusOption)}
-									</Dropdown.Item>
-								))}
+								{['to_do', 'in_progress', 'need_review', 'done'].map(
+									(statusOption) => (
+										<Dropdown.Item eventKey={statusOption} key={statusOption}>
+											{formatStringDisplayName(statusOption)}
+										</Dropdown.Item>
+									)
+								)}
 							</Dropdown.Menu>
 						</Dropdown>
 					</Col>
 				</Row>
 				<Row className="mt-3">
 					<Col>
-						<Button 
-							variant="dark" 
-							className="w-100" 
-							onClick={handleCopyClick} 
-							disabled={!status}
-						>
+						<Button
+							variant="dark"
+							className="w-100"
+							onClick={handleCopyClick}
+							disabled={!status}>
 							Copy
 						</Button>
 					</Col>
 				</Row>
 			</Modal.Body>
 		</Modal>
-
 	)
 }
 

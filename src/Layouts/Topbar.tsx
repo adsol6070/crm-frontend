@@ -280,7 +280,7 @@ const Topbar = ({ toggleMenu, navOpen }: TopbarProps) => {
 						</li>
 						<li className="dropdown">
 							<ProfileDropdown
-							    loading={loading}
+								loading={loading}
 								menuItems={profileMenus}
 								userImage={`${getProfile?.imageUrl}`}
 								username={`${getProfile?.firstname}`}

@@ -46,3 +46,12 @@
 			20% 100%;
 	}
 }
+
+.rdw-option-wrapper {
+	background: transparent !important;
+	border: none !important;
+}
+
+.rdw-dropdown-wrapper {
+	background: transparent !important;
+}

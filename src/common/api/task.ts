@@ -21,7 +21,9 @@ function TaskService() {
 	return {
 		// Create a new task
 		createTask: (boardId: string, data: any) => {
-			return HttpClient.post(`/task/${boardId}`, data, { headers: getAuthHeaders() })
+			return HttpClient.post(`/task/${boardId}`, data, {
+				headers: getAuthHeaders(),
+			})
 		},
 
 		// Retrieve all tasks

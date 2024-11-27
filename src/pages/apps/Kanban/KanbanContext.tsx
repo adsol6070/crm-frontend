@@ -18,37 +18,27 @@ import { v4 as uuidv4 } from 'uuid'
 interface KanbanContextType {
 	newTaskTitle: string
 	setNewTaskTitle: Dispatch<SetStateAction<string>>
-	addTaskToSection: (section: string, columnId: string) => void
-	removeTask: () => void
+	addTaskToSection: (section: string, columnId: string) => Promise<void>
+	removeTask: () => Promise<void>
 	highlightTask: (taskId: any) => void
-	isViewTaskModalVisible: boolean
-	setIsViewTaskModalVisible: Dispatch<SetStateAction<boolean>>
-	viewTaskModal: () => void
-	onMoveTask: () => void
-	kanbanState: any
+	kanbanState: KanbanState
 	highlightedTaskId: string | null
 	selectedTask: any
+	setSelectedTask: Dispatch<SetStateAction<{}>>
 	setKanbanState: Dispatch<SetStateAction<KanbanState>>
 	setHighlightedTaskId: Dispatch<SetStateAction<string | null>>
 	handleStatusChange: (status: string) => void
 	updateTaskById: (taskId: string, data: any) => void
 	editTask: string
 	setEditTask: Dispatch<SetStateAction<string>>
-	updateTask: () => void
+	updateTask: () => Promise<void>
 	moveCard: (
-		draggedItem: CardType & { status: keyof KanbanState; index: number },
-		newIndex: number,
-		newStatus: keyof KanbanState
-	) => Promise<void>
-	handleDrop: (
-		draggedItem: CardType & { status: keyof KanbanState; index: number },
-		status: keyof KanbanState
+		fromColumnId: string,
+		toColumnId: string,
+		cardd: CardType,
+		index: number
 	) => void
-	showMoveModal: boolean
-	setShowMoveModal: Dispatch<SetStateAction<boolean>>
-	listName: string
-	setListName: Dispatch<SetStateAction<string>>
-	handleAddList: () => void
+	handleAddList: () => Promise<void>
 	editableRef: any
 	taskCardDimensions: {
 		width: number
@@ -68,14 +58,39 @@ interface KanbanContextType {
 			right: number
 		} | null>
 	>
-	isFormVisible: boolean
-	setIsFormVisible: Dispatch<SetStateAction<boolean>>
 	openColumnStatus: string | null
 	setOpenColumnStatus: Dispatch<SetStateAction<string | null>>
-	showCopyModal: boolean
-	setShowCopyModal: Dispatch<SetStateAction<boolean>>
-	onCopyTask: () => void
 	createTask: (data: any) => void
+	columnFormState: {
+		columnName: string
+		isFormVisible: boolean
+	}
+	setColumnFormState: Dispatch<
+		SetStateAction<{
+			columnName: string
+			isFormVisible: boolean
+		}>
+	>
+	modalState: {
+		viewTask: boolean
+		moveTask: boolean
+		copyTask: boolean
+	}
+	toggleModal: (
+		modalName: 'viewTask' | 'moveTask' | 'copyTask',
+		isVisible: boolean
+	) => void
+}
+
+interface ModalState {
+	viewTask: boolean
+	moveTask: boolean
+	copyTask: boolean
+}
+
+interface ColumnFormState {
+	columnName: string
+	isFormVisible: boolean
 }
 
 const KanbanContext = createContext<KanbanContextType | undefined>(undefined)
@@ -94,17 +109,23 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 		createTaskColumn,
 		getTaskColumns,
 	} = useTask(boardId)
-	const [kanbanState, setKanbanState] = useState<KanbanState | {}>({})
+
+	const [kanbanState, setKanbanState] = useState<KanbanState>({ columns: [] })
 	const [newTaskTitle, setNewTaskTitle] = useState<string>('')
 	const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(
 		null
 	)
-	const [isViewTaskModalVisible, setIsViewTaskModalVisible] =
-		useState<boolean>(false)
 	const [selectedTask, setSelectedTask] = useState({})
+	const [modalState, setModalState] = useState<ModalState>({
+		viewTask: false,
+		moveTask: false,
+		copyTask: false,
+	})
 	const [editTask, setEditTask] = useState('')
-	const [showMoveModal, setShowMoveModal] = useState<boolean>(false)
-	const [listName, setListName] = useState<string>('')
+	const [columnFormState, setColumnFormState] = useState<ColumnFormState>({
+		columnName: '',
+		isFormVisible: false,
+	})
 	const [taskCardDimensions, setTaskCardDimensions] = useState<{
 		width: number
 		height: number
@@ -113,18 +134,15 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 		bottom: number
 		right: number
 	} | null>(null)
-	const [isFormVisible, setIsFormVisible] = useState<boolean>(false)
 	const [openColumnStatus, setOpenColumnStatus] = useState<string | null>(null)
-	const [showCopyModal, setShowCopyModal] = useState<boolean>(false)
 
 	const handleAddList = async () => {
-		if (listName.trim() === '') {
-			alert('List name cannot be empty!')
+		if (columnFormState.columnName.trim() === '') {
 			return
 		}
-		await createTaskColumn({ id: uuidv4(), name: listName })
+		await createTaskColumn({ id: uuidv4(), name: columnFormState.columnName })
 		fetchColumns()
-		setListName('')
+		setColumnFormState((prevState) => ({ ...prevState, columnName: '' }))
 	}
 
 	// const formatTasks = (tasks: Task[]): any => {
@@ -189,7 +207,6 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 								.filter((task) => task.columnId === column.id)
 								.map((task) => ({
 									id: task?.id,
-									boardId: task?.board_id,
 									title: task?.taskTitle,
 									status: formatStringDisplayName(task?.taskStatus),
 									description: task?.taskDescription,
@@ -210,48 +227,40 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 	}, [tasks])
 
 	const moveCard = async (
-		draggedItem: CardType & { status: keyof KanbanState; index: number },
-		newIndex: number,
-		newStatus: keyof KanbanState
+		fromColumnId: string,
+		toColumnId: string,
+		cardd: CardType,
+		index: number
 	) => {
-		const { id, status: oldStatus, index: oldIndex } = draggedItem
-
-		if (oldStatus === newStatus && oldIndex === newIndex) {
-			return
-		}
-
-		const updatedOldStatusCards = [...kanbanState[oldStatus]].filter(
-			(card) => card.id !== id
+		const fromColumn = kanbanState.columns.find(
+			(column) => column.id === fromColumnId
 		)
-		const updatedNewStatusCards =
-			oldStatus === newStatus
-				? updatedOldStatusCards
-				: [...kanbanState[newStatus]]
-		updatedNewStatusCards.splice(newIndex, 0, {
-			id,
-			title: draggedItem.title,
-			status: draggedItem.status,
-			description: draggedItem.description,
+		const toColumn = kanbanState.columns.find(
+			(column) => column.id === toColumnId
+		)
+
+		const newColumns = [...kanbanState.columns]
+		newColumns.forEach((col) => {
+			if (col.id === fromColumnId) {
+				col.cards = col.cards.filter((card) => card.id !== cardd.id)
+			}
+			if (col.id === toColumnId) {
+				const newCards = [...col.cards]
+				newCards.splice(index, 0, cardd)
+				col.cards = newCards
+			}
 		})
 
-		setKanbanState((prevCards) => ({
-			...prevCards,
-			[oldStatus]: updatedOldStatusCards,
-			[newStatus]: updatedNewStatusCards,
-		}))
+		setKanbanState({ columns: newColumns })
 
 		try {
-			await updateTaskStatus(id, { taskStatus: newStatus })
+			await updateTaskStatus(cardd.id, {
+				taskStatus: toColumn?.name,
+				columnId: toColumnId,
+			})
 		} catch (error) {
 			console.error('Failed to update task status:', error)
 		}
-	}
-
-	const handleDrop = (
-		draggedItem: CardType & { status: keyof KanbanState; index: number },
-		status: keyof KanbanState
-	) => {
-		moveCard(draggedItem, kanbanState[status].length, status)
 	}
 
 	const addTaskToSection = async (section: string, columnId: string) => {
@@ -304,13 +313,11 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 		setSelectedTask(task)
 	}
 
-	const viewTaskModal = () => {
-		setIsViewTaskModalVisible(true)
-		setEditTask(selectedTask?.title)
-	}
-
-	const onMoveTask = () => {
-		setShowMoveModal(true)
+	const toggleModal = (
+		modalName: keyof typeof modalState,
+		isVisible: boolean
+	) => {
+		setModalState((prevState) => ({ ...prevState, [modalName]: isVisible }))
 	}
 
 	const onCopyTask = () => {
@@ -333,12 +340,10 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 				addTaskToSection,
 				removeTask,
 				highlightTask,
-				isViewTaskModalVisible,
-				setIsViewTaskModalVisible,
-				viewTaskModal,
 				kanbanState,
 				highlightedTaskId,
 				selectedTask,
+				setSelectedTask,
 				setKanbanState,
 				setHighlightedTaskId,
 				handleStatusChange,
@@ -346,25 +351,18 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 				setEditTask,
 				updateTask,
 				moveCard,
-				handleDrop,
-				showMoveModal,
-				setShowMoveModal,
 				updateTaskById,
-				onMoveTask,
-				listName,
-				setListName,
 				handleAddList,
 				editableRef,
 				taskCardDimensions,
 				setTaskCardDimensions,
-				isFormVisible,
-				setIsFormVisible,
 				openColumnStatus,
 				setOpenColumnStatus,
-				showCopyModal,
-				setShowCopyModal,
-				onCopyTask,
 				createTask,
+				columnFormState,
+				setColumnFormState,
+				modalState,
+				toggleModal,
 			}}>
 			{children}
 		</KanbanContext.Provider>

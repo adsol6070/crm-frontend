@@ -23,7 +23,6 @@ const VerticalLayout = ({ children }: VerticalLayoutProps) => {
 
 	const isKanbanPage =
 		location.pathname.startsWith('/kanban/') && params.boardId
-
 	/*
 	 * layout defaults
 	 */
@@ -82,16 +81,16 @@ const VerticalLayout = ({ children }: VerticalLayoutProps) => {
 					/>
 				</Suspense>
 
-				<div className="content-page" style={{padding: isKanbanPage && 0 }}>
+				<div className="content-page" style={{ padding: isKanbanPage && 0 }}>
 					<div className="content">
 						<Suspense fallback={<div />}>
-						{isKanbanPage ? (
+							{isKanbanPage ? (
 								<Suspense fallback={<Preloader />}>{children}</Suspense>
-						) :
-						(<Container fluid>
-								<Suspense fallback={<Preloader />}>{children}</Suspense>
-							</Container>)
-}
+							) : (
+								<Container fluid>
+									<Suspense fallback={<Preloader />}>{children}</Suspense>
+								</Container>
+							)}
 						</Suspense>
 					</div>
 					{/* <Suspense fallback={<div />}>
