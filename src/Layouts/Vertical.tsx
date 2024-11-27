@@ -4,6 +4,7 @@ import { useViewport } from '../hooks'
 import { changeHTMLAttribute } from '../utils'
 import { Container } from 'react-bootstrap'
 import Preloader from '@/components/Preloader'
+import { useLocation, useParams } from 'react-router-dom'
 
 const Topbar = React.lazy(() => import('./Topbar'))
 const LeftSidebar = React.lazy(() => import('./LeftSidebar'))
@@ -13,9 +14,15 @@ const Footer = React.lazy(() => import('./Footer'))
 interface VerticalLayoutProps {
 	children?: any
 }
+
 const VerticalLayout = ({ children }: VerticalLayoutProps) => {
 	const { settings, updateSidebar } = useThemeContext()
 	const { width } = useViewport()
+	const location = useLocation()
+	const params = useParams()
+
+	const isKanbanPage =
+		location.pathname.startsWith('/kanban/') && params.boardId
 
 	/*
 	 * layout defaults
@@ -75,12 +82,16 @@ const VerticalLayout = ({ children }: VerticalLayoutProps) => {
 					/>
 				</Suspense>
 
-				<div className="content-page">
+				<div className="content-page" style={{padding: isKanbanPage && 0 }}>
 					<div className="content">
 						<Suspense fallback={<div />}>
-							<Container fluid>
+						{isKanbanPage ? (
 								<Suspense fallback={<Preloader />}>{children}</Suspense>
-							</Container>
+						) :
+						(<Container fluid>
+								<Suspense fallback={<Preloader />}>{children}</Suspense>
+							</Container>)
+}
 						</Suspense>
 					</div>
 					{/* <Suspense fallback={<div />}>

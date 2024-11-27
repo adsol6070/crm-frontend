@@ -12,3 +12,17 @@ export type Board = {
     boardTitle: string;
     boardDescription: string;
 }
+
+export type TaskColumn = {
+    id?: string;
+    tenantID?: string;
+    name: string;
+}
+
+export type TaskComment = {
+    id?: string;
+    tenantID?: string;
+    author_id?: string;
+    task_id?: string;
+    content: string;
+  }

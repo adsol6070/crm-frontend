@@ -11,14 +11,14 @@ interface CardType {
 	createdAt?: string
 }
 
-interface MoveModalProps {
+interface CopyModalProps {
 	show: boolean
 	onHide: () => void
 	task: CardType
-	handleStatusChange: (status: string) => void
+	createTask: (task: any) => void
 }
 
-const MoveModal = ({ show, onHide, task, handleStatusChange }: MoveModalProps) => {
+const CopyModal = ({ show, onHide, task, createTask }: CopyModalProps) => {
 
 	const [status, setStatus] = useState(task.status);
 
@@ -26,17 +26,21 @@ const MoveModal = ({ show, onHide, task, handleStatusChange }: MoveModalProps) =
 		setStatus(task.status);
 	}, [task]);
 
-	const handleMoveClick = () => {
-		if (status) {
-			handleStatusChange(status);
+	const handleCopyClick = () => {
+			const newTask: any = {
+				taskStatus: status,
+				taskTitle: task.title,
+				taskDescription: task.description,
+			}
+	
+			createTask(newTask)
 			onHide();
-		}
 	};
 
 	return (
 		<Modal show={show} onHide={onHide} centered size="sm" className={styles.customModal}>
 			<Modal.Header closeButton>
-				<Modal.Title className="fw-bold">Move Card</Modal.Title>
+				<Modal.Title className="fw-bold">Copy Card</Modal.Title>
 			</Modal.Header>
 			<Modal.Body className={`${styles.moveModalBody}`}>
 				<Row className="my-1">
@@ -48,7 +52,7 @@ const MoveModal = ({ show, onHide, task, handleStatusChange }: MoveModalProps) =
 								className="w-100 text-start text-capitalize py-2 px-3"
 								style={{
 									borderRadius: '8px',
-									border: 'none',
+									border: '1px solid #ced4da',
 									fontWeight: '600',
 								}}
 							>
@@ -69,10 +73,10 @@ const MoveModal = ({ show, onHide, task, handleStatusChange }: MoveModalProps) =
 						<Button 
 							variant="dark" 
 							className="w-100" 
-							onClick={handleMoveClick} 
+							onClick={handleCopyClick} 
 							disabled={!status}
 						>
-							Move
+							Copy
 						</Button>
 					</Col>
 				</Row>
@@ -82,4 +86,4 @@ const MoveModal = ({ show, onHide, task, handleStatusChange }: MoveModalProps) =
 	)
 }
 
-export default MoveModal
+export default CopyModal

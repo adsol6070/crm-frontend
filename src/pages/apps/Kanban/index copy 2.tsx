@@ -259,12 +259,10 @@ const KanbanCard = ({ key, card, index, status, isHighlighted }: CardProps) => {
 				) : (
 					<>
 						<div className='d-flex flex-column' onClick={() => viewTaskModal(card)}>
-							{/* <button> */}
 								<Card.Title className="h5 mb-0" style={{ maxWidth: '200px' }}>
 									{card.title}
 								</Card.Title>
 								{card.description && <RiAlignLeft size={16} className="my-1" color="black" />}
-							{/* </button> */}
 						</div>
 						<SlPencil
 							size={14}
@@ -333,6 +331,7 @@ const Kanban = () => {
 		setShowMoveModal,
 		updateTaskById,
 		createTask,
+		loading,
 	} = useKanbanContext()
 
 	return (

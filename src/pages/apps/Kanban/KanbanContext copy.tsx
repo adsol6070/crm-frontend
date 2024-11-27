@@ -1,3 +1,4 @@
+// MyContext.tsx
 import React, {
 	createContext,
 	useContext,
@@ -6,32 +7,37 @@ import React, {
 	Dispatch,
 	SetStateAction,
 	useEffect,
-	useRef,
 } from 'react'
 import useTask from './useTask'
 import Swal from 'sweetalert2'
-import { CardType, ColumnType, KanbanState } from '@/types/KanbanTypes'
+import { CardType, KanbanState } from '@/types/KanbanTypes'
 import { useParams } from 'react-router-dom'
 import { formatStringDisplayName } from '@/utils/formatString'
-import { v4 as uuidv4 } from 'uuid'
+import { Task } from '@/types'
 
 interface KanbanContextType {
-	newTaskTitle: string
+	newTaskTitle: string // Renamed for clarity
 	setNewTaskTitle: Dispatch<SetStateAction<string>>
-	addTaskToSection: (section: string, columnId: string) => void
-	removeTask: () => void
-	highlightTask: (taskId: any) => void
+	createPlaceholderCard: (section: string) => void // Renamed for clarity
+	removePlaceholderCard: (section: string) => void
+	addTaskToSection: (section: string) => void // Renamed for clarity
+	removeTask: (taskId: string) => void // Renamed for clarity
+	highlightTask: (taskId: string) => void
 	isViewTaskModalVisible: boolean
 	setIsViewTaskModalVisible: Dispatch<SetStateAction<boolean>>
-	viewTaskModal: () => void
-	onMoveTask: () => void
+	viewTaskModal: (task: any) => void
+	onMoveTask: (task: any) => void
+	onCopyTask: (task: any) => void
 	kanbanState: any
+	isAddCardVisible: Record<string, boolean>
 	highlightedTaskId: string | null
 	selectedTask: any
 	setKanbanState: Dispatch<SetStateAction<KanbanState>>
 	setHighlightedTaskId: Dispatch<SetStateAction<string | null>>
 	handleStatusChange: (status: string) => void
+	addColumn: (title: string) => void
 	updateTaskById: (taskId: string, data: any) => void
+	createTask: (data: any) => void
 	editTask: string
 	setEditTask: Dispatch<SetStateAction<string>>
 	updateTask: () => void
@@ -44,57 +50,37 @@ interface KanbanContextType {
 		draggedItem: CardType & { status: keyof KanbanState; index: number },
 		status: keyof KanbanState
 	) => void
-	showMoveModal: boolean
-	setShowMoveModal: Dispatch<SetStateAction<boolean>>
-	listName: string
-	setListName: Dispatch<SetStateAction<string>>
-	handleAddList: () => void
-	editableRef: any
-	taskCardDimensions: {
-		width: number
-		height: number
-		top: number
-		left: number
-		bottom: number
-		right: number
-	} | null
-	setTaskCardDimensions: Dispatch<
-		SetStateAction<{
-			width: number
-			height: number
-			top: number
-			left: number
-			bottom: number
-			right: number
-		} | null>
-	>
-	isFormVisible: boolean
-	setIsFormVisible: Dispatch<SetStateAction<boolean>>
-	openColumnStatus: string | null
-	setOpenColumnStatus: Dispatch<SetStateAction<string | null>>
 	showCopyModal: boolean
+	showMoveModal: boolean
+	loading: boolean
+	setShowMoveModal: Dispatch<SetStateAction<boolean>>
 	setShowCopyModal: Dispatch<SetStateAction<boolean>>
-	onCopyTask: () => void
-	createTask: (data: any) => void
 }
 
+// Create the context with a default value
 const KanbanContext = createContext<KanbanContextType | undefined>(undefined)
 
+// Create a provider component
 export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 	children,
 }) => {
-	const editableRef = useRef<HTMLAnchorElement | null>(null)
 	const { boardId } = useParams() as { boardId: string }
-	const {
-		tasks,
-		createTask,
-		deleteTaskById,
-		updateTaskStatus,
-		updateTaskById,
-		createTaskColumn,
-		getTaskColumns,
-	} = useTask(boardId)
-	const [kanbanState, setKanbanState] = useState<KanbanState | {}>({})
+	const { tasks, loading, createTask, deleteTaskById, updateTaskStatus, updateTaskById, createTaskColumn, taskColumnsData } =
+		useTask(boardId)
+	const [kanbanState, setKanbanState] = useState<KanbanState>({
+		todo: [],
+		inProgress: [],
+		needReview: [],
+		done: [],
+	})
+	const [isAddCardVisible, setIsAddCardVisible] = useState<
+		Record<string, boolean>
+	>({
+		todo: false,
+		inProgress: false,
+		needReview: false,
+		done: false,
+	})
 	const [newTaskTitle, setNewTaskTitle] = useState<string>('')
 	const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(
 		null
@@ -104,109 +90,43 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 	const [selectedTask, setSelectedTask] = useState({})
 	const [editTask, setEditTask] = useState('')
 	const [showMoveModal, setShowMoveModal] = useState<boolean>(false)
-	const [listName, setListName] = useState<string>('')
-	const [taskCardDimensions, setTaskCardDimensions] = useState<{
-		width: number
-		height: number
-		top: number
-		left: number
-		bottom: number
-		right: number
-	} | null>(null)
-	const [isFormVisible, setIsFormVisible] = useState<boolean>(false)
-	const [openColumnStatus, setOpenColumnStatus] = useState<string | null>(null)
 	const [showCopyModal, setShowCopyModal] = useState<boolean>(false)
 
-	const handleAddList = async () => {
-		if (listName.trim() === '') {
-			alert('List name cannot be empty!')
-			return
+	const formatTask = (task: Task): CardType => ({
+		id: task.id,
+		title: task?.taskTitle,
+		status: formatStringDisplayName(task?.taskStatus),
+		description: task?.taskDescription,
+		createdAt: task.created_at,
+	})
+
+	const formatTasks = (tasks: Task[]): KanbanState => {
+		const formattedData: KanbanState = {
+			todo: [],
+			inProgress: [],
+			needReview: [],
+			done: [],
 		}
-		await createTaskColumn({ id: uuidv4(), name: listName })
-		fetchColumns()
-		setListName('')
-	}
 
-	// const formatTasks = (tasks: Task[]): any => {
-	// 	return tasks.reduce((acc: KanbanState, task: Task) => {
-	// 		const formattedTask: CardType = {
-	// 			id: task.id,
-	// 			title: task?.taskTitle,
-	// 			status: formatStringDisplayName(task?.taskStatus),
-	// 			description: task?.taskDescription,
-	// 			createdAt: task?.created_at,
-	// 		}
+		const statusMap: Record<string, string> = {
+			to_do: 'todo',
+			in_progress: 'inProgress',
+			need_review: 'needReview',
+			done: 'done',
+		}
 
-	// 		const kanbanKey = task.taskStatus as keyof KanbanState
+		tasks.forEach((task: Task) => {
+			const formattedTask: CardType = formatTask(task)
 
-	// 		if (!acc[kanbanKey]) {
-	// 			acc[kanbanKey] = []
-	// 		}
-
-	// 		acc[kanbanKey].push(formattedTask)
-	// 		return acc
-	// 	}, {})
-	// }
-
-	const fetchColumns = async () => {
-		const columns = await getTaskColumns()
-
-		setKanbanState((prevState) => {
-			const existingColumnsMap = prevState.columns?.reduce(
-				(acc, column) => {
-					acc[column.id] = column
-					return acc
-				},
-				{} as Record<string, ColumnType>
-			)
-
-			const updatedColumns = columns.map((column) => {
-				return {
-					id: column.id,
-					name: column.name,
-					cards: existingColumnsMap[column.id]?.cards || [],
-				}
-			})
-
-			return {
-				...prevState,
-				columns: updatedColumns,
-			}
+			const kanbanKey = statusMap[task.taskStatus] as keyof KanbanState
+			formattedData[kanbanKey].push(formattedTask)
 		})
+
+		return formattedData
 	}
 
 	useEffect(() => {
-		const initializeKanbanState = async () => {
-			const columns = await getTaskColumns()
-
-			const initialState = columns.reduce(
-				(acc, column) => {
-					acc.columns.push({
-						id: column.id,
-						name: column.name,
-						cards: tasks
-							? tasks
-								.filter((task) => task.columnId === column.id)
-								.map((task) => ({
-									id: task?.id,
-									boardId: task?.board_id,
-									title: task?.taskTitle,
-									status: formatStringDisplayName(task?.taskStatus),
-									description: task?.taskDescription,
-									taskHistory: task?.taskHistory,
-									createdAt: task?.created_at,
-								}))
-							: [],
-					})
-					return acc
-				},
-				{ columns: [] } as KanbanState
-			)
-
-			setKanbanState(initialState)
-		}
-
-		initializeKanbanState()
+		setKanbanState(formatTasks(tasks))
 	}, [tasks])
 
 	const moveCard = async (
@@ -240,8 +160,15 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 			[newStatus]: updatedNewStatusCards,
 		}))
 
+		const statusMap: Record<string, string> = {
+			todo: 'to_do',
+			inProgress: 'in_progress',
+			needReview: 'need_review',
+			done: 'done',
+		}
+
 		try {
-			await updateTaskStatus(id, { taskStatus: newStatus })
+			await updateTaskStatus(id, { taskStatus: statusMap[newStatus] })
 		} catch (error) {
 			console.error('Failed to update task status:', error)
 		}
@@ -254,25 +181,82 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 		moveCard(draggedItem, kanbanState[status].length, status)
 	}
 
-	const addTaskToSection = async (section: string, columnId: string) => {
+	// Function to create a placeholder card in a specified section
+	const createPlaceholderCard = (section: string) => {
+		console.log('Create Placeholder Card get called.')
+		const placeholderCard = {
+			isCreatingMode: true,
+		}
+
+		setKanbanState((prevState) => ({
+			...prevState,
+			[section]: [...prevState[section], placeholderCard],
+		}))
+		setIsAddCardVisible((prev) => ({
+			...prev,
+			[section]: true,
+		}))
+	}
+
+	const removePlaceholderCard = (section: string) => {
+		setKanbanState((prevState) => ({
+			...prevState,
+			[section]: prevState[section].filter((card) => !card.isCreatingMode),
+		}))
+		setIsAddCardVisible((prev) => ({
+			...prev,
+			[section]: false,
+		}))
+	}
+
+	const statusMap: Record<string, string> = {
+		todo: 'to_do',
+		inProgress: 'in_progress',
+		needReview: 'need_review',
+		done: 'done',
+	}
+
+	// Function to add a task to a specified section
+	const addTaskToSection = async (section: string) => {
+		if (newTaskTitle.trim() === '') {
+			setIsAddCardVisible((prev) => ({
+				...prev,
+				[section]: false,
+			}))
+			setKanbanState((prevState) => ({
+				...prevState,
+				[section]: prevState[section].filter((card) => !card.isCreatingMode),
+			}))
+			return
+		}
+
 		const newTask: any = {
-			columnId,
-			taskStatus: section,
+			taskStatus: statusMap[section],
 			taskTitle: newTaskTitle,
 		}
+
 		await createTask(newTask)
+
+		// Hide the add card UI after adding the task
+		setIsAddCardVisible((prev) => ({
+			...prev,
+			[section]: false,
+		}))
+		setKanbanState((prevState) => ({
+			...prevState,
+			[section]: prevState[section].filter((card) => !card.isCreatingMode),
+		}))
 		setNewTaskTitle('')
 	}
 
 	const updateTask = async () => {
-		if (editTask.trim() === '') return
 		await updateTaskStatus(highlightedTaskId as string, { taskTitle: editTask })
 		setEditTask('')
 		setHighlightedTaskId('')
-		setSelectedTask({})
 	}
 
-	const removeTask = async () => {
+	// Function to remove a task by its ID
+	const removeTask = async (taskId: string) => {
 		const confirmDelete = await Swal.fire({
 			title: 'Are you sure?',
 			text: 'This action is irreversible!',
@@ -284,10 +268,8 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 		})
 
 		if (confirmDelete.isConfirmed) {
-			await deleteTaskById(selectedTask?.id)
-			setEditTask('')
+			await deleteTaskById(taskId)
 			setHighlightedTaskId(null)
-			setSelectedTask({})
 			Swal.fire({
 				title: 'Deleted!',
 				text: 'Your task has been deleted.',
@@ -298,31 +280,44 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 		}
 	}
 
-	const highlightTask = (task: any) => {
-		setHighlightedTaskId(task.id)
-		setEditTask(task.title)
+	// Function to highlight a specific task
+	const highlightTask = (taskId: string) => {
+		setHighlightedTaskId(taskId)
+	}
+
+	const viewTaskModal = (task: any) => {
 		setSelectedTask(task)
-	}
-
-	const viewTaskModal = () => {
 		setIsViewTaskModalVisible(true)
-		setEditTask(selectedTask?.title)
+		setHighlightedTaskId(null)
 	}
 
-	const onMoveTask = () => {
+	const onMoveTask = (task: any) => {
+		setSelectedTask(task)
 		setShowMoveModal(true)
+		setHighlightedTaskId(null)
 	}
 
-	const onCopyTask = () => {
+	const onCopyTask = (task: any) => {
+		setSelectedTask(task)
 		setShowCopyModal(true)
+		setHighlightedTaskId(null)
 	}
 
 	const handleStatusChange = async (status: string) => {
 		await updateTaskStatus(selectedTask.id, { taskStatus: status })
-		setHighlightedTaskId(null)
-		setEditTask('')
-		setSelectedTask({})
-		// setKanbanState((prevState) => formatTasks([...tasks]))
+		setKanbanState((prevState) => formatTasks([...tasks]))
+	}
+
+	const addColumn = async (title: string) => {
+		if (title.trim() === '') return
+		const data: any = {
+			name: title
+		}
+		await createTaskColumn(data)
+		setKanbanState((prevState) => ({
+			...prevState,
+			[title]: [],
+		}))
 	}
 
 	return (
@@ -330,6 +325,8 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 			value={{
 				newTaskTitle,
 				setNewTaskTitle,
+				createPlaceholderCard,
+				removePlaceholderCard,
 				addTaskToSection,
 				removeTask,
 				highlightTask,
@@ -337,6 +334,7 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 				setIsViewTaskModalVisible,
 				viewTaskModal,
 				kanbanState,
+				isAddCardVisible,
 				highlightedTaskId,
 				selectedTask,
 				setKanbanState,
@@ -346,31 +344,24 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 				setEditTask,
 				updateTask,
 				moveCard,
+				createTask,
 				handleDrop,
 				showMoveModal,
 				setShowMoveModal,
 				updateTaskById,
 				onMoveTask,
-				listName,
-				setListName,
-				handleAddList,
-				editableRef,
-				taskCardDimensions,
-				setTaskCardDimensions,
-				isFormVisible,
-				setIsFormVisible,
-				openColumnStatus,
-				setOpenColumnStatus,
+				onCopyTask,
 				showCopyModal,
 				setShowCopyModal,
-				onCopyTask,
-				createTask,
+				loading,
+				addColumn,
 			}}>
 			{children}
 		</KanbanContext.Provider>
 	)
 }
 
+// Create a custom hook for easier access to the context
 export const useKanbanContext = () => {
 	const context = useContext(KanbanContext)
 	if (!context) {

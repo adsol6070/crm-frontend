@@ -7,6 +7,10 @@
 	height: auto;
 }
 
+.modalDesign {
+	border-radius: 20px !important;
+}
+
 .colDesign {
 	margin: 0px 5px;
 	background-color: currentcolor;
@@ -17,6 +21,11 @@
 	padding: 25px 10px 10px 10px;
 	height: auto;
 	overflow-y: scroll;
+}
+
+.commentsDesign {
+	overflow-y: auto;
+	height: 20vh;
 }
 
 ::-webkit-scrollbar {
@@ -68,6 +77,15 @@
 .boardCard:hover {
 	transform: translateY(-4px);
 	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.commentLink {
+	cursor: pointer;
+	margin: 0px 5px;
+}
+
+.commentLink:hover {
+	text-decoration: underline;
 }
 
 .addNewStatusCard {
@@ -171,13 +189,30 @@
     outline: none;
     border: none;
     text-align: left;
-    padding: 30px 20px;
+    padding: 25px 20px;
     border-radius: 5px;
 	margin-bottom: 10px;
 }
 
 .descriptionBtn:hover {
 	background-color: #031c431a;
+	color: black;
+}
+
+.editDescriptionBtn {
+	background-color: #2356af0f;
+    color: black;
+	padding: 5px 10px;
+    text-decoration: none;
+    outline: none;
+    border: none;
+    text-align: left;
+    border-radius: 5px;
+	margin-bottom: 10px;
+}
+
+.editDescriptionBtn:hover {
+	background-color: #0631762f;
 	color: black;
 }
 

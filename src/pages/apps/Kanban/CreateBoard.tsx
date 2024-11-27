@@ -202,14 +202,12 @@ const CreateBoard = () => {
 								{board.boardDescription}
 							</Card.Text>
 						</div>
-						<div className={styles.buttonContainer}>
-							<Button
-								// variant="outline-light"
-								size="sm"
+						<div className={`${styles.buttonContainer}`}>
+							<button
 								className={styles.viewButton}
 								onClick={() => handleViewBoard(board.id)}>
 								View Board
-							</Button>
+							</button>
 							<div className={styles.iconButtons}>
 							{hasPermission(permissions, 'Task', 'Edit') && 
 								<FaEdit

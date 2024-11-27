@@ -1,24 +1,33 @@
+import { Dispatch, SetStateAction } from 'react'
+
 export interface ColumnProps {
+	columnId: string
 	title: string
 	children: React.ReactNode
 	status: keyof KanbanState
 	taskCount: number
+	isFormVisible: boolean
+	setOpenColumnStatus: Dispatch<SetStateAction<string | null>>
 }
 
 export interface CardType {
-	id: string
+	id: string | undefined
 	title: string
 	description?: string
+	taskHistory?: string
 	status?: string
 	createdAt?: string
 	isCreatingMode?: boolean
 }
 
+export interface ColumnType {
+	id: string
+	name: string
+	cards: CardType[]
+}
+
 export interface KanbanState {
-	todo: CardType[]
-	inProgress: CardType[]
-	needReview: CardType[]
-	done: CardType[]
+	columns: ColumnType[]
 }
 
 export interface Task {
@@ -26,17 +35,16 @@ export interface Task {
 	tenantID: string
 	taskDescription: string
 	taskStatus: string
+	taskHistory: string
 	taskTitle: string
 	created_at: string
 	updated_at: string
 }
 
 export interface CardProps {
-	key: string
 	card: CardType
 	index: number
 	status: keyof KanbanState
-	isHighlighted: boolean
 }
 
 export type CreateData = Pick<
