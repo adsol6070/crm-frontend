@@ -52,6 +52,7 @@ const useTask = (boardId: string) => {
 			return response[0]?.taskStatus ? response[0].taskStatus : []
 		} catch (error) {
 			console.error('Failed to get task columns:', error)
+			toast.error('Failed to get task columns')
 		} finally {
 			setLoading(false)
 		}

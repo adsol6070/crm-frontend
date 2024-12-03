@@ -1,4 +1,4 @@
-import { FormEvent, KeyboardEvent, useRef, useState } from 'react'
+import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from 'react'
 import { useKanbanContext } from '../KanbanContext'
 import { AiOutlineClose, AiOutlinePlus } from 'react-icons/ai'
 import { LuMoveRight } from 'react-icons/lu'
@@ -7,6 +7,7 @@ import { FiArrowRight } from 'react-icons/fi'
 import { MdContentCopy } from 'react-icons/md'
 import { RiDeleteBinLine } from 'react-icons/ri'
 import Select from 'react-select'
+import useTask from '../useTask'
 
 const Overlay = () => {
 	const textareaRef = useRef<HTMLTextAreaElement | null>(null)
@@ -20,7 +21,21 @@ const Overlay = () => {
 		updateTask,
 		toggleModal,
 		removeTask,
+		handleStatusChange,
+		selectedTask
 	} = useKanbanContext()
+	const [status, setStatus] = useState(selectedTask.status);
+	const { getTaskColumns } = useTask(selectedTask.boardId);
+	const [columns, setColumns] = useState<{ id: string; name: string }[]>([]);
+
+	const getCols = async () => {
+		const cols = await getTaskColumns();
+		setColumns(cols)
+	}
+
+	useEffect(() => {
+		getCols();
+	}, [])
 
 	const toggleMoveDiv = () => {
 		setIsMoveDivVisible(!isMoveDivVisible)
@@ -37,6 +52,12 @@ const Overlay = () => {
 		event.preventDefault()
 		updateTask()
 	}
+
+	const handleMoveClick = (columnID: string) => {
+		if (status) {
+			handleStatusChange(status, columnID);
+		}
+	};
 
 	return (
 		<div
@@ -254,7 +275,9 @@ const Overlay = () => {
 											onMouseLeave={(e) => {
 												e.currentTarget.style.background = 'transparent'
 												e.currentTarget.style.color = '#8C9BAB'
-											}}>
+											}}
+											onClick={() => setIsMoveDivVisible(false)}
+										>
 											<AiOutlineClose color="#8c9bab" size={16} />
 										</button>
 									</header>
@@ -281,28 +304,65 @@ const Overlay = () => {
 													<BsStars />
 													Suggested
 												</h4>
+												{/* <div
+													style={{
+														display: 'flex',
+														flexDirection: 'column',
+														rowGap: '8px',
+													}}>
+													{columns.map((col, index) => {
+														return (
+															<>
+																<button
+																	style={{
+																		justifyContent: 'left',
+																		display: 'inline-flex',
+																		alignItems: 'center',
+																		padding: '6px 12px',
+																		borderRadius: '3px',
+																		textDecoration: 'none',
+																		border: 'none',
+																		backgroundColor: '#a1bdd914',
+																		color: '#B6C2CF',
+																		fontSize: '14px',
+																	}}
+																	onClick={() => { handleStatusChange(col.name, col.id) }} >
+																	<FiArrowRight size={20} />
+																	<div style={{ marginLeft: '8px' }}>{col.name}</div>
+																</button>
+															</>
+														)
+													})}
+												</div> */}
 												<div
 													style={{
 														display: 'flex',
 														flexDirection: 'column',
 														rowGap: '8px',
 													}}>
-													<button
-														style={{
-															justifyContent: 'left',
-															display: 'inline-flex',
-															alignItems: 'center',
-															padding: '6px 12px',
-															borderRadius: '3px',
-															textDecoration: 'none',
-															border: 'none',
-															backgroundColor: '#a1bdd914',
-															color: '#B6C2CF',
-															fontSize: '14px',
-														}}>
-														<FiArrowRight size={20} />
-														<div style={{ marginLeft: '8px' }}>InProgress</div>
-													</button>
+													{columns.map((col, index) => {
+														return (
+															<>
+																<button
+																	style={{
+																		justifyContent: 'left',
+																		display: 'inline-flex',
+																		alignItems: 'center',
+																		padding: '6px 12px',
+																		borderRadius: '3px',
+																		textDecoration: 'none',
+																		border: 'none',
+																		backgroundColor: '#a1bdd914',
+																		color: '#B6C2CF',
+																		fontSize: '14px',
+																	}}
+																	onClick={() => { handleStatusChange(col.name, col.id) }} >
+																	<FiArrowRight size={20} />
+																	<div style={{ marginLeft: '8px' }}>{col.name}</div>
+																</button>
+															</>
+														)
+													})}
 												</div>
 											</div>
 											<div style={{ marginTop: '12px' }}>
@@ -682,7 +742,9 @@ const Overlay = () => {
 														borderRadius: '3px',
 														fontSize: '14px',
 														fontWeight: 600,
-													}}>
+													}}
+												// onClick={() => {handleMoveClick(columnId)}}
+												>
 													Move
 												</button>
 											</div>

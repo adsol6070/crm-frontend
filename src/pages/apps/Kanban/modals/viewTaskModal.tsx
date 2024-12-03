@@ -65,6 +65,8 @@ const ViewTaskModal = ({
 		const cols = await getTaskColumns();
 		setColumns(cols)
 	}
+	console.log("columns ", columns)
+	console.log("task ", task)
 
 	const { setSelectedTask } = useKanbanContext()
 
@@ -372,7 +374,7 @@ const ViewTaskModal = ({
 																				lineHeight: '16px',
 																				color: '#9FADBC',
 																			}}
-																			>
+																		>
 																			{status || 'Select Status'} <RiArrowDropDownLine size={24} />
 																		</span>
 																	</span>
@@ -966,21 +968,21 @@ const ViewTaskModal = ({
 																									style={{ width: 30, objectFit: 'cover', margin: '6px 4px' }}
 																								/>
 																							</span>
-																							<span className="me-1" style={{color: "#b6c2cf"}}>
+																							<span className="me-1" style={{ color: "#b6c2cf" }}>
 																								<strong>{user.firstname} {user.lastname}</strong>
 																							</span>
 																							{activity.action === 'Created' && status.addedStatus && (
-																								<span style={{color: "#9fadbc"}}>added this card with the status <strong>{status.addedStatus}</strong>.</span>
+																								<span style={{ color: "#9fadbc" }}>added this card with the status <strong>{status.addedStatus}</strong>.</span>
 																							)}
 																							{activity.action === 'Updated' && status.prevStatus && status.upcomingStatus && (
-																								<span style={{color: "#9fadbc"}}>
+																								<span style={{ color: "#9fadbc" }}>
 																									changed the status from <strong>{status.prevStatus}</strong> to <strong>{status.upcomingStatus}</strong>.
 																								</span>
 																							)}
 																							{activity.action === 'Updated' && !status.prevStatus && !status.upcomingStatus && (
-																								<span style={{color: "#9fadbc"}}>updated this card's details.</span>
+																								<span style={{ color: "#9fadbc" }}>updated this card's details.</span>
 																							)}
-																							<div className="fs-6 ms-2" style={{color: "#9fadbc"}}>{formatDate(timestamp)}</div>
+																							<div className="fs-6 ms-2" style={{ color: "#9fadbc" }}>{formatDate(timestamp)}</div>
 																						</div>
 																					);
 																				})
@@ -998,8 +1000,8 @@ const ViewTaskModal = ({
 																					<div className='mb-1'>
 																						<span>
 																							<img src={generatePlaceholderImage(`${comment.author.firstname} ${comment.author.lastname}`)} alt="Profile" className="rounded-circle" style={{ width: 30, objectFit: 'cover', margin: "6px 4px" }} /></span>
-																						<span className='fs-4 fw-bolder fs-5 me-1' style={{color: "#b6c2cf"}}>{comment.author.firstname} {comment.author.lastname}</span>
-																						<span className='fs-6' style={{color: "#9fadbc"}}>{formatDate(comment.created_at)}</span>
+																						<span className='fs-4 fw-bolder fs-5 me-1' style={{ color: "#b6c2cf" }}>{comment.author.firstname} {comment.author.lastname}</span>
+																						<span className='fs-6' style={{ color: "#9fadbc" }}>{formatDate(comment.created_at)}</span>
 																						{comment.is_edited && <span className='fs-6'> (Edited)</span>}
 																					</div>
 																					{editingCommentIndex === index ? (
@@ -1121,8 +1123,8 @@ const ViewTaskModal = ({
 																								backgroundColor: '#22272B',
 																							}}>{comment.content}</div>
 																							<div className='mt-1'>
-																								<span className={styles.commentLink} style={{color: "#9fadbc"}} onClick={() => handleEditCommentClick(index)}><GoDotFill />Edit</span>
-																								<span className={styles.commentLink} style={{color: "#9fadbc"}} onClick={() => handleDeleteComment(index)}><GoDotFill />Delete</span>
+																								<span className={styles.commentLink} style={{ color: "#9fadbc" }} onClick={() => handleEditCommentClick(index)}><GoDotFill />Edit</span>
+																								<span className={styles.commentLink} style={{ color: "#9fadbc" }} onClick={() => handleDeleteComment(index)}><GoDotFill />Delete</span>
 																							</div>
 																						</>
 																					)}
@@ -1130,7 +1132,7 @@ const ViewTaskModal = ({
 																				</div>))
 																			}
 																		</div>
-																	) : <div className='my-3' style={{color: "#9fadbc"}}><p>No comments available</p></div>}
+																	) : <div className='my-3' style={{ color: "#9fadbc" }}><p>No comments available</p></div>}
 																</div>
 															</div>
 														</div>
