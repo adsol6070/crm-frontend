@@ -1,6 +1,5 @@
-import { Dispatch, SetStateAction } from 'react'
-
 export interface ColumnProps {
+	id: string
 	columnId: string
 	title: string
 	children: React.ReactNode
@@ -13,15 +12,17 @@ export interface CardType {
 	id: string | undefined
 	title: string
 	description?: string
-	taskHistory?: string
+	taskHistory?: any[]
 	status?: string
 	createdAt?: string
 	isCreatingMode?: boolean
+	columnId?: string
 }
 
 export interface ColumnType {
 	id: string
 	name: string
+	order?: number
 	cards: CardType[]
 }
 

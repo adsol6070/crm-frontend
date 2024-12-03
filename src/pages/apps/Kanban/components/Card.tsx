@@ -27,6 +27,7 @@ const KanbanCard = ({ card, index, status, columnId }: CardProps) => {
 	})
 
 	const [isCardHovered, setIsCardHovered] = useState<boolean>(false)
+	const [isDescriptionHovered, setIsDescriptionHovered] = useState(false)
 
 	const [allComments, setAllComments] = useState<boolean>(false)
 	const getComments = async () => {
@@ -48,7 +49,7 @@ const KanbanCard = ({ card, index, status, columnId }: CardProps) => {
 
 	const prepareTaskForEditing = (e: React.MouseEvent<HTMLDivElement>) => {
 		e.stopPropagation()
-		highlightTask(card)
+		highlightTask({ ...card, columnId })
 
 		const liElement = e.currentTarget.closest('li')
 		if (liElement) {
@@ -92,7 +93,7 @@ const KanbanCard = ({ card, index, status, columnId }: CardProps) => {
 					onClick={(e) => {
 						setHighlightedTaskId(null)
 						setEditTask('')
-						setSelectedTask(card)
+						setSelectedTask({ ...card, columnId })
 						toggleModal('viewTask', true)
 					}}>
 					<div
@@ -129,12 +130,50 @@ const KanbanCard = ({ card, index, status, columnId }: CardProps) => {
 								{card.title}
 								<br />
 								{card.description && (
-									<span className="mx-1">
-										<MdOutlineSubject
-											style={{ color: '#000', fontSize: '16px' }}
-										/>
-									</span>
+									<>
+										<span
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												position: 'relative',
+											}}>
+											<MdOutlineSubject
+												style={{
+													color: '#000',
+													fontSize: '16px',
+													marginRight: '4px',
+												}}
+												onMouseEnter={() => setIsDescriptionHovered(true)}
+												onMouseLeave={() => setIsDescriptionHovered(false)}
+											/>
+											<span
+												style={{
+													position: 'absolute',
+													bottom: '-18px',
+													left: '-5px',
+													background: '#555555',
+													lineHeight: '15px',
+													padding: '2px 5px',
+													borderRadius: '5px',
+													fontSize: '13px',
+													color: 'white',
+													wordSpacing: '1px',
+													opacity: isDescriptionHovered ? 1 : 0,
+													transform: isDescriptionHovered
+														? 'translateY(0)'
+														: 'translateY(-10px)',
+													visibility: isDescriptionHovered
+														? 'visible'
+														: 'hidden',
+													transition:
+														'opacity 0.1s ease, transform 0.3s ease, visibility 0.3s ease',
+												}}>
+												This card has a description.
+											</span>
+										</span>
+									</>
 								)}
+
 								{getTaskCommentsCount(allComments, card.id) !== 0 && (
 									<span>
 										<FaRegComments

@@ -55,12 +55,30 @@ function TaskService() {
 		},
 
 		createTaskColumn: (boardId: string, data: any) => {
-			return HttpClient.post(`/task/taskColumn/${boardId}`, data, { headers: getAuthHeaders() })
+			return HttpClient.post(`/task/taskColumn/${boardId}`, data, {
+				headers: getAuthHeaders(),
+			})
 		},
-		
+
 		// Delete a task by ID
 		getTaskColumn: (boardId: string) => {
-			return HttpClient.get(`/task/taskColumn/${boardId}`, { headers: getAuthHeaders() })
+			return HttpClient.get(`/task/taskColumn/${boardId}`, {
+				headers: getAuthHeaders(),
+			})
+		},
+		updateTaskColumn: (columnId: string, data: any) => {
+			return HttpClient.patch(`/task/taskColumn/${columnId}`, data, {
+				headers: getAuthHeaders(),
+			})
+		},
+		updateColumnOrder: (orderedColumns: any, boardId: string) => {
+			return HttpClient.patch(
+				`/task/columnOrder/${boardId}`,
+				{ orderedColumns },
+				{
+					headers: getAuthHeaders(),
+				}
+			)
 		},
 	}
 }

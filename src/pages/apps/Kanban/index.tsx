@@ -1,54 +1,55 @@
 import { useEffect, useRef } from 'react'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
+import { useDrop } from 'react-dnd'
 import { ToastContainer } from 'react-toastify'
-import { useKanbanContext } from './KanbanContext'
 import { PageBreadcrumb } from '@/components'
+import { useKanbanContext } from './KanbanContext'
 import ViewTaskModal from './modals/viewTaskModal'
-import MoveModal from './modals/moveModal'
 import CopyModal from './modals/copyModal'
 import Column from './components/Column'
 import KanbanCard from './components/Card'
 import Overlay from './components/Overlay'
 import AddListForm from './components/AddListForm'
+import styled from 'styled-components'
 import 'react-toastify/ReactToastify.css'
+import { taskApi } from '@/common'
 
-const styles = {
-	container: {
-		backgroundImage: 'url("/images/kanban-background.png")',
-		backgroundSize: 'cover',
-		backgroundRepeat: 'no-repeat',
-		backgroundPosition: 'center',
-		padding: '1rem',
-	},
-	board: {
-		flexGrow: 1,
-		marginTop: '12px',
-		position: 'relative',
-		height: '77vh',
-	},
-	columnList: {
-		position: 'absolute',
-		bottom: 0,
-		left: 0,
-		right: 0,
-		top: '-2px',
-		marginBottom: '8px',
-		padding: '2px 6px 8px',
-		overflowX: 'auto',
-		overflowY: 'hidden',
-		scrollbarColor: '#fff6 #00000026',
-		scrollbarWidth: 'auto',
-		userSelect: 'none',
-		whiteSpace: 'nowrap',
-		display: 'flex',
-		listStyle: 'none',
-	},
-}
+const Container = styled.div`
+	background-image: url('/images/kanban-background.png');
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
+	padding: 1rem;
+`
+
+const Board = styled.div`
+	flex-grow: 1;
+	margin-top: 12px;
+	position: relative;
+	height: 77vh;
+`
+
+const ColumnList = styled.ol`
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	top: -2px;
+	margin-bottom: 8px;
+	padding: 2px 6px 8px;
+	overflow-x: auto;
+	overflow-y: hidden;
+	scrollbar-color: #fff6 #00000026;
+	scrollbar-width: auto;
+	user-select: none;
+	white-space: nowrap;
+	display: flex;
+	list-style: none;
+`
 
 const Kanban = () => {
 	const textareaRef = useRef<HTMLTextAreaElement | null>(null)
 	const {
+		boardId,
 		kanbanState,
 		highlightedTaskId,
 		handleStatusChange,
@@ -58,7 +59,54 @@ const Kanban = () => {
 		updateTaskById,
 		openColumnStatus,
 		createTask,
+		setKanbanState,
 	} = useKanbanContext()
+
+	const [, drop] = useDrop({
+		accept: 'column',
+		drop: async (item, monitor) => {
+			const dragIndex = kanbanState.columns.findIndex(
+				(col) => col.id === item?.columnId
+			)
+			const clientOffset = monitor.getClientOffset()
+			const hoverIndex = kanbanState.columns.findIndex((col, index) => {
+				const rect = document
+					.getElementById(`column-${col.id}`)
+					.getBoundingClientRect()
+				return (
+					clientOffset &&
+					clientOffset.x >= rect.left &&
+					clientOffset.x <= rect.right
+				)
+			})
+
+			if (dragIndex === hoverIndex) {
+				return
+			}
+
+			const newColumns = [...kanbanState.columns]
+			const [removed] = newColumns.splice(dragIndex, 1)
+			newColumns.splice(hoverIndex, 0, removed)
+
+			const columnsWithOrder = newColumns.map((col, index) => ({
+				...col,
+				order: index + 1,
+			}))
+
+			setKanbanState({ ...kanbanState, columns: columnsWithOrder })
+
+			const orderedColumns = columnsWithOrder.map((col) => ({
+				columnId: col.id,
+				order: col.order,
+			}))
+
+			try {
+				await taskApi.updateColumnOrder(orderedColumns, boardId)
+			} catch (error) {
+				console.error('Error updating column order:', error)
+			}
+		},
+	})
 
 	useEffect(() => {
 		if (highlightedTaskId && textareaRef.current) {
@@ -72,15 +120,22 @@ const Kanban = () => {
 		}
 	}, [highlightedTaskId])
 
+	const sortedColumns = kanbanState.columns?.length
+		? kanbanState.columns.some((col) => col.order)
+			? kanbanState.columns.sort((a, b) => a.order - b.order)
+			: kanbanState.columns
+		: []
+
 	return (
-		<DndProvider backend={HTML5Backend}>
-			<div style={styles.container}>
+		<>
+			<Container>
 				<ToastContainer />
 				<PageBreadcrumb title="Kanban" subName="Kanban" />
-				<div style={styles.board}>
-					<ol style={styles.columnList}>
-						{kanbanState.columns?.map((column, index) => (
+				<Board>
+					<ColumnList ref={drop}>
+						{sortedColumns?.map((column, index) => (
 							<Column
+								id={`column-${column.id}`}
 								key={index}
 								columnId={column.id}
 								title={column.name || 'Default Status'}
@@ -99,10 +154,9 @@ const Kanban = () => {
 							</Column>
 						))}
 						<AddListForm />
-					</ol>
-				</div>
+					</ColumnList>
+				</Board>
 
-				{/* Modals */}
 				{selectedTask && (
 					<>
 						<ViewTaskModal
@@ -112,14 +166,6 @@ const Kanban = () => {
 							handleStatusChange={handleStatusChange}
 							updateTask={updateTaskById}
 						/>
-
-						<MoveModal
-							show={modalState.moveTask}
-							onHide={() => toggleModal('moveTask', false)}
-							task={selectedTask}
-							handleStatusChange={handleStatusChange}
-						/>
-
 						<CopyModal
 							show={modalState.copyTask}
 							onHide={() => toggleModal('copyTask', false)}
@@ -128,9 +174,9 @@ const Kanban = () => {
 						/>
 					</>
 				)}
-			</div>
+			</Container>
 			{highlightedTaskId && <Overlay />}
-		</DndProvider>
+		</>
 	)
 }
 

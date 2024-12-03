@@ -1,38 +1,30 @@
 import { useState } from 'react'
-import { PageBreadcrumb } from '@/components'
 import { Card, Button, Row, Col, Modal, Form } from 'react-bootstrap'
 import { FaPlus, FaEdit, FaTrashAlt } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 import { useDrag, useDrop, DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import Swal from 'sweetalert2'
 import { useForm, Controller } from 'react-hook-form'
-import * as yup from 'yup'
-import { yupResolver } from '@hookform/resolvers/yup'
-import styles from './kanban.module.css'
-import useBoard from './useBoard'
 import { ToastContainer } from 'react-toastify'
-import 'react-toastify/ReactToastify.css'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { PageBreadcrumb } from '@/components'
 import { usePermissions, useThemeContext } from '@/common'
-import {
-	addNewBoardStyle,
-	addNewBoardTextStyle,
-	boardStyle,
-	hasPermission,
-	textStyle,
-} from '@/utils'
+import { addNewBoardTextStyle, hasPermission } from '@/utils'
+import Swal from 'sweetalert2'
+import * as yup from 'yup'
+import 'react-toastify/ReactToastify.css'
+import useBoard from './useBoard'
+import styles from './kanban.module.css'
 
-// Define color swatches
 const colorOptions = [
 	'#7f8c8d',
 	'#34495e',
 	'#c0392b',
 	'#2980b9',
 	'#01a3a4',
-	'#be2edd'
+	'#be2edd',
 ]
 
-// Validation Schema with Yup
 const schema = yup.object().shape({
 	boardTitle: yup.string().required('Board title is required'),
 	boardDescription: yup
@@ -65,7 +57,7 @@ const CreateBoard = () => {
 	const navigate = useNavigate()
 	const { settings } = useThemeContext()
 	const { permissions } = usePermissions()
-    
+
 	const {
 		control,
 		handleSubmit,
@@ -73,7 +65,7 @@ const CreateBoard = () => {
 		setValue,
 		reset,
 		watch,
-	} = useForm<Board>({
+	} = useForm<{ boardTitle: string; boardDescription: string }>({
 		resolver: yupResolver(schema),
 		defaultValues: {
 			boardTitle: '',
@@ -98,12 +90,15 @@ const CreateBoard = () => {
 	}
 
 	const handleFormSubmit = (data: Board) => {
+		const boardColor =
+			selectedColor ||
+			colorOptions[Math.floor(Math.random() * colorOptions.length)]
 		if (mode === 'create') {
 			const combinedData = {
 				...data,
-				boardColor: selectedColor
+				boardColor,
 			}
-		
+
 			createBoard(combinedData)
 		} else if (mode === 'edit' && currentBoardId) {
 			updateBoard(currentBoardId, data)
@@ -140,7 +135,6 @@ const CreateBoard = () => {
 		}
 	}
 
-	// Navigate to the board view
 	const handleViewBoard = (id: string) => {
 		navigate(`/kanban/${id}`)
 	}
@@ -153,13 +147,13 @@ const CreateBoard = () => {
 
 		const orderedBoards = updatedBoards.map((board, index) => ({
 			boardId: board.id,
-			order: index, 
+			order: index,
 		}))
 
 		updateBoardOrder(orderedBoards)
 	}
 
-	const BoardCard = ({ board, index }: { board: Board; index: number }) => {
+	const BoardCard = ({ board, index }: { board: any; index: number }) => {
 		const [{ isDragging }, dragRef] = useDrag({
 			type: 'BOARD',
 			item: { index },
@@ -180,25 +174,21 @@ const CreateBoard = () => {
 
 		return (
 			<Col
-				ref={(node) => dragRef(dropRef(node))}
+				ref={(node: any) => dragRef(dropRef(node))}
 				style={{ opacity: isDragging ? 0.5 : 1 }}>
 				<Card
 					className={styles.boardCard}
-					// style={boardStyle(settings.theme === 'dark')}
-					style={{backgroundColor: board.boardColor}}
-					>
+					style={{ backgroundColor: board.boardColor }}>
 					<Card.Body className={styles.cardBody}>
 						<div className={styles.cardContent}>
 							<Card.Title
 								className={styles.boardTitle}
-								style={{color: "white"}}
-								>
+								style={{ color: 'white' }}>
 								{board.boardTitle}
 							</Card.Title>
 							<Card.Text
 								className={styles.boardDescription}
-								style={{color: "white"}}
-								>
+								style={{ color: 'white' }}>
 								{board.boardDescription}
 							</Card.Text>
 						</div>
@@ -209,20 +199,20 @@ const CreateBoard = () => {
 								View Board
 							</button>
 							<div className={styles.iconButtons}>
-							{hasPermission(permissions, 'Task', 'Edit') && 
-								<FaEdit
-									className={styles.editIcon}
-									style={{color: "white"}}
-									onClick={() => handleEditBoard(board.id)}
-								/>
-							}
-							{hasPermission(permissions, 'Task', 'Delete') && 
-								<FaTrashAlt
-									className={styles.deleteIcon}
-									style={{color: "white"}}
-									onClick={() => handleDeleteBoard(board.id)}
-								/>
-	}
+								{hasPermission(permissions, 'Task', 'Edit') && (
+									<FaEdit
+										className={styles.editIcon}
+										style={{ color: 'white' }}
+										onClick={() => handleEditBoard(board.id)}
+									/>
+								)}
+								{hasPermission(permissions, 'Task', 'Delete') && (
+									<FaTrashAlt
+										className={styles.deleteIcon}
+										style={{ color: 'white' }}
+										onClick={() => handleDeleteBoard(board.id)}
+									/>
+								)}
 							</div>
 						</div>
 					</Card.Body>
@@ -237,32 +227,29 @@ const CreateBoard = () => {
 			<ToastContainer />
 			<div>
 				<Row xs={1} md={3} lg={4} className="g-3">
-				{hasPermission(permissions, 'Task', 'Read') && 
-					<>
-					{boards.map((board, index) => (
-						<BoardCard key={board.id} board={board} index={index} />
-					))}
-					</>}
-					{hasPermission(permissions, 'Task', 'Create') && 
-					<Col>
-						<Card
-							onClick={handleAddBoard}
-							className={styles.addNewBoardCard}
-							>
-							<Card.Body className="d-flex justify-content-center align-items-center">
-								<FaPlus
-									size={40}
-									color="#007bff"
-									style={addNewBoardTextStyle(settings.theme === 'dark')}
-								/>
-							</Card.Body>
-						</Card>
-					</Col>
-					}
+					{hasPermission(permissions, 'Task', 'Read') && (
+						<>
+							{boards.map((board, index) => (
+								<BoardCard key={board.id} board={board} index={index} />
+							))}
+						</>
+					)}
+					{hasPermission(permissions, 'Task', 'Create') && (
+						<Col>
+							<Card onClick={handleAddBoard} className={styles.addNewBoardCard}>
+								<Card.Body className="d-flex justify-content-center align-items-center">
+									<FaPlus
+										size={40}
+										color="#007bff"
+										style={addNewBoardTextStyle(settings.theme === 'dark')}
+									/>
+								</Card.Body>
+							</Card>
+						</Col>
+					)}
 				</Row>
 			</div>
 
-			{/* Add/Edit Board Modal */}
 			<Modal show={showModal} onHide={handleCloseModal}>
 				<Modal.Header closeButton>
 					<Modal.Title>
