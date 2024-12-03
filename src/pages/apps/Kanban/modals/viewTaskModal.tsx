@@ -12,11 +12,11 @@ import { MdLocationOn } from 'react-icons/md'
 import { FiCreditCard } from 'react-icons/fi'
 import { HiOutlineEye } from 'react-icons/hi'
 import { TiTag } from 'react-icons/ti'
-import { RiArrowDropDownLine } from "react-icons/ri";
+import { RiArrowDropDownLine } from 'react-icons/ri'
 import './modalLoader.css'
 import useTaskComment from '../useTaskComment'
 import { generatePlaceholderImage } from '@/utils'
-import { GoDotFill } from "react-icons/go";
+import { GoDotFill } from 'react-icons/go'
 import styles from '../kanban.module.css'
 import useTask from '../useTask'
 import { useKanbanContext } from '../KanbanContext'
@@ -47,22 +47,29 @@ const ViewTaskModal = ({
 	updateTask,
 }: ViewTaskModalProps) => {
 	const [loading, setLoading] = useState(false)
-	const [status, setStatus] = useState(task.status);
-	const { taskComments, createTaskComment, updateTaskCommentById, deleteTaskCommentById } = useTaskComment(task.id);
+	const [status, setStatus] = useState(task.status)
+	const {
+		taskComments,
+		createTaskComment,
+		updateTaskCommentById,
+		deleteTaskCommentById,
+	} = useTaskComment(task.id)
 	const [description, setDescription] = useState(task.description)
 	const [isEditing, setIsEditing] = useState(false)
 	const [isCommentEditing, setIsCommentEditing] = useState(false)
 	const [tempDescription, setTempDescription] = useState(task.description)
 	const [comments, setComments] = useState<string[]>([])
 	const [newComment, setNewComment] = useState<string>('')
-	const [editingCommentIndex, setEditingCommentIndex] = useState<number | null>(null)
+	const [editingCommentIndex, setEditingCommentIndex] = useState<number | null>(
+		null
+	)
 	const [tempEditComment, setTempEditComment] = useState<string>('')
-	const [showDetails, setShowDetails] = useState(false);
-	const { getTaskColumns } = useTask(task.boardId);
-	const [columns, setColumns] = useState<{ id: string; name: string }[]>([]);
+	const [showDetails, setShowDetails] = useState(false)
+	const { getTaskColumns } = useTask(task.boardId)
+	const [columns, setColumns] = useState<{ id: string; name: string }[]>([])
 
 	const getCols = async () => {
-		const cols = await getTaskColumns();
+		const cols = await getTaskColumns()
 		setColumns(cols)
 	}
 
@@ -74,10 +81,10 @@ const ViewTaskModal = ({
 			const timer = setTimeout(() => {
 				setLoading(false)
 			}, 1000)
-			setStatus(task.status);
-			setDescription(task.description || '');
-			setTempDescription(task.description || '');
-			getCols();
+			setStatus(task.status)
+			setDescription(task.description || '')
+			setTempDescription(task.description || '')
+			getCols()
 			return () => clearTimeout(timer)
 		}
 	}, [show, task])
@@ -89,11 +96,10 @@ const ViewTaskModal = ({
 		setIsEditing(true)
 	}
 
-
 	const handleSaveDescription = () => {
 		setDescription(tempDescription)
 		const data = {
-			taskDescription: tempDescription
+			taskDescription: tempDescription,
 		}
 		updateTask(task.id, data)
 		setIsEditing(false)
@@ -102,7 +108,7 @@ const ViewTaskModal = ({
 	const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
 		if (event.currentTarget === event.target) {
 			onHide()
-			setSelectedTask({})
+			setSelectedTask(null)
 		}
 	}
 
@@ -116,7 +122,7 @@ const ViewTaskModal = ({
 	}
 
 	const handleDeleteComment = async (index: number) => {
-		const commentId = taskComments[index].id;
+		const commentId = taskComments[index].id
 		await deleteTaskCommentById(commentId)
 		setComments(comments.filter((_, idx) => idx !== index))
 	}
@@ -130,7 +136,9 @@ const ViewTaskModal = ({
 		if (editingCommentIndex !== null && tempEditComment.trim()) {
 			const updatedComments = [...comments]
 			updatedComments[editingCommentIndex] = tempEditComment.trim()
-			await updateTaskCommentById(commentId, { content: tempEditComment.trim() })
+			await updateTaskCommentById(commentId, {
+				content: tempEditComment.trim(),
+			})
 			setComments(updatedComments)
 			setEditingCommentIndex(null)
 			setTempEditComment('')
@@ -148,17 +156,17 @@ const ViewTaskModal = ({
 	}
 
 	const formatDate = (dateString: string) => {
-		const date = new Date(dateString);
+		const date = new Date(dateString)
 
 		// Extract components
-		const options = { year: 'numeric', month: 'short', day: 'numeric' };
-		const formattedDate = date.toLocaleDateString(undefined, options);
+		const options = { year: 'numeric', month: 'short', day: 'numeric' }
+		const formattedDate = date.toLocaleDateString(undefined, options)
 		const time = date.toLocaleTimeString(undefined, {
 			hour: '2-digit',
 			minute: '2-digit',
-		});
+		})
 
-		return `${formattedDate}, ${time}`;
+		return `${formattedDate}, ${time}`
 	}
 
 	return (
@@ -236,7 +244,7 @@ const ViewTaskModal = ({
 											(e.currentTarget.style.background = 'transparent')
 										}
 										onClick={() => {
-											setSelectedTask({})
+											setSelectedTask(null)
 											onHide()
 										}}>
 										<AiOutlineClose
@@ -371,9 +379,9 @@ const ViewTaskModal = ({
 																				textTransform: 'capitalize',
 																				lineHeight: '16px',
 																				color: '#9FADBC',
-																			}}
-																			>
-																			{status || 'Select Status'} <RiArrowDropDownLine size={24} />
+																			}}>
+																			{status || 'Select Status'}{' '}
+																			<RiArrowDropDownLine size={24} />
 																		</span>
 																	</span>
 																</span>
@@ -449,12 +457,12 @@ const ViewTaskModal = ({
 																	fontWeight: '500',
 																}}
 																onMouseEnter={(e) =>
-																(e.currentTarget.style.backgroundColor =
-																	'#a6c5e229')
+																	(e.currentTarget.style.backgroundColor =
+																		'#a6c5e229')
 																}
 																onMouseLeave={(e) =>
-																(e.currentTarget.style.background =
-																	'#a1bdd914')
+																	(e.currentTarget.style.background =
+																		'#a1bdd914')
 																}>
 																<HiOutlineEye style={{ marginRight: '8px' }} />
 																Watch
@@ -465,7 +473,8 @@ const ViewTaskModal = ({
 												<section
 													style={{
 														display: 'grid',
-														gridTemplateColumns: '[icon] 40px [body] minmax(0, 1fr)',
+														gridTemplateColumns:
+															'[icon] 40px [body] minmax(0, 1fr)',
 														rowGap: '12px',
 														marginBottom: '24px',
 													}}>
@@ -503,7 +512,7 @@ const ViewTaskModal = ({
 																display: 'flex',
 																flexGrow: 1,
 																alignItems: 'center',
-																justifyContent: "space-between",
+																justifyContent: 'space-between',
 																columnGap: '8px',
 															}}>
 															<h3
@@ -516,7 +525,7 @@ const ViewTaskModal = ({
 																}}>
 																Description
 															</h3>
-															{description ?
+															{description ? (
 																<button
 																	style={{
 																		fontSize: '14px',
@@ -537,15 +546,18 @@ const ViewTaskModal = ({
 																	}}
 																	onClick={handleEditClick}
 																	onMouseEnter={(e) =>
-																		(e.currentTarget.style.backgroundColor = '#a6c5e229')
+																		(e.currentTarget.style.backgroundColor =
+																			'#a6c5e229')
 																	}
 																	onMouseLeave={(e) =>
-																		(e.currentTarget.style.background = '#a1bdd914')
-																	}
-																>
+																		(e.currentTarget.style.background =
+																			'#a1bdd914')
+																	}>
 																	Edit
-																</button> : ""
-															}
+																</button>
+															) : (
+																''
+															)}
 														</div>
 														<div></div>
 													</hgroup>
@@ -586,8 +598,9 @@ const ViewTaskModal = ({
 																			color: '#b6c2cf',
 																		}}
 																		value={tempDescription}
-																		onChange={(e) => setTempDescription(e.target.value)}
-																	></textarea>
+																		onChange={(e) =>
+																			setTempDescription(e.target.value)
+																		}></textarea>
 																</div>
 																<div
 																	style={{
@@ -616,12 +629,13 @@ const ViewTaskModal = ({
 																		}}
 																		onClick={handleSaveDescription}
 																		onMouseEnter={(e) =>
-																			(e.currentTarget.style.backgroundColor = '#0c66e44d')
+																			(e.currentTarget.style.backgroundColor =
+																				'#0c66e44d')
 																		}
 																		onMouseLeave={(e) =>
-																			(e.currentTarget.style.background = '#579DFF')
-																		}
-																	>
+																			(e.currentTarget.style.background =
+																				'#579DFF')
+																		}>
 																		Save
 																	</button>
 																	<button
@@ -644,10 +658,12 @@ const ViewTaskModal = ({
 																			fontWeight: 600,
 																		}}
 																		onMouseEnter={(e) =>
-																			(e.currentTarget.style.backgroundColor = '#a6c5e229')
+																			(e.currentTarget.style.backgroundColor =
+																				'#a6c5e229')
 																		}
 																		onMouseLeave={(e) =>
-																			(e.currentTarget.style.background = 'transparent')
+																			(e.currentTarget.style.background =
+																				'transparent')
 																		}
 																		onClick={handleCancelEdit}>
 																		Cancel
@@ -664,7 +680,9 @@ const ViewTaskModal = ({
 																				justifyContent: 'space-between',
 																				alignItems: 'center',
 																			}}>
-																			<p style={{ color: '#B6C2CF' }}>{description}</p>
+																			<p style={{ color: '#B6C2CF' }}>
+																				{description}
+																			</p>
 																		</div>
 																	</div>
 																) : (
@@ -685,12 +703,13 @@ const ViewTaskModal = ({
 																		}}
 																		onClick={() => setIsEditing(true)}
 																		onMouseEnter={(e) =>
-																			(e.currentTarget.style.backgroundColor = '#a6c5e229')
+																			(e.currentTarget.style.backgroundColor =
+																				'#a6c5e229')
 																		}
 																		onMouseLeave={(e) =>
-																			(e.currentTarget.style.background = '#a1bdd914')
-																		}
-																	>
+																			(e.currentTarget.style.background =
+																				'#a1bdd914')
+																		}>
 																		Add a more detailed description...
 																	</button>
 																)}
@@ -782,14 +801,17 @@ const ViewTaskModal = ({
 																	backgroundColor: '#a1bdd914',
 																	fontWeight: 600,
 																}}
-																onClick={() => setShowDetails((prev: any) => !prev)}
+																onClick={() =>
+																	setShowDetails((prev: any) => !prev)
+																}
 																onMouseEnter={(e) =>
-																	(e.currentTarget.style.backgroundColor = '#a6c5e229')
+																	(e.currentTarget.style.backgroundColor =
+																		'#a6c5e229')
 																}
 																onMouseLeave={(e) =>
-																	(e.currentTarget.style.background = '#a1bdd914')
-																}
-															>
+																	(e.currentTarget.style.background =
+																		'#a1bdd914')
+																}>
 																{showDetails ? 'Hide Details' : 'Show Details'}
 															</button>
 														</div>
@@ -850,8 +872,9 @@ const ViewTaskModal = ({
 																					}}
 																					rows={2}
 																					value={newComment}
-																					onChange={(e) => setNewComment(e.target.value)}
-																				></textarea>
+																					onChange={(e) =>
+																						setNewComment(e.target.value)
+																					}></textarea>
 																			</div>
 																			<div
 																				style={{
@@ -880,12 +903,13 @@ const ViewTaskModal = ({
 																					}}
 																					onClick={handleAddComment}
 																					onMouseEnter={(e) =>
-																						(e.currentTarget.style.backgroundColor = '#0c66e44d')
+																						(e.currentTarget.style.backgroundColor =
+																							'#0c66e44d')
 																					}
 																					onMouseLeave={(e) =>
-																						(e.currentTarget.style.background = '#579DFF')
-																					}
-																				>
+																						(e.currentTarget.style.background =
+																							'#579DFF')
+																					}>
 																					Add
 																				</button>
 																				<button
@@ -908,229 +932,371 @@ const ViewTaskModal = ({
 																						fontWeight: 600,
 																					}}
 																					onMouseEnter={(e) =>
-																						(e.currentTarget.style.backgroundColor = '#a6c5e229')
+																						(e.currentTarget.style.backgroundColor =
+																							'#a6c5e229')
 																					}
 																					onMouseLeave={(e) =>
-																						(e.currentTarget.style.background = 'transparent')
+																						(e.currentTarget.style.background =
+																							'transparent')
 																					}
-																					onClick={() => { setIsCommentEditing(false) }}>
+																					onClick={() => {
+																						setIsCommentEditing(false)
+																					}}>
 																					Cancel
 																				</button>
 																			</div>
 																		</>
 																	) : (
 																		<>
-																			<button style={{
-																				width: '100%',
-																				borderRadius: '8px',
-																				border: 'none',
-																				outline: 'none',
-																				boxSizing: 'border-box',
-																				fontSize: '14px',
-																				fontWeight: 400,
-																				lineHeight: '20px',
-																				padding: '8px 12px',
-																				textAlign: 'left',
-																				marginBottom: '0',
-																				color: '#B6C2CF',
-																				backgroundColor: '#22272B',
-																			}}
-																				onClick={() => setIsCommentEditing(true)}
+																			<button
+																				style={{
+																					width: '100%',
+																					borderRadius: '8px',
+																					border: 'none',
+																					outline: 'none',
+																					boxSizing: 'border-box',
+																					fontSize: '14px',
+																					fontWeight: 400,
+																					lineHeight: '20px',
+																					padding: '8px 12px',
+																					textAlign: 'left',
+																					marginBottom: '0',
+																					color: '#B6C2CF',
+																					backgroundColor: '#22272B',
+																				}}
+																				onClick={() =>
+																					setIsCommentEditing(true)
+																				}
 																				onMouseEnter={(e) =>
-																					(e.currentTarget.style.backgroundColor = '#22272b78')
+																					(e.currentTarget.style.backgroundColor =
+																						'#22272b78')
 																				}
 																				onMouseLeave={(e) =>
-																					(e.currentTarget.style.background = '#22272B')
-																				}
-																			>Write a comment...</button>
-
+																					(e.currentTarget.style.background =
+																						'#22272B')
+																				}>
+																				Write a comment...
+																			</button>
 																		</>
 																	)}
 																</div>
-																<div className="mt-2" aria-live="polite" role="region">
+																<div
+																	className="mt-2"
+																	aria-live="polite"
+																	role="region">
 																	{showDetails && (
 																		<>
-																			{task.taskHistory && Array.isArray(task.taskHistory) ? (
-																				task.taskHistory.map((activity: any, index: number) => {
-																					const user = activity.details?.user || {};
-																					const status = activity.details?.status || {};
-																					const timestamp = activity.timestamp;
+																			{task.taskHistory &&
+																			Array.isArray(task.taskHistory) ? (
+																				task.taskHistory.map(
+																					(activity: any, index: number) => {
+																						const user =
+																							activity.details?.user || {}
+																						const status =
+																							activity.details?.status || {}
+																						const timestamp = activity.timestamp
 
-																					return (
-																						<div key={index} className="mb-2">
-																							<span>
-																								<img
-																									src={generatePlaceholderImage(`${user.firstname} ${user.lastname}`)}
-																									alt="Profile"
-																									className="rounded-circle"
-																									style={{ width: 30, objectFit: 'cover', margin: '6px 4px' }}
-																								/>
-																							</span>
-																							<span className="me-1" style={{color: "#b6c2cf"}}>
-																								<strong>{user.firstname} {user.lastname}</strong>
-																							</span>
-																							{activity.action === 'Created' && status.addedStatus && (
-																								<span style={{color: "#9fadbc"}}>added this card with the status <strong>{status.addedStatus}</strong>.</span>
-																							)}
-																							{activity.action === 'Updated' && status.prevStatus && status.upcomingStatus && (
-																								<span style={{color: "#9fadbc"}}>
-																									changed the status from <strong>{status.prevStatus}</strong> to <strong>{status.upcomingStatus}</strong>.
+																						return (
+																							<div key={index} className="mb-2">
+																								<span>
+																									<img
+																										src={generatePlaceholderImage(
+																											`${user.firstname} ${user.lastname}`
+																										)}
+																										alt="Profile"
+																										className="rounded-circle"
+																										style={{
+																											width: 30,
+																											objectFit: 'cover',
+																											margin: '6px 4px',
+																										}}
+																									/>
 																								</span>
-																							)}
-																							{activity.action === 'Updated' && !status.prevStatus && !status.upcomingStatus && (
-																								<span style={{color: "#9fadbc"}}>updated this card's details.</span>
-																							)}
-																							<div className="fs-6 ms-2" style={{color: "#9fadbc"}}>{formatDate(timestamp)}</div>
-																						</div>
-																					);
-																				})
+																								<span
+																									className="me-1"
+																									style={{ color: '#b6c2cf' }}>
+																									<strong>
+																										{user.firstname}{' '}
+																										{user.lastname}
+																									</strong>
+																								</span>
+																								{activity.action ===
+																									'Created' &&
+																									status.addedStatus && (
+																										<span
+																											style={{
+																												color: '#9fadbc',
+																											}}>
+																											added this card with the
+																											status{' '}
+																											<strong>
+																												{status.addedStatus}
+																											</strong>
+																											.
+																										</span>
+																									)}
+																								{activity.action ===
+																									'Updated' &&
+																									status.prevStatus &&
+																									status.upcomingStatus && (
+																										<span
+																											style={{
+																												color: '#9fadbc',
+																											}}>
+																											changed the status from{' '}
+																											<strong>
+																												{status.prevStatus}
+																											</strong>{' '}
+																											to{' '}
+																											<strong>
+																												{status.upcomingStatus}
+																											</strong>
+																											.
+																										</span>
+																									)}
+																								{activity.action ===
+																									'Updated' &&
+																									!status.prevStatus &&
+																									!status.upcomingStatus && (
+																										<span
+																											style={{
+																												color: '#9fadbc',
+																											}}>
+																											updated this card's
+																											details.
+																										</span>
+																									)}
+																								<div
+																									className="fs-6 ms-2"
+																									style={{ color: '#9fadbc' }}>
+																									{formatDate(timestamp)}
+																								</div>
+																							</div>
+																						)
+																					}
+																				)
 																			) : (
-																				<p className="text-muted">No activity history available.</p>
+																				<p className="text-muted">
+																					No activity history available.
+																				</p>
 																			)}
 																		</>
 																	)}
 																</div>
 																<div>
 																	{taskComments.length > 0 ? (
-																		<div className='my-3'>
-																			{taskComments.map((comment: any, index: number) => (
-																				<div className='mb-2'>
-																					<div className='mb-1'>
-																						<span>
-																							<img src={generatePlaceholderImage(`${comment.author.firstname} ${comment.author.lastname}`)} alt="Profile" className="rounded-circle" style={{ width: 30, objectFit: 'cover', margin: "6px 4px" }} /></span>
-																						<span className='fs-4 fw-bolder fs-5 me-1' style={{color: "#b6c2cf"}}>{comment.author.firstname} {comment.author.lastname}</span>
-																						<span className='fs-6' style={{color: "#9fadbc"}}>{formatDate(comment.created_at)}</span>
-																						{comment.is_edited && <span className='fs-6'> (Edited)</span>}
-																					</div>
-																					{editingCommentIndex === index ? (
-																						<>
-																							<div
-																								style={{
-																									padding: '2px',
-																									border: 'none',
-																									display: 'flex',
-																									flexDirection: 'column',
-																									minWidth: '272px',
-																									height: 'auto',
-																									backgroundColor: '#22272B',
-																									boxSizing: 'border-box',
-																									borderRadius: '3px',
-																									overflowWrap: 'break-word',
-																								}}>
-																								<textarea
-																									placeholder="Write comment here..."
-																									autoFocus
-																									name={`editComment-${index}`}
+																		<div className="my-3">
+																			{taskComments.map(
+																				(comment: any, index: number) => (
+																					<div className="mb-2">
+																						<div className="mb-1">
+																							<span>
+																								<img
+																									src={generatePlaceholderImage(
+																										`${comment.author.firstname} ${comment.author.lastname}`
+																									)}
+																									alt="Profile"
+																									className="rounded-circle"
 																									style={{
-																										flex: 1,
+																										width: 30,
+																										objectFit: 'cover',
+																										margin: '6px 4px',
+																									}}
+																								/>
+																							</span>
+																							<span
+																								className="fs-4 fw-bolder fs-5 me-1"
+																								style={{ color: '#b6c2cf' }}>
+																								{comment.author.firstname}{' '}
+																								{comment.author.lastname}
+																							</span>
+																							<span
+																								className="fs-6"
+																								style={{ color: '#9fadbc' }}>
+																								{formatDate(comment.created_at)}
+																							</span>
+																							{comment.is_edited && (
+																								<span className="fs-6">
+																									{' '}
+																									(Edited)
+																								</span>
+																							)}
+																						</div>
+																						{editingCommentIndex === index ? (
+																							<>
+																								<div
+																									style={{
+																										padding: '2px',
+																										border: 'none',
+																										display: 'flex',
+																										flexDirection: 'column',
+																										minWidth: '272px',
+																										height: 'auto',
+																										backgroundColor: '#22272B',
+																										boxSizing: 'border-box',
+																										borderRadius: '3px',
+																										overflowWrap: 'break-word',
+																									}}>
+																									<textarea
+																										placeholder="Write comment here..."
+																										autoFocus
+																										name={`editComment-${index}`}
+																										style={{
+																											flex: 1,
+																											border: 'none',
+																											outline: 'none',
+																											resize: 'none',
+																											padding:
+																												'6px 8px 6px 12px',
+																											background: 'transparent',
+																											overflow: 'hidden',
+																											borderRadius: '8px',
+																											boxSizing: 'border-box',
+																											color: '#b6c2cf',
+																										}}
+																										rows={2}
+																										value={tempEditComment}
+																										onChange={(e) =>
+																											setTempEditComment(
+																												e.target.value
+																											)
+																										}></textarea>
+																								</div>
+																								<div
+																									style={{
+																										display: 'flex',
+																										marginTop: '8px',
+																										columnGap: '8px',
+																									}}>
+																									<button
+																										style={{
+																											border: 'none',
+																											backgroundColor:
+																												'#579DFF',
+																											boxShadow: 'none',
+																											color: '#1D2125',
+																											fontSize: '14px',
+																											lineHeight: '20px',
+																											display: 'inline-flex',
+																											boxSizing: 'border-box',
+																											alignItems: 'center',
+																											justifyContent: 'center',
+																											padding: '6px 12px',
+																											borderRadius: '3px',
+																											textDecoration: 'none',
+																											whiteSpace: 'normal',
+																											cursor: 'pointer',
+																											fontWeight: '600',
+																										}}
+																										onClick={() => {
+																											handleSaveComment(
+																												comment.id
+																											)
+																										}}
+																										onMouseEnter={(e) =>
+																											(e.currentTarget.style.backgroundColor =
+																												'#0c66e44d')
+																										}
+																										onMouseLeave={(e) =>
+																											(e.currentTarget.style.background =
+																												'#579DFF')
+																										}>
+																										Save
+																									</button>
+																									<button
+																										style={{
+																											border: 'none',
+																											backgroundColor:
+																												'transparent',
+																											boxShadow: 'none',
+																											fontSize: '14px',
+																											lineHeight: '20px',
+																											display: 'inline-flex',
+																											boxSizing: 'border-box',
+																											alignItems: 'center',
+																											justifyContent: 'center',
+																											padding: '6px 12px',
+																											borderRadius: '3px',
+																											textDecoration: 'none',
+																											whiteSpace: 'normal',
+																											cursor: 'pointer',
+																											color: '#B6C2CF',
+																											fontWeight: 600,
+																										}}
+																										onMouseEnter={(e) =>
+																											(e.currentTarget.style.backgroundColor =
+																												'#a6c5e229')
+																										}
+																										onMouseLeave={(e) =>
+																											(e.currentTarget.style.background =
+																												'transparent')
+																										}
+																										onClick={
+																											handleCancelEditComment
+																										}>
+																										Cancel
+																									</button>
+																								</div>
+																							</>
+																						) : (
+																							<>
+																								<div
+																									style={{
+																										width: '100%',
+																										borderRadius: '8px',
 																										border: 'none',
 																										outline: 'none',
-																										resize: 'none',
-																										padding: '6px 8px 6px 12px',
-																										background: 'transparent',
-																										overflow: 'hidden',
-																										borderRadius: '8px',
 																										boxSizing: 'border-box',
-																										color: '#b6c2cf',
-																									}}
-																									rows={2}
-																									value={tempEditComment}
-																									onChange={(e) => setTempEditComment(e.target.value)}
-																								></textarea>
-																							</div>
-																							<div
-																								style={{
-																									display: 'flex',
-																									marginTop: '8px',
-																									columnGap: '8px',
-																								}}>
-																								<button
-																									style={{
-																										border: 'none',
-																										backgroundColor: '#579DFF',
-																										boxShadow: 'none',
-																										color: '#1D2125',
 																										fontSize: '14px',
+																										fontWeight: 400,
 																										lineHeight: '20px',
-																										display: 'inline-flex',
-																										boxSizing: 'border-box',
-																										alignItems: 'center',
-																										justifyContent: 'center',
-																										padding: '6px 12px',
-																										borderRadius: '3px',
-																										textDecoration: 'none',
-																										whiteSpace: 'normal',
-																										cursor: 'pointer',
-																										fontWeight: '600',
-																									}}
-																									onClick={() => { handleSaveComment(comment.id) }}
-																									onMouseEnter={(e) =>
-																										(e.currentTarget.style.backgroundColor = '#0c66e44d')
-																									}
-																									onMouseLeave={(e) =>
-																										(e.currentTarget.style.background = '#579DFF')
-																									}
-																								>
-																									Save
-																								</button>
-																								<button
-																									style={{
-																										border: 'none',
-																										backgroundColor: 'transparent',
-																										boxShadow: 'none',
-																										fontSize: '14px',
-																										lineHeight: '20px',
-																										display: 'inline-flex',
-																										boxSizing: 'border-box',
-																										alignItems: 'center',
-																										justifyContent: 'center',
-																										padding: '6px 12px',
-																										borderRadius: '3px',
-																										textDecoration: 'none',
-																										whiteSpace: 'normal',
-																										cursor: 'pointer',
+																										padding: '8px 12px',
+																										textAlign: 'left',
+																										marginBottom: '0',
 																										color: '#B6C2CF',
-																										fontWeight: 600,
-																									}}
-																									onMouseEnter={(e) =>
-																										(e.currentTarget.style.backgroundColor = '#a6c5e229')
-																									}
-																									onMouseLeave={(e) =>
-																										(e.currentTarget.style.background = 'transparent')
-																									}
-																									onClick={handleCancelEditComment}>
-																									Cancel
-																								</button>
-																							</div>
-																						</>
-																					) : (
-																						<>
-																							<div style={{
-																								width: '100%',
-																								borderRadius: '8px',
-																								border: 'none',
-																								outline: 'none',
-																								boxSizing: 'border-box',
-																								fontSize: '14px',
-																								fontWeight: 400,
-																								lineHeight: '20px',
-																								padding: '8px 12px',
-																								textAlign: 'left',
-																								marginBottom: '0',
-																								color: '#B6C2CF',
-																								backgroundColor: '#22272B',
-																							}}>{comment.content}</div>
-																							<div className='mt-1'>
-																								<span className={styles.commentLink} style={{color: "#9fadbc"}} onClick={() => handleEditCommentClick(index)}><GoDotFill />Edit</span>
-																								<span className={styles.commentLink} style={{color: "#9fadbc"}} onClick={() => handleDeleteComment(index)}><GoDotFill />Delete</span>
-																							</div>
-																						</>
-																					)}
-
-																				</div>))
-																			}
+																										backgroundColor: '#22272B',
+																									}}>
+																									{comment.content}
+																								</div>
+																								<div className="mt-1">
+																									<span
+																										className={
+																											styles.commentLink
+																										}
+																										style={{ color: '#9fadbc' }}
+																										onClick={() =>
+																											handleEditCommentClick(
+																												index
+																											)
+																										}>
+																										<GoDotFill />
+																										Edit
+																									</span>
+																									<span
+																										className={
+																											styles.commentLink
+																										}
+																										style={{ color: '#9fadbc' }}
+																										onClick={() =>
+																											handleDeleteComment(index)
+																										}>
+																										<GoDotFill />
+																										Delete
+																									</span>
+																								</div>
+																							</>
+																						)}
+																					</div>
+																				)
+																			)}
 																		</div>
-																	) : <div className='my-3' style={{color: "#9fadbc"}}><p>No comments available</p></div>}
+																	) : (
+																		<div
+																			className="my-3"
+																			style={{ color: '#9fadbc' }}>
+																			<p>No comments available</p>
+																		</div>
+																	)}
 																</div>
 															</div>
 														</div>
@@ -1185,12 +1351,12 @@ const ViewTaskModal = ({
 																	fontWeight: '600',
 																}}
 																onMouseEnter={(e) =>
-																(e.currentTarget.style.backgroundColor =
-																	'#a6c5e229')
+																	(e.currentTarget.style.backgroundColor =
+																		'#a6c5e229')
 																}
 																onMouseLeave={(e) =>
-																(e.currentTarget.style.background =
-																	'#a1bdd914')
+																	(e.currentTarget.style.background =
+																		'#a1bdd914')
 																}>
 																<BsPersonAdd
 																	style={{ marginRight: '8px' }}
@@ -1224,12 +1390,12 @@ const ViewTaskModal = ({
 																	fontWeight: '600',
 																}}
 																onMouseEnter={(e) =>
-																(e.currentTarget.style.backgroundColor =
-																	'#a6c5e229')
+																	(e.currentTarget.style.backgroundColor =
+																		'#a6c5e229')
 																}
 																onMouseLeave={(e) =>
-																(e.currentTarget.style.background =
-																	'#a1bdd914')
+																	(e.currentTarget.style.background =
+																		'#a1bdd914')
 																}>
 																<IoPersonOutline
 																	style={{ marginRight: '8px' }}
@@ -1263,12 +1429,12 @@ const ViewTaskModal = ({
 																	fontWeight: '600',
 																}}
 																onMouseEnter={(e) =>
-																(e.currentTarget.style.backgroundColor =
-																	'#a6c5e229')
+																	(e.currentTarget.style.backgroundColor =
+																		'#a6c5e229')
 																}
 																onMouseLeave={(e) =>
-																(e.currentTarget.style.background =
-																	'#a1bdd914')
+																	(e.currentTarget.style.background =
+																		'#a1bdd914')
 																}>
 																<TiTag
 																	style={{ marginRight: '8px' }}
@@ -1302,12 +1468,12 @@ const ViewTaskModal = ({
 																	fontWeight: '600',
 																}}
 																onMouseEnter={(e) =>
-																(e.currentTarget.style.backgroundColor =
-																	'#a6c5e229')
+																	(e.currentTarget.style.backgroundColor =
+																		'#a6c5e229')
 																}
 																onMouseLeave={(e) =>
-																(e.currentTarget.style.background =
-																	'#a1bdd914')
+																	(e.currentTarget.style.background =
+																		'#a1bdd914')
 																}>
 																<IoMdCheckboxOutline
 																	style={{ marginRight: '8px' }}
@@ -1341,12 +1507,12 @@ const ViewTaskModal = ({
 																	fontWeight: '600',
 																}}
 																onMouseEnter={(e) =>
-																(e.currentTarget.style.backgroundColor =
-																	'#a6c5e229')
+																	(e.currentTarget.style.backgroundColor =
+																		'#a6c5e229')
 																}
 																onMouseLeave={(e) =>
-																(e.currentTarget.style.background =
-																	'#a1bdd914')
+																	(e.currentTarget.style.background =
+																		'#a1bdd914')
 																}>
 																<SlClock
 																	style={{ marginRight: '8px' }}
@@ -1380,12 +1546,12 @@ const ViewTaskModal = ({
 																	fontWeight: '600',
 																}}
 																onMouseEnter={(e) =>
-																(e.currentTarget.style.backgroundColor =
-																	'#a6c5e229')
+																	(e.currentTarget.style.backgroundColor =
+																		'#a6c5e229')
 																}
 																onMouseLeave={(e) =>
-																(e.currentTarget.style.background =
-																	'#a1bdd914')
+																	(e.currentTarget.style.background =
+																		'#a1bdd914')
 																}>
 																<GrAttachment
 																	style={{ marginRight: '8px' }}
@@ -1419,12 +1585,12 @@ const ViewTaskModal = ({
 																	fontWeight: '600',
 																}}
 																onMouseEnter={(e) =>
-																(e.currentTarget.style.backgroundColor =
-																	'#a6c5e229')
+																	(e.currentTarget.style.backgroundColor =
+																		'#a6c5e229')
 																}
 																onMouseLeave={(e) =>
-																(e.currentTarget.style.background =
-																	'#a1bdd914')
+																	(e.currentTarget.style.background =
+																		'#a1bdd914')
 																}>
 																<MdLocationOn
 																	style={{ marginRight: '8px' }}
@@ -1458,12 +1624,12 @@ const ViewTaskModal = ({
 																	fontWeight: '600',
 																}}
 																onMouseEnter={(e) =>
-																(e.currentTarget.style.backgroundColor =
-																	'#a6c5e229')
+																	(e.currentTarget.style.backgroundColor =
+																		'#a6c5e229')
 																}
 																onMouseLeave={(e) =>
-																(e.currentTarget.style.background =
-																	'#a1bdd914')
+																	(e.currentTarget.style.background =
+																		'#a1bdd914')
 																}>
 																<FiCreditCard
 																	style={{ marginRight: '8px' }}

@@ -16,6 +16,7 @@ import { formatStringDisplayName } from '@/utils/formatString'
 import { v4 as uuidv4 } from 'uuid'
 
 interface KanbanContextType {
+	boardId: string
 	newTaskTitle: string
 	setNewTaskTitle: Dispatch<SetStateAction<string>>
 	addTaskToSection: (section: string, columnId: string) => Promise<void>
@@ -24,7 +25,7 @@ interface KanbanContextType {
 	kanbanState: KanbanState
 	highlightedTaskId: string | null
 	selectedTask: any
-	setSelectedTask: Dispatch<SetStateAction<{}>>
+	setSelectedTask: Dispatch<SetStateAction<CardType | null>>
 	setKanbanState: Dispatch<SetStateAction<KanbanState>>
 	setHighlightedTaskId: Dispatch<SetStateAction<string | null>>
 	handleStatusChange: (status: string) => void
@@ -80,6 +81,7 @@ interface KanbanContextType {
 		modalName: 'viewTask' | 'moveTask' | 'copyTask',
 		isVisible: boolean
 	) => void
+	getTaskColumns: () => Promise<any>
 }
 
 interface ModalState {
@@ -115,7 +117,7 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 	const [highlightedTaskId, setHighlightedTaskId] = useState<string | null>(
 		null
 	)
-	const [selectedTask, setSelectedTask] = useState({})
+	const [selectedTask, setSelectedTask] = useState<CardType | null>(null)
 	const [modalState, setModalState] = useState<ModalState>({
 		viewTask: false,
 		moveTask: false,
@@ -140,7 +142,10 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 		if (columnFormState.columnName.trim() === '') {
 			return
 		}
-		await createTaskColumn({ id: uuidv4(), name: columnFormState.columnName })
+		await createTaskColumn({
+			id: uuidv4(),
+			name: columnFormState.columnName,
+		})
 		fetchColumns()
 		setColumnFormState((prevState) => ({ ...prevState, columnName: '' }))
 	}
@@ -204,16 +209,18 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 						name: column.name,
 						cards: tasks
 							? tasks
-								.filter((task) => task.columnId === column.id)
-								.map((task) => ({
-									id: task?.id,
-									title: task?.taskTitle,
-									status: formatStringDisplayName(task?.taskStatus),
-									description: task?.taskDescription,
-									taskHistory: task?.taskHistory,
-									createdAt: task?.created_at,
-								}))
+									.filter((task) => task.columnId === column.id)
+									.map((task) => ({
+										id: task?.id,
+										boardId: task?.board_id,
+										title: task?.taskTitle,
+										status: formatStringDisplayName(task?.taskStatus),
+										description: task?.taskDescription,
+										taskHistory: task?.taskHistory,
+										createdAt: task?.created_at,
+									}))
 							: [],
+						...(column.order && { order: column.order }),
 					})
 					return acc
 				},
@@ -278,7 +285,7 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 		await updateTaskStatus(highlightedTaskId as string, { taskTitle: editTask })
 		setEditTask('')
 		setHighlightedTaskId('')
-		setSelectedTask({})
+		setSelectedTask(null)
 	}
 
 	const removeTask = async () => {
@@ -296,7 +303,7 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 			await deleteTaskById(selectedTask?.id)
 			setEditTask('')
 			setHighlightedTaskId(null)
-			setSelectedTask({})
+			setSelectedTask(null)
 			Swal.fire({
 				title: 'Deleted!',
 				text: 'Your task has been deleted.',
@@ -328,13 +335,14 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 		await updateTaskStatus(selectedTask.id, { taskStatus: status })
 		setHighlightedTaskId(null)
 		setEditTask('')
-		setSelectedTask({})
+		setSelectedTask(null)
 		// setKanbanState((prevState) => formatTasks([...tasks]))
 	}
 
 	return (
 		<KanbanContext.Provider
 			value={{
+				boardId,
 				newTaskTitle,
 				setNewTaskTitle,
 				addTaskToSection,
@@ -363,6 +371,7 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 				setColumnFormState,
 				modalState,
 				toggleModal,
+				getTaskColumns,
 			}}>
 			{children}
 		</KanbanContext.Provider>

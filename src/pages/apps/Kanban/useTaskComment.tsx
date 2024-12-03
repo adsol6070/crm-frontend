@@ -11,7 +11,6 @@ const useTaskComment = (taskId: string) => {
 		setLoading(true)
 		try {
 			const taskCommentsData = await taskCommentsApi.getAllTaskComments(taskId)
-			console.log("taskCommentsData", taskCommentsData)
 			setTaskComments(taskCommentsData)
 		} catch (err) {
 			console.error('Failed to get task comments:', err)
@@ -58,9 +57,9 @@ const useTaskComment = (taskId: string) => {
 			setLoading(false)
 		}
 	}
-useEffect(() => {
-	getTaskComments(taskId)
-},[taskId])
+	useEffect(() => {
+		getTaskComments(taskId)
+	}, [taskId])
 
 	return {
 		loading,

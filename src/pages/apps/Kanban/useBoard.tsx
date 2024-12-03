@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
 const useBoard = () => {
-	const [boards, setBoards] = useState([])
+	const [boards, setBoards] = useState<Board[]>([])
 	const [loading, setLoading] = useState<boolean>(true)
 
 	const getBoards = async () => {
@@ -19,7 +19,7 @@ const useBoard = () => {
 		}
 	}
 
-	const createBoard = async (data: Board) => {
+	const createBoard = async (data: Partial<Board>) => {
 		setLoading(true)
 		try {
 			const response = await boardApi.createBoard(data)
@@ -33,7 +33,7 @@ const useBoard = () => {
 		}
 	}
 
-	const updateBoard = async (id: string, updatedData: Board) => {
+	const updateBoard = async (id: string, updatedData: Partial<Board>) => {
 		setLoading(true)
 		try {
 			const response = await boardApi.updateBoardByID(id, updatedData)
@@ -50,11 +50,10 @@ const useBoard = () => {
 	const updateBoardOrder = async (updatedBoards: any[]) => {
 		setLoading(true)
 		try {
-			const response = await boardApi.updateBoardOrder({
+			await boardApi.updateBoardOrder({
 				orderedBoards: updatedBoards,
 			})
 			await getBoards()
-			toast.success(response.message || 'Board order updated successfully')
 		} catch (err) {
 			console.error('Failed to update board order:', err)
 			toast.error('Failed to update board order')
