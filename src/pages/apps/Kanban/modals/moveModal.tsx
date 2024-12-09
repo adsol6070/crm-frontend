@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { MutableRefObject, useEffect, useState } from 'react'
 import { BsStars } from 'react-icons/bs'
 import { AiOutlineClose } from 'react-icons/ai'
 import { FiArrowRight } from 'react-icons/fi'
@@ -102,7 +102,17 @@ const Button = styled.button`
 	}
 `
 
-const MoveModal = ({ isVisible, toggleMoveDiv, moveButtonRef }) => {
+interface MoveModalInterface {
+	isVisible: boolean
+	toggleMoveDiv: () => void
+	moveButtonRef: MutableRefObject<HTMLButtonElement | null>
+}
+
+const MoveModal = ({
+	isVisible,
+	toggleMoveDiv,
+	moveButtonRef,
+}: MoveModalInterface) => {
 	const { boardId, selectedTask } = useKanbanContext()
 	const [columns, setColumns] = useState([])
 	const [suggestedColumns, setSuggestedColumns] = useState([])
