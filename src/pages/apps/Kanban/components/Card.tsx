@@ -5,9 +5,78 @@ import { useEffect, useState } from 'react'
 import { SlPencil } from 'react-icons/sl'
 import { MdOutlineSubject } from 'react-icons/md'
 import { FaRegComments } from 'react-icons/fa'
-import { taskCommentsApi } from '@/common'
+import { taskCommentsApi, useThemeContext } from '@/common'
+import styled from 'styled-components'
+
+const ListItem = styled.li<{ theme: string }>`
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	row-gap: 8px;
+	scroll-margin: 80px;
+	background: ${({ theme }) => (theme === 'dark' ? '#22272b' : 'white')};
+	color: ${({ theme }) => (theme === 'dark' ? '#fff' : '#000')};
+	cursor: pointer;
+	border-radius: 8px;
+	box-shadow:
+		0px 1px 1px rgba(0, 0, 0, 0.2),
+		0px 0px 1px rgba(0, 0, 0, 0.2);
+`
+
+const IconContainer = styled.span`
+	display: flex;
+	align-items: center;
+	position: relative;
+`
+
+const DescriptionTooltip = styled.span<{ isVisible: boolean }>`
+	position: absolute;
+	bottom: -18px;
+	left: -5px;
+	background: #555555;
+	line-height: 15px;
+	padding: 2px 5px;
+	border-radius: 5px;
+	font-size: 13px;
+	color: white;
+	word-spacing: 1px;
+	opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
+	transform: ${({ isVisible }) =>
+		isVisible ? 'translateY(0)' : 'translateY(-10px)'};
+	visibility: ${({ isVisible }) => (isVisible ? 'visible' : 'hidden')};
+	transition:
+		opacity 0.1s ease,
+		transform 0.3s ease,
+		visibility 0.3s ease;
+`
+
+const HoverMenu = styled.div<{ isDark: boolean }>`
+	display: flex;
+	flex-direction: row-reverse;
+	align-items: center;
+	position: absolute;
+	z-index: 10;
+	top: 3px;
+	right: 3px;
+	line-height: 1;
+	padding: 9px;
+	background: ${({ isDark }) => (isDark ? '#22272b' : '#ffffff')};
+	border-radius: 50%;
+	&:hover {
+		background: ${({ isDark }) => (isDark ? '#282e33' : '#f1f2f4')};
+	}
+`
+
+const ContentWrapper = styled.div`
+	display: flow-root;
+	position: relative;
+	z-index: 10;
+	min-height: 24px;
+	padding: 8px 12px 4px;
+`
 
 const KanbanCard = ({ card, index, status, columnId }: CardProps) => {
+	const { settings } = useThemeContext()
 	const {
 		highlightTask,
 		editableRef,
@@ -79,15 +148,9 @@ const KanbanCard = ({ card, index, status, columnId }: CardProps) => {
 	return (
 		<>
 			<div style={{ position: 'relative' }}>
-				<li
+				<ListItem
 					ref={drag}
-					style={{
-						position: 'relative',
-						display: 'flex',
-						flexDirection: 'column',
-						rowGap: '8px',
-						scrollMargin: '80px',
-					}}
+					theme={settings.theme}
 					onMouseEnter={() => setIsCardHovered(true)}
 					onMouseLeave={() => setIsCardHovered(false)}
 					onClick={(e) => {
@@ -96,121 +159,56 @@ const KanbanCard = ({ card, index, status, columnId }: CardProps) => {
 						setSelectedTask({ ...card, columnId })
 						toggleModal('viewTask', true)
 					}}>
-					<div
-						style={{
-							position: 'relative',
-							minHeight: '36px',
-							borderRadius: '8px',
-							boxShadow:
-								'0px 1px 1px rgba(0, 0, 0, 0.2), 0px 0px 1px rgba(0, 0, 0, 0.2)',
-							color: '#000',
-							cursor: 'pointer',
-							scrollMargin: '8px',
-							background: 'white',
-						}}>
-						<div
+					<ContentWrapper>
+						<a
+							ref={editableRef}
+							draggable="false"
+							dir="auto"
 							style={{
-								display: 'flow-root',
-								position: 'relative',
-								zIndex: '10',
-								minHeight: '24px',
-								padding: '8px 12px 4px',
+								display: 'block',
+								marginBottom: '4px',
+								overflow: 'hidden',
+								overflowWrap: 'break-word',
+								whiteSpace: 'normal',
+								color: settings.theme === 'dark' ? '#B6C2CF' : '#000',
 							}}>
-							<a
-								ref={editableRef}
-								draggable="false"
-								dir="auto"
-								style={{
-									display: 'block',
-									marginBottom: '4px',
-									overflow: 'hidden',
-									overflowWrap: 'break-word',
-									whiteSpace: 'normal',
-								}}>
-								{card.title}
-								<br />
-								{card.description && (
-									<>
-										<span
+							{card.title}
+							<br />
+							{card.description && (
+								<>
+									<IconContainer>
+										<MdOutlineSubject
 											style={{
-												display: 'flex',
-												alignItems: 'center',
-												position: 'relative',
-											}}>
-											<MdOutlineSubject
-												style={{
-													color: '#000',
-													fontSize: '16px',
-													marginRight: '4px',
-												}}
-												onMouseEnter={() => setIsDescriptionHovered(true)}
-												onMouseLeave={() => setIsDescriptionHovered(false)}
-											/>
-											<span
-												style={{
-													position: 'absolute',
-													bottom: '-18px',
-													left: '-5px',
-													background: '#555555',
-													lineHeight: '15px',
-													padding: '2px 5px',
-													borderRadius: '5px',
-													fontSize: '13px',
-													color: 'white',
-													wordSpacing: '1px',
-													opacity: isDescriptionHovered ? 1 : 0,
-													transform: isDescriptionHovered
-														? 'translateY(0)'
-														: 'translateY(-10px)',
-													visibility: isDescriptionHovered
-														? 'visible'
-														: 'hidden',
-													transition:
-														'opacity 0.1s ease, transform 0.3s ease, visibility 0.3s ease',
-												}}>
-												This card has a description.
-											</span>
-										</span>
-									</>
-								)}
+												color: settings.theme === 'dark' ? '#B6C2CF' : '#000',
+												fontSize: '16px',
+												marginRight: '4px',
+											}}
+											onMouseEnter={() => setIsDescriptionHovered(true)}
+											onMouseLeave={() => setIsDescriptionHovered(false)}
+										/>
+										<DescriptionTooltip isVisible={isDescriptionHovered}>
+											This card has a description.
+										</DescriptionTooltip>
+									</IconContainer>
+								</>
+							)}
 
-								{getTaskCommentsCount(allComments, card.id) !== 0 && (
-									<span>
-										<FaRegComments
-											style={{ color: '#000', fontSize: '16px' }}
-										/>{' '}
-										<span>{getTaskCommentsCount(allComments, card.id)}</span>
-									</span>
-								)}
-							</a>
-						</div>
-						{isCardHovered && (
-							<div
-								style={{
-									display: 'flex',
-									flexDirection: 'row-reverse',
-									alignItems: 'center',
-									position: 'absolute',
-									zIndex: 10,
-									top: '3px',
-									right: '3px',
-									lineHeight: 1,
-									padding: '6px',
-									background: 'white',
-									borderRadius: '50%',
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.1)'
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.backgroundColor = 'transparent'
-								}}
-								onClick={prepareTaskForEditing}>
-								<SlPencil size={12} />
-							</div>
-						)}
-					</div>
-				</li>
+							{getTaskCommentsCount(allComments, card.id) !== 0 && (
+								<span>
+									<FaRegComments style={{ color: '#000', fontSize: '16px' }} />{' '}
+									<span>{getTaskCommentsCount(allComments, card.id)}</span>
+								</span>
+							)}
+						</a>
+					</ContentWrapper>
+					{isCardHovered && (
+						<HoverMenu
+							isDark={settings.theme === 'dark'}
+							onClick={prepareTaskForEditing}>
+							<SlPencil size={12} />
+						</HoverMenu>
+					)}
+				</ListItem>
 			</div>
 		</>
 	)

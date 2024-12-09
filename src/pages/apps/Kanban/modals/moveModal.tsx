@@ -113,7 +113,8 @@ const MoveModal = ({
 	toggleMoveDiv,
 	moveButtonRef,
 }: MoveModalInterface) => {
-	const { boardId, selectedTask } = useKanbanContext()
+	const { boardId, selectedTask, moveCard, setHighlightedTaskId } =
+		useKanbanContext()
 	const [columns, setColumns] = useState([])
 	const [suggestedColumns, setSuggestedColumns] = useState([])
 	const [boards, setBoards] = useState([])
@@ -122,58 +123,61 @@ const MoveModal = ({
 	const [selectedPosition, setSelectedPosition] = useState(null)
 	const currentBoardId = selectedBoard?.value || boardId
 
-	useEffect(() => {
-		if (!isVisible) return
-		const fetchData = async () => {
-			try {
-				const taskColumnResponse = await taskApi.getTaskColumn(currentBoardId)
-				const taskColumns = taskColumnResponse?.[0]?.taskStatus || []
+	const fromColumnId = selectedTask.columnId
+	const toColumnId = selectedColumn?.value
 
-				const sortedColumns = taskColumns
-					.sort((a, b) => a.order - b.order)
-					.map(({ id, name, order }) => ({ value: id, label: name, order }))
+	const fetchData = async () => {
+		try {
+			const taskColumnResponse = await taskApi.getTaskColumn(currentBoardId)
+			const taskColumns = taskColumnResponse?.[0]?.taskStatus || []
 
-				setColumns(sortedColumns)
+			const sortedColumns = taskColumns
+				.sort((a, b) => a.order - b.order)
+				.map(({ id, name, order }) => ({ value: id, label: name, order }))
 
-				if (currentBoardId === boardId) {
-					const currentColumn = taskColumns.find(
-						(column) => column.id === selectedTask.columnId
-					)
+			setColumns(sortedColumns)
 
-					if (currentColumn) {
-						const suggestedColumns = taskColumns
-							.filter((column) => column.order > currentColumn.order)
-							.map(({ id, name, order }) => ({
-								value: id,
-								label: name,
-								order,
-							}))
+			if (currentBoardId === boardId) {
+				const currentColumn = taskColumns.find(
+					(column) => column.id === selectedTask.columnId
+				)
 
-						setSuggestedColumns(suggestedColumns)
-					} else {
-						setSuggestedColumns([])
-					}
+				if (currentColumn) {
+					const suggestedColumns = taskColumns
+						.filter((column) => column.order > currentColumn.order)
+						.map(({ id, name, order }) => ({
+							value: id,
+							label: name,
+							order,
+						}))
+
+					setSuggestedColumns(suggestedColumns)
+				} else {
+					setSuggestedColumns([])
 				}
-			} catch (error) {
-				console.error('Failed to fetch task columns:', error)
-				setColumns([])
-				setSuggestedColumns([])
 			}
-
-			try {
-				const boardsResponse = await boardApi.getAllBoards()
-				const boardOptions = boardsResponse.map(({ id, boardTitle }) => ({
-					value: id,
-					label: boardTitle,
-				}))
-
-				setBoards(boardOptions)
-			} catch (error) {
-				console.error('Failed to fetch boards:', error)
-				setBoards([])
-			}
+		} catch (error) {
+			console.error('Failed to fetch task columns:', error)
+			setColumns([])
+			setSuggestedColumns([])
 		}
 
+		try {
+			const boardsResponse = await boardApi.getAllBoards()
+			const boardOptions = boardsResponse.map(({ id, boardTitle }) => ({
+				value: id,
+				label: boardTitle,
+			}))
+
+			setBoards(boardOptions)
+		} catch (error) {
+			console.error('Failed to fetch boards:', error)
+			setBoards([])
+		}
+	}
+
+	useEffect(() => {
+		if (!isVisible) return
 		fetchData()
 	}, [isVisible, selectedTask.columnId, currentBoardId, boardId])
 
@@ -229,6 +233,7 @@ const MoveModal = ({
 							}}>
 							Select destination
 						</h4>
+
 						<div
 							style={{
 								display: 'flex',
@@ -395,6 +400,10 @@ const MoveModal = ({
 							}}
 							onMouseLeave={(e) => {
 								e.currentTarget.style.background = '#579DFF'
+							}}
+							onClick={() => {
+								moveCard(fromColumnId, toColumnId, selectedTask)
+								setHighlightedTaskId(null)
 							}}>
 							Move
 						</button>

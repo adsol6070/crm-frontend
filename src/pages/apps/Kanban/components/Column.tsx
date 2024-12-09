@@ -19,7 +19,7 @@ const ColumnContainer = styled.li`
 
 const ColumnWrapper = styled.div<{ isDark: boolean }>`
 	${({ isDark }) => `
-    background: ${isDark ? '#404954' : '#f1f2f4'};
+    background: ${isDark ? '#101204' : '#f1f2f4'};
 	`}
 	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 	margin-bottom: 1rem;
@@ -48,13 +48,13 @@ const Header = styled.div`
 	row-gap: 0;
 `
 
-const HeaderTitle = styled.h2<{ isEditing: boolean }>`
+const HeaderTitle = styled.h2<{ isDark: boolean; isEditing: boolean }>`
 	display: ${({ isEditing }) => (isEditing ? 'none' : 'block')};
 	margin: 0;
 	padding: 6px 8px 6px 12px;
 	overflow: hidden;
 	font-size: 14px;
-	color: black;
+	color: ${({ isDark }) => (isDark ? '#9FADBC' : 'black')};
 	font-weight: 600;
 	line-height: 20px;
 	white-space: normal;
@@ -101,7 +101,7 @@ const CardsList = styled.ol`
 	padding-bottom: 2px;
 `
 
-const CardForm = styled.li<{ isFormVisible: boolean }>`
+const CardForm = styled.li<{ isFormVisible: boolean; isDark: boolean }>`
 	display: ${({ isFormVisible }) => (isFormVisible ? 'block' : 'none')};
 	scroll-margin: 8px;
 
@@ -122,6 +122,7 @@ const CardForm = styled.li<{ isFormVisible: boolean }>`
 			font-weight: 400;
 			overflow: hidden;
 			overflow-y: auto;
+			background: ${({ isDark }) => (isDark ? '#22272b' : 'white')};
 		}
 
 		div {
@@ -142,7 +143,7 @@ const Footer = styled.div<{ isFormVisible: boolean }>`
 	column-gap: 4px;
 `
 
-const AddCardButton = styled.button`
+const AddCardButton = styled.button<{ isDark: boolean }>`
 	display: flex;
 	flex-grow: 1;
 	align-items: center;
@@ -154,11 +155,15 @@ const AddCardButton = styled.button`
 	text-decoration: none;
 	user-select: none;
 	font-size: 14px;
+	font-weight: 600;
 	line-height: 20px;
 	transition: background-color 85ms ease;
+	background-color: transparent;
+	color: ${({ isDark }) => (isDark ? '#9FADBC' : '#000')};
 
 	&:hover {
-		background-color: rgba(0, 0, 0, 0.1);
+		background-color: ${({ isDark }) =>
+			isDark ? '#a6c5e229' : 'rgba(0, 0, 0, 0.1)'};
 	}
 `
 
@@ -322,7 +327,11 @@ const Column = ({
 						onClick={() => {
 							setIsEditing(true)
 						}}>
-						<HeaderTitle isEditing={isEditing}>{currentTitle}</HeaderTitle>
+						<HeaderTitle
+							isDark={settings.theme === 'dark'}
+							isEditing={isEditing}>
+							{currentTitle}
+						</HeaderTitle>
 						<TitleTextarea
 							ref={textareaRef}
 							isEditing={isEditing}
@@ -346,7 +355,9 @@ const Column = ({
 
 				<CardsList ref={containerRef}>
 					{children}
-					<CardForm isFormVisible={isFormVisible}>
+					<CardForm
+						isFormVisible={isFormVisible}
+						isDark={settings.theme === 'dark'}>
 						<form onSubmit={handleTaskCreationSubmit}>
 							<textarea
 								dir="auto"
@@ -358,6 +369,7 @@ const Column = ({
 								<Button
 									type="submit"
 									background="#579dff"
+									hoverBackground="#85B8FF"
 									color="#1D2125"
 									padding="6px 12px"
 									borderRadius="3px"
@@ -379,8 +391,14 @@ const Column = ({
 				</CardsList>
 
 				<Footer isFormVisible={isFormVisible}>
-					<AddCardButton onClick={handleAddCardClick}>
-						<AiOutlinePlus size={15} color="#333" className="me-1" />
+					<AddCardButton
+						isDark={settings.theme === 'dark'}
+						onClick={handleAddCardClick}>
+						<AiOutlinePlus
+							size={15}
+							color={settings.theme === 'dark' ? '#9FADBC' : '#333'}
+							className="me-1"
+						/>
 						Add a card
 					</AddCardButton>
 					<AiOutlineFile size={15} color="#333" className="me-1" />

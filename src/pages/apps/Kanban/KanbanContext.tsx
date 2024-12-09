@@ -37,7 +37,7 @@ interface KanbanContextType {
 		fromColumnId: string,
 		toColumnId: string,
 		cardd: CardType,
-		index: number
+		index?: number
 	) => void
 	handleAddList: () => Promise<void>
 	editableRef: any
@@ -237,7 +237,7 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 		fromColumnId: string,
 		toColumnId: string,
 		cardd: CardType,
-		index: number
+		index?: number
 	) => {
 		const fromColumn = kanbanState.columns.find(
 			(column) => column.id === fromColumnId
@@ -253,7 +253,8 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 			}
 			if (col.id === toColumnId) {
 				const newCards = [...col.cards]
-				newCards.splice(index, 0, cardd)
+				const targetIndex = index !== undefined ? index : newCards.length;
+				newCards.splice(targetIndex, 0, cardd)
 				col.cards = newCards
 			}
 		})
