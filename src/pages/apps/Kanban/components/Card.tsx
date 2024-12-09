@@ -133,7 +133,7 @@ const KanbanCard = ({ card, index, status, columnId }: CardProps) => {
 									<>
 										<span
 											style={{
-												display: 'flex',
+												// display: 'flex',
 												alignItems: 'center',
 												position: 'relative',
 											}}>

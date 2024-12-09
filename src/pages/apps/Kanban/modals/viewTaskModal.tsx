@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AiOutlineClose } from 'react-icons/ai'
 import { MdOutlineSubject } from 'react-icons/md'
 import { RxActivityLog } from 'react-icons/rx'
@@ -20,6 +20,7 @@ import { GoDotFill } from "react-icons/go";
 import styles from '../kanban.module.css'
 import useTask from '../useTask'
 import { useKanbanContext } from '../KanbanContext'
+import MoveModal from './moveModal'
 
 interface CardType {
 	id: string
@@ -46,6 +47,7 @@ const ViewTaskModal = ({
 	handleStatusChange,
 	updateTask,
 }: ViewTaskModalProps) => {
+	const moveButtonRef = useRef<HTMLButtonElement | null>(null)
 	const [loading, setLoading] = useState(false)
 	const [status, setStatus] = useState(task.status);
 	const { taskComments, createTaskComment, updateTaskCommentById, deleteTaskCommentById } = useTaskComment(task.id);
@@ -60,13 +62,12 @@ const ViewTaskModal = ({
 	const [showDetails, setShowDetails] = useState(false);
 	const { getTaskColumns } = useTask(task.boardId);
 	const [columns, setColumns] = useState<{ id: string; name: string }[]>([]);
+	const [isMoveDivVisible, setIsMoveDivVisible] = useState(false)
 
 	const getCols = async () => {
 		const cols = await getTaskColumns();
 		setColumns(cols)
 	}
-	console.log("columns ", columns)
-	console.log("task ", task)
 
 	const { setSelectedTask } = useKanbanContext()
 
@@ -105,6 +106,7 @@ const ViewTaskModal = ({
 		if (event.currentTarget === event.target) {
 			onHide()
 			setSelectedTask({})
+			setIsMoveDivVisible(false)
 		}
 	}
 
@@ -161,6 +163,10 @@ const ViewTaskModal = ({
 		});
 
 		return `${formattedDate}, ${time}`;
+	}
+
+	const toggleMoveDiv = () => {
+		setIsMoveDivVisible(!isMoveDivVisible)
 	}
 
 	return (
@@ -329,7 +335,8 @@ const ViewTaskModal = ({
 														in list
 														<button
 															style={{
-																display: 'inline-flex',
+																display: 'flex',
+																alignItems: 'center',
 																position: 'relative',
 																boxSizing: 'border-box',
 																marginBottom: 0,
@@ -374,6 +381,8 @@ const ViewTaskModal = ({
 																				lineHeight: '16px',
 																				color: '#9FADBC',
 																			}}
+
+																			onClick={toggleMoveDiv}
 																		>
 																			{status || 'Select Status'} <RiArrowDropDownLine size={24} />
 																		</span>
@@ -385,6 +394,11 @@ const ViewTaskModal = ({
 												</div>
 											</section>
 										</div>
+										<MoveModal
+											isVisible={isMoveDivVisible}
+											toggleMoveDiv={toggleMoveDiv}
+											moveButtonRef={moveButtonRef}
+										/>
 										<div
 											style={{
 												display: 'grid',
@@ -427,7 +441,8 @@ const ViewTaskModal = ({
 																marginBottom: '4px',
 																lineHeight: '20px',
 																color: '#b6c2cf',
-															}}>
+															}}
+															ref={moveButtonRef}>
 															Notifications
 														</h3>
 														<div>
@@ -953,7 +968,8 @@ const ViewTaskModal = ({
 																	{showDetails && (
 																		<>
 																			{task.taskHistory && Array.isArray(task.taskHistory) ? (
-																				task.taskHistory.map((activity: any, index: number) => {
+																				 [...task.taskHistory] 
+																				 .slice(-4).reverse().map((activity: any, index: number) => {
 																					const user = activity.details?.user || {};
 																					const status = activity.details?.status || {};
 																					const timestamp = activity.timestamp;
