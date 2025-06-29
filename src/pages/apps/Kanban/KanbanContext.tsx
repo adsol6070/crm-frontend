@@ -28,7 +28,7 @@ interface KanbanContextType {
 	setSelectedTask: Dispatch<SetStateAction<CardType | null>>
 	setKanbanState: Dispatch<SetStateAction<KanbanState>>
 	setHighlightedTaskId: Dispatch<SetStateAction<string | null>>
-	handleStatusChange: (status: string) => void
+	handleStatusChange: (status: string, columnID: string) => void
 	updateTaskById: (taskId: string, data: any) => void
 	editTask: string
 	setEditTask: Dispatch<SetStateAction<string>>
@@ -332,8 +332,9 @@ export const KanbanProvider: React.FC<{ children: ReactNode }> = ({
 		setShowCopyModal(true)
 	}
 
-	const handleStatusChange = async (status: string) => {
-		await updateTaskStatus(selectedTask.id, { taskStatus: status })
+	const handleStatusChange = async (status: string, columnID: string) => {
+		console.log("status ", status)
+		await updateTaskStatus(selectedTask.id, { columnId: columnID, taskStatus: status })
 		setHighlightedTaskId(null)
 		setEditTask('')
 		setSelectedTask(null)

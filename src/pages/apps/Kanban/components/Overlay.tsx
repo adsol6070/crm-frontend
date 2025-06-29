@@ -1,4 +1,4 @@
-import { FormEvent, KeyboardEvent, useRef, useState } from 'react'
+import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from 'react'
 import { useKanbanContext } from '../KanbanContext'
 import { AiOutlinePlus } from 'react-icons/ai'
 import { LuMoveRight } from 'react-icons/lu'
@@ -6,6 +6,8 @@ import { MdContentCopy } from 'react-icons/md'
 import { RiDeleteBinLine } from 'react-icons/ri'
 import styled from 'styled-components'
 import MoveModal from '../modals/moveModal'
+import useTask from '../useTask'
+import { useThemeContext } from '@/common'
 
 const OverlayContainer = styled.div`
 	position: fixed;
@@ -25,12 +27,11 @@ const ModalContent = styled.div<{ top: any; left: any; width: any }>`
 	z-index: 999999999;
 `
 
-const TextAreaContainer = styled.div`
+const TextAreaContainer = styled.div<{ isDark: boolean }>`
 	position: relative;
 	min-height: 36px;
 	border-radius: 8px;
-	background-color: #ffffff;
-	color: #b6c2cf;
+	background: ${({ isDark }) => (isDark ? '#22272b' : 'white')};
 	cursor: pointer;
 	scroll-margin: 8px;
 `
@@ -43,7 +44,7 @@ const TextAreaWrapper = styled.div`
 	padding: 8px 12px 4px;
 `
 
-const StyledTextArea = styled.textarea`
+const StyledTextArea = styled.textarea<{ isDark: boolean }>`
 	height: 56px;
 	background-color: unset;
 	margin-bottom: 4px;
@@ -60,6 +61,7 @@ const StyledTextArea = styled.textarea`
 	outline: none;
 	font-size: 14px;
 	font-weight: 400;
+	color: ${({ isDark }) => (isDark ? '#B6C2CF' : '#000')};
 `
 
 const SaveButton = styled.button`
@@ -108,7 +110,22 @@ const Overlay = () => {
 		updateTask,
 		toggleModal,
 		removeTask,
+		handleStatusChange,
+		selectedTask,
 	} = useKanbanContext()
+	const { settings } = useThemeContext()
+	const [status, setStatus] = useState(selectedTask.status)
+	const { getTaskColumns } = useTask(selectedTask.boardId)
+	const [columns, setColumns] = useState<{ id: string; name: string }[]>([])
+
+	const getCols = async () => {
+		const cols = await getTaskColumns()
+		setColumns(cols)
+	}
+
+	useEffect(() => {
+		getCols()
+	}, [])
 
 	const toggleMoveDiv = () => {
 		setIsMoveDivVisible(!isMoveDivVisible)
@@ -126,6 +143,12 @@ const Overlay = () => {
 		updateTask()
 	}
 
+	const handleMoveClick = (columnID: string) => {
+		if (status) {
+			handleStatusChange(status, columnID)
+		}
+	}
+
 	return (
 		<OverlayContainer onClick={() => setHighlightedTaskId(null)}>
 			<ModalContent
@@ -134,9 +157,10 @@ const Overlay = () => {
 				left={taskCardDimensions?.left}
 				width={taskCardDimensions?.width}>
 				<form onSubmit={handleTaskUpdateSubmit}>
-					<TextAreaContainer>
+					<TextAreaContainer isDark={settings.theme === 'dark'}>
 						<TextAreaWrapper>
 							<StyledTextArea
+								isDark={settings.theme === 'dark'}
 								ref={textareaRef}
 								value={editTask}
 								onChange={(e) => setEditTask(e.target.value)}

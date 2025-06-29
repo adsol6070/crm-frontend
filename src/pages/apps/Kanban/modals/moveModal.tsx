@@ -9,7 +9,7 @@ import { useKanbanContext } from '../KanbanContext'
 
 const MoveDiv = styled.section`
 	position: fixed;
-	background-color: #0d0d0d;
+	background-color: #282e33;
 	border-radius: 8px;
 	font-size: 12px;
 	width: 304px;
@@ -254,29 +254,29 @@ const MoveModal = ({
 									styles={{
 										control: (provided) => ({
 											...provided,
-											backgroundColor: '#22272B',
+											backgroundColor: '#22272b',
 											border: '1px solid #738496',
 											borderRadius: '4px',
 										}),
 										placeholder: (provided) => ({
 											...provided,
-											color: '#B6C2CF',
+											color: '#9fadbc',
 										}),
 										option: (provided, state) => ({
 											...provided,
 											backgroundColor: state.isFocused
 												? '#a6c5e229'
 												: '#22272B',
-											color: '#B6C2CF',
+											color: '#9fadbc',
 											cursor: 'pointer',
 										}),
 										input: (provided) => ({
 											...provided,
-											color: '#B6C2CF',
+											color: '#9fadbc',
 										}),
 										dropdownIndicator: (provided) => ({
 											...provided,
-											color: '#B6C2CF',
+											color: '#9fadbc',
 										}),
 									}}
 									options={boards}
@@ -289,7 +289,7 @@ const MoveModal = ({
 							<div style={{ flex: '2.5' }}>
 								<label
 									style={{
-										color: '#B6C2CF',
+										color: '#9fadbc',
 										fontWeight: 'bold',
 										fontSize: '14px',
 									}}>
@@ -305,23 +305,23 @@ const MoveModal = ({
 										}),
 										placeholder: (provided) => ({
 											...provided,
-											color: '#B6C2CF',
+											color: '#9fadbc',
 										}),
 										option: (provided, state) => ({
 											...provided,
 											backgroundColor: state.isFocused
 												? '#a6c5e229'
 												: '#22272B',
-											color: '#B6C2CF',
+											color: '#9fadbc',
 											cursor: 'pointer',
 										}),
 										input: (provided) => ({
 											...provided,
-											color: '#B6C2CF',
+											color: '#9fadbc',
 										}),
 										dropdownIndicator: (provided) => ({
 											...provided,
-											color: '#B6C2CF',
+											color: '#9fadbc',
 										}),
 									}}
 									options={columns}

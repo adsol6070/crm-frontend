@@ -380,10 +380,17 @@ const Column = ({
 									background="transparent"
 									padding="6px"
 									borderRadius="3px"
-									hoverBackground="rgba(0, 0, 0, 0.1)"
+									hoverBackground={
+										settings.theme === 'dark'
+											? '#a6c5e229'
+											: 'rgba(0, 0, 0, 0.1)'
+									}
 									transition="background 0.2s ease-in-out"
 									onClick={handleFormCancel}>
-									<AiOutlineClose size={20} color="#333" />
+									<AiOutlineClose
+										size={20}
+										color={settings.theme === 'dark' ? '#b6c2cf' : '#333'}
+									/>
 								</Button>
 							</div>
 						</form>

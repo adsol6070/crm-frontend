@@ -1,7 +1,8 @@
-import { KeyboardEvent } from 'react'
+import { KeyboardEvent, useEffect, useRef } from 'react'
 import { AiOutlineClose, AiOutlinePlus } from 'react-icons/ai'
 import styled from 'styled-components'
 import { useKanbanContext } from '../KanbanContext'
+import { useThemeContext } from '@/common'
 
 const FormContainer = styled.div<{ isVisible: boolean }>`
 	display: ${(props) => (props.isVisible ? 'block' : 'none')};
@@ -10,15 +11,15 @@ const FormContainer = styled.div<{ isVisible: boolean }>`
 	padding: 0 6px;
 `
 
-const Form = styled.form`
+const Form = styled.form<{ isDark: boolean }>`
 	box-sizing: border-box;
 	width: 272px;
 	padding: 8px;
 	border-radius: 12px;
-	background: rgba(241, 242, 244);
+	background: ${({ isDark }) => (isDark ? '#101204' : 'rgba(241, 242, 244)')};
 `
 
-const Textarea = styled.textarea`
+const Textarea = styled.textarea<{ isDark: boolean }>`
 	height: 32px;
 	width: 100%;
 	min-height: 20px;
@@ -31,6 +32,10 @@ const Textarea = styled.textarea`
 	font-weight: 600;
 	overflow-wrap: break-word;
 	outline: none;
+	background: ${({ isDark }) => (isDark ? '#22272b' : 'rgba(241, 242, 244)')};
+	&:focus {
+		border: 2px solid #007bff;
+	}
 `
 
 const ButtonGroup = styled.div`
@@ -53,7 +58,7 @@ const AddButton = styled.button`
 	cursor: pointer;
 `
 
-const CloseButton = styled.button`
+const CloseButton = styled.button<{ isDark: boolean }>`
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -67,7 +72,8 @@ const CloseButton = styled.button`
 	transition: all 0.2s ease-in-out;
 
 	&:hover {
-		background-color: rgba(0, 0, 0, 0.1);
+		background: ${({ isDark }) =>
+			isDark ? '#a6c5e229' : 'rgba(0, 0, 0, 0.1)'};
 	}
 `
 
@@ -80,7 +86,7 @@ const ShowFormContainer = styled.div<{ isVisible: boolean }>`
 	height: 100%;
 `
 
-const ShowFormButton = styled.button`
+const ShowFormButton = styled.button<{ isDark: string }>`
 	display: flex;
 	justify-content: flex-start;
 	align-items: center;
@@ -88,10 +94,15 @@ const ShowFormButton = styled.button`
 	width: 272px;
 	padding: 12px;
 	border-radius: 12px;
-	background: rgba(241, 242, 244);
+	font-weight: 600;
+	background: ${({ isDark }) => (isDark ? '#ffffff3d' : 'rgba(241, 242, 244)')};
+	&:hover {
+		background: rgb(255 255 255 / 20%);
+	}
 `
 
 const AddListForm = () => {
+	const { settings } = useThemeContext()
 	const {
 		handleAddList,
 		openColumnStatus,
@@ -100,11 +111,18 @@ const AddListForm = () => {
 		setColumnFormState,
 	} = useKanbanContext()
 
+	const textareaRef = useRef<HTMLTextAreaElement | null>(null)
+	const formRef = useRef<HTMLDivElement | null>(null)
+
 	const handleShowForm = () => {
 		if (openColumnStatus) {
 			setOpenColumnStatus(null)
 		}
 		setColumnFormState((prevState) => ({ ...prevState, isFormVisible: true }))
+
+		setTimeout(() => {
+			textareaRef.current?.focus()
+		}, 0)
 	}
 
 	const handleHideForm = () => {
@@ -121,15 +139,31 @@ const AddListForm = () => {
 		}
 	}
 
+	useEffect(() => {
+		const handleClickOutside = () => {
+			if (formRef.current && !formRef.current.contains(event?.target as Node)) {
+				handleHideForm()
+			}
+		}
+
+		document.addEventListener('mouseup', handleClickOutside)
+		return () => {
+			document.removeEventListener('mouseup', handleClickOutside)
+		}
+	}, [])
+
 	return (
 		<>
-			<FormContainer isVisible={columnFormState.isFormVisible}>
+			<FormContainer isVisible={columnFormState.isFormVisible} ref={formRef}>
 				<Form
+					isDark={settings.theme === 'dark'}
 					onSubmit={(e) => {
 						e.preventDefault()
 						handleAddList()
 					}}>
 					<Textarea
+						ref={textareaRef}
+						isDark={settings.theme === 'dark'}
 						value={columnFormState.columnName}
 						onChange={(event) =>
 							setColumnFormState((prevState) => ({
@@ -146,18 +180,26 @@ const AddListForm = () => {
 					<ButtonGroup>
 						<AddButton type="submit">Add list</AddButton>
 						<CloseButton
+							isDark={settings.theme === 'dark'}
 							type="button"
 							onClick={handleHideForm}
 							aria-label="Close">
-							<AiOutlineClose size={20} color="#333" />
+							<AiOutlineClose
+								size={20}
+								color={settings.theme === 'dark' ? '#b6c2cf' : '#333'}
+							/>
 						</CloseButton>
 					</ButtonGroup>
 				</Form>
 			</FormContainer>
 
 			<ShowFormContainer isVisible={columnFormState.isFormVisible}>
-				<ShowFormButton onClick={handleShowForm}>
-					<AiOutlinePlus size={15} color="#333" className="me-1" />
+				<ShowFormButton onClick={handleShowForm} isDark={settings.theme}>
+					<AiOutlinePlus
+						size={15}
+						color={settings.theme === 'dark' ? 'white' : '#333'}
+						className="me-1"
+					/>
 					Add another list
 				</ShowFormButton>
 			</ShowFormContainer>
