@@ -23,7 +23,7 @@
 		"@mui/material": "^5.15.17",
 		"@mui/styled-engine": "^5.15.14",
 		"@tippyjs/react": "^4.2.6",
-		"apexcharts": "^3.49.0",
+		"apexcharts": "^4.0.0",
 		"axios": "^1.6.8",
 		"axios-mock-adapter": "^1.22.0",
 		"bootstrap": "^5.3.3",
